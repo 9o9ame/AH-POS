@@ -89,3 +89,9 @@
 ## 2026-11-19 — Local test-user password relaxation
 - At explicit user request, adjusted `ahpos:provision-test-account` to accept 3+ character passwords exclusively for `local` / `pgsql` / `ahpos_test` / localhost DB provisioning, while retaining all other controls.
 - Not applied as a production authentication policy; weak credentials not safe for deployment. New code not yet verified locally.
+
+## 2026-11-19 — Tenant-specific RBAC scaffold
+- Added `tenant_roles`, `tenant_role_permissions`, `tenant_membership_roles` migration with tenant-scoped composite relationship constraints.
+- Added allowlisted, default-deny `TenantPermissions` and authenticated/resolved tenant permission middleware, with a read-only guarded integration route and 4 PostgreSQL rollback-only negative tests.
+- ADR-0002 documents PostgreSQL RLS rollout requirements and current DB owner risk. No RLS enabled, no automatic role grants, no business data operations.
+- User screenshot verifies frontend authentication and authorized tenant listing. New schema/tests not verified yet. Progress acceptance unchanged.
