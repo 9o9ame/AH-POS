@@ -20,3 +20,8 @@ Tenant IDs are internal BIGINT; public tenant selection uses ULIDs. Tenant selec
 
 ## Verification
 Schema migrations and unit tests committed but NOT executed in the assistant environment. Run `php artisan migrate:status` then `php artisan migrate --force` **only in confirmed empty development ahpos_test**, then `php artisan test --filter=TenantContextTest`. Local testing results must be reported before acceptance.
+
+## Verified progress and testing update — 2026-11-19
+User confirmed PostgreSQL 18.6 `ahpos_test` migration success (11 tables) and 3 pure unit tests PASS. Read-only tenant context probe now requires session authentication, active membership and active tenant. Added negative feature tests with begin/rollback transactions and a hard-coded database-name guard. These tests have **not yet been executed**.
+
+Running feature tests uses the configured `ahpos_test` PostgreSQL database, not a second test database. NEVER run test commands with destructive migrators, `RefreshDatabase`, or against any production/staging database. This is temporary development-only approach, not the final CI isolated test environment. No Laravel authentication user-flow, Sanctum integration, PostgreSQL RLS, least-privilege runtime role or feature-level RBAC is implemented yet.
