@@ -109,3 +109,11 @@
 - No migration/test run by assistant; no schema change to user's local database until user explicitly runs it. Legacy SQL Server databases untouched.
 - Next action on user's local machine: `git pull origin main`; `cd backend`; `php artisan migrate:status`; confirm `ahpos_test` is still disposable and empty, then `php artisan migrate`; `php artisan test --filter=TenantContextTest`; `php artisan db:show`. Report output. No automatic data seeding.
 - After verification: separate non-owner runtime PostgreSQL role, secure auth and tenant resolution, negative tests and tenant RLS. Accepted progress remains 0% until evidence.
+
+## 2026-11-19 — P1 tenant access wiring checkpoint
+- User-provided verified result: `php artisan migrate` completed 4 migrations on `pgsql/ahpos_test`; `db:show` lists 11 tables. `TenantContextTest`: 3 tests passed / 4 assertions. Initial `migrate:status` reported no migrations table (expected on empty database).
+- Added scoped `TenantContext` binding, `tenant.context` middleware alias, and one read-only `GET /api/tenants/{tenant}/context` probe guarded by Laravel session `auth` and active tenant membership checks. Response exposes ULID and name only, not internal ID.
+- Added 5 feature tests for guests, non-members, cross-tenant denial, inactive membership and inactive tenant. They require `pgsql/ahpos_test`; test records are wrapped in roll-back transactions. Removed SQLite overrides from phpunit.xml.
+- New source and tests **not executed by assistant**, no new migrations added. Auth login UX/Sanctum, RLS, full RBAC, business modules and tenant-scoped queries remain missing. Test endpoint is for development only.
+- Next exact command: `git pull origin main`; in `backend`, `php artisan route:list --path=api`, `php artisan test --filter=TenantAccessTest`, `php artisan test --filter=TenantContextTest`; report output. NEVER run `migrate:fresh`, `RefreshDatabase` or production tests on persistent data.
+- Tests/acceptance for this change remain pending, web/mobile accepted percentage 0%.
