@@ -14,3 +14,9 @@
 - Marked P0 blocked until original .bak becomes available privately in an isolated SQL Server environment.
 - No application code, database operations, migrations or tests run. Accepted web/mobile progress remains 0%.
 - Next: private backup custody/hash, isolated SQL Server metadata verification, safe restore and inventory extraction.
+
+
+## 2026-11-18 — P0 SQL Server discovery recorded
+- Recorded user-provided local SQLCMD evidence: SQL Server 2025 Express, DBSmilePOS 31 tables, DBSmilePOS_LAB 41 tables, 10 LAB-only App* tables.
+- Recorded source backup file size and user-supplied SHA-256 fingerprint; HEADERONLY blocked by file access permissions.
+- No claim of verified backup restore/provenance or identical data; no acceptance progress earned.
