@@ -147,3 +147,8 @@
 - New provisioning command NOT EXECUTED/TESTED locally; only run it after `git pull`, command discovery check, and local DB confirmation. Does not affect migrations, SQL Server, production or existing tenant data.
 - Next steps: `git pull origin main`, `cd backend`, `php artisan list --raw | findstr ahpos`, `php artisan ahpos:provision-test-account`; open Vite on **5174**, enter privately chosen test credentials; verify tenant chooser. Never share password.
 - All production acceptance gates (RBAC, RLS, least-privilege DB runtime, CI, verified browser flow, platform super admin) remain outstanding. Accepted web/mobile 0% per existing locked milestone baseline.
+
+## 2026-11-19 — Local provisioning password policy revised on user request
+- Initial `ahpos:provision-test-account` attempt rejected input without writing any rows (user-provided command output); cause was not individually identified among validation / duplicate email / confirmation mismatch.
+- Changed **only the local-only provisioning command** to accept password strings of length 3–255, including numeric-only values, at user's explicit request for temporary development testing. Existing local/pgsql/ahpos_test/localhost gating remains. Weak password warning displayed; do NOT use this relaxed policy for production, public deployments or live users.
+- New change not locally executed or tested; no DB changes from GitHub edit. Next: git pull, rerun local provisioning and verify frontend login / tenant chooser. Prod credential policy remains to be designed/implemented.
