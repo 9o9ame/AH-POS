@@ -38,3 +38,9 @@
 - Agreed one PostgreSQL AH-POS test DB for development, separate staging/production environments after launch, staging-first promotions.
 - Committed React/TS/Vite temporary developer shell and PowerShell safe Laravel 13 bootstrap script. Runtime/build tests not executed, no database was created or modified.
 - Updated architecture/agent rules and milestone state; acceptance remains 0%.
+
+## 2026-11-19 — Frontend build verified; backend local scaffold
+- User supplied successful frontend TypeScript/Vite production build and Vite dev server output.
+- User supplied successful local Laravel 13 Composer setup output; default skeleton post-create scripts implicitly created SQLite and ran three Laravel starter migrations.
+- Fixed future-only bootstrap script with Composer `--no-scripts` and explicit APP_KEY generation, preventing unapproved automatic database operations. Updated script not yet locally tested.
+- Backend generated locally, not yet present in GitHub; no PostgreSQL integration or multitenant implementation. Progress remains 0% accepted.
