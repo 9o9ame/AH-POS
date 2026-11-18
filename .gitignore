@@ -23,3 +23,5 @@ build/
 coverage/
 .DS_Store
 Thumbs.db
+frontend/*.tsbuildinfo
+frontend/**/*.tsbuildinfo
