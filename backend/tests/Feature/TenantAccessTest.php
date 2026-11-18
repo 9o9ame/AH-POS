@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Tenant;
 use App\Models\User;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 use Tests\TestCase;
@@ -15,7 +14,7 @@ use Tests\TestCase;
  */
 final class TenantAccessTest extends TestCase
 {
-    use DatabaseTransactions;
+    private bool $transactionStarted = false;
 
     protected function setUp(): void
     {
@@ -25,6 +24,20 @@ final class TenantAccessTest extends TestCase
         $database = config("database.connections.{$connection}.database");
         if ($connection !== 'pgsql' || $database !== 'ahpos_test') {
             throw new RuntimeException('TenantAccessTest only runs on the dedicated ahpos_test PostgreSQL database.');
+        }
+
+        DB::beginTransaction();
+        $this->transactionStarted = true;
+    }
+
+    protected function tearDown(): void
+    {
+        try {
+            if ($this->transactionStarted) {
+                DB::rollBack();
+            }
+        } finally {
+            parent::tearDown();
         }
     }
 
