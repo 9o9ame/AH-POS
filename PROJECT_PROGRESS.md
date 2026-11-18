@@ -43,3 +43,6 @@ Committed Laravel PostgreSQL defaults (`pgsql`, `ahpos_test`) and removed implic
 
 ## 2026-11-19 — PostgreSQL connectivity and unverified P1 code
 User successfully verified Laravel connects to `ahpos_test` (PostgreSQL 18.6, 0 tables). Tenant/membership schema migration, models, middleware and no-DB unit tests committed, **not yet migrated or executed**. This is partial P1 code without auth route wiring or RLS; no accepted percent increase.
+
+## 2026-11-19 — Local migrations and basic tests verified; P1 security work continued
+User-supplied evidence: PostgreSQL 18.6 `ahpos_test` has 11 tables, all 4 migrations completed, and 3 pure unit tests passed (4 assertions). Added guarded tenant context read-only route and 5 PostgreSQL rollback-only feature tests (unexecuted). P1 remains incomplete without authentication UX, RBAC, RLS and robust cross-tenant checks; accepted web/mobile completion remains **0%**.
