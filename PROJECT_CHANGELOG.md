@@ -100,3 +100,9 @@
 - User ran PostgreSQL RBAC migration successfully; TenantRbacTest 4 PASS/7 assertions and TenantAccessTest 8 PASS/17 assertions.
 - Added `TenantDbTransaction` helper + `tenant.db-scope` middleware to wrap tenant-authorized route work and permission check with transaction-local `app.tenant_id`.
 - Added three scope lifecycle tests and two DB composite FK negative tests, pending local execution. RLS deliberately remains off; DB owner/runtime separation and policy tests remain release blockers.
+
+## 2026-11-19 — RLS preflight after verified transaction-scoped isolation tests
+- Local user evidence: 17 focused PostgreSQL security tests PASS (33 assertions).
+- Added `ahpos:rls-preflight` read-only Artisan command examining active role flags, RBAC table ownership and catalog RLS ENABLE/FORCE/policy status. It reports NOT READY without modifying data.
+- Added one read-only feature test for report behavior, pending local execution. No database migrations or privilege changes.
+- Current PostgreSQL role remains table owner; true RLS enforcement under separate non-owner runtime role remains incomplete.
