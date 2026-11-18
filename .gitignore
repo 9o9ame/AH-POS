@@ -1,0 +1,25 @@
+# Never commit real legacy/production data or secrets
+*.bak
+*.mdf
+*.ldf
+*.bacpac
+*.dump
+*.sql.gz
+*.sqlite
+*.sqlite3
+*.db
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.log
+node_modules/
+vendor/
+dist/
+build/
+coverage/
+.DS_Store
+Thumbs.db
