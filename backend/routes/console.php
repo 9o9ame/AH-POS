@@ -92,7 +92,8 @@ Artisan::command('ahpos:rls-preflight', function (): int {
 
     $db = DB::selectOne(
         'SELECT current_database() AS database_name, current_user AS role_name, '.
-        'r.rolsuper AS is_superuser, r.rolbypassrls AS bypasses_rls '.
+        'CASE WHEN r.rolsuper THEN 1 ELSE 0 END AS is_superuser, '.
+        'CASE WHEN r.rolbypassrls THEN 1 ELSE 0 END AS bypasses_rls '.
         'FROM pg_roles r WHERE r.rolname = current_user'
     );
 
@@ -104,7 +105,7 @@ Artisan::command('ahpos:rls-preflight', function (): int {
     $this->line('Database: '.$db->database_name);
     $this->line('Active DB role: '.$db->role_name);
 
-    $safeRole = ! $db->is_superuser && ! $db->bypasses_rls;
+    $safeRole = (int) $db->is_superuser === 0 && (int) $db->bypasses_rls === 0;
     $this->line('No SUPERUSER/BYPASSRLS: '.($safeRole ? 'YES' : 'NO'));
 
     $tables = [
@@ -114,10 +115,11 @@ Artisan::command('ahpos:rls-preflight', function (): int {
     ];
     $results = DB::select(
         "SELECT c.relname AS table_name, owner.rolname AS owner_name,
-                c.relrowsecurity AS rls_enabled, c.relforcerowsecurity AS rls_forced,
-                EXISTS (SELECT 1 FROM pg_policies p
+                CASE WHEN c.relrowsecurity THEN 1 ELSE 0 END AS rls_enabled,
+                CASE WHEN c.relforcerowsecurity THEN 1 ELSE 0 END AS rls_forced,
+                CASE WHEN EXISTS (SELECT 1 FROM pg_policies p
                         WHERE p.schemaname = n.nspname
-                          AND p.tablename = c.relname) AS has_policy
+                          AND p.tablename = c.relname) THEN 1 ELSE 0 END AS has_policy
          FROM pg_class c
          JOIN pg_namespace n ON n.oid = c.relnamespace
          JOIN pg_roles owner ON owner.oid = c.relowner
@@ -136,13 +138,13 @@ Artisan::command('ahpos:rls-preflight', function (): int {
             $result->table_name,
             $result->owner_name,
             $notOwner ? 'YES' : 'NO',
-            $result->rls_enabled ? 'YES' : 'NO',
-            $result->rls_forced ? 'YES' : 'NO',
-            $result->has_policy ? 'YES' : 'NO',
+            (int) $result->rls_enabled === 1 ? 'YES' : 'NO',
+            (int) $result->rls_forced === 1 ? 'YES' : 'NO',
+            (int) $result->has_policy === 1 ? 'YES' : 'NO',
         ));
 
-        $ready = $ready && $notOwner && $result->rls_enabled
-            && $result->rls_forced && $result->has_policy;
+        $ready = $ready && $notOwner && (int) $result->rls_enabled === 1
+            && (int) $result->rls_forced === 1 && (int) $result->has_policy === 1;
     }
 
     if (! $ready) {
