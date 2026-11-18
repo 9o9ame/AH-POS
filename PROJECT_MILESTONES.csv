@@ -1,5 +1,5 @@
 phase_id,phase_name,weight_percent,status,accepted_fraction,contribution_percent,acceptance_evidence,notes
-P0,Legacy DB restoration and reverse engineering,12,not_started,0,0,,Restore inventory mapping reconciliation required
+P0,Legacy DB restoration and reverse engineering,12,blocked,0,0,,Private backup unavailable; inspection templates created; restore inventory mapping reconciliation outstanding
 P1,Architecture tenancy security and CI,13,not_started,0,0,,Isolation negative tests and ADRs
 P2,Brand design system and web shell,8,not_started,0,0,,Original UI shared components approval
 P3,Master data and tenant import engine,14,not_started,0,0,,Reconciled staged tenant import
