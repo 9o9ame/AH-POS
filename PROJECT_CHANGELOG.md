@@ -55,3 +55,9 @@
 - Added tenant/membership migration, models, fail-closed tenant context, authentication-dependent tenant resolution middleware and pure unit tests.
 - No route registration, RLS or RBAC implemented; database migration and tests NOT executed in this session.
 - ADR-0001 records one-test-database strategy and security gates. Accepted progress remains 0%.
+
+## 2026-11-19 — P1 tenant-scoped read-only probe and negative tests
+- User verified all four Laravel PostgreSQL migrations succeeded: 11 tables on `ahpos_test`; three `TenantContextTest` tests passed.
+- Registered request-scoped tenant context and tenant middleware; added auth-guarded read-only tenant context probe using public ULID.
+- Added rollback-only PostgreSQL feature tests for unauthorized, cross-tenant and inactive access; removed PHPUnit SQLite overrides.
+- No new backend test execution by assistant; incomplete authentication/RLS/RBAC remains a release blocker.
