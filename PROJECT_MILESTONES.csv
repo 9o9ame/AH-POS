@@ -1,6 +1,6 @@
 phase_id,phase_name,weight_percent,status,accepted_fraction,contribution_percent,acceptance_evidence,notes
 P0,Legacy DB restoration and reverse engineering,12,not_started,0,0,,Historical backup is test reference; migration acceptance deferred to fresh go-live backup
-P1,Architecture tenancy security and CI,13,implemented_unverified,0,0,,PostgreSQL migrated; auth and tenant tests user-verified; RBAC migration and negative tests committed pending execution; RLS and CI not complete
+P1,Architecture tenancy security and CI,13,implemented_unverified,0,0,,PostgreSQL migrated; auth and tenant tests user-verified; RBAC migration and 12 isolation tests user-verified; transaction-scope and composite FK regression tests committed pending execution; RLS and CI not complete
 P2,Brand design system and web shell,8,not_started,0,0,,Original UI shared components approval
 P3,Master data and tenant import engine,14,not_started,0,0,,Reconciled staged tenant import
 P4,Purchasing inventory and accounting,14,not_started,0,0,,Posting invariant acceptance
