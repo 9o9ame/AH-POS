@@ -26,3 +26,9 @@
 - Directly read uploaded 261116416-byte backup and verified SHA-256 matches user-provided local fingerprint.
 - Detected SQL Server backup signature and source metadata strings, but did not claim SQL Server restore or source-row verification.
 - P0 continues; no application implementation acceptance (0%).
+
+
+## 2026-11-18 — Super Admin AI/WhatsApp governance specified
+- Recorded requirement that AI capabilities and official WhatsApp integrations are controlled by Super Admin (global/tenant enablement, plan access, quotas, budgets and compliance).
+- Defined tenant-only permitted configuration, separate tenant-linked WhatsApp senders and permission-scoped AI tools, with audit and fail-closed checks.
+- Documentation only; accepted implementation and P0 status unchanged.
