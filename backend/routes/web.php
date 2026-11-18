@@ -8,6 +8,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('welcome'));
 
+// Same-origin CSRF handshake for the Vite dev proxy and later browser SPA.
+// Session token is returned only to the current browser, never cached.
+Route::get('/api/csrf', function (Request $request) {
+    return response()->json(['token' => $request->session()->token()])
+        ->header('Cache-Control', 'no-store');
+});
+
 // Session cookies + Laravel web CSRF protection; no public registration or default users.
 Route::post('/api/login', [AuthSessionController::class, 'login'])
     ->middleware('throttle:5,1');
