@@ -28,3 +28,6 @@
 
 ## Next gate
 P0 success requires actual successful isolated restore or independently verifiable source schema export, a sanitized source inventory, key/relationship map, legacy-to-target mapping, and signed financial/stock reconciliation strategy. Until then, do not assert that data can be dumped straight into a tenant.
+
+## 2026-11-18 P0 preparation checkpoint
+Verified GitHub documentation and created unverified source inventory/mapping templates. Original backup unavailable; restoration and acceptance tests not run. P0 is blocked pending private backup access. Accepted web contribution remains **0%**, mobile **0%**.
