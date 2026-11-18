@@ -40,3 +40,6 @@ Frontend dependency installation succeeded, `npm run build` PASS, Vite dev serve
 
 ## 2026-11-19 — PostgreSQL configuration prepared
 Committed Laravel PostgreSQL defaults (`pgsql`, `ahpos_test`) and removed implicit SQLite creation in future Composer post-create. Existing user's local `.env` must be edited separately; PostgreSQL availability, connectivity, migrations and tenant isolation are not yet verified. Accepted 0%.
+
+## 2026-11-19 — PostgreSQL connectivity and unverified P1 code
+User successfully verified Laravel connects to `ahpos_test` (PostgreSQL 18.6, 0 tables). Tenant/membership schema migration, models, middleware and no-DB unit tests committed, **not yet migrated or executed**. This is partial P1 code without auth route wiring or RLS; no accepted percent increase.
