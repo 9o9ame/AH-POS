@@ -117,3 +117,9 @@
 - New source and tests **not executed by assistant**, no new migrations added. Auth login UX/Sanctum, RLS, full RBAC, business modules and tenant-scoped queries remain missing. Test endpoint is for development only.
 - Next exact command: `git pull origin main`; in `backend`, `php artisan route:list --path=api`, `php artisan test --filter=TenantAccessTest`, `php artisan test --filter=TenantContextTest`; report output. NEVER run `migrate:fresh`, `RefreshDatabase` or production tests on persistent data.
 - Tests/acceptance for this change remain pending, web/mobile accepted percentage 0%.
+
+## 2026-11-19 — Verified tenant access tests and authenticated tenant chooser
+- User confirmed `php artisan route:list --path=api` exposed the guarded context route and `TenantAccessTest` **5 PASS / 8 assertions** plus `TenantContextTest` **3 PASS / 4 assertions** on local PostgreSQL `ahpos_test`. These results are user-reported test evidence; no assistant-side PHP execution.
+- Added `GET /api/my/tenants` using existing session auth and server-side active tenant membership filters; returns public tenant ULIDs/names, not internal IDs. Added 3 rollback-only feature tests (guest, cross-tenant/inactive tenant and inactive membership); new changes NOT YET TESTED.
+- Next: `git pull origin main`; `cd backend`; `php artisan route:list --path=api`; `php artisan test --filter=TenantAccessTest`; `php artisan test --filter=TenantContextTest`. Confirm tests before advancing.
+- No database migration needed for this commit. Session login workflow, Sanctum, per-tenant roles, rate limits, branch scoping, PostgreSQL RLS and non-owner runtime role still pending. Accepted milestone remains 0%; do not infer production-grade isolation from these tests alone.
