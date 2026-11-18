@@ -46,3 +46,12 @@ Do not approve a destination schema or claim migration readiness until source in
 - `RESTORE HEADERONLY` was attempted and returned OS error 5 (access denied) for backup in OneDrive user profile. Backup identity, integrity, restore success and relationship to either existing database remain **unverified**.
 - All 31 tables in `DBSmilePOS` appear in `DBSmilePOS_LAB`. LAB-only tables by user-provided names: AppAuditEvent, AppMasterCounter, AppPermission, AppPostingRequest, AppReturnLink, AppRole, AppRolePermission, AppUser, AppUserRole, AppVoucherCounter. Names alone do not establish actual behavior.
 - Next: read-only compare source/LAB per-table approximate row counts, columns and PK/FK metadata; then obtain a restricted inspection copy for HEADERONLY/FILELISTONLY/VERIFYONLY. Never modify existing databases; do not claim backup was restored from these facts.
+
+
+## 2026-11-18 — uploaded backup independently fingerprinted
+- Backup uploaded into ChatGPT session as a separate binary file; **do not commit this binary or source data to GitHub**.
+- SHA-256 computed directly from uploaded bytes: `2e2c063b56b308fb2c63333bfb13cc592fa425f7eabb053fa5519d822dcd3575`; **exactly matches** user's local `Get-FileHash` result.
+- Uploaded size: 261116416 bytes. File magic `TAPE`, detected as Microsoft SQL Server backup (Windows NTbackup archive identifier).
+- Embedded metadata strings include `DBSmilePOS`, `DBSmilePOS_Data`, `DBSmilePOS_Log`. These are **metadata observations**, not verified schema contents.
+- Session runtime lacks `sqlcmd`, SQL Server engine and Docker; therefore `RESTORE HEADERONLY`, `FILELISTONLY`, `VERIFYONLY` and full restore **not performed** here.
+- Hash agreement proves byte-for-byte identity to the user's locally hashed file, not its recoverability, historical source provenance, table content or database consistency.
