@@ -49,3 +49,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\bootstrap-backend.ps1
 The script refuses to overwrite an existing `backend/`. Configure a NEW empty PostgreSQL test database in backend/.env; never connect Laravel to `DBSmilePOS` or `DBSmilePOS_LAB`, and do not run migrations against those SQL Server DBs. No backend routes, auth, tenancy, DB migrations or business functions are implemented by this bootstrap yet.
 
 The initial shell is NOT the approved AH-POS visual design. It is a temporary developer-only status page.
+
+## Local bootstrap observation (2026-11-19)
+Initial Laravel 13 installation succeeded on the developer PC. Laravel skeleton's own Composer post-create scripts auto-created a local SQLite DB and migrated three default tables. This does NOT represent the one planned PostgreSQL AH-POS test DB. No legacy SQL Server DBs were affected as far as user-supplied logs show.
+
+The `scripts/bootstrap-backend.ps1` script has been fixed for future fresh installations to suppress Composer scripts and implicit migrations. **Do not rerun it against existing backend/**. Backend code was generated locally; it has not been automatically committed to GitHub. Review `git status` before staging source. Do not add `.env`, SQLite databases or credentials. PostgreSQL setup, tenant schema, Laravel tests and API endpoints remain pending.
