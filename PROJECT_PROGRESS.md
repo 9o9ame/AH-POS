@@ -37,3 +37,6 @@ User approved beginning app development without waiting for exhaustive old-backu
 
 ## 2026-11-19 — User-provided development verification
 Frontend dependency installation succeeded, `npm run build` PASS, Vite dev server launched. Laravel 13 skeleton installation succeeded locally; its default Composer scripts unexpectedly created/migrated local SQLite; no PostgreSQL test DB created yet. Bootstrap script corrected in repo to use `--no-scripts` for future fresh installations (not locally retested). Backend generated source has not been committed. **No accepted P1 tenancy/security or POS workflow yet; accepted web/mobile progress remain 0%.**
+
+## 2026-11-19 — PostgreSQL configuration prepared
+Committed Laravel PostgreSQL defaults (`pgsql`, `ahpos_test`) and removed implicit SQLite creation in future Composer post-create. Existing user's local `.env` must be edited separately; PostgreSQL availability, connectivity, migrations and tenant isolation are not yet verified. Accepted 0%.
