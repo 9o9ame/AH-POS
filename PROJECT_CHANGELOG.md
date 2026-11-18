@@ -85,3 +85,7 @@
 - React production build passed, Vite dev-server started at localhost:5174 (5173 occupied).
 - Added explicit guarded `ahpos:provision-test-account` Artisan command with local PostgreSQL check, interactive hidden password, validation, transactionally created user/tenant/membership. No default test account created; not executed yet.
 - Browser end-to-end authentication not verified; RLS/RBAC/security acceptance pending.
+
+## 2026-11-19 — Local test-user password relaxation
+- At explicit user request, adjusted `ahpos:provision-test-account` to accept 3+ character passwords exclusively for `local` / `pgsql` / `ahpos_test` / localhost DB provisioning, while retaining all other controls.
+- Not applied as a production authentication policy; weak credentials not safe for deployment. New code not yet verified locally.
