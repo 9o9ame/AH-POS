@@ -73,3 +73,9 @@
 - Committed session login (rate-limited), authenticated profile, logout with session revocation; validation and default web CSRF middleware. No public registration or default accounts.
 - Added 4 PostgreSQL-only rollback feature tests, pending local execution; no schema migrations or data seeds.
 - Remaining blockers include full SPA auth integration, RBAC, RLS, secure user provisioning, runtime non-owner DB role, production security and CI acceptance.
+
+## 2026-11-19 — Verified authentication tests; first React integration
+- User successfully executed 15 backend auth/tenant tests with 38 assertions across 3 suites; five auth/tenant routes registered.
+- Added a no-store Laravel CSRF token endpoint and typed React API client using same-origin session cookies and CSRF headers.
+- Added temporary React login/logout/profile and authorized tenant selector. No user/tenant was created or seeded, and there are no financial functions.
+- New browser and CSRF flow remain untested; staging/production auth and RLS/RBAC pending. Accepted progress unchanged.
