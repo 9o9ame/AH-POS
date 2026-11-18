@@ -61,3 +61,9 @@
 - Registered request-scoped tenant context and tenant middleware; added auth-guarded read-only tenant context probe using public ULID.
 - Added rollback-only PostgreSQL feature tests for unauthorized, cross-tenant and inactive access; removed PHPUnit SQLite overrides.
 - No new backend test execution by assistant; incomplete authentication/RLS/RBAC remains a release blocker.
+
+## 2026-11-19 — Tenant access verification and chooser API
+- User verified existing P1 tenant-access feature tests (5 PASS, 8 assertions) and tenant context unit tests (3 PASS, 4 assertions); read-only route registered.
+- Implemented session-authenticated GET /api/my/tenants scoped to active memberships and tenants, returning ULID/name only.
+- Added 3 new rollback-only negative feature tests; tests are pending local execution. No schema changes.
+- Full authentication, RLS and RBAC remain outstanding; accepted percentage stays 0%.
