@@ -61,3 +61,12 @@
 - HEADERONLY failed with OS error 5 (access denied) from OneDrive path. Neither backup identity nor restored provenance is confirmed. This ChatGPT environment has not directly connected to local SQL Server.
 - Next exact action: collect read-only table row metadata and key/column metadata, and privately stage a permissions-restricted backup copy for SQL Server metadata checks.
 - No application implementation, migration, financial reconciliation or acceptance evidence. Web/mobile remain 0%.
+
+
+## 2026-11-18 — uploaded original backup verified by hash
+- User uploaded original SQL Server .bak in this chat. Directly computed SHA-256 `2e2c063b56b308fb2c63333bfb13cc592fa425f7eabb053fa5519d822dcd3575` and byte size 261116416; match user's local fingerprint.
+- Binary signature `TAPE` and embedded Microsoft SQL Server / DBSmilePOS metadata identified. Backup remains PRIVATE to chat, not committed.
+- Current execution environment has no SQL Server engine/sqlcmd/Docker. Actual restore, HEADERONLY, FILELISTONLY, VERIFYONLY and data introspection have NOT been carried out by assistant.
+- User-provided local SQLCMD read-only evidence still represents the only SQL-level table/row metadata. No verified correspondence yet between .bak and either local DB.
+- Immediate next action: use user's existing SQL Server with a private restricted-permission inspection copy, read HEADERONLY/FILELISTONLY/VERIFYONLY, and extract sanitized schema metadata as one batch to minimize repeated commands. No speculative target schema.
+- Accepted completion 0%.
