@@ -79,3 +79,9 @@
 - Added a no-store Laravel CSRF token endpoint and typed React API client using same-origin session cookies and CSRF headers.
 - Added temporary React login/logout/profile and authorized tenant selector. No user/tenant was created or seeded, and there are no financial functions.
 - New browser and CSRF flow remain untested; staging/production auth and RLS/RBAC pending. Accepted progress unchanged.
+
+## 2026-11-19 — Verified React build and explicit local test account provisioning
+- Laravel API routes 6 present; AuthSessionTest passed 4 tests/17 assertions and Laravel server started at localhost:8000 (user evidence).
+- React production build passed, Vite dev-server started at localhost:5174 (5173 occupied).
+- Added explicit guarded `ahpos:provision-test-account` Artisan command with local PostgreSQL check, interactive hidden password, validation, transactionally created user/tenant/membership. No default test account created; not executed yet.
+- Browser end-to-end authentication not verified; RLS/RBAC/security acceptance pending.
