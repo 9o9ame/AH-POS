@@ -49,3 +49,6 @@ User-supplied evidence: PostgreSQL 18.6 `ahpos_test` has 11 tables, all 4 migrat
 
 ## 2026-11-19 — Tenant middleware verification and chooser implementation
 User supplied passing results: 5 PostgreSQL feature tests (8 assertions), 3 unit tests (4 assertions), route registration verified. Added an authenticated tenant chooser API and 3 more feature tests, **not yet executed**. This is meaningful evidence for a P1 subtask, but P1's broader acceptance criteria (authentication/RBAC/RLS/CI) are not met and no partial weight baseline approved; total accepted 0%.
+
+## 2026-11-19 — Tenant chooser tests PASS and session-authentication source added
+User verified **11 tests PASS / 21 assertions** across TenantAccessTest and TenantContextTest; route listing showed 2 expected routes. Implemented Laravel session login, profile, logout routes with throttling and CSRF via web routes plus 4 rollback-only auth feature tests (NOT yet run). No user registration/seeders, no migration, no RLS/RBAC. Overall accepted percentage unchanged while P1 security milestone is incomplete.
