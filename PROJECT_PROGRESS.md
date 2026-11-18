@@ -55,3 +55,6 @@ User verified **11 tests PASS / 21 assertions** across TenantAccessTest and Tena
 
 ## 2026-11-19 — Auth tests PASS and React API integration added
 User-verified results: AuthSessionTest 4 PASS (17 assertions), TenantAccessTest 8 PASS (17 assertions), TenantContextTest 3 PASS (4 assertions): **15 PASS, 38 assertions**. Committed browser login/logout, authorized tenant selector, same-origin CSRF token endpoint and typed API client. New React integration and backend CSRF endpoint not yet compiled/smoke-tested. No user provisioning or RBAC/RLS, no acceptance percentage change.
+
+## 2026-11-19 — Browser dev-server startup and frontend build PASS
+User independently verified all 6 API routes, AuthSessionTest 4 tests/17 assertions PASS, Laravel server on localhost:8000, React Vite build PASS (30 modules), dev server at 127.0.0.1:5174 because 5173 was already occupied. No browser/login end-to-end evidence yet. Added local-only interactive test user+tenant provisioning command, pending local execution. No acceptance baseline change; total remains 0%.
