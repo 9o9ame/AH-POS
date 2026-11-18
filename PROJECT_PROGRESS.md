@@ -58,3 +58,6 @@ User-verified results: AuthSessionTest 4 PASS (17 assertions), TenantAccessTest 
 
 ## 2026-11-19 — Browser dev-server startup and frontend build PASS
 User independently verified all 6 API routes, AuthSessionTest 4 tests/17 assertions PASS, Laravel server on localhost:8000, React Vite build PASS (30 modules), dev server at 127.0.0.1:5174 because 5173 was already occupied. No browser/login end-to-end evidence yet. Added local-only interactive test user+tenant provisioning command, pending local execution. No acceptance baseline change; total remains 0%.
+
+## 2026-11-19 — Test provisioning convenience change
+User requested minimum three-character passwords for temporary local development accounts (e.g. `123`). Local-only command updated, with explicit warning; original failed command reported no data changed. No verification yet; accepted progress unchanged.
