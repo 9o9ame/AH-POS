@@ -61,3 +61,6 @@ User independently verified all 6 API routes, AuthSessionTest 4 tests/17 asserti
 
 ## 2026-11-19 — Test provisioning convenience change
 User requested minimum three-character passwords for temporary local development accounts (e.g. `123`). Local-only command updated, with explicit warning; original failed command reported no data changed. No verification yet; accepted progress unchanged.
+
+## 2026-11-19 — Tenant RBAC first slice implemented/unverified
+Browser screenshot confirms signed-in React user and authorized tenant listing, not yet tenant Select response. Committed tenant-scoped role and permission schema with composite FKs, default-deny permission middleware and 4 new PostgreSQL negative access tests; **migration and new tests not yet run locally**. RLS remains **not enabled** pending safe non-owner runtime role and transaction-scoped context (ADR-0002). Accepted percentage remains 0%.
