@@ -130,3 +130,12 @@
 - Added `AuthSessionTest` with 4 PostgreSQL-only transaction-rollback tests covering invalid login, valid session/profile/logout, validation and guest denial. New code **NOT YET EXECUTED** on user's local machine. No new migrations.
 - Existing auth routing uses Laravel web/session middleware; the future SPA must use cookies/CSRF correctly and same-origin dev proxy. Sanctum, SPA UX, account provisioning, audit, multi-factor auth, fine-grained RBAC and PostgreSQL RLS pending. Session endpoint is development-only until these hardening gates.
 - Next validation: `git pull origin main`, `cd backend`, `php artisan route:list --path=api`, `php artisan test --filter=AuthSessionTest`, `php artisan test --filter=TenantAccessTest`, `php artisan test --filter=TenantContextTest`. Do not run destructive test database refresh. Accepted web remains 0% pending larger acceptance requirements.
+
+## 2026-11-19 — Browser session authentication integration source
+- User's local output verified: five auth/tenant routes present; `AuthSessionTest` PASS 4 tests/17 assertions; `TenantAccessTest` PASS 8 tests/17 assertions; `TenantContextTest` PASS 3 tests/4 assertions. Total 15 tests / 38 assertions PASS.
+- Added `GET /api/csrf` no-store session token endpoint on Laravel web middleware; existing Laravel CSRF protection remains enabled for POST routes.
+- Added typed frontend API client that fetches same-origin CSRF token before POST login/logout, keeps cookies same-origin and handles API errors.
+- Replaced temporary frontend status shell with temporary accessible sign-in, session profile, authorized tenant chooser and guarded tenant context read-only screen. No test user or tenant seeded. Original UI identity/design not approved; this is a development screen only.
+- This frontend/API code is committed but **not yet compiled or browser-tested**; production cross-domain cookie/CSRF/Sanctum integration, provisioning, RBAC, RLS and security acceptance remain pending.
+- Next: `git pull origin main`; start `php artisan serve --host=127.0.0.1 --port=8000` in backend, `npm run build` and `npm run dev` in frontend, `php artisan route:list --path=api`, `php artisan test --filter=AuthSessionTest`; open `http://127.0.0.1:5173/`. With no seeded test user the login form should display, login is not expected to succeed.
+- Security: never commit backend/.env, no fake success/credentials, no production deployment. Accepted progress remains 0% until broader acceptance.
