@@ -64,3 +64,6 @@ User requested minimum three-character passwords for temporary local development
 
 ## 2026-11-19 — Tenant RBAC first slice implemented/unverified
 Browser screenshot confirms signed-in React user and authorized tenant listing, not yet tenant Select response. Committed tenant-scoped role and permission schema with composite FKs, default-deny permission middleware and 4 new PostgreSQL negative access tests; **migration and new tests not yet run locally**. RLS remains **not enabled** pending safe non-owner runtime role and transaction-scoped context (ADR-0002). Accepted percentage remains 0%.
+
+## 2026-11-19 — RBAC migration/test user evidence, RLS prerequisite implementation
+User verified RBAC migration DONE and 12 tests PASS (24 assertions) across TenantRbacTest and TenantAccessTest; 7 API routes present. Committed transaction-scoped `app.tenant_id` middleware used on RBAC probe, and 5 new DB scope/composite-FK regression tests (NOT YET RUN). RLS enforcement and non-owner runtime role not installed. Accepted completion remains unchanged at 0%.
