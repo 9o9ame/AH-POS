@@ -1,7 +1,7 @@
 # AH-POS — Current State
 
 **Updated:** 2026-11-18  
-**Current phase:** P0 — Legacy SQL Server inspection, **not started**  
+**Current phase:** P0 — Legacy SQL Server inspection, **blocked pending private backup access**  
 **Web accepted completion:** 0%  
 **Mobile accepted completion:** 0% (not started)
 
@@ -41,3 +41,14 @@
 - Progress change and reason:
 
 **Rule:** Update this file every working session, including incomplete or blocked sessions.
+
+
+## 2026-11-18 — P0 preparation checkpoint
+- Branch: `main`.
+- Repository access and all nine mandatory baseline files independently verified.
+- Created `LEGACY_SCHEMA_INVENTORY.md` (explicitly unverified inspection checklist) and `LEGACY_TO_AHPOS_MAPPING.csv` (empty/unverified mapping scaffold).
+- Backup file is **not accessible in this chat/session**; no SQL Server restore, SQL execution, schema introspection, tests, or reconciliation performed.
+- Safety: no production backup, secrets or real source records uploaded to public repo.
+- Milestone P0: blocked until original backup is obtained through private secure custody; accepted web/mobile completion unchanged (0%).
+- Next exact action: privately obtain the original .bak, compute SHA-256, prepare isolated SQL Server, execute HEADERONLY/FILELISTONLY/VERIFYONLY with redacted evidence, then safe unique-name restore.
+- This checkpoint's resulting commit must be verified against remote HEAD; GitHub contents API updates create consecutive commits.
