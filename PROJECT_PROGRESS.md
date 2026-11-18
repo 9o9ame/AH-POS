@@ -31,3 +31,6 @@ P0 success requires actual successful isolated restore or independently verifiab
 
 ## 2026-11-18 P0 preparation checkpoint
 Verified GitHub documentation and created unverified source inventory/mapping templates. Original backup unavailable; restoration and acceptance tests not run. P0 is blocked pending private backup access. Accepted web contribution remains **0%**, mobile **0%**.
+
+## 2026-11-18 — Development initiated on explicit user direction
+User approved beginning app development without waiting for exhaustive old-backup investigation. Added frontend React/TypeScript Vite starter and no-overwrite Laravel bootstrap script; local install, compilation, runtime, tests and database configuration **not executed/verified**. Planning now uses ONE AH-POS PostgreSQL test database; staging and production will be strictly separated on launch. P1 status `implemented_unverified`; P0 old backup mapping deferred to go-live fresh-backup acceptance. **Accepted web/mobile 0%.**
