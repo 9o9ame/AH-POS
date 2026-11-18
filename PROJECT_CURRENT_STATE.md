@@ -139,3 +139,11 @@
 - This frontend/API code is committed but **not yet compiled or browser-tested**; production cross-domain cookie/CSRF/Sanctum integration, provisioning, RBAC, RLS and security acceptance remain pending.
 - Next: `git pull origin main`; start `php artisan serve --host=127.0.0.1 --port=8000` in backend, `npm run build` and `npm run dev` in frontend, `php artisan route:list --path=api`, `php artisan test --filter=AuthSessionTest`; open `http://127.0.0.1:5173/`. With no seeded test user the login form should display, login is not expected to succeed.
 - Security: never commit backend/.env, no fake success/credentials, no production deployment. Accepted progress remains 0% until broader acceptance.
+
+## 2026-11-19 — Frontend build verified, local test-account provisioning added
+- User-provided results: `php artisan route:list --path=api` showed all 6 auth/tenant/CSRF routes; `AuthSessionTest` 4 PASS/17 assertions; Laravel dev server started on 127.0.0.1:8000.
+- React `npm run build` PASS: Vite 7.3.8, 30 transformed modules, completed in 1.39 s. Vite selected 127.0.0.1:5174 because 5173 already occupied; this is not a failure. Browser display and end-to-end login remain UNVERIFIED.
+- Added `php artisan ahpos:provision-test-account` local-only interactive command to explicitly create one test user, one tenant and an active membership in a single transaction. Validates APP_ENV=local, pgsql ahpos_test and local DB host. Asks for name/email/tenant, prompts password secretly with complexity validation, refuses duplicate email. Does not seed automatically or store plaintext credentials in Git.
+- New provisioning command NOT EXECUTED/TESTED locally; only run it after `git pull`, command discovery check, and local DB confirmation. Does not affect migrations, SQL Server, production or existing tenant data.
+- Next steps: `git pull origin main`, `cd backend`, `php artisan list --raw | findstr ahpos`, `php artisan ahpos:provision-test-account`; open Vite on **5174**, enter privately chosen test credentials; verify tenant chooser. Never share password.
+- All production acceptance gates (RBAC, RLS, least-privilege DB runtime, CI, verified browser flow, platform super admin) remain outstanding. Accepted web/mobile 0% per existing locked milestone baseline.
