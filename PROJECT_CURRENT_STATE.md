@@ -1,7 +1,7 @@
 # AH-POS — Current State
 
 **Updated:** 2026-11-18  
-**Current phase:** P0 — Legacy SQL Server inspection, **blocked pending private backup access**  
+**Current phase:** P1 — Application foundation, **implemented_unverified** (explicit user-approved reprioritization)  
 **Web accepted completion:** 0%  
 **Mobile accepted completion:** 0% (not started)
 
@@ -77,3 +77,11 @@
 - Added architecture requirements for global and per-tenant switches, plan entitlements, quotas, budgets, provider connections, approvals, audit and tenant isolation. WhatsApp Status auto-post is not assumed supported; manual share approach retained pending official capability review.
 - **Planning decision only:** no AI, WhatsApp integration, related database tables, runtime enforcement, tests or billing implemented. Progress still 0% and P0 remains current priority.
 - Next: finish P0 first; design actual entitlement schema and detailed AI/WhatsApp milestone when source DB and architecture decisions permit.
+
+## 2026-11-18 — User-approved development kickoff
+- Historical .bak is example/testing material, not a current operational cutover snapshot; fresh backup at go-live after old POS is stopped. P0 migration risk and reconciliation gate retained for go-live but does not block generic app development.
+- For now exactly one AH-POS PostgreSQL TEST database, local and on any temporary test server. SQL Server databases remain reference material, not AH-POS app DB. Test logical tenant isolation in the one database. Future staging and production will have separate domains and isolated databases/secrets/storage.
+- First source: `frontend/` React TypeScript Vite temporary engineering shell, `scripts/bootstrap-backend.ps1` Laravel 13 generator. Neither has been installed/executed/compiled here; no Laravel project was generated remotely.
+- No production deployment, domain changes, data imports, business modules, auth, RBAC or tenancy implementation. UI not approved; current page is a disposable engineering shell.
+- Next exact action on user's local Windows machine: `git pull origin main`; `cd frontend; npm install; npm run build; npm run dev`. Then generate backend with `powershell -ExecutionPolicy Bypass -File .\scripts\bootstrap-backend.ps1` from root, only after verifying PHP/Composer. Provide output to establish runtime evidence; never run against legacy SQL Server DB.
+- Source code commits made on `main`; verify latest commit before handoff. Accepted web/mobile 0% until tests and acceptance evidence.
