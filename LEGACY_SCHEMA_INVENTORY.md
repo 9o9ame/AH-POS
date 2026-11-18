@@ -36,3 +36,13 @@ Replace placeholder only in authorized isolated environment. These commands are 
 
 ## Acceptance boundary
 Do not approve a destination schema or claim migration readiness until source inventory, mappings and reconciliation are independently evidenced.
+
+
+## 2026-11-18 — user-provided local SQLCMD evidence (not independently reproduced)
+- SQL Server: Microsoft SQL Server 2025 Express, 17.0.1155.3, instance `SQLEXPRESS`; client connection succeeded with `sqlcmd -E -C`.
+- Existing databases: `DBSmilePOS` created 2026-09-11 (31 user tables), `DBSmilePOS_LAB` created 2026-09-13 (41 user tables), both ONLINE and accessible; compatibility level 100.
+- Both use a 264.75 MiB allocated ROWS file and a 1.00 MiB allocated LOG file. Allocated file sizes do not establish data equality.
+- Reported backup: 261116416 bytes (~249.02 MiB), SHA-256 `2E2C063B56B308FB2C63333BFB13CC592FA425F7EABB053FA5519D822DCD3575` (reported by user's Get-FileHash; no independent verification).
+- `RESTORE HEADERONLY` was attempted and returned OS error 5 (access denied) for backup in OneDrive user profile. Backup identity, integrity, restore success and relationship to either existing database remain **unverified**.
+- All 31 tables in `DBSmilePOS` appear in `DBSmilePOS_LAB`. LAB-only tables by user-provided names: AppAuditEvent, AppMasterCounter, AppPermission, AppPostingRequest, AppReturnLink, AppRole, AppRolePermission, AppUser, AppUserRole, AppVoucherCounter. Names alone do not establish actual behavior.
+- Next: read-only compare source/LAB per-table approximate row counts, columns and PK/FK metadata; then obtain a restricted inspection copy for HEADERONLY/FILELISTONLY/VERIFYONLY. Never modify existing databases; do not claim backup was restored from these facts.
