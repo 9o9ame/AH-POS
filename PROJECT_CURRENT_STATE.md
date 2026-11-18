@@ -94,3 +94,10 @@
 - `backend/` was generated **only on the user's local Windows machine**; backend source files are not automatically available in GitHub until safely reviewed/committed by the user. No Laravel tenancy/auth/business code implemented; no PostgreSQL database connection verified.
 - Next: inspect `git status --short` in local AH-POS; ensure backend/.env and SQLite/credentials remain ignored; stage/commit generated Laravel skeleton and frontend lockfile after reviewing `git diff --cached --name-only`; confirm PostgreSQL installed, then configure ONE dedicated empty test DB (do not migrate until reviewed).
 - Tests: frontend build PASS (user output), frontend dev server start PASS (user output), Composer install PASS (user output), Laravel app tests NOT RUN, PostgreSQL connectivity NOT TESTED. Accepted web progress 0%.
+
+## 2026-11-19 — PostgreSQL-only application default
+- User confirmed direct PostgreSQL test database; SQLite is not an intended AH-POS runtime database.
+- Verified locally generated backend source was pushed to main in user commit `6356a22`.
+- Changed `backend/.env.example` to PostgreSQL `ahpos_test`, with placeholder role `ahpos_app` and blank password (not an actual user or credential); `config/database.php` fallback to pgsql; removed automatic SQLite creation and migrate from Laravel Composer post-create script; ignored frontend TS build info.
+- User local `.env` is ignored and remains unchanged by pull; user must set it to pgsql using private credentials. No PostgreSQL service/database/role/connectivity verified and no PostgreSQL migrations run.
+- Never assume bootstrap's generated SQLite file is in use; don't delete it until PostgreSQL is confirmed. Accepted completion unchanged pending tests.
