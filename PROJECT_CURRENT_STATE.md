@@ -101,3 +101,11 @@
 - Changed `backend/.env.example` to PostgreSQL `ahpos_test`, with placeholder role `ahpos_app` and blank password (not an actual user or credential); `config/database.php` fallback to pgsql; removed automatic SQLite creation and migrate from Laravel Composer post-create script; ignored frontend TS build info.
 - User local `.env` is ignored and remains unchanged by pull; user must set it to pgsql using private credentials. No PostgreSQL service/database/role/connectivity verified and no PostgreSQL migrations run.
 - Never assume bootstrap's generated SQLite file is in use; don't delete it until PostgreSQL is confirmed. Accepted completion unchanged pending tests.
+
+## 2026-11-19 — PostgreSQL connected; P1 tenant foundation drafted
+- User independently verified PostgreSQL 18.6 with `ahpos_app` connecting to `ahpos_test`; Laravel `php artisan db:show` reported `pgsql`, database `ahpos_test`, 0 tables.
+- Committed initial migration creating `tenants` and `tenant_memberships`, Eloquent models, guarded `TenantContext`, `ResolveTenantContext` middleware and database-free unit tests.
+- Security status: middleware is **not yet registered or exposed on tenant routes**; no tenant-scoped API endpoints, authentication workflow, RLS, RBAC or business writes. Treat as partial foundation, not secure production tenancy.
+- No migration/test run by assistant; no schema change to user's local database until user explicitly runs it. Legacy SQL Server databases untouched.
+- Next action on user's local machine: `git pull origin main`; `cd backend`; `php artisan migrate:status`; confirm `ahpos_test` is still disposable and empty, then `php artisan migrate`; `php artisan test --filter=TenantContextTest`; `php artisan db:show`. Report output. No automatic data seeding.
+- After verification: separate non-owner runtime PostgreSQL role, secure auth and tenant resolution, negative tests and tenant RLS. Accepted progress remains 0% until evidence.
