@@ -34,3 +34,6 @@ Verified GitHub documentation and created unverified source inventory/mapping te
 
 ## 2026-11-18 — Development initiated on explicit user direction
 User approved beginning app development without waiting for exhaustive old-backup investigation. Added frontend React/TypeScript Vite starter and no-overwrite Laravel bootstrap script; local install, compilation, runtime, tests and database configuration **not executed/verified**. Planning now uses ONE AH-POS PostgreSQL test database; staging and production will be strictly separated on launch. P1 status `implemented_unverified`; P0 old backup mapping deferred to go-live fresh-backup acceptance. **Accepted web/mobile 0%.**
+
+## 2026-11-19 — User-provided development verification
+Frontend dependency installation succeeded, `npm run build` PASS, Vite dev server launched. Laravel 13 skeleton installation succeeded locally; its default Composer scripts unexpectedly created/migrated local SQLite; no PostgreSQL test DB created yet. Bootstrap script corrected in repo to use `--no-scripts` for future fresh installations (not locally retested). Backend generated source has not been committed. **No accepted P1 tenancy/security or POS workflow yet; accepted web/mobile progress remain 0%.**
