@@ -17,3 +17,18 @@ dd { margin: 0; font-weight: 600; }
 .modules span { color: #6b7380; font-size: 13px; }
 footer { font-size: 13px; margin-top: 24px; }
 @media (max-width: 600px) { .facts > div { grid-template-columns: 1fr; gap: 4px; } .modules li { flex-direction: column; } }
+
+.auth-panel { max-width: 520px; }
+.auth-panel form { display: flex; flex-direction: column; gap: 10px; }
+.auth-panel label { font-weight: 600; font-size: 14px; }
+.auth-panel input { width: 100%; min-height: 44px; border: 1px solid #a9b2be; border-radius: 6px; padding: 10px 12px; font: inherit; margin-bottom: 8px; }
+button { border: 1px solid #245a8d; background: #245a8d; color: white; padding: 10px 16px; min-height: 40px; border-radius: 6px; cursor: pointer; font: inherit; }
+button:hover:not(:disabled) { background: #17466f; }
+button:focus-visible, input:focus-visible { outline: 3px solid #8ab5e6; outline-offset: 2px; }
+button:disabled { opacity: .55; cursor: not-allowed; }
+.between { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.between h2 { margin-bottom: 4px; }
+.modules li { align-items: center; }
+.modules li > span { color: inherit; font-size: 15px; }
+.notice { padding: 14px; border: 1px solid #c77a35; border-radius: 6px; background: #fff7eb; color: #7f3b10; }
+@media (max-width: 600px) { .between { flex-direction: column; } }
