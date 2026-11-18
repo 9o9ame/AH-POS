@@ -67,3 +67,9 @@
 - Implemented session-authenticated GET /api/my/tenants scoped to active memberships and tenants, returning ULID/name only.
 - Added 3 new rollback-only negative feature tests; tests are pending local execution. No schema changes.
 - Full authentication, RLS and RBAC remain outstanding; accepted percentage stays 0%.
+
+## 2026-11-19 — Session-authentication implementation checkpoint
+- User confirmed tenant chooser and tenant access test suite PASS (8 feature tests, 17 assertions; 3 unit tests, 4 assertions).
+- Committed session login (rate-limited), authenticated profile, logout with session revocation; validation and default web CSRF middleware. No public registration or default accounts.
+- Added 4 PostgreSQL-only rollback feature tests, pending local execution; no schema migrations or data seeds.
+- Remaining blockers include full SPA auth integration, RBAC, RLS, secure user provisioning, runtime non-owner DB role, production security and CI acceptance.
