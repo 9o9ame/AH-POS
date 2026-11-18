@@ -20,3 +20,9 @@
 - Recorded user-provided local SQLCMD evidence: SQL Server 2025 Express, DBSmilePOS 31 tables, DBSmilePOS_LAB 41 tables, 10 LAB-only App* tables.
 - Recorded source backup file size and user-supplied SHA-256 fingerprint; HEADERONLY blocked by file access permissions.
 - No claim of verified backup restore/provenance or identical data; no acceptance progress earned.
+
+
+## 2026-11-18 — original backup upload fingerprint verification
+- Directly read uploaded 261116416-byte backup and verified SHA-256 matches user-provided local fingerprint.
+- Detected SQL Server backup signature and source metadata strings, but did not claim SQL Server restore or source-row verification.
+- P0 continues; no application implementation acceptance (0%).
