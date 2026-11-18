@@ -49,3 +49,9 @@
 - User pushed generated Laravel backend and frontend lockfile (`6356a22`).
 - Updated committed backend defaults for `pgsql` and `ahpos_test`; removed auto SQLite/migration commands in Laravel Composer post-create hook, ignored TypeScript build cache.
 - No app database created or migrated by GitHub changes. User must configure ignored local `.env` and verify PostgreSQL service/connection. No accepted milestone increment.
+
+## 2026-11-19 — P1 tenant foundation source added
+- User-provided PostgreSQL/Laravel connection evidence: PostgreSQL 18.6, ahpos_test 0 tables, ahpos_app connected.
+- Added tenant/membership migration, models, fail-closed tenant context, authentication-dependent tenant resolution middleware and pure unit tests.
+- No route registration, RLS or RBAC implemented; database migration and tests NOT executed in this session.
+- ADR-0001 records one-test-database strategy and security gates. Accepted progress remains 0%.
