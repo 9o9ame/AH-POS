@@ -99,6 +99,48 @@ final class TenantAccessTest extends TestCase
             ->assertNotFound();
     }
 
+
+    public function test_guest_cannot_list_tenants(): void
+    {
+        $this->getJson('/api/my/tenants')->assertUnauthorized();
+    }
+
+    public function test_authenticated_user_sees_only_own_active_tenants(): void
+    {
+        $visible = Tenant::create(['name' => 'Visible Test']);
+        $other = Tenant::create(['name' => 'Other Test']);
+        $inactive = Tenant::create(['name' => 'Inactive Test']);
+        $inactive->status = 'inactive';
+        $inactive->save();
+
+        $user = User::factory()->create();
+        $anotherUser = User::factory()->create();
+        $this->attach($visible, $user);
+        $this->attach($other, $anotherUser);
+        $this->attach($inactive, $user);
+
+        $this->actingAs($user)
+            ->getJson('/api/my/tenants')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.ulid', $visible->ulid)
+            ->assertJsonMissing(['ulid' => $other->ulid])
+            ->assertJsonMissing(['ulid' => $inactive->ulid])
+            ->assertJsonMissingPath('data.0.id');
+    }
+
+    public function test_inactive_membership_is_not_listed(): void
+    {
+        $tenant = Tenant::create(['name' => 'Denied Test']);
+        $user = User::factory()->create();
+        $this->attach($tenant, $user, 'inactive');
+
+        $this->actingAs($user)
+            ->getJson('/api/my/tenants')
+            ->assertOk()
+            ->assertJsonCount(0, 'data');
+    }
+
     private function attach(Tenant $tenant, User $user, string $status = 'active'): void
     {
         DB::table('tenant_memberships')->insert([
