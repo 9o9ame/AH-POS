@@ -1,11 +1,21 @@
 <?php
 
+use App\Http\Controllers\AuthSessionController;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
 use App\Support\TenantContext;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('welcome'));
+
+// Session cookies + Laravel web CSRF protection; no public registration or default users.
+Route::post('/api/login', [AuthSessionController::class, 'login'])
+    ->middleware('throttle:5,1');
+
+Route::middleware('auth')->group(function (): void {
+    Route::get('/api/me', [AuthSessionController::class, 'me']);
+    Route::post('/api/logout', [AuthSessionController::class, 'logout']);
+});
 
 // Authenticated tenant chooser: active memberships and active tenants only.
 // Never trust a client tenant ID; return only public identifiers and approved names.
