@@ -70,3 +70,10 @@
 - User-provided local SQLCMD read-only evidence still represents the only SQL-level table/row metadata. No verified correspondence yet between .bak and either local DB.
 - Immediate next action: use user's existing SQL Server with a private restricted-permission inspection copy, read HEADERONLY/FILELISTONLY/VERIFYONLY, and extract sanitized schema metadata as one batch to minimize repeated commands. No speculative target schema.
 - Accepted completion 0%.
+
+
+## 2026-11-18 — Platform-managed AI and WhatsApp product decision
+- User confirmed AI agent features and WhatsApp communications **must be controlled by Super Admin platform**, including which tenant may use which feature. Tenant admins manage only permitted configuration.
+- Added architecture requirements for global and per-tenant switches, plan entitlements, quotas, budgets, provider connections, approvals, audit and tenant isolation. WhatsApp Status auto-post is not assumed supported; manual share approach retained pending official capability review.
+- **Planning decision only:** no AI, WhatsApp integration, related database tables, runtime enforcement, tests or billing implemented. Progress still 0% and P0 remains current priority.
+- Next: finish P0 first; design actual entitlement schema and detailed AI/WhatsApp milestone when source DB and architecture decisions permit.
