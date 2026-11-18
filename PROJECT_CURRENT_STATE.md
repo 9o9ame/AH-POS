@@ -52,3 +52,12 @@
 - Milestone P0: blocked until original backup is obtained through private secure custody; accepted web/mobile completion unchanged (0%).
 - Next exact action: privately obtain the original .bak, compute SHA-256, prepare isolated SQL Server, execute HEADERONLY/FILELISTONLY/VERIFYONLY with redacted evidence, then safe unique-name restore.
 - This checkpoint's resulting commit must be verified against remote HEAD; GitHub contents API updates create consecutive commits.
+
+
+## 2026-11-18 — SQL Server discovery (user-provided results)
+- User ran read-only SQLCMD checks on local SQL Server 2025 Express SQLEXPRESS and reported two ONLINE accessible databases: DBSmilePOS (31 tables) and DBSmilePOS_LAB (41 tables). Their 31-table intersection is complete; LAB adds 10 App* tables.
+- Both show 264.75 MiB ROWS and 1.00 MiB LOG allocated; equality does not verify equal data.
+- Original .bak reported size 261116416 bytes, user-calculated SHA-256 `2E2C063B56B308FB2C63333BFB13CC592FA425F7EABB053FA5519D822DCD3575`.
+- HEADERONLY failed with OS error 5 (access denied) from OneDrive path. Neither backup identity nor restored provenance is confirmed. This ChatGPT environment has not directly connected to local SQL Server.
+- Next exact action: collect read-only table row metadata and key/column metadata, and privately stage a permissions-restricted backup copy for SQL Server metadata checks.
+- No application implementation, migration, financial reconciliation or acceptance evidence. Web/mobile remain 0%.
