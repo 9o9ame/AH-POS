@@ -49,3 +49,9 @@ Route::middleware(['auth', 'tenant.context'])
             'name' => $tenant->name,
         ]]);
     });
+
+// Development RBAC integration probe. Does not expose tenant settings data.
+Route::middleware(['auth', 'tenant.context', 'tenant.permission:tenant.settings.read'])
+    ->get('/api/tenants/{tenant}/rbac-check', fn () => response()->json([
+        'data' => ['authorized' => true],
+    ]));
