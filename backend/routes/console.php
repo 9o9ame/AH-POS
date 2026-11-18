@@ -77,3 +77,79 @@ Artisan::command('ahpos:provision-test-account', function (): int {
 
     return 0;
 })->purpose('Interactively create one local AH-POS test user and tenant; never for production');
+
+
+/**
+ * Read-only RLS deployment preflight. Does not create roles, change policies,
+ * run migrations, or switch the live DB connection.
+ */
+Artisan::command('ahpos:rls-preflight', function (): int {
+    if (config('database.default') !== 'pgsql'
+        || config('database.connections.pgsql.database') !== 'ahpos_test') {
+        $this->error('Refusing: this preflight is restricted to PostgreSQL ahpos_test.');
+        return 2;
+    }
+
+    $db = DB::selectOne(
+        'SELECT current_database() AS database_name, current_user AS role_name, '.
+        'r.rolsuper AS is_superuser, r.rolbypassrls AS bypasses_rls '.
+        'FROM pg_roles r WHERE r.rolname = current_user'
+    );
+
+    if ($db === null) {
+        $this->error('Could not inspect the current PostgreSQL role.');
+        return 2;
+    }
+
+    $this->line('Database: '.$db->database_name);
+    $this->line('Active DB role: '.$db->role_name);
+
+    $safeRole = ! $db->is_superuser && ! $db->bypasses_rls;
+    $this->line('No SUPERUSER/BYPASSRLS: '.($safeRole ? 'YES' : 'NO'));
+
+    $tables = [
+        'tenant_roles',
+        'tenant_role_permissions',
+        'tenant_membership_roles',
+    ];
+    $results = DB::select(
+        "SELECT c.relname AS table_name, owner.rolname AS owner_name,
+                c.relrowsecurity AS rls_enabled, c.relforcerowsecurity AS rls_forced,
+                EXISTS (SELECT 1 FROM pg_policies p
+                        WHERE p.schemaname = n.nspname
+                          AND p.tablename = c.relname) AS has_policy
+         FROM pg_class c
+         JOIN pg_namespace n ON n.oid = c.relnamespace
+         JOIN pg_roles owner ON owner.oid = c.relowner
+         WHERE n.nspname = 'public' AND c.relkind IN ('r', 'p')
+           AND c.relname IN (?, ?, ?)
+         ORDER BY c.relname",
+        $tables
+    );
+
+    $ready = $safeRole && count($results) === count($tables);
+
+    foreach ($results as $result) {
+        $notOwner = $result->owner_name !== $db->role_name;
+        $this->line(sprintf(
+            '%s: owner=%s | non-owner=%s | RLS=%s | FORCE=%s | policy=%s',
+            $result->table_name,
+            $result->owner_name,
+            $notOwner ? 'YES' : 'NO',
+            $result->rls_enabled ? 'YES' : 'NO',
+            $result->rls_forced ? 'YES' : 'NO',
+            $result->has_policy ? 'YES' : 'NO',
+        ));
+
+        $ready = $ready && $notOwner && $result->rls_enabled
+            && $result->rls_forced && $result->has_policy;
+    }
+
+    if (! $ready) {
+        $this->warn('NOT READY: RLS must not be claimed as enforced. No changes made.');
+        return 1;
+    }
+
+    $this->warn('CATALOG CHECKS PASS ONLY: runtime privileges, policies, cross-tenant access and login flows still require active verification.');
+    return 0;
+})->purpose('Read-only PostgreSQL RBAC RLS readiness report; never changes the database');
