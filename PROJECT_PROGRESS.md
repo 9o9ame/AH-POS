@@ -52,3 +52,6 @@ User supplied passing results: 5 PostgreSQL feature tests (8 assertions), 3 unit
 
 ## 2026-11-19 — Tenant chooser tests PASS and session-authentication source added
 User verified **11 tests PASS / 21 assertions** across TenantAccessTest and TenantContextTest; route listing showed 2 expected routes. Implemented Laravel session login, profile, logout routes with throttling and CSRF via web routes plus 4 rollback-only auth feature tests (NOT yet run). No user registration/seeders, no migration, no RLS/RBAC. Overall accepted percentage unchanged while P1 security milestone is incomplete.
+
+## 2026-11-19 — Auth tests PASS and React API integration added
+User-verified results: AuthSessionTest 4 PASS (17 assertions), TenantAccessTest 8 PASS (17 assertions), TenantContextTest 3 PASS (4 assertions): **15 PASS, 38 assertions**. Committed browser login/logout, authorized tenant selector, same-origin CSRF token endpoint and typed API client. New React integration and backend CSRF endpoint not yet compiled/smoke-tested. No user provisioning or RBAC/RLS, no acceptance percentage change.
