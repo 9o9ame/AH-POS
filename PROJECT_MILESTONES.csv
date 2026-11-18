@@ -1,0 +1,10 @@
+phase_id,phase_name,weight_percent,status,accepted_fraction,contribution_percent,acceptance_evidence,notes
+P0,Legacy DB restoration and reverse engineering,12,not_started,0,0,,Restore inventory mapping reconciliation required
+P1,Architecture tenancy security and CI,13,not_started,0,0,,Isolation negative tests and ADRs
+P2,Brand design system and web shell,8,not_started,0,0,,Original UI shared components approval
+P3,Master data and tenant import engine,14,not_started,0,0,,Reconciled staged tenant import
+P4,Purchasing inventory and accounting,14,not_started,0,0,,Posting invariant acceptance
+P5,Online sales POS returns and receipts,15,not_started,0,0,,Sale scenarios accepted
+P6,Offline browser sales and synchronization,10,not_started,0,0,,Retry idempotency conflict and device tests
+P7,Reports administration and operations,8,not_started,0,0,,Report and operational verification
+P8,AI copilot minimum viable release,6,not_started,0,0,,Authorized navigation and draft accuracy
