@@ -6,7 +6,6 @@ use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rules\Password;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -25,7 +24,8 @@ Artisan::command('ahpos:provision-test-account', function (): int {
         return 1;
     }
 
-    $this->warn('Creates one real local test user, tenant and ACTIVE membership in ahpos_test.');
+    $this->warn('LOCAL TEST ONLY: accepts weak passwords (minimum 3 characters). Never reuse credentials or expose this service publicly.');
+    $this->warn('Creates one local test user, tenant and ACTIVE membership in ahpos_test.');
     if (! $this->confirm('Continue?', false)) {
         $this->info('Cancelled; no data changed.');
         return 0;
@@ -34,7 +34,7 @@ Artisan::command('ahpos:provision-test-account', function (): int {
     $name = trim((string) $this->ask('Test user display name'));
     $email = strtolower(trim((string) $this->ask('Test user email')));
     $tenantName = trim((string) $this->ask('Test tenant name'));
-    $password = (string) $this->secret('Password (hidden; at least 12 chars, upper/lower, number, symbol)');
+    $password = (string) $this->secret('Password (hidden; minimum 3 characters, LOCAL TEST ONLY)');
     $again = (string) $this->secret('Confirm password (hidden)');
 
     $validation = Validator::make(
@@ -43,12 +43,12 @@ Artisan::command('ahpos:provision-test-account', function (): int {
             'name' => ['required', 'string', 'min:2', 'max:160'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'tenantName' => ['required', 'string', 'min:2', 'max:160'],
-            'password' => ['required', Password::min(12)->mixedCase()->numbers()->symbols()],
+            'password' => ['required', 'string', 'min:3', 'max:255'],
         ]
     );
 
     if ($validation->fails() || ! hash_equals($password, $again)) {
-        $this->error('Invalid input, duplicate email, weak password or password mismatch. No data changed.');
+        $this->error('Invalid input, duplicate email, password under 3 characters or password mismatch. No data changed.');
         return 1;
     }
 
