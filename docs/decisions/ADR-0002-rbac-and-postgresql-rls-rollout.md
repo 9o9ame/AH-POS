@@ -23,3 +23,9 @@ Safe rollout gate:
 5. Include DB-level tenant-composite foreign keys, negative HTTP tests, cross-tenant write/queue/cache tests, audit and deployment migration procedures before acceptance.
 
 This ADR is a security gate, not a claim that PostgreSQL RLS is active. Never run ad-hoc SQL altering current owner role, FORCE RLS, or grants on `ahpos_test` without the planned migration and full regression tests.
+
+## 2026-11-19 implementation/verification update
+- User confirmed tenant RBAC migration ran and existing 4 RBAC / 8 tenant-access tests PASS (24 assertions).
+- Implemented transaction-local `set_config('app.tenant_id', resolvedTenantId, true)` via parameterized SQL inside `DB::transaction`, after auth+membership; registered middleware on read-only RBAC permission probe. Added 3 scope lifecycle tests and 2 cross-tenant composite FK checks; neither new test suite has yet been run.
+- **RLS still off.** Custom PostgreSQL GUC is not an authorization credential (DB clients can set it); the runtime role must be server-only and tenant context must come from an independently verified active user membership. In Laravel tests already wrapped in an outer transaction, nested SAVEPOINTs may keep a SET LOCAL value alive until the outer test transaction rolls back; no claim of per-request isolation from such a harness. Verify worker/connection-pool cleanup independently before deployment.
+- Actual RLS migration will be gated on separated runtime/migration DB roles, reliable auth bootstrap reads, and tests proving denial of cross-tenant SELECT/INSERT/UPDATE/DELETE under a non-owner role. Do not add RLS to `users`, session storage, tenant chooser or membership admission queries without a separate safety design.
