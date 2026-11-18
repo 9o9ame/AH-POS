@@ -95,3 +95,8 @@
 - Added allowlisted, default-deny `TenantPermissions` and authenticated/resolved tenant permission middleware, with a read-only guarded integration route and 4 PostgreSQL rollback-only negative tests.
 - ADR-0002 documents PostgreSQL RLS rollout requirements and current DB owner risk. No RLS enabled, no automatic role grants, no business data operations.
 - User screenshot verifies frontend authentication and authorized tenant listing. New schema/tests not verified yet. Progress acceptance unchanged.
+
+## 2026-11-19 — Verified RBAC migration, guarded transaction-local DB scope
+- User ran PostgreSQL RBAC migration successfully; TenantRbacTest 4 PASS/7 assertions and TenantAccessTest 8 PASS/17 assertions.
+- Added `TenantDbTransaction` helper + `tenant.db-scope` middleware to wrap tenant-authorized route work and permission check with transaction-local `app.tenant_id`.
+- Added three scope lifecycle tests and two DB composite FK negative tests, pending local execution. RLS deliberately remains off; DB owner/runtime separation and policy tests remain release blockers.
