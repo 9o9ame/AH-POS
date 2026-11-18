@@ -46,3 +46,6 @@ User successfully verified Laravel connects to `ahpos_test` (PostgreSQL 18.6, 0 
 
 ## 2026-11-19 — Local migrations and basic tests verified; P1 security work continued
 User-supplied evidence: PostgreSQL 18.6 `ahpos_test` has 11 tables, all 4 migrations completed, and 3 pure unit tests passed (4 assertions). Added guarded tenant context read-only route and 5 PostgreSQL rollback-only feature tests (unexecuted). P1 remains incomplete without authentication UX, RBAC, RLS and robust cross-tenant checks; accepted web/mobile completion remains **0%**.
+
+## 2026-11-19 — Tenant middleware verification and chooser implementation
+User supplied passing results: 5 PostgreSQL feature tests (8 assertions), 3 unit tests (4 assertions), route registration verified. Added an authenticated tenant chooser API and 3 more feature tests, **not yet executed**. This is meaningful evidence for a P1 subtask, but P1's broader acceptance criteria (authentication/RBAC/RLS/CI) are not met and no partial weight baseline approved; total accepted 0%.
