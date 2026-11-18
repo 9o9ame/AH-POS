@@ -44,3 +44,8 @@
 - User supplied successful local Laravel 13 Composer setup output; default skeleton post-create scripts implicitly created SQLite and ran three Laravel starter migrations.
 - Fixed future-only bootstrap script with Composer `--no-scripts` and explicit APP_KEY generation, preventing unapproved automatic database operations. Updated script not yet locally tested.
 - Backend generated locally, not yet present in GitHub; no PostgreSQL integration or multitenant implementation. Progress remains 0% accepted.
+
+## 2026-11-19 — Switch Laravel defaults to PostgreSQL
+- User pushed generated Laravel backend and frontend lockfile (`6356a22`).
+- Updated committed backend defaults for `pgsql` and `ahpos_test`; removed auto SQLite/migration commands in Laravel Composer post-create hook, ignored TypeScript build cache.
+- No app database created or migrated by GitHub changes. User must configure ignored local `.env` and verify PostgreSQL service/connection. No accepted milestone increment.
