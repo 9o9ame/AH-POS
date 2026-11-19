@@ -222,3 +222,6 @@
 - Backend independently authenticates /api/platform/auth/login into platform_user_id session; Platform session middleware and Platform RBAC guard all Platform APIs, never uses tenant web login to authenticate Platform. Switching realms invalidates other realm. Business login denies Platform-only accounts lacking tenant membership.
 - Clarified original Ali = initial tenant member with additional later Platform role (not two users). Added audited one-time browser identity handover: new Platform-only user gets Platform roles, old Ali retains tenant membership and loses Platform role; distinct credentials required. No tenant ID CLI/migrations/destructive operations.
 - Added PlatformRealmSeparationTest and updated affected Platform permission tests. **Unverified build/tests/browser**, no production-domain DNS/HTTPS/MFA acceptance; no completed Platform billing/plans/device oversight claimed.
+
+## 2026-11-19 — Local verification evidence for Platform/POS split
+User confirmed focused `AuthSessionTest|PlatformRealmSeparationTest|PlatformOnboardingTest|PlatformAssignExistingOwnerTest|TenantStaffDeviceWorkflowTest`: **8 PASS / 99 assertions**. Frontend `npm run build` TypeScript and Vite v7.3.8 **PASS**, 50 transformed modules, build 4.24s. Platform browser UAT, real Ali identity handover and production controls remain unverified. No migration or database reset.
