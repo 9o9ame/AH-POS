@@ -114,3 +114,8 @@
 - Added a single critical PostgreSQL rollback feature test for product authorization, forged tenant ownership and duplicate SKU.
 - Added `docs/NEW_WINDOWS_DEV_SETUP.md` with clean clone, PostgreSQL, Laravel, React, account and permission setup. No new local machine migration/build or runtime verification yet. Existing test/tenant from old PC not implicitly transferred.
 - Full finance/inventory, production security/RLS and deployment acceptance still pending.
+
+## 2026-11-19 — Fix reused application tenant context in product catalog
+- User new-PC logs confirmed full PostgreSQL/Laravel setup and product migration, local test account and catalog permissions. Two focused product tests failed with HTTP 500 on a second request due to stale TenantContext.
+- Added `TenantContext::clear` and unconditional middleware `finally` cleanup, restoring request-bound context even when permissions deny or downstream throws.
+- No new migration, role grant, user provisioning, or broad regression test suite requested. Targeted product test and manual catalog save pending local verification.
