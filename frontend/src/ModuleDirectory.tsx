@@ -90,39 +90,46 @@ export function ModuleDirectory({ activeModule, navigate, section }: Props) {
 }
 
 export function ModuleRibbon({
-  activeModule, choose, home, profileName, workspaceName, sidebarPinned, toggleSidebar,
+  activeModule, previewModule, pinnedModule, choose, preview, leave, home,
+  profileName, workspaceName, onAccountClick,
 }: {
   activeModule: ModuleId;
+  previewModule: ModuleId | null;
+  pinnedModule: ModuleId | null;
   choose: (id: ModuleId) => void;
+  preview: (id: ModuleId) => void;
+  leave: () => void;
   home: () => void;
   profileName?: string;
   workspaceName?: string;
-  sidebarPinned: boolean;
-  toggleSidebar: () => void;
+  onAccountClick?: () => void;
 }) {
-  return <nav className="enterprise-ribbon" aria-label="AH POS main application menu">
-    <button type="button" className="ribbon-home" onClick={home} title="Business Overview">
-      <AppIcon name="dashboard" size={17}/>
-      <span>Home</span>
+  const families: ModuleId[] = ['definitions','daily','reports','tools','administration','help'];
+  return <nav className="enterprise-ribbon" aria-label="AH POS main application menu"
+    onMouseLeave={leave}>
+    <button type="button" className={'ribbon-home'+(activeModule === 'overview' ? ' ribbon-tab-active' : '')}
+      onClick={home} title="Business Overview">
+      <AppIcon name="dashboard" size={17}/><span>Home</span>
     </button>
-    {(['definitions','daily','reports','tools','administration','help'] as ModuleId[])
-      .map(id => {
-        const module: ModuleDefinition = moduleById(id);
-        return <button type="button" key={id}
-          className={'ribbon-tab '+(activeModule === id ? 'ribbon-tab-active' : '')}
-          aria-current={activeModule === id ? 'page' : undefined}
-          onClick={() => choose(id)}>
-          <AppIcon name={module.icon} size={17}/><span>{module.title}</span>
-        </button>;
-      })}
+    {families.map(id => {
+      const module: ModuleDefinition = moduleById(id);
+      const current = previewModule === id || (previewModule === null && activeModule === id);
+      return <button type="button" key={id}
+        className={'ribbon-tab '+(current ? 'ribbon-tab-active' : '')}
+        aria-expanded={previewModule === id || pinnedModule === id}
+        aria-pressed={pinnedModule === id}
+        onMouseEnter={() => preview(id)}
+        onFocus={() => preview(id)}
+        onClick={() => choose(id)}>
+        <AppIcon name={module.icon} size={17}/><span>{module.title}</span>
+      </button>;
+    })}
     <div className="ribbon-account">
-      <button type="button" className="ribbon-sidebar-toggle" onClick={toggleSidebar}
-        aria-label={sidebarPinned ? 'Unpin submenu' : 'Pin submenu'}
-        aria-pressed={sidebarPinned} title={sidebarPinned ? 'Unpin submenu' : 'Pin submenu'}>
-        <AppIcon name="menu" size={17}/>
+      <span className="ribbon-workspace-name" title={workspaceName || 'Workspace'}>{workspaceName || 'Workspace'}</span>
+      <button type="button" className="ribbon-avatar" onClick={onAccountClick}
+        aria-label="Open account menu" title={profileName || 'Authorized user'}>
+        {(profileName||'A').slice(0,1).toUpperCase()}
       </button>
-      <span className="ribbon-workspace-name">{workspaceName || 'Workspace'}</span>
-      <span className="ribbon-avatar" title={profileName || 'Authorized user'}>{(profileName||'A').slice(0,1).toUpperCase()}</span>
     </div>
   </nav>;
 }
