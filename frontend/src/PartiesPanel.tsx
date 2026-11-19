@@ -72,7 +72,7 @@ export function PartiesPanel({ tenant, initialType }: { tenant: TenantChoice; in
         </div>
       </div>
       {allowed && <>
-        {editorOpen && <EntityModal title={kind === 'customer' ? 'Add Customer' : 'Add Supplier'} onClose={() => setEditorOpen(false)} busy={busy}>
+        {editorOpen && <EntityModal title={kind === 'customer' ? 'Add Customer' : 'Add Supplier'} onClose={() => setEditorOpen(false)} busy={busy} error={message || undefined}>
         <form className="catalog-form modal-entry-form" onSubmit={e => { void save(e); }}>
           <h3>Add {kind}</h3>
           <div className="catalog-fields">
