@@ -11,7 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rules\Password;
+use App\Support\DevelopmentPasswordRules;
 
 final class PlatformController extends Controller
 {
@@ -87,7 +87,7 @@ final class PlatformController extends Controller
             'business_name' => ['required', 'string', 'min:2', 'max:160'],
             'owner_name' => ['required', 'string', 'min:2', 'max:160'],
             'owner_email' => ['required', 'email', 'max:255'],
-            'password' => ['required', 'string', Password::min(12)->mixedCase()->numbers()->symbols()],
+            'password' => DevelopmentPasswordRules::creation(),
         ]);
         $email = strtolower(trim($values['owner_email']));
         if (DB::table('users')->whereRaw('lower(email) = ?', [$email])->exists()) {
@@ -238,7 +238,7 @@ final class PlatformController extends Controller
         $values = $request->validate([
             'name' => ['required', 'string', 'min:2', 'max:160'],
             'email' => ['required', 'email', 'max:255'],
-            'password' => ['required', 'string', Password::min(12)->mixedCase()->numbers()->symbols()],
+            'password' => DevelopmentPasswordRules::creation(),
             'role' => ['required', 'in:Support Operator,Admin Manager'],
         ]);
         $email = strtolower(trim($values['email']));
