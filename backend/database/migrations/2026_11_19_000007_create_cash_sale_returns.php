@@ -9,6 +9,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        Schema::table('sale_lines', function (Blueprint $table): void {
+            $table->unique(['tenant_id', 'id']);
+        });
+
         Schema::create('sale_returns', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('tenant_id')->constrained('tenants')->restrictOnDelete();
@@ -43,6 +47,8 @@ return new class extends Migration
             $table->decimal('refund_total', 20, 4);
             $table->foreign(['tenant_id', 'return_id'], 'sale_return_line_header_fk')
                 ->references(['tenant_id', 'id'])->on('sale_returns')->restrictOnDelete();
+            $table->foreign(['tenant_id', 'sale_line_id'], 'sale_return_line_origin_fk')
+                ->references(['tenant_id', 'id'])->on('sale_lines')->restrictOnDelete();
             $table->foreign(['tenant_id', 'product_id'], 'sale_return_line_product_fk')
                 ->references(['tenant_id', 'id'])->on('products')->restrictOnDelete();
             $table->unique(['return_id', 'sale_line_id']);
@@ -77,5 +83,8 @@ return new class extends Migration
         });
         Schema::dropIfExists('sale_return_lines');
         Schema::dropIfExists('sale_returns');
+        Schema::table('sale_lines', function (Blueprint $table): void {
+            $table->dropUnique(['tenant_id', 'id']);
+        });
     }
 };
