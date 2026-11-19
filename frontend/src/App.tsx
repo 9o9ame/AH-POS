@@ -13,6 +13,8 @@ import { ProductsPanel } from './ProductsPanel';
 import { ProductMastersPanel } from './ProductMastersPanel';
 import { PartiesPanel } from './PartiesPanel';
 import { PlatformPanel } from './PlatformPanel';
+import { StaffSecurityPanel } from './StaffSecurityPanel';
+import { DevicePendingPanel } from './DevicePendingPanel';
 import { ApiError, getPlatformSession, login, logout, me, myTenants, tenantContext, type PlatformSession, type ProductMasterKind, type Profile, type SaleHold, type TenantChoice } from './api';
 
 type Screen = 'loading' | 'guest' | 'authenticated' | 'unavailable';
@@ -45,6 +47,8 @@ export function App() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   const [autoSelecting, setAutoSelecting] = useState(false);
+  const [pendingDeviceTenant, setPendingDeviceTenant] = useState<TenantChoice | null>(null);
+  const [staffTab, setStaffTab] = useState<'staff'|'roles'|'devices'>('staff');
 
   const openWorkWindow = useCallback((kind: WorkKind) => {
     const number = nextWindowNumber.current[kind]++;
@@ -151,8 +155,13 @@ export function App() {
           setAutoSelecting(true);
           void tenantContext(choices[0].ulid).then(verified => {
             if (!cancelled) setSelected(verified);
-          }).catch(() => {
-            if (!cancelled) setMessage('Workspace verification failed. Contact your Admin.');
+          }).catch((error: unknown) => {
+            if (cancelled) return;
+            if (error instanceof ApiError && error.status === 423) {
+              setPendingDeviceTenant(choices[0]);
+            } else {
+              setMessage('Workspace verification failed. Contact your Admin.');
+            }
           }).finally(() => {
             if (!cancelled) setAutoSelecting(false);
           });
@@ -193,11 +202,14 @@ export function App() {
       const platform = await getPlatformSession().catch(() => null);
       setProfile(user); setTenants(choices); setPlatformSession(platform);
       setPlatformOpen(choices.length === 0 && platform !== null); setPassword('');
-      setSelected(null); setPage('dashboard'); setActiveModule('overview'); setDirectoryOpen(false); setPinnedModule(null); setHoveredModule(null); setSidebarOpen(false); setScreen('authenticated');
+      setSelected(null); setPendingDeviceTenant(null); setPage('dashboard'); setActiveModule('overview'); setDirectoryOpen(false); setPinnedModule(null); setHoveredModule(null); setSidebarOpen(false); setScreen('authenticated');
       if (choices.length === 1) {
         setAutoSelecting(true);
         try { setSelected(await tenantContext(choices[0].ulid)); }
-        catch { setMessage('Workspace membership could not be verified.'); }
+        catch (error) {
+          if (error instanceof ApiError && error.status === 423) setPendingDeviceTenant(choices[0]);
+          else setMessage('Workspace membership could not be verified.');
+        }
         finally { setAutoSelecting(false); }
       }
     } catch (error) {
@@ -213,9 +225,11 @@ export function App() {
     setBusy(true); setMessage('');
     try {
       const verified = await tenantContext(choice.ulid);
-      setSelected(verified); setPage('dashboard'); setActiveModule('overview'); setDirectoryOpen(false); setPinnedModule(null); setHoveredModule(null); setSidebarOpen(false);
-    } catch {
-      setSelected(null); setMessage('Tenant access denied or your session expired.');
+      setSelected(verified); setPendingDeviceTenant(null); setPage('dashboard'); setActiveModule('overview'); setDirectoryOpen(false); setPinnedModule(null); setHoveredModule(null); setSidebarOpen(false);
+    } catch (error) {
+      setSelected(null);
+      if (error instanceof ApiError && error.status === 423) setPendingDeviceTenant(choice);
+      else setMessage('Tenant access denied or your session expired.');
     } finally { setBusy(false); }
   }
 
@@ -224,13 +238,16 @@ export function App() {
     setBusy(true); setMessage('');
     try {
       await logout();
-      setProfile(null); setTenants([]); setSelected(null); setPlatformSession(null); setPlatformOpen(false); setPage('dashboard'); setActiveModule('overview'); setDirectoryOpen(false); setPinnedModule(null); setHoveredModule(null); setSidebarOpen(false); setScreen('guest');
+      setProfile(null); setTenants([]); setSelected(null); setPendingDeviceTenant(null); setPlatformSession(null); setPlatformOpen(false); setPage('dashboard'); setActiveModule('overview'); setDirectoryOpen(false); setPinnedModule(null); setHoveredModule(null); setSidebarOpen(false); setScreen('guest');
     } catch {
       setMessage('Logout could not be confirmed. Retry.');
     } finally { setBusy(false); }
   }
 
   function navigate(next: Page, itemId?: string) {
+    if (next === 'staff') {
+      setStaffTab(itemId === 'devices' ? 'devices' : itemId === 'roles' ? 'roles' : 'staff');
+    }
     if (next === 'masters') {
       const selectedKind = itemId === 'brands' || itemId === 'units' || itemId === 'subcategories' ? itemId : 'categories';
       setMasterKind(selectedKind);
@@ -409,7 +426,10 @@ export function App() {
           setActiveWindowId(null);
         } : undefined}/>}
       <main className="workspace-main">
-        {platformOpen && platformSession ? <PlatformPanel session={platformSession} onSignOut={() => {void submitLogout();}}/> :
+        {!platformOpen && pendingDeviceTenant ? <DevicePendingPanel tenant={pendingDeviceTenant}
+          onApproved={verified => {setSelected(verified); setPendingDeviceTenant(null);setPage('dashboard');}}
+          onSignOut={() => {void submitLogout();}}/> :
+        platformOpen && platformSession ? <PlatformPanel session={platformSession} onSignOut={() => {void submitLogout();}}/> :
         !selected && autoSelecting ? <div className="tenant-picker"><div className="skeleton-cell" style={{width:'45%',height:24}}/>
           <p>Verifying your Admin workspace…</p></div> :
         !selected ? <div className="tenant-picker">
@@ -449,6 +469,7 @@ export function App() {
           </div>
           {directoryOpen && <ModuleDirectory activeModule={activeModule} navigate={navigate} section={chooseModule} />}
           {!directoryOpen && page === 'dashboard' && <DashboardPanel key={selected.ulid} tenant={selected} navigate={navigate} />}
+          {!directoryOpen && page === 'staff' && <StaffSecurityPanel key={selected.ulid+staffTab} tenant={selected} initialTab={staffTab}/>}
           {!directoryOpen && page === 'masters' && <ProductMastersPanel key={selected.ulid + masterKind} tenant={selected} initialKind={masterKind} />}
           {!directoryOpen && page === 'products' && <ProductsPanel key={selected.ulid} tenant={selected} />}
           {!directoryOpen && page === 'customers' && <PartiesPanel key={selected.ulid + '-customer'} tenant={selected} initialType="customer" />}
