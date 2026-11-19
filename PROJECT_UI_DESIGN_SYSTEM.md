@@ -41,3 +41,7 @@ Approve unique design direction (logo, palette, navigation, component style), bu
 ## 2026-11-19 — Dedicated returns workflow UI (implemented/unverified)
 - New `ReturnsPanel.tsx` uses existing cards, forms, table, warnings and success feedback for partial/full cash refunds, original receipt selection, item quantities and return history.
 - Sidebar and Ctrl+K destinations include Sales Returns. Reports now distinguish gross cash sales from refund-adjusted cash activity; all remain pilot data, not financial statements. No approval claim until browser evidence.
+
+## 2026-11-19 — Cash Register UI module (source committed, not yet visually verified)
+- Shared navigation gains Cash Register. Responsive open-shift form, live shift KPI cards, physical-counted cash close interaction, expected-vs-counted variance and immutable closure history reuses original AH POS tokens/cards.
+- Operational pilot excludes physical drawer driver and financial ledger; no P2 signoff based only on committed code.
