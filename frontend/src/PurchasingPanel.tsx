@@ -47,6 +47,21 @@ export function PurchasingPanel({ tenant, onDraftChange, active = true }: {
 
   useEffect(() => { if (active) void refresh(); }, [refresh, active]);
   useEffect(() => { onDraftChange?.(lines.length > 0 || reference.trim() !== ''); }, [lines, reference, onDraftChange]);
+  useEffect(() => {
+    if (!active) return;
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => {
+      void listProducts(tenant.ulid, search, controller.signal)
+        .then(result => { if (!controller.signal.aborted) setProducts(result.data.filter(p => p.is_active)); })
+        .catch(() => {
+          if (!controller.signal.aborted) {
+            setError(true); setMessage('Product search unavailable.');
+          }
+        });
+    }, search.trim() ? 180 : 260);
+    return () => { window.clearTimeout(timer); controller.abort(); };
+  }, [tenant.ulid, search, active]);
+
 
   function add(product: Product) {
     setSearch('');
@@ -113,7 +128,7 @@ export function PurchasingPanel({ tenant, onDraftChange, active = true }: {
                 <span><strong>{p.name}</strong><small>{p.sku}</small></span>
                 <span className="picker-add">+ Add</span>
               </button>)}
-            {products.length >= 30 && <p className="muted">Showing catalog first page; full picker coming next.</p>}
+            {products.length >= 30 && <p className="muted">Showing first 30 matching products. Type to narrow results.</p>}
           </div>
         </div>
         <div className="table-scroll"><table className="data-table trans-lines"><thead>
