@@ -106,3 +106,6 @@ User independently ran `HeldSaleWorkflowTest` 1 PASS/14 assertions after additiv
 
 ## 2026-11-19 — Definitions integration blocked by missing RBAC known keys, fix committed
 Master migration DONE on user local `ahpos_test`, targeted test FAILED 403 because `definitions.read/manage` omitted from canonical permissions registry. Added both keys; waiting only for targeted test rerun before claiming verification. No DB reset/old suite reruns.
+
+## 2026-11-19 — Definition master test cross-tenant denial consistent with policy
+User's targeted rerun passed 16 assertions then failed only at foreign-tenant response expectation 403 vs middleware-enforced 404. Kept fail-closed 404 security policy, updated focused assertion to assertNotFound; pending single targeted test rerun. No application production logic changed.
