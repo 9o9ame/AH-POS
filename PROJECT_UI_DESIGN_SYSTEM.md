@@ -31,3 +31,9 @@ Approve unique design direction (logo, palette, navigation, component style), bu
 - 2026 researched direction: command-first navigation, calm-density business data, meaningful motion, restrained translucent control surfaces, strong keyboard accessibility. No verifiable universal visual style called "V7" or "V24"; use actual reference URLs/screenshots if the user specifies them.
 - Implementation: `CommandPalette.tsx`, Ctrl/Cmd+K search/arrow/Enter/Escape, top-bar search affordance; CSS tokens `--ease-expressive`, `--motion-short/medium`, translucent sticky header and modal backdrop; subtle cards, navigation, toast motion and `prefers-reduced-motion` fallbacks.
 - Favor cashier speed, 60fps transforms/opacity, measurable interaction responsiveness, readable dense stock/sales tables over broad glass/blur decoration. UI remains NOT approved or locally visually verified for this commit.
+
+## 2026-11-19 — Expanded operational screen patterns (pending local visual verification)
+- Desktop purchasing: supplier and warehouse controls, searchable product tiles, multi-line editable quantity/unit cost, provisional draft total, document history.
+- Cashier POS: warehouse/customer pickers, barcode/SKU search, click-to-cart, editable quantities, running local estimate, cash tendered, change preview, call-to-action and recent sales; receipt modal/print CSS for narrow 80mm-class output.
+- Operations Reports: KPI cards and seven-day bar visualization; trend is tenant-scoped cash-sale volume, NOT GL, profit or tax accounting. Motion uses existing tokens and reduced-motion fallback.
+- These new screens are code-complete but **await Vite build/browser review**; not an approved frozen design geometry.
