@@ -12,7 +12,7 @@ const money = (value: number) => new Intl.NumberFormat('en-PK', {
 
 export function PosPanel({ tenant, onDraftChange, active = true, initialHold, onHoldSaved, onMinimize, windowLabel }: {
   tenant: TenantChoice; onDraftChange?: (dirty: boolean) => void; active?: boolean;
-  initialHold?: SaleHold | null; onHoldSaved?: () => void; onMinimize?: () => void;
+  initialHold?: SaleHold | null; onHoldSaved?: (holdUlid?: string) => void; onMinimize?: () => void;
   windowLabel?: string;
 }) {
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
@@ -139,7 +139,7 @@ export function PosPanel({ tenant, onDraftChange, active = true, initialHold, on
       });
       setHoldUlid(saved.ulid);
       setStatus('Bill saved on server as a held invoice. You can restore it from Sales workspace.');
-      onHoldSaved?.();
+      onHoldSaved?.(saved.ulid);
       onMinimize?.();
     } catch (ex) {
       setError(true);
