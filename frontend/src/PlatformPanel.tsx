@@ -152,10 +152,10 @@ export function PlatformPanel({session, onSignOut, initialTab='admins', focus='o
         <label>Business name<input required maxLength={160} minLength={2} value={adminInput.business_name} onChange={e=>setAdminInput(v=>({...v,business_name:e.target.value}))}/></label>
         <label>Admin owner name<input required maxLength={160} minLength={2} value={adminInput.owner_name} onChange={e=>setAdminInput(v=>({...v,owner_name:e.target.value}))}/></label>
         <label>Admin login email<input required type="email" maxLength={255} autoComplete="off" value={adminInput.owner_email} onChange={e=>setAdminInput(v=>({...v,owner_email:e.target.value}))}/></label>
-        <label>Temporary strong password (share securely, change after onboarding)<input required type="password"
-          minLength={12} autoComplete="new-password" value={adminInput.password}
+        <label>Initial password (local pilot: 3+ characters)<input required type="password"
+          minLength={import.meta.env.DEV ? 3 : 12} autoComplete="new-password" value={adminInput.password}
           onChange={e=>setAdminInput(v=>({...v,password:e.target.value}))}/></label>
-        <p className="muted">At least 12 characters with uppercase/lowercase, number and symbol. No passwords appear in the audit or admin list.</p>
+        <p className="muted">Local pilot: minimum 3 characters. Production: 12+ complex characters. No passwords appear in the audit or admin list.</p>
         <button disabled={busy} type="submit" className="list-create-button">{busy?'Creating…':'Create Admin and Workspace'}</button>
       </form></EntityModal>}
     {editor==='staff'&&<EntityModal title="Add Platform Operator" subtitle="Limited platform role. No automatic tenant membership."
@@ -166,7 +166,7 @@ export function PlatformPanel({session, onSignOut, initialTab='admins', focus='o
           <option value="Support Operator">Support Operator · read only</option>
           <option value="Admin Manager">Admin Manager · can onboard Admins</option>
         </select></label>
-        <label>Password (12+ complex characters)<input required type="password" minLength={12} autoComplete="new-password"
+        <label>Password (local pilot: 3+ characters)<input required type="password" minLength={import.meta.env.DEV ? 3 : 12} autoComplete="new-password"
           value={staffInput.password} onChange={e=>setStaffInput(v=>({...v,password:e.target.value}))}/></label>
         <button disabled={busy} type="submit" className="list-create-button">{busy?'Saving…':'Create Platform Staff'}</button>
       </form></EntityModal>}
