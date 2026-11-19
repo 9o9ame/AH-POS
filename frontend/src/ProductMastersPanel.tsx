@@ -88,7 +88,7 @@ export function ProductMastersPanel({tenant, initialKind = 'categories'}: {
     <div className="definition-master-grid">
       <section className="panel-card">
         <div className="panel-heading"><div><span className="small-overline">DEFINITIONS / MASTER RECORDS</span>
-          <h2>Add {kind==='subcategories'?'sub category':kind.slice(0,-1)}</h2></div>
+          <h2>Add {kind==='subcategories'?'sub category':kind==='categories'?'category':kind==='brands'?'brand':'unit'}</h2></div>
           <span className="status-tag">Tenant scoped</span></div>
         <p className="muted">Code and name are unique within this tenant. These masters can be linked to new product records; inactive choices cannot be assigned to new products.</p>
         <form className="definition-master-form" onSubmit={event=>{void save(event)}}>
