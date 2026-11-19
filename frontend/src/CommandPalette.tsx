@@ -1,30 +1,33 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { AppIcon, type AppIconName } from './AppIcon';
+import { AppIcon } from './AppIcon';
+import { modules, type WorkspacePage } from './ModuleCatalog';
 
-export type CommandDestination = 'dashboard' | 'products' | 'customers' | 'suppliers' | 'inventory' | 'purchases' | 'sales' | 'held' | 'returns' | 'cash' | 'reports';
-const commands: { destination: CommandDestination; label: string; detail: string; icon: AppIconName; terms: string }[] = [
-  { destination: 'dashboard', label: 'Business overview', detail: 'Dashboard and KPIs', icon: 'dashboard', terms: 'home overview dashboard' },
-  { destination: 'products', label: 'Manage products', detail: 'SKUs, barcodes, selling prices', icon: 'products', terms: 'add new product catalog search sku barcode' },
-  { destination: 'customers', label: 'Open customers', detail: 'Contacts and customer directory', icon: 'people', terms: 'customer contact buyer' },
-  { destination: 'suppliers', label: 'Open suppliers', detail: 'Supplier directory', icon: 'truck', terms: 'supplier vendor contacts' },
-  { destination: 'inventory', label: 'Inventory & warehouses', detail: 'Receiving, stock balances', icon: 'inventory', terms: 'warehouse stock opening receipt goods inward' },
-  { destination: 'purchases', label: 'Supplier purchasing', detail: 'Receive goods against purchase', icon: 'truck', terms: 'purchase order supplier bill receive' },
-  { destination: 'sales', label: 'Open Point of Sale', detail: 'Cash checkout and printable receipts', icon: 'sales', terms: 'sell checkout cashier barcode receipt' },
-  { destination: 'held', label: 'Get held bills', detail: 'Restore saved customer invoices', icon: 'package', terms: 'on hold pending resume save cart customers' },
-  { destination: 'returns', label: 'Sales returns', detail: 'Record cash refunds and restock items', icon: 'arrow', terms: 'refund return reversal credit note sales' },
-  { destination: 'cash', label: 'Cash register & closing', detail: 'Open cashier shifts and reconcile cash', icon: 'warehouse', terms: 'cash drawer float shift close opening closing variance' },
-  { destination: 'reports', label: 'Operations reports', detail: 'Cash sales and purchase analytics', icon: 'reports', terms: 'analytics reports figures trend revenue' },
-];
+type Entry = {
+  key: string; page?: WorkspacePage; itemId: string; label: string;
+  detail: string; group: string; icon: typeof modules[number]['icon'];
+  planned: boolean;
+};
+
+const commands: Entry[] = modules.flatMap(module => module.items.map(item => ({
+  key: module.id + '-' + item.id,
+  page: item.page, itemId: item.id, label: item.name,
+  detail: item.description, group: module.title + ' · ' + item.group,
+  icon: item.icon, planned: item.state === 'planned',
+})));
 
 export function CommandPalette({ open, close, navigate }: {
-  open: boolean; close: () => void; navigate: (destination: CommandDestination) => void;
+  open: boolean; close: () => void; navigate: (page: WorkspacePage, itemId?: string) => void;
 }) {
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
   const searchRef = useRef<HTMLInputElement>(null);
-  const matches = useMemo(() => commands.filter(item =>
-    (item.label + ' ' + item.detail + ' ' + item.terms).toLowerCase().includes(query.trim().toLowerCase()),
-  ), [query]);
+  const matches = useMemo(() => {
+    const term = query.trim().toLowerCase();
+    const filtered = commands.filter(item => !term
+      ? !item.planned
+      : (item.label + ' ' + item.detail + ' ' + item.group).toLowerCase().includes(term));
+    return filtered.slice(0, 28);
+  }, [query]);
 
   useEffect(() => {
     if (open) {
@@ -37,37 +40,48 @@ export function CommandPalette({ open, close, navigate }: {
 
   function execute(index: number) {
     const found = matches[index];
-    if (found) { navigate(found.destination); close(); }
+    if (found && found.page && !found.planned) {
+      navigate(found.page, found.itemId);
+      close();
+    }
   }
 
-  return <div className="command-overlay" role="presentation" onMouseDown={e => { if (e.target === e.currentTarget) close(); }}>
-    <section className="command-dialog" role="dialog" aria-modal="true" aria-label="Quick navigation">
+  return <div className="command-overlay" role="presentation"
+    onMouseDown={e => { if (e.target === e.currentTarget) close(); }}>
+    <section className="command-dialog" role="dialog" aria-modal="true" aria-label="Search ERP modules">
       <div className="command-input-wrap">
         <AppIcon name="search" size={23} />
-        <input ref={searchRef} aria-label="Search navigation" value={query}
-          onChange={e => setQuery(e.target.value)} placeholder="Where would you like to go?"
+        <input ref={searchRef} aria-label="Search all ERP modules" value={query}
+          onChange={e => setQuery(e.target.value)} placeholder="Find sales, purchase, categories, journals, users…"
           onKeyDown={e => {
-            if (e.key === 'ArrowDown') { e.preventDefault(); setActive(n => Math.min(n + 1, matches.length - 1)); }
-            if (e.key === 'ArrowUp') { e.preventDefault(); setActive(n => Math.max(0, n - 1)); }
-            if (e.key === 'Enter') { e.preventDefault(); execute(active); }
-            if (e.key === 'Escape') { e.preventDefault(); close(); }
+            if (e.key === 'ArrowDown') {
+              e.preventDefault();setActive(n => Math.min(n + 1, matches.length - 1));
+            }
+            if (e.key === 'ArrowUp') {e.preventDefault();setActive(n => Math.max(0, n - 1));}
+            if (e.key === 'Enter') {e.preventDefault();execute(active);}
+            if (e.key === 'Escape') {e.preventDefault();close();}
           }} />
         <kbd>ESC</kbd>
       </div>
-      <div className="command-list" role="listbox" aria-label="Pages">
-        <div className="command-label">NAVIGATION</div>
-        {matches.map((item, index) => <button
-          type="button" role="option" aria-selected={active === index}
-          onMouseEnter={() => setActive(index)}
-          className={'command-item' + (active === index ? ' command-selected' : '')}
-          key={item.destination} onClick={() => execute(index)}>
+      <div className="command-list" role="listbox" aria-label="ERP module search">
+        <div className="command-label">{query.trim() ? 'MATCHING MODULES' : 'AVAILABLE WORKFLOWS'}</div>
+        {matches.map((item,index) => <button type="button" role="option"
+          aria-selected={active===index && !item.planned}
+          disabled={item.planned}
+          onMouseEnter={() => {if(!item.planned)setActive(index);}}
+          className={'command-item'+(active===index&&!item.planned?' command-selected':'')+(item.planned?' command-planned':'')}
+          key={item.key} onClick={() => execute(index)}>
           <span className="command-icon"><AppIcon name={item.icon} size={19}/></span>
-          <span className="command-description"><strong>{item.label}</strong><small>{item.detail}</small></span>
-          <AppIcon name="arrow" size={17} />
+          <span className="command-description">
+            <strong>{item.label}</strong><small>{item.group} · {item.detail}</small>
+          </span>
+          {item.planned ? <span className="command-pending">Planned</span> : <AppIcon name="arrow" size={17}/>}
         </button>)}
-        {matches.length === 0 && <p className="command-empty">No matching page found.</p>}
+        {matches.length === 0 && <p className="command-empty">No matching module found.</p>}
       </div>
-      <footer className="command-footer"><span>↑ ↓ Navigate</span><span>↵ Open</span><span>ESC Close</span></footer>
+      <footer className="command-footer">
+        <span>↑ ↓ Navigate</span><span>↵ Open available</span><span>ESC Close</span>
+      </footer>
     </section>
   </div>;
 }
