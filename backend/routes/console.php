@@ -352,8 +352,80 @@ Artisan::command('ahpos:create-platform-superadmin', function (): int {
 
     $superRoleId = DB::table('platform_roles')->where('name', 'Super Admin')->value('id');
     if ($superRoleId === null) {
-        $this->error('No existing Platform Super Admin role. Refusing to mint a new root identity.');
-        return 1;
+        // First local initialization is permitted ONLY when no Platform RBAC
+        // records exist. Mixed/partial RBAC state fails closed.
+        if (DB::table('platform_roles')->exists() || DB::table('platform_user_roles')->exists()) {
+            $this->error('Platform roles exist without a Super Admin role. No changes; inspect Platform RBAC.');
+            return 1;
+        }
+        $this->warn('FIRST-TIME LOCAL PLATFORM INITIALIZATION');
+        $this->line('No existing Platform roles. Create a NEW Platform-only user; Ali business data stays untouched.');
+        if (! $this->confirm('Initialize first Platform Super Admin in ahpos_test?', false)) {
+            $this->info('Cancelled. Nothing changed.');
+            return 0;
+        }
+        $name = trim((string) $this->ask('Dedicated Platform Super Admin name'));
+        $email = strtolower(trim((string) $this->ask('NEW Platform login email (not existing POS email)')));
+        $password = (string) $this->secret('New Platform password (12+ chars, upper/lower, number, symbol)');
+        $again = (string) $this->secret('Confirm new Platform password');
+
+        $validator = Validator::make(compact('name', 'email', 'password'), [
+            'name' => ['required', 'string', 'min:2', 'max:160'],
+            'email' => ['required', 'email', 'max:255'],
+            'password' => ['required', 'string',
+                \Illuminate\Validation\Rules\Password::min(12)->mixedCase()->numbers()->symbols()],
+        ]);
+        if ($validator->fails() || ! hash_equals($password, $again)
+            || DB::table('users')->whereRaw('lower(email) = ?', [$email])->exists()) {
+            $this->error('Invalid input, duplicate email, weak password or mismatch. Nothing changed.');
+            return 1;
+        }
+        $this->line('New Platform-only login: '.$name.' ('.$email.')');
+        if (! $this->confirm('CREATE the FIRST Platform Super Admin with full Platform authority?', false)) {
+            $this->info('Cancelled. Nothing changed.');
+            return 0;
+        }
+
+        try {
+            DB::transaction(function () use ($name, $email, $password): void {
+                // Only one local bootstrap can succeed, even if started twice.
+                DB::select('SELECT pg_advisory_xact_lock(?)', [84170621]);
+                if (DB::table('platform_roles')->exists() || DB::table('platform_user_roles')->exists()) {
+                    throw new \RuntimeException('Platform RBAC already initialized.');
+                }
+                if (DB::table('users')->whereRaw('lower(email) = ?', [$email])->exists()) {
+                    throw new \RuntimeException('Email already registered.');
+                }
+                $user = User::create([
+                    'name' => $name, 'email' => $email,
+                    'password' => $password, // User model hashes it.
+                ]);
+                $roleId = \App\Support\PlatformPermissions::ensureRole(
+                    'Super Admin', \App\Support\PlatformPermissions::allAdminRolePermissions(),
+                );
+                DB::table('platform_user_roles')->insert([
+                    'user_id' => $user->getKey(), 'role_id' => $roleId,
+                ]);
+                DB::table('platform_audit_events')->insert([
+                    'ulid' => (string) \Illuminate\Support\Str::ulid(),
+                    'actor_id' => $user->getKey(),
+                    'action' => 'platform.super_admin.initialized_local',
+                    'target_type' => 'platform_user',
+                    'target_ulid' => null,
+                    'metadata' => json_encode(['local_only' => true, 'first_initialization' => true],
+                        JSON_THROW_ON_ERROR),
+                    'ip_address' => null, 'created_at' => now(),
+                ]);
+            });
+        } catch (\Throwable $exception) {
+            $this->error('Platform initialization rolled back: '.get_class($exception));
+            return 1;
+        }
+        $this->info('SUCCESS: Dedicated Platform Super Admin created, no tenant membership.');
+        $this->line('Platform login email: '.$email);
+        $this->line('Platform URL: http://localhost:5173/platform/login');
+        $this->warn('Keep your password private; do not share it in chat or screenshots.');
+        return 0;
     }
 
     $sources = DB::table('platform_user_roles as ur')
