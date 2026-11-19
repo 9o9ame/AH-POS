@@ -450,3 +450,25 @@ button:not(:disabled):active{transform:scale(.985)}
   .receipt-actions{display:none!important}
   .print-receipt{width:72mm!important;margin:0 auto!important;padding:0!important;font-size:11px!important}
 }
+
+
+/* Linked refund and restocking workflow, using shared AH POS tokens. */
+.returns-layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.8fr);gap:18px;align-items:start}
+.returns-layout>.panel-card{min-width:0}
+.returns-layout>.panel-card>label{margin:17px 0}
+.return-sale-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:17px 0;padding:16px;background:#f5fbf9;border:1px solid #dcefe9;border-radius:12px}
+.return-sale-summary>div{display:flex;flex-direction:column;gap:6px;min-width:0}
+.return-sale-summary span{font-size:10px;color:#7a8c9e}
+.return-sale-summary strong{font-size:12px;overflow-wrap:anywhere}
+.return-lines{min-width:470px;margin:14px 0}
+.return-lines td:first-child strong,.return-lines td:first-child small{display:block}
+.return-lines td:first-child small{font-size:10px;color:#8898a9;margin-top:4px}
+.return-lines input{width:110px;max-width:100%;min-height:38px}
+.refund-summary{background:#edf9f5;border-radius:11px;padding:15px 17px;margin:19px 0 14px}
+.refund-summary>div{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.refund-summary>div span{font-size:12px;font-weight:700}
+.refund-summary>div strong{font-family:Manrope,sans-serif;color:#087a70;font-size:21px}
+.refund-summary small{color:#73998e;line-height:1.5;font-size:10px;display:block;margin-top:8px}
+.returns-layout .pos-warning{padding-top:15px;border-top:1px dashed var(--line)}
+@media(max-width:1140px){.returns-layout{grid-template-columns:1fr}}
+@media(max-width:530px){.return-sale-summary{grid-template-columns:1fr}.refund-summary>div strong{font-size:17px}}
