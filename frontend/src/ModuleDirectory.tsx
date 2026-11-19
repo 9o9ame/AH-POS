@@ -91,7 +91,7 @@ export function ModuleDirectory({ activeModule, navigate, section }: Props) {
 
 export function ModuleRibbon({
   activeModule, previewModule, pinnedModule, choose, preview, leave, home,
-  profileName, workspaceName,
+  profileName, workspaceName, onPlatform,
 }: {
   activeModule: ModuleId;
   previewModule: ModuleId | null;
@@ -102,6 +102,7 @@ export function ModuleRibbon({
   home: () => void;
   profileName?: string;
   workspaceName?: string;
+  onPlatform?: () => void;
 }) {
   const families: ModuleId[] = ['definitions','daily','reports','tools','administration','help'];
   return <nav className="enterprise-ribbon" aria-label="AH POS main application menu"
@@ -125,6 +126,10 @@ export function ModuleRibbon({
       </button>;
     })}
     <div className="ribbon-account">
+      {onPlatform && <button type="button" className="platform-ribbon-link"
+        onClick={onPlatform} title="Open authorized Super Admin Platform">
+        <AppIcon name="shield" size={15}/> Platform
+      </button>}
       <span className="ribbon-workspace-name" title={workspaceName || 'Workspace'}>{workspaceName || 'Workspace'}</span>
       <span className="ribbon-avatar" title={profileName || 'Authorized user'}>
         {(profileName||'A').slice(0,1).toUpperCase()}
