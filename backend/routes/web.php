@@ -84,8 +84,8 @@ Route::middleware(['auth', 'tenant.context', 'tenant.db-scope'])->group(function
 });
 
 
-// Inventory v1: tenant-owned warehouses, stock inwards and read-only balances.
-// No sale posting, stock decrements or accounting journal here.
+// Inventory v1: tenant-owned warehouses, stock inwards and signed movement balances.
+// Sale stock-out reuses this ledger; accounting journals still pending.
 Route::middleware(['auth', 'tenant.context', 'tenant.db-scope'])->group(function (): void {
     Route::get('/api/tenants/{tenant}/warehouses', [WarehouseController::class, 'index'])
         ->middleware('tenant.permission:warehouses.read');
