@@ -9,10 +9,10 @@ import { CashRegisterPanel } from './CashRegisterPanel';
 import { ReportsPanel } from './ReportsPanel';
 import { ProductsPanel } from './ProductsPanel';
 import { PartiesPanel } from './PartiesPanel';
-import { ApiError, login, logout, me, myTenants, tenantContext, type Profile, type TenantChoice } from './api';
+import { ApiError, login, logout, me, myTenants, tenantContext, type Profile, type SaleHold, type TenantChoice } from './api';
 
 type Screen = 'loading' | 'guest' | 'authenticated' | 'unavailable';
-type Page = 'dashboard' | 'products' | 'customers' | 'suppliers' | 'inventory' | 'purchases' | 'sales' | 'returns' | 'cash' | 'reports';
+type Page = 'dashboard' | 'products' | 'customers' | 'suppliers' | 'inventory' | 'purchases' | 'sales' | 'held' | 'returns' | 'cash' | 'reports';
 const pages: { id: Page; label: string; icon: AppIconName; group: string; ready: boolean }[] = [
   { id: 'dashboard', label: 'Overview', icon: 'dashboard', group: 'WORKSPACE', ready: true },
   { id: 'products', label: 'Products', icon: 'products', group: 'CATALOG', ready: true },
@@ -21,6 +21,7 @@ const pages: { id: Page; label: string; icon: AppIconName; group: string; ready:
   { id: 'inventory', label: 'Inventory & Warehouses', icon: 'inventory', group: 'OPERATIONS', ready: true },
   { id: 'purchases', label: 'Purchasing', icon: 'truck', group: 'OPERATIONS', ready: true },
   { id: 'sales', label: 'Point of Sale', icon: 'sales', group: 'OPERATIONS', ready: true },
+  { id: 'held', label: 'Held Bills', icon: 'package', group: 'OPERATIONS', ready: true },
   { id: 'returns', label: 'Sales Returns', icon: 'arrow', group: 'OPERATIONS', ready: true },
   { id: 'cash', label: 'Cash Register', icon: 'warehouse', group: 'OPERATIONS', ready: true },
   { id: 'reports', label: 'Reports', icon: 'reports', group: 'INSIGHTS', ready: true },
@@ -37,6 +38,7 @@ export function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [commandOpen, setCommandOpen] = useState(false);
   const [workWindows, setWorkWindows] = useState<WorkWindow[]>([]);
+  const [holdsVersion, setHoldsVersion] = useState(0);
   const [activeWindowId, setActiveWindowId] = useState<string | null>(null);
   const nextWindowNumber = useRef({sale: 1, purchase: 1});
   const [busy, setBusy] = useState(false);
@@ -55,6 +57,30 @@ export function App() {
     setCommandOpen(false);
   }, []);
 
+  const restoreHeldSale = useCallback((hold: SaleHold) => {
+    const existing = workWindows.find(w => w.kind === 'sale' &&
+      (w.savedHoldUlid === hold.ulid || w.initialHold?.ulid === hold.ulid));
+    if (existing) {
+      setActiveWindowId(existing.id);
+      setPage('sales');
+      return;
+    }
+    const number = nextWindowNumber.current.sale++;
+    const id = crypto.randomUUID();
+    setWorkWindows(previous => [...previous, {
+      id, kind: 'sale', number, label: hold.title,
+      dirty: true, initialHold: hold, savedHoldUlid: hold.ulid,
+    }]);
+    setActiveWindowId(id);
+    setPage('sales');
+  }, [workWindows]);
+
+  const onHoldsChanged = useCallback((id: string, holdUlid?: string) => {
+    if (holdUlid) setWorkWindows(previous => previous.map(item =>
+      item.id === id ? {...item, savedHoldUlid: holdUlid} : item));
+    setHoldsVersion(version => version + 1);
+  }, []);
+
   const minimizeWorkWindow = useCallback(() => {
     setActiveWindowId(null);
   }, []);
@@ -70,8 +96,9 @@ export function App() {
   const closeWorkWindow = useCallback((id: string) => {
     const item = workWindows.find(window => window.id === id);
     if (!item) return;
-    if (item.dirty && !window.confirm('Discard this unposted ' + item.label +
-        '? Its cart and unsaved values will be lost.')) return;
+    if (item.dirty && !window.confirm(item.savedHoldUlid
+        ? 'Close this window? The last saved hold remains on the server. Any changes made since saving will be lost.'
+        : 'Discard this unposted ' + item.label + '? Its cart and unsaved values will be lost.')) return;
     setWorkWindows(previous => previous.filter(window => window.id !== id));
     setActiveWindowId(current => current === id ? null : current);
   }, [workWindows]);
@@ -291,6 +318,7 @@ export function App() {
                 page === 'suppliers' ? 'Manage your purchasing contacts.' :
                 page === 'purchases' ? 'Receive supplier purchases and update stock.' :
                 page === 'sales' ? 'Fast, keyboard-friendly cash checkout.' :
+                page === 'held' ? 'Find and restore cashier-saved customer bills.' :
                 page === 'returns' ? 'Record partial refunds without editing the original sale.' :
                 page === 'cash' ? 'Open a cashier shift, count physical cash and reconcile closing.' :
                 page === 'reports' ? 'Live operational sales and purchasing insights.' : 'Module in development.'}</p>
@@ -307,9 +335,11 @@ export function App() {
           {page === 'customers' && <PartiesPanel key={selected.ulid + '-customer'} tenant={selected} initialType="customer" />}
           {page === 'suppliers' && <PartiesPanel key={selected.ulid + '-supplier'} tenant={selected} initialType="supplier" />}
           {page === 'inventory' && <InventoryPanel key={selected.ulid} tenant={selected} />}
-          {page === 'purchases' && <TransactionHome kind="purchase" windows={workWindows}
+          {page === 'purchases' && <TransactionHome kind="purchase" tenant={selected}
+            windows={workWindows} holdsVersion={holdsVersion} restoreHold={restoreHeldSale}
             open={openWorkWindow} activate={setActiveWindowId} />}
-          {page === 'sales' && <TransactionHome kind="sale" windows={workWindows}
+          {(page === 'sales' || page === 'held') && <TransactionHome kind="sale" tenant={selected}
+            windows={workWindows} holdsVersion={holdsVersion} restoreHold={restoreHeldSale}
             open={openWorkWindow} activate={setActiveWindowId} />}
           {page === 'returns' && <ReturnsPanel key={selected.ulid} tenant={selected} />}
           {page === 'cash' && <CashRegisterPanel key={selected.ulid} tenant={selected} />}
@@ -320,6 +350,6 @@ export function App() {
     {selected && <TransactionWorkbench tenant={selected} windows={workWindows}
       activeId={activeWindowId} open={openWorkWindow}
       activate={setActiveWindowId} minimize={minimizeWorkWindow}
-      close={closeWorkWindow} markDirty={markWindowDirty} />}
+      close={closeWorkWindow} markDirty={markWindowDirty} onHoldsChanged={onHoldsChanged} />}
   </div>;
 }
