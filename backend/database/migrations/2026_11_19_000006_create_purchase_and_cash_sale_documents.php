@@ -88,6 +88,15 @@ return new class extends Migration
             $table->index(['tenant_id', 'sale_id']);
         });
 
+        Schema::table('stock_movements', function (Blueprint $table): void {
+            $table->foreignId('purchase_id')->nullable();
+            $table->foreignId('sale_id')->nullable();
+            $table->foreign(['tenant_id', 'purchase_id'], 'stock_purchase_tenant_fk')
+                ->references(['tenant_id', 'id'])->on('purchases')->restrictOnDelete();
+            $table->foreign(['tenant_id', 'sale_id'], 'stock_sale_tenant_fk')
+                ->references(['tenant_id', 'id'])->on('sales')->restrictOnDelete();
+        });
+
         // Reuse the existing append-only inventory ledger for both directions.
         // Stock issue is negative, and positive quantity still required for inwards.
         DB::statement('ALTER TABLE stock_movements DROP CONSTRAINT stock_movement_qty_positive');
@@ -126,6 +135,11 @@ SQL);
         DB::statement('ALTER TABLE stock_movements DROP CONSTRAINT stock_movement_nonzero');
         DB::statement('ALTER TABLE stock_movements ADD CONSTRAINT stock_movement_qty_positive CHECK (quantity > 0)');
         DB::statement("ALTER TABLE stock_movements ADD CONSTRAINT stock_movement_type_check CHECK (type IN ('opening', 'receipt'))");
+        Schema::table('stock_movements', function (Blueprint $table): void {
+            $table->dropForeign('stock_sale_tenant_fk');
+            $table->dropForeign('stock_purchase_tenant_fk');
+            $table->dropColumn(['sale_id', 'purchase_id']);
+        });
         Schema::dropIfExists('sale_lines');
         Schema::dropIfExists('sales');
         Schema::dropIfExists('purchase_lines');
