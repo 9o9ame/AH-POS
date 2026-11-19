@@ -256,3 +256,26 @@ export function getOperationsReport(tenantUlid: string): Promise<OperationsRepor
     `/api/tenants/${encodeURIComponent(tenantUlid)}/reports/operations`,
   );
 }
+
+
+export type SaleReturnRecord = {
+  ulid: string; sale_ulid: string; reason: string; refund_total: string;
+  refund_method: string; status: string; created_at: string;
+};
+export type SaleReturnInput = {
+  sale_ulid: string; idempotency_key: string; reason: string;
+  lines: { sale_line_ulid: string; quantity: string }[];
+};
+export type SaleReturnResult = {
+  ulid: string; sale_ulid: string; refund_total: string; replayed: boolean;
+};
+export function listSaleReturns(tenantUlid: string): Promise<SaleReturnRecord[]> {
+  return getData<SaleReturnRecord[]>(
+    `/api/tenants/${encodeURIComponent(tenantUlid)}/sale-returns`,
+  );
+}
+export function postSaleReturn(tenantUlid: string, input: SaleReturnInput): Promise<SaleReturnResult> {
+  return post<DataResponse<SaleReturnResult>>(
+    `/api/tenants/${encodeURIComponent(tenantUlid)}/sale-returns`, input,
+  ).then(result => result.data);
+}
