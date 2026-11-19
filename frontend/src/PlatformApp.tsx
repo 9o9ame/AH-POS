@@ -148,7 +148,7 @@ export function PlatformApp(){
             <button type="submit" disabled={busy} className="list-create-button">Transfer Platform authority to dedicated identity</button>
           </form>:<p className="inline-alert">Only authorized Platform Super Admin operators may transfer ownership.</p>}
           {error&&<p className="inline-alert" role="alert">{error}</p>}
-        </section>:<PlatformPanel session={session!} onSignOut={()=>{void signOut()}}
+        </section>:<PlatformPanel key={view} session={session!} onSignOut={()=>{void signOut()}}
           initialTab={view==='staff'?'staff':view==='audit'?'audit':'admins'}
           focus={view==='dashboard'?'overview':'register'}/>}
       </div>
