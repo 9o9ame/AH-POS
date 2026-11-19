@@ -228,3 +228,7 @@ User confirmed focused `AuthSessionTest|PlatformRealmSeparationTest|PlatformOnbo
 
 ## 2026-11-19 — Secure terminal Super Admin creation without mixed Ali role
 Added `php artisan ahpos:create-platform-superadmin` local-only CLI to create a dedicated Platform login from an existing mixed Platform/tenant account, with current-password authorization and atomic Platform-role transfer. Prompts new email/name/strong password (hidden), selects source by numbered menu (no ULIDs), audits transition and preserves original tenant user, memberships and financial data. Command and actual login unverified on user's machine. No migration or default credentials.
+
+## 2026-11-19 — Fix dedicated Super Admin CLI on uninitialized local Platform RBAC
+- User reported first run of `ahpos:create-platform-superadmin`: `No existing Platform Super Admin role`; no data changed.
+- Same command now supports safe first-time `ahpos_test` initialization only if no Platform roles or assignments exist, with explicit confirmation, new distinct account, strong hidden password, advisory transaction lock, Platform-role/permission assignment and audit. Existing role transfer unchanged; partial RBAC state fails closed. No tenant data changes or migration. Local execution pending.
