@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import {
   ApiError, createPlatformAdmin, createPlatformStaff, getPlatformAdmins, getPlatformAudit,
+  assignPlatformExistingOwner, listPlatformOwnerCandidates, type PlatformOwnerCandidate,
   getPlatformOverview, getPlatformStaff, type PlatformAdminRecord, type PlatformAuditRecord,
   type PlatformOverview, type PlatformSession, type PlatformStaffRecord,
 } from './api';
@@ -15,7 +16,10 @@ export function PlatformPanel({session, onSignOut}: {session:PlatformSession; on
   const [staff,setStaff] = useState<PlatformStaffRecord[]>([]);
   const [audit,setAudit] = useState<PlatformAuditRecord[]>([]);
   const [loading,setLoading] = useState(true);
-  const [editor,setEditor] = useState<'admin'|'staff'|null>(null);
+  const [editor,setEditor] = useState<'admin'|'staff'|'assignOwner'|null>(null);
+  const [ownerBusiness,setOwnerBusiness] = useState<PlatformAdminRecord|null>(null);
+  const [ownerCandidates,setOwnerCandidates] = useState<PlatformOwnerCandidate[]>([]);
+  const [selectedOwnerEmail,setSelectedOwnerEmail] = useState('');
   const [busy,setBusy] = useState(false);
   const [error,setError] = useState('');
   const [success,setSuccess] = useState('');
@@ -58,6 +62,31 @@ export function PlatformPanel({session, onSignOut}: {session:PlatformSession; on
     }catch(ex){setError(ex instanceof ApiError?ex.message:'Unable to create Platform staff.')}
     finally{setBusy(false)}
   }
+  async function openOwnerAssignment(business:PlatformAdminRecord){
+    setOwnerBusiness(business);setOwnerCandidates([]);setSelectedOwnerEmail('');
+    setError('');setSuccess('');setBusy(true);
+    try{
+      const members=await listPlatformOwnerCandidates(business.ulid);
+      setOwnerCandidates(members);
+      setSelectedOwnerEmail(members.length===1?members[0].email:'');
+      setEditor('assignOwner');
+    }catch(ex){
+      setError(ex instanceof ApiError?ex.message:'Could not load existing business members.');
+    }finally{setBusy(false)}
+  }
+  async function saveOwnerAssignment(event:FormEvent<HTMLFormElement>){
+    event.preventDefault();
+    if(!ownerBusiness || !selectedOwnerEmail)return;
+    setBusy(true);setError('');setSuccess('');
+    try{
+      const result=await assignPlatformExistingOwner(ownerBusiness.ulid,selectedOwnerEmail);
+      setEditor(null);setOwnerBusiness(null);
+      setSuccess('Admin Owner assigned to '+result.owner_name+' for '+result.name+'.');
+      await load();
+    }catch(ex){
+      setError(ex instanceof ApiError?ex.message:'Could not assign business owner.');
+    }finally{setBusy(false)}
+  }
   return <div className="platform-console">
     <header className="platform-hero">
       <div><span className="small-overline">AH POS / CONTROL PLANE</span>
@@ -88,10 +117,14 @@ export function PlatformPanel({session, onSignOut}: {session:PlatformSession; on
           {can('platform.admins.create')&&<button type="button" className="list-create-button" onClick={()=>setEditor('admin')}>+ Create Admin</button>}
         </div></div>
       <div className="table-scroll"><table className="data-table">
-        <thead><tr><th>Business</th><th>Admin owner</th><th>Owner email</th><th>Status</th><th>Created</th></tr></thead>
+        <thead><tr><th>Business</th><th>Admin owner</th><th>Owner email</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
         <tbody>{admins.map(t=><tr key={t.ulid}><td><strong>{t.name}</strong></td>
           <td>{t.owner_name||'No mapped owner'}</td><td>{t.owner_email||'—'}</td><td>{t.status}</td>
-          <td>{new Date(t.created_at).toLocaleDateString()}</td></tr>)}</tbody></table></div>
+          <td>{new Date(t.created_at).toLocaleDateString()}</td><td>
+            {!t.owner_email && can('platform.admins.create') && t.status === 'active' &&
+              <button type="button" className="btn-ghost" disabled={busy}
+                onClick={() => {void openOwnerAssignment(t);}}>Assign Owner</button>}
+          </td></tr>)}</tbody></table></div>
       {loading&&<TableSkeleton rows={6} cols={5}/>}
       {!loading&&admins.length===0&&<p className="empty-copy">No Admin workspaces visible.</p>}
       <p className="muted">Legacy local test tenants may show no mapped owner; they are not silently upgraded to Platform-managed Admins.</p>
@@ -134,6 +167,23 @@ export function PlatformPanel({session, onSignOut}: {session:PlatformSession; on
           value={staffInput.password} onChange={e=>setStaffInput(v=>({...v,password:e.target.value}))}/></label>
         <button disabled={busy} type="submit" className="list-create-button">{busy?'Saving…':'Create Platform Staff'}</button>
       </form></EntityModal>}
+    {editor==='assignOwner' && ownerBusiness && <EntityModal title="Assign Admin Owner"
+      subtitle={'Choose an existing active member of '+ownerBusiness.name+'. No tenant ID required.'}
+      busy={busy} onClose={()=>setEditor(null)}>
+      <form className="platform-form" onSubmit={e=>{void saveOwnerAssignment(e)}}>
+        <p className="muted">This grants Admin Owner permissions for this business only. It does not give Platform authority.</p>
+        <label>Existing business member
+          <select required value={selectedOwnerEmail} onChange={e=>setSelectedOwnerEmail(e.target.value)}>
+            <option value="">Select existing member</option>
+            {ownerCandidates.map(m=><option key={m.email} value={m.email}>{m.name} — {m.email}</option>)}
+          </select>
+        </label>
+        {ownerCandidates.length===0 && <p className="inline-alert">No active members available for this business.</p>}
+        <button type="submit" className="list-create-button" disabled={busy||!selectedOwnerEmail}>
+          {busy?'Assigning…':'Confirm Admin Owner'}
+        </button>
+      </form>
+    </EntityModal>}
     {error&&<p role="alert" className="inline-alert">{error}</p>}
     {success&&<p role="status" className="inline-success">{success}</p>}
   </div>;
