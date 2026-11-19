@@ -65,12 +65,17 @@ final class SaleController extends Controller
 
         $tenantId = $context->id();
         $key = strtolower($data['idempotency_key']);
-        $signature = DocumentPosting::payloadHash([
+        $signatureParts = [
             strtoupper($data['warehouse_ulid']),
             strtoupper((string) ($data['customer_ulid'] ?? '')),
             (string) $data['amount_paid'], $data['lines'],
-            strtoupper((string) ($data['hold_ulid'] ?? '')),
-        ]);
+        ];
+        // Preserve the existing idempotency fingerprint for ordinary cash
+        // sales; add held bill identity only when the request explicitly has one.
+        if (! empty($data['hold_ulid'])) {
+            $signatureParts[] = strtoupper($data['hold_ulid']);
+        }
+        $signature = DocumentPosting::payloadHash($signatureParts);
         DocumentPosting::lockKey($tenantId, 'sale', $key);
         $existing = DB::table('sales')->where('tenant_id', $tenantId)
             ->where('idempotency_key', $key)->first(['ulid', 'payload_hash', 'total', 'change_due']);
