@@ -1,9 +1,11 @@
+import { EntityModal, TableSkeleton } from './EntityModal';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { ApiError, createParty, listParties, type Party, type PartyType, type TenantChoice } from './api';
 
 export function PartiesPanel({ tenant, initialType }: { tenant: TenantChoice; initialType: PartyType }) {
   const kind = initialType;
   const [records, setRecords] = useState<Party[]>([]);
+  const [editorOpen, setEditorOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [input, setInput] = useState({ name: '', phone: '', email: '', address: '' });
   const [busy, setBusy] = useState(false);
@@ -23,7 +25,7 @@ export function PartiesPanel({ tenant, initialType }: { tenant: TenantChoice; in
       setRecords([]);
       setAllowed(!(error instanceof ApiError && error.status === 403));
       setMessage(error instanceof ApiError && error.status === 403
-        ? 'Directory access not assigned. Run local catalog grant again to add party permissions.'
+        ? 'Directory access not assigned. Ask your Admin for party directory access.'
         : 'Could not load customer/supplier directory.');
     } finally {
       setLoading(false);
@@ -43,6 +45,7 @@ export function PartiesPanel({ tenant, initialType }: { tenant: TenantChoice; in
     try {
       const item = await createParty(tenant.ulid, { type: kind, ...input });
       setInput({ name: '', phone: '', email: '', address: '' });
+      setEditorOpen(false);
       await refresh(query);
       setMessage(`${kind === 'customer' ? 'Customer' : 'Supplier'} "${item.name}" saved successfully.`);
     } catch (error) {
@@ -63,10 +66,14 @@ export function PartiesPanel({ tenant, initialType }: { tenant: TenantChoice; in
           <h2 id="parties-title">{kind === 'customer' ? 'Customers' : 'Suppliers'} — {tenant.name}</h2>
           <p>Contact directory. Credit ledger and opening balances are not implemented yet.</p>
         </div>
-        <span className="catalog-count">{total} {kind === 'customer' ? 'customers' : 'suppliers'}</span>
+        <div className="dense-actions"><span className="catalog-count">{total} {kind === 'customer' ? 'customers' : 'suppliers'}</span>
+          <button type="button" className="list-create-button" onClick={() => setEditorOpen(true)}>
+            + Add {kind === 'customer' ? 'Customer' : 'Supplier'}</button>
+        </div>
       </div>
       {allowed && <>
-        <form className="catalog-form" onSubmit={e => { void save(e); }}>
+        {editorOpen && <EntityModal title={kind === 'customer' ? 'Add Customer' : 'Add Supplier'} onClose={() => setEditorOpen(false)} busy={busy}>
+        <form className="catalog-form modal-entry-form" onSubmit={e => { void save(e); }}>
           <h3>Add {kind}</h3>
           <div className="catalog-fields">
             <label>Name<input required maxLength={180} value={input.name}
@@ -80,6 +87,7 @@ export function PartiesPanel({ tenant, initialType }: { tenant: TenantChoice; in
           </div>
           <button disabled={busy} type="submit">{busy ? 'Saving…' : `Save ${kind}`}</button>
         </form>
+        </EntityModal>}
         <form className="catalog-search" onSubmit={e => { e.preventDefault(); void refresh(query); }}>
           <label htmlFor="party-search">Search {kind}s</label>
           <div className="catalog-search-row">
@@ -96,7 +104,8 @@ export function PartiesPanel({ tenant, initialType }: { tenant: TenantChoice; in
               <td>{record.address || '—'}</td><td>{record.is_active ? 'Active' : 'Inactive'}</td>
             </tr>)}</tbody>
           </table>
-          {records.length === 0 && <p>{loading ? 'Loading…' : 'No records found.'}</p>}
+          {loading && <TableSkeleton rows={4} cols={5}/>}
+          {!loading && records.length === 0 && <p>No records found.</p>}
           {total > 30 && <p>Showing first 30. Pagination controls pending.</p>}
         </div>
       </>}
