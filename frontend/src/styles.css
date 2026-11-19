@@ -882,3 +882,202 @@ button:not(:disabled):active{transform:scale(.985)}
 .command-pending{font-size:10px;font-weight:800;color:#8394a7;background:#edf1f5;border-radius:6px;padding:5px 7px;white-space:nowrap}
 .command-description{min-width:0}
 .command-description small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+
+/* 2026-11-19: Dense admin desktop. Only workspace content scrolls.
+   Hover reveals a contextual submenu; click the edge or pin control to keep it. */
+.compact-shell{height:100dvh;min-height:0;overflow:hidden;display:block;position:relative}
+.compact-shell .app-main{width:100%;height:100dvh;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.compact-shell .app-sidebar{
+  position:fixed!important;top:0!important;left:0!important;bottom:0!important;
+  width:258px!important;min-width:258px!important;height:100dvh!important;
+  transform:translateX(calc(-100% - 3px));opacity:.95;
+  transition:transform 310ms cubic-bezier(.2,.84,.18,1),box-shadow 310ms ease,opacity 200ms ease;
+  z-index:86!important;will-change:transform;
+  box-shadow:0 18px 55px rgba(3,20,38,.24);
+}
+.compact-shell .app-sidebar.sidebar-open{transform:translateX(0);opacity:1}
+.compact-shell .sidebar-nav{overscroll-behavior:contain;scrollbar-width:thin}
+.compact-shell .sidebar-shade{position:fixed!important;inset:0!important;display:block!important;
+  background:rgba(11,25,42,.13)!important;z-index:84!important;min-height:0!important;
+  width:100%;height:100%;border:0!important;padding:0!important}
+.compact-shell .sidebar-edge-handle{position:fixed;z-index:83;left:0;top:44%;width:19px;height:91px;
+  display:flex;align-items:center;justify-content:center;border:1px solid #cce9e3!important;
+  background:#e3f8f1!important;color:#078e80!important;border-radius:0 11px 11px 0!important;
+  padding:2px!important;box-shadow:3px 5px 20px rgba(19,68,70,.1);
+  transition:width 180ms ease,background 180ms ease}
+.compact-shell .sidebar-edge-handle:hover,.compact-shell .sidebar-edge-handle:focus-visible{width:30px;background:#b6efe1!important}
+.compact-shell .sidebar-pin-control{display:flex;align-items:center;gap:8px;
+  color:#b0f2e1!important;background:#1b4252!important;border:1px solid #2b5367!important;
+  padding:7px 12px!important;border-radius:8px!important;margin:8px 14px 0;
+  font-size:11px!important;min-height:30px!important}
+.compact-shell .enterprise-ribbon{height:55px;min-height:55px;flex:0 0 55px;
+  padding:3px 17px 0 20px;gap:0;box-shadow:0 2px 13px rgba(30,54,75,.035);
+  z-index:20!important;overflow-x:auto;overflow-y:hidden}
+.compact-shell .enterprise-ribbon button{min-height:50px!important;padding:10px 15px!important;
+  font-size:11px!important;border-radius:8px 8px 0 0!important}
+.compact-shell .enterprise-ribbon .ribbon-home{margin-right:8px}
+.compact-shell .ribbon-account{display:flex;align-items:center;gap:10px;margin-left:auto;
+  flex-shrink:0;padding-left:18px;border-left:1px solid #e5edf2}
+.compact-shell .ribbon-account .ribbon-sidebar-toggle{border:1px solid #d8e9e6!important;
+  border-radius:8px!important;min-height:33px!important;padding:7px 9px!important;
+  background:#f0faf7!important;color:#117c74!important}
+.compact-shell .ribbon-workspace-name{font-size:11px;font-weight:800;color:#445d6c;max-width:130px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.compact-shell .ribbon-avatar{width:31px;height:31px;border-radius:10px;background:#e0f4ee;
+  display:grid;place-items:center;color:#0a897c;font-size:13px;font-weight:800}
+.compact-shell .workspace-main{width:100%;max-width:none;margin:0;flex:1;min-height:0;
+  padding:17px 24px 24px;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.compact-shell .page-heading{margin-bottom:12px;gap:10px}
+.compact-shell .page-heading h1{font-size:21px;letter-spacing:-.035em;margin:2px 0 4px}
+.compact-shell .page-heading p{font-size:11px;line-height:1.4}
+.compact-shell .page-heading .small-overline{font-size:9px}
+.compact-shell .panel-card,.compact-shell .section{padding:14px;border-radius:11px}
+.compact-shell .panel-heading{margin-bottom:10px}
+.compact-shell .panel-heading h2,.compact-shell .section h2{font-size:14px;margin:2px 0 5px}
+.compact-shell .panel-card h3,.compact-shell .section h3{font-size:13px}
+.compact-shell input,.compact-shell select,.compact-shell textarea{
+  min-height:35px;padding:7px 10px;font-size:11px;border-radius:7px
+}
+.compact-shell .catalog-table-wrap,.compact-shell .table-scroll{max-height:calc(100dvh - 255px);
+  overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.compact-shell .catalog-table th,.compact-shell .data-table th{
+  position:sticky;top:0;z-index:1;padding:9px 10px;font-size:10px
+}
+.compact-shell .catalog-table td,.compact-shell .data-table td{padding:8px 10px;font-size:11px}
+.compact-shell .catalog-search{margin:9px 0}
+.compact-shell .catalog-search-row{gap:7px}
+.compact-shell .definition-tabs{gap:8px}
+.compact-shell .definition-tab{min-height:57px!important;padding:10px 12px!important}
+.compact-shell .definition-tab strong{font-size:11px}
+.compact-shell .module-directory{gap:13px}
+.compact-shell .module-directory-hero{padding:16px 21px;border-radius:13px}
+.compact-shell .module-directory-heading h2{font-size:20px;margin:3px 0}
+.compact-shell .module-hero-icon{width:45px;height:45px;border-radius:10px}
+.compact-shell .module-hero-icon svg{width:22px;height:22px}
+.compact-shell .module-directory-stats strong{font-size:20px}
+.compact-shell .module-directory-group{gap:8px}
+.compact-shell .module-directory-grid{gap:8px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.compact-shell .module-entry{padding:11px!important;min-height:75px;gap:9px}
+.compact-shell .module-entry-icon{width:31px;height:31px}
+.compact-shell .module-entry-icon svg{width:17px;height:17px}
+.compact-shell .module-entry-copy strong{font-size:11px}
+.compact-shell .module-entry-copy small{font-size:9px}
+.compact-shell .module-directory-toolbar{gap:8px}
+.compact-shell .module-directory-search{min-height:35px}
+.compact-shell .module-directory-search input{min-height:33px!important}
+.compact-shell .module-directory-group-label{padding-bottom:6px}
+.compact-shell .module-directory-crosslinks{gap:5px}
+.compact-shell .module-directory-crosslinks button{padding:8px!important;font-size:10px!important;min-height:31px!important}
+/* Compact list pages keep their create form in one shared modal. */
+.dense-actions{display:flex;align-items:center;gap:9px}
+.compact-shell .list-create-button{background:linear-gradient(110deg,#0fa791,#087c79)!important;
+  color:white!important;border-radius:8px!important;min-height:34px!important;padding:7px 12px!important;font-size:11px!important}
+.entity-modal-backdrop{position:fixed;inset:0;z-index:102;display:flex;align-items:center;justify-content:center;
+  padding:16px;background:rgba(12,27,44,.55);backdrop-filter:blur(4px)}
+.entity-modal{width:min(670px,100%);max-height:min(90dvh,860px);display:flex;flex-direction:column;
+  background:#fff;border-radius:15px;border:1px solid #e7eff0;overflow:hidden;
+  box-shadow:0 30px 100px rgba(9,25,42,.34);animation:command-enter 220ms ease}
+.entity-modal-header{flex-shrink:0;padding:17px 22px;display:flex;align-items:flex-start;
+  justify-content:space-between;gap:12px;border-bottom:1px solid #e5eef2;background:#fbfefd}
+.entity-modal-header h2{font-size:19px;margin:3px 0}
+.entity-modal-header p{color:#7b8b99;font-size:11px;margin:2px 0}
+.entity-modal-close{background:#f3f6f8!important;color:#5e7186!important;border:1px solid #e2e9ee!important;
+  min-height:32px!important;padding:7px!important;border-radius:8px!important}
+.entity-modal-body{padding:16px 22px;overflow:auto;overscroll-behavior:contain;min-height:0}
+.entity-modal-body .catalog-form,.entity-modal-body .definition-master-form{border:0;padding:0;margin:0}
+.entity-modal-body .catalog-fields{gap:11px;margin:10px 0}
+.entity-modal-body label{font-size:11px}
+.entity-modal-body input,.entity-modal-body select{min-height:37px}
+.entity-modal-body .pos-warning{font-size:10px}
+.table-skeleton{display:grid;gap:9px;margin:12px 0;animation:skeleton-fade 1.2s ease-in-out infinite alternate}
+.skeleton-row{display:flex;gap:14px;align-items:center;padding:8px;border-bottom:1px solid #f0f5f5}
+.skeleton-cell{display:block;height:12px;width:75%;min-width:12px;border-radius:6px;
+  background:linear-gradient(90deg,#e6f0ee,#b8e7dc,#e6f0ee);background-size:220% 100%;
+  animation:skeleton-shimmer 1.2s ease-in-out infinite}
+@keyframes skeleton-shimmer{0%{background-position:100% 50%}100%{background-position:0 50%}}
+@keyframes skeleton-fade{from{opacity:.73}to{opacity:1}}
+/* Admin command center. Figures are derived only from authenticated tenant APIs. */
+.admin-dashboard{display:grid;gap:12px}
+.admin-dashboard-head{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:4px 0 8px}
+.admin-dashboard-head h2{font-size:20px;letter-spacing:-.04em;margin:5px 0 4px}
+.admin-dashboard-head h2 span{font-size:12px;color:#8194a5;font-weight:600;letter-spacing:0}
+.admin-dashboard-head p{font-size:11px;color:#7f92a3;margin:0}
+.dashboard-primary-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.dashboard-primary-actions button{display:flex;gap:7px;align-items:center;white-space:nowrap;
+  min-height:34px!important;padding:7px 11px!important;font-size:11px!important}
+.dashboard-primary-actions button.dash-secondary{background:#f1f8f7!important;
+  border:1px solid #cde6df!important;color:#167c70!important}
+.dashboard-primary-actions kbd{font-size:9px}
+.dashboard-counters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.dashboard-count{display:grid;grid-template-columns:33px minmax(0,1fr);align-items:center;
+  gap:3px 10px;text-align:left;background:#fff!important;border:1px solid #e5edf1!important;
+  border-radius:11px!important;min-height:69px!important;padding:10px 12px!important;color:#263c50!important}
+.dashboard-count-icon{grid-row:1/3;display:grid;place-items:center;background:#e8f7f2;
+  width:32px;height:32px;border-radius:9px;color:#159583}
+.dashboard-count>span:nth-child(2){color:#8b9aa9;font-size:10px}
+.dashboard-count>strong{font-size:18px;color:#223a50}
+.dashboard-money-counters{grid-template-columns:repeat(3,minmax(0,1fr))}
+.dashboard-money-card{display:grid;gap:5px;background:#fff;padding:12px 14px;
+  border:1px solid #e4ecf2;border-radius:11px;min-height:87px}
+.dashboard-money-card span{font-size:10px;color:#71879a}
+.dashboard-money-card strong{font:800 19px Manrope,sans-serif;color:#203c52}
+.dashboard-money-card small{font-size:10px;color:#a0afba}
+.dashboard-charts{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(310px,.7fr);gap:11px}
+.dashboard-chart-card{background:#fff;border:1px solid #e5ecf1;border-radius:12px;padding:15px 17px;
+  min-width:0;box-shadow:0 2px 12px rgba(20,51,63,.02)}
+.dashboard-chart-card header{display:flex;justify-content:space-between;align-items:center;
+  gap:9px;margin-bottom:15px}
+.dashboard-chart-card header h3{font-size:13px;font-weight:800;margin:4px 0 0}
+.dashboard-chart-card .chart-action{display:flex;align-items:center;gap:6px;
+  font-size:10px!important;min-height:30px!important;background:#eef8f5!important;color:#108a7e!important;padding:6px 9px!important}
+.dashboard-bars{display:flex;align-items:stretch;gap:10px;min-height:167px;padding:2px 10px 0}
+.dashboard-bar-column{flex:1;min-width:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:flex-end;gap:6px}
+.dashboard-bar-column strong{font-size:10px;color:#5e7a8f}
+.dashboard-bar-track{height:119px;background:#f0f6f6;width:100%;max-width:62px;
+  display:flex;align-items:flex-end;border-radius:5px;overflow:hidden}
+.dashboard-bar-track>span{width:100%;min-height:0;border-radius:5px 5px 0 0;
+  background:linear-gradient(180deg,#0ebca4,#118b90);transition:height .4s ease}
+.dashboard-bar-column small{font-size:10px;color:#94a5b5}
+.dashboard-donut-layout{display:flex;align-items:center;justify-content:space-around;gap:20px;min-height:164px}
+.dashboard-donut{width:152px;height:152px;flex-shrink:0;display:grid;place-items:center;border-radius:50%}
+.dashboard-donut>div{width:109px;height:109px;border-radius:50%;background:white;
+  display:flex;flex-direction:column;align-items:center;justify-content:center}
+.dashboard-donut>div strong{font-size:28px;line-height:1.2}
+.dashboard-donut>div span{font-size:10px;color:#8b9ca9}
+.dashboard-donut-legend{display:grid;gap:13px;min-width:135px}
+.dashboard-donut-legend>div{display:flex;gap:7px;align-items:center;font-size:10px;color:#6a8295}
+.dashboard-donut-legend i{width:8px;height:8px;flex-shrink:0;border-radius:3px}
+.dashboard-donut-legend strong{margin-left:auto;color:#34495d}
+.chart-disclaimer{font-size:10px;color:#94a2b0;margin:10px 0 0}
+.dashboard-stock-watch{padding:12px 17px}
+.dashboard-stock-watch header{margin-bottom:7px}
+.dashboard-stock-watch>p{color:#8c9aa9;font-size:10px;margin-bottom:10px}
+.dashboard-stock-list{display:grid;gap:0}
+.dashboard-stock-list>div{display:grid;grid-template-columns:9px minmax(0,1fr) minmax(95px,.5fr) 120px;
+  gap:10px;align-items:center;padding:7px 6px;border-top:1px solid #eef2f5;font-size:11px}
+.dashboard-stock-list strong{font-weight:750}
+.dashboard-stock-list span{color:#8293a4}
+.dashboard-stock-list b{text-align:right;color:#a76c26;font-size:10px}
+.stock-severity{width:7px;height:7px;border-radius:50%}
+.stock-warning{background:#e7ac4c}
+.stock-critical{background:#e05757}
+.dashboard-stock-list>div:has(.stock-critical) b{color:#ca5151}
+.dashboard-stock-clear{color:#14866b!important}
+@media(max-width:1230px){.compact-shell .module-directory-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:900px){.dashboard-charts{grid-template-columns:1fr}.dashboard-counters{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .compact-shell .module-directory-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .admin-dashboard-head{align-items:flex-start;flex-direction:column}}
+@media(max-width:620px){.compact-shell .workspace-main{padding:12px}
+  .compact-shell .module-directory-grid{grid-template-columns:1fr}
+  .compact-shell .enterprise-ribbon{padding-inline:6px}
+  .compact-shell .enterprise-ribbon button{padding-inline:9px!important}
+  .dashboard-money-counters{grid-template-columns:1fr}
+  .dashboard-primary-actions{flex-wrap:wrap}
+  .dashboard-donut-layout{flex-wrap:wrap}
+  .dashboard-stock-list>div{grid-template-columns:9px minmax(0,1fr) 90px}
+  .dashboard-stock-list>div>span:nth-child(3){display:none}
+  .compact-shell .page-heading h1{font-size:18px}}
+@media(prefers-reduced-motion:reduce){.compact-shell .app-sidebar,.skeleton-cell,
+  .dashboard-bar-track>span{transition:none!important;animation:none!important}}
