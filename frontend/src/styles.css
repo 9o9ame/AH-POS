@@ -1202,3 +1202,114 @@ button:not(:disabled):active{transform:scale(.985)}
 @media(max-width:1050px){.role-template-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:640px){.role-template-grid{grid-template-columns:1fr}.security-stats{grid-template-columns:1fr 1fr}
   .security-hero{flex-direction:column;align-items:flex-start}}
+
+
+/* Dedicated vendor Platform shell. Never reuse the tenant ribbon, sidebar or
+   business entry cards. Platform and POS now have separate URL roots and
+   independent authenticated sessions. */
+.platform-app-frame{height:100dvh;display:grid;grid-template-columns:244px minmax(0,1fr);
+  overflow:hidden;background:#f1f4f8;color:#20334b}
+.platform-sidebar{height:100dvh;min-height:0;display:flex;flex-direction:column;
+  background:linear-gradient(155deg,#10172b 0%,#17233e 65%,#123d4a 100%);
+  border-right:1px solid #30425c;color:#e6eff6;padding:0 10px}
+.platform-sidebar-brand{height:92px;display:flex;flex-direction:column;justify-content:center;
+  padding:14px 15px;border-bottom:1px solid rgba(225,241,251,.12)}
+.platform-logo{font-weight:900;font-size:21px;letter-spacing:-.06em;color:white}
+.platform-logo span{font-size:12px;letter-spacing:.19em;color:#32e5be}
+.platform-sidebar-brand>span{font-size:9px;letter-spacing:.22em;font-weight:800;color:#7ba4b7;margin-top:7px}
+.platform-sidebar-caption{font-size:9px;letter-spacing:.16em;font-weight:800;color:#71849b;
+  padding:26px 15px 10px}
+.platform-sidebar nav{display:grid;gap:5px}
+.platform-sidebar nav button,.platform-sidebar-bottom button{
+  display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+  color:#aebed0!important;background:transparent!important;border:1px solid transparent!important;
+  border-radius:8px!important;min-height:40px!important;padding:11px 13px!important;
+  font-size:12px!important;font-weight:700!important;
+  transition:background .2s,color .2s,transform .2s}
+.platform-sidebar nav button:hover,.platform-sidebar nav button:focus-visible{
+  background:rgba(37,200,168,.09)!important;color:#e8fff8!important}
+.platform-sidebar nav button.selected{
+  background:linear-gradient(110deg,rgba(22,179,152,.22),rgba(24,92,113,.24))!important;
+  color:#99f4db!important;border-color:rgba(64,219,179,.23)!important;
+  box-shadow:inset 3px 0 #29d5b1}
+.platform-sidebar-bottom{margin-top:auto;border-top:1px solid rgba(255,255,255,.12);
+  padding:13px 2px 20px;display:grid;gap:12px}
+.platform-account{display:flex;align-items:center;gap:10px;padding:0 8px}
+.platform-account>span{display:grid;place-items:center;background:#285b67;width:34px;height:34px;
+  border-radius:9px;color:#99f8d7;font-weight:800}
+.platform-account strong{display:block;font-size:11px;color:white}
+.platform-account small{display:block;font-size:10px;color:#91a5b5;margin-top:3px}
+.platform-app-main{min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.platform-app-toolbar{height:64px;min-height:64px;display:flex;justify-content:space-between;
+  gap:18px;align-items:center;padding:8px 25px;background:white;border-bottom:1px solid #e0e7ed}
+.platform-app-toolbar>div:first-child{display:flex;align-items:center;gap:14px}
+.platform-app-toolbar span{font-size:10px;letter-spacing:.15em;color:#8a9cac;font-weight:800}
+.platform-app-toolbar strong{font-size:13px;font-weight:800}
+.platform-control-indicator{display:flex;align-items:center;gap:7px;background:#e8f7f1;
+  color:#0b8674;border-radius:9px;padding:9px 12px;font-size:11px;font-weight:700}
+.platform-main-scroller{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;
+  padding:24px;scrollbar-width:thin}
+.platform-main-scroller .platform-console{gap:12px}
+.platform-main-scroller .platform-hero{padding:28px 30px;border-radius:15px}
+.platform-main-scroller .panel-card{border-radius:12px}
+.platform-security-page{max-width:820px;border:1px solid #e3e9ee;background:#fff;
+  padding:26px 30px;border-radius:15px;display:grid;gap:17px;box-shadow:0 4px 20px rgba(16,34,56,.025)}
+.platform-security-page h1{margin:0;font-size:22px;letter-spacing:-.03em}
+.platform-security-page>p{font-size:12px;color:#718397;line-height:1.8;margin:0}
+.platform-security-page .platform-form{max-width:560px}
+.platform-login-layout{display:grid;grid-template-columns:1fr 1fr;min-height:100dvh;background:#f6f8fb}
+.platform-login-brand{display:flex;flex-direction:column;justify-content:center;gap:20px;
+  padding:clamp(30px,6vw,100px);color:white;
+  background:radial-gradient(circle at 100% 5%,rgba(28,194,164,.28),transparent 48%),
+    linear-gradient(145deg,#0d1931,#14334e 75%,#086e70)}
+.platform-login-brand .platform-logo{font-size:30px;letter-spacing:-.07em}
+.platform-login-brand .platform-logo span{font-size:18px}
+.platform-login-brand .small-overline{color:#85ecd3}
+.platform-login-brand h1{font-size:clamp(28px,3vw,44px);line-height:1.15;
+  letter-spacing:-.055em;font-weight:850;max-width:540px;margin:0;color:#fff}
+.platform-login-brand p{color:#c0d6df;max-width:490px;line-height:1.8;font-size:13px}
+.platform-login-features{display:flex;gap:9px;flex-wrap:wrap}
+.platform-login-features span{font-size:10px;font-weight:800;border:1px solid rgba(139,246,217,.23);
+  background:rgba(255,255,255,.07);border-radius:7px;padding:9px 11px;color:#b0ebdb}
+.platform-login-form{display:grid;place-items:center;padding:30px 20px}
+.platform-auth-box{background:white;border:1px solid #e3eaf0;border-radius:17px;
+  box-shadow:0 20px 65px rgba(14,41,64,.07);padding:36px;
+  width:min(445px,100%);display:grid;gap:15px}
+.platform-auth-mark{display:grid;place-items:center;width:48px;height:48px;border-radius:13px;
+  background:#ddf7f0;color:#0b9480}
+.platform-auth-box .small-overline{color:#0f9a84}
+.platform-auth-box h2{font-size:23px;letter-spacing:-.035em;margin:0}
+.platform-auth-box>p{color:#8494a6;font-size:11px;margin:0}
+.platform-auth-box .platform-form{gap:15px;margin-top:8px}
+.platform-auth-box .platform-form label{font-size:11px;font-weight:800}
+.platform-auth-box .platform-form input{width:100%}
+.platform-auth-box .platform-form button{width:100%;min-height:42px!important;font-size:12px!important}
+.platform-auth-box .platform-auth-footer{font-size:10px;color:#92a3b2;margin-top:4px;line-height:1.7}
+.platform-splash{height:100dvh;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:18px;color:#638c9b;background:#f2f7f8}
+@media(max-width:900px){
+  .platform-app-frame{grid-template-columns:200px minmax(0,1fr)}
+  .platform-login-layout{grid-template-columns:1fr}
+  .platform-login-brand{min-height:220px;padding:25px 30px;gap:9px}
+  .platform-login-brand h1{font-size:23px}
+  .platform-login-brand p{font-size:11px}
+}
+@media(max-width:620px){
+  .platform-app-frame{grid-template-columns:66px minmax(0,1fr)}
+  .platform-sidebar{padding-inline:5px}
+  .platform-sidebar-brand{padding:9px 3px;align-items:center}
+  .platform-sidebar-brand .platform-logo{font-size:14px}
+  .platform-sidebar-brand .platform-logo span,.platform-sidebar-brand>span,
+  .platform-sidebar-caption,.platform-sidebar nav button{font-size:0!important}
+  .platform-sidebar nav button{justify-content:center;padding:10px!important}
+  .platform-sidebar nav button svg{width:20px;height:20px;flex-shrink:0}
+  .platform-sidebar-bottom button{font-size:0!important;justify-content:center}
+  .platform-account>div{display:none}
+  .platform-main-scroller{padding:12px}
+  .platform-app-toolbar{padding:8px 11px}
+  .platform-control-indicator{font-size:0}
+  .platform-auth-box{padding:25px}
+}
+@media(prefers-reduced-motion:reduce){
+  .platform-sidebar nav button{transition:none!important}
+}
