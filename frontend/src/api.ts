@@ -384,7 +384,7 @@ export async function setProductMasterStatus(
 
 
 // Separate Super Admin Platform authority; never uses selected business ULID.
-export type PlatformSession = { name: string; permissions: string[] };
+export type PlatformSession = { name: string; permissions: string[]; mixed_identity: boolean };
 export type PlatformOverview = { admins: number; active_admins: number; platform_staff: number };
 export type PlatformAdminRecord = {
   ulid: string; name: string; status: string; created_at: string;
