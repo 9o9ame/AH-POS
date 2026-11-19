@@ -45,3 +45,8 @@ Approve unique design direction (logo, palette, navigation, component style), bu
 ## 2026-11-19 — Cash Register UI module (source committed, not yet visually verified)
 - Shared navigation gains Cash Register. Responsive open-shift form, live shift KPI cards, physical-counted cash close interaction, expected-vs-counted variance and immutable closure history reuses original AH POS tokens/cards.
 - Operational pilot excludes physical drawer driver and financial ledger; no P2 signoff based only on committed code.
+
+## 2026-11-19 — Desktop invoice workspace based on workflow, NOT BluePOS UI copy
+- User explicitly requested desktop-style AH-POS rather than static website screens, with multiple simultaneous customers/purchases, independent modal windows, and BluePOS-style On Hold/Get semantics mapped to AH-POS tenant PostgreSQL.
+- Created `TransactionWorkbench.tsx` task dock and maximized modal invoices, dense responsive product/cart layouts, keyboard new-sale/new-purchase, styled titlebars and minimize/close controls, server saved held bills. AH-POS navy/teal original visual system kept. No frozen BluePOS proprietary pixel layout copied.
+- Large new UX source is **not yet locally browser-approved or compiled**. Verify multi-window switching, barcode keyboard, modal focus, receipt overlay/print and mobile accessibility before visual signoff; avoid claiming true drag/resize/split view, cross-device workspaces or production-only functions not implemented.
