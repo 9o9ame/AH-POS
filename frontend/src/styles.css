@@ -1333,3 +1333,57 @@ button:not(:disabled):active{transform:scale(.985)}
   .platform-nav-group .platform-sidebar-caption,.platform-nav-soon{display:none}
   .platform-sidebar nav{gap:14px}
 }
+
+/* Global BODY portal: not a descendant of .workspace-main > * page-enter
+   transform; fixes modals clipped behind scroll/animation in BOTH apps. */
+body.entity-dialog-active { overflow:hidden!important; }
+body > .entity-modal-backdrop {
+  position:fixed!important;
+  inset:0!important;
+  width:100vw;
+  height:100dvh;
+  z-index:2147483000!important;
+  display:flex!important;
+  align-items:center;
+  justify-content:center;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  isolation:isolate;
+}
+body > .entity-modal-backdrop > .entity-modal {
+  position:relative;
+  flex:0 1 min(680px,100%);
+  min-width:0;
+  max-height:min(91dvh,900px);
+  margin:auto;
+  overflow:hidden;
+  outline:none;
+  box-shadow:0 28px 90px rgba(8,22,39,.35);
+}
+body > .entity-modal-backdrop .entity-modal-body {
+  flex:1 1 auto;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  min-height:0;
+}
+body > .entity-modal-backdrop .platform-form,
+body > .entity-modal-backdrop .modal-entry-form { width:100%; }
+body > .entity-modal-backdrop input,
+body > .entity-modal-backdrop select,
+body > .entity-modal-backdrop textarea {
+  width:100%;
+  min-height:37px;
+}
+body > .entity-modal-backdrop .list-create-button {
+  background:linear-gradient(110deg,#0fa791,#087c79)!important;
+  color:#fff!important;
+  border:0!important;
+  border-radius:8px!important;
+  min-height:37px!important;
+  font-size:11px!important;
+}
+@media (max-width:650px) {
+  body > .entity-modal-backdrop { padding:10px; }
+  body > .entity-modal-backdrop > .entity-modal { max-height:95dvh; }
+  body > .entity-modal-backdrop .entity-modal-body { padding:14px; }
+}
