@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthSessionController;
+use App\Http\Controllers\ProductController;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
 use App\Support\TenantContext;
@@ -55,3 +56,13 @@ Route::middleware(['auth', 'tenant.context', 'tenant.db-scope', 'tenant.permissi
     ->get('/api/tenants/{tenant}/rbac-check', fn () => response()->json([
         'data' => ['authorized' => true],
     ]));
+
+
+// First operational business module: product catalog.
+// Membership + scoped PostgreSQL transaction + RBAC enforced server-side.
+Route::middleware(['auth', 'tenant.context', 'tenant.db-scope'])->group(function (): void {
+    Route::get('/api/tenants/{tenant}/products', [ProductController::class, 'index'])
+        ->middleware('tenant.permission:products.read');
+    Route::post('/api/tenants/{tenant}/products', [ProductController::class, 'store'])
+        ->middleware('tenant.permission:products.create');
+});
