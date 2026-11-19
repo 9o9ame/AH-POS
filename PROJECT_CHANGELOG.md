@@ -155,3 +155,10 @@
 - Added guarded return posting with purchase/sale locking, original sale price refund calculation, maximum refundable quantity/amount validation and idempotent local-only transactions.
 - Added responsive Sales Returns page, Ctrl+K navigation, recent refund history and separate gross/refund/net cash activity cards; renamed inventory ledger column to signed qty.
 - Added one focused `CashReturnWorkflowTest` and detailed `docs/LOCAL_CASH_RETURNS_WORKFLOW.md`. Not yet locally migrated/run; staging/production cash returns still disabled, no cash drawer/GL/COGS/tax reversal.
+
+## 2026-11-19 — Cashier shift and daily cash closing operational pilot
+- User screenshot confirms Sales Returns UI and two refund history entries visible in browser.
+- New `cash_shifts` and `cash_shift_closures` tables, original signed stock and financial docs untouched; composite tenant FKs and immutable DB triggers.
+- Linked new cashier sales and refunds to active shifts, without silently including old transactions; warehouse/row locks synchronize posting with closing.
+- Added scoped open/list/close cash shift APIs, fixed known permission allowlist and local demo grants, PostgreSQL NUMERIC cash movement summaries/closing variance.
+- Added polished Cash Register React page, sidebar/Ctrl+K routing, mobile CSS and close audit history, plus one focused `CashShiftWorkflowTest`. Source committed, **pending** user migration/test and browser verification; not GL/cash deposit reconciliation.
