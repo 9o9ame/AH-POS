@@ -161,8 +161,10 @@ export function PlatformApp(){
         view==='security'?<section className="platform-security-page">
           <span className="small-overline">SECURITY / IDENTITY SEPARATION</span>
           <h1>Dedicated Platform Super Admin identity</h1>
-          <p>For the initial local setup, the original Ali tenant account was also granted Platform access. Transfer that privilege to a dedicated Platform-only account, without changing Ali's business data or tenant memberships. This is a one-time security handover.</p>
-          {session?.permissions.includes('platform.staff.manage')?
+          <p>{session?.mixed_identity
+            ? 'This early setup account also owns a tenant workspace. Transfer Platform authority to a dedicated Platform-only identity without changing existing business data or membership. This is a one-time handover.'
+            : 'Your Platform identity is separate from tenant POS memberships. Business and vendor access are independently authorized.'}</p>
+          {session?.mixed_identity && session.permissions.includes('platform.staff.manage')?
           <form className="platform-form" onSubmit={e=>{void separate(e)}}>
             <label>New Platform Super Admin display name<input required minLength={2} maxLength={160}
               value={transfer.name} onChange={e=>setTransfer(v=>({...v,name:e.target.value}))}/></label>
