@@ -67,7 +67,9 @@ export function PartiesPanel({ tenant, initialType }: { tenant: TenantChoice; in
           <p>Contact directory. Credit ledger and opening balances are not implemented yet.</p>
         </div>
         <div className="dense-actions"><span className="catalog-count">{total} {kind === 'customer' ? 'customers' : 'suppliers'}</span>
-          <button type="button" className="list-create-button" onClick={() => setEditorOpen(true)}>
+          <button type="button" className="list-create-button" disabled={!allowed}
+            title={!allowed?'Your Admin has not granted directory access':undefined}
+            onClick={() => {setMessage('');setEditorOpen(true);}}>
             + Add {kind === 'customer' ? 'Customer' : 'Supplier'}</button>
         </div>
       </div>
