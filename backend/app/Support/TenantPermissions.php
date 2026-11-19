@@ -77,6 +77,7 @@ final class TenantPermissions
             'purchases.read', 'purchases.create',
             'sales.read', 'sales.create',
             'returns.read', 'returns.create',
+            'cash_shifts.read', 'cash_shifts.open', 'cash_shifts.close',
             'reports.read',
         ], true);
     }
