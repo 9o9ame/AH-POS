@@ -272,3 +272,63 @@ Artisan::command('ahpos:bootstrap-platform-superadmin', function (): int {
     $this->info('Explicit local Platform Super Admin bootstrap completed.');
     return 0;
 })->purpose('Explicit one-time local bootstrap of existing user into separate Platform authority');
+
+
+/**
+ * Local-only, explicit conversion of an existing test business member into
+ * tenant Admin Owner. Never inferred from Platform identity automatically.
+ */
+Artisan::command('ahpos:authorize-local-admin-owner', function (): int {
+    if (! app()->environment('local') || config('database.default') !== 'pgsql'
+        || config('database.connections.pgsql.database') !== 'ahpos_test'
+        || ! in_array(config('database.connections.pgsql.host'), ['127.0.0.1','localhost'], true)) {
+        $this->error('Refusing outside local PostgreSQL ahpos_test.');
+        return 1;
+    }
+    $email = strtolower(trim((string) $this->ask('Existing tenant user email')));
+    $tenantUlid = strtoupper(trim((string) $this->ask('Existing tenant ULID')));
+    $member = DB::table('tenant_memberships as m')
+        ->join('users as u', 'u.id', '=', 'm.user_id')
+        ->join('tenants as t', 't.id', '=', 'm.tenant_id')
+        ->where('u.email', $email)->where('t.ulid', $tenantUlid)
+        ->where('m.status', 'active')->where('t.status', 'active')
+        ->first(['m.id as membership_id','m.tenant_id','m.user_id','t.name as tenant_name']);
+    if ($member === null) {
+        $this->error('Active user membership not found. Nothing changed.');
+        return 1;
+    }
+    if (! $this->confirm('Grant TENANT ADMIN OWNER authority for '.$member->tenant_name.' to '.$email.'?', false)) {
+        $this->warn('Cancelled; no permissions changed.');
+        return 0;
+    }
+    DB::transaction(function () use ($member, $email): void {
+        $roleId = DB::table('tenant_roles')->where('tenant_id', $member->tenant_id)
+            ->where('name', 'Admin Owner')->value('id');
+        if ($roleId === null) {
+            $roleId = DB::table('tenant_roles')->insertGetId([
+                'tenant_id' => $member->tenant_id,
+                'ulid' => (string) \Illuminate\Support\Str::ulid(),
+                'name' => 'Admin Owner', 'created_at' => now(), 'updated_at' => now(),
+            ]);
+        }
+        foreach (\App\Support\TenantPermissions::known() as $permission) {
+            DB::table('tenant_role_permissions')->insertOrIgnore([
+                'tenant_id' => $member->tenant_id, 'role_id' => $roleId, 'permission' => $permission,
+            ]);
+        }
+        DB::table('tenant_membership_roles')->insertOrIgnore([
+            'tenant_id' => $member->tenant_id,
+            'membership_id' => $member->membership_id, 'role_id' => $roleId,
+        ]);
+        DB::table('tenant_staff_audit_events')->insert([
+            'ulid' => (string) \Illuminate\Support\Str::ulid(),
+            'tenant_id' => $member->tenant_id,
+            'actor_id' => $member->user_id,
+            'action' => 'tenant.local_owner_bootstrap',
+            'metadata' => json_encode(['local_only'=>true,'email'=>$email]),
+            'created_at' => now(),
+        ]);
+    });
+    $this->info('Tenant Admin Owner permissions explicitly granted to this local membership.');
+    return 0;
+})->purpose('Opt-in LOCAL conversion of an existing test tenant member into Admin Owner');
