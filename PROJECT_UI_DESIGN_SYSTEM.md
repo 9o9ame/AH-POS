@@ -37,3 +37,7 @@ Approve unique design direction (logo, palette, navigation, component style), bu
 - Cashier POS: warehouse/customer pickers, barcode/SKU search, click-to-cart, editable quantities, running local estimate, cash tendered, change preview, call-to-action and recent sales; receipt modal/print CSS for narrow 80mm-class output.
 - Operations Reports: KPI cards and seven-day bar visualization; trend is tenant-scoped cash-sale volume, NOT GL, profit or tax accounting. Motion uses existing tokens and reduced-motion fallback.
 - These new screens are code-complete but **await Vite build/browser review**; not an approved frozen design geometry.
+
+## 2026-11-19 — Dedicated returns workflow UI (implemented/unverified)
+- New `ReturnsPanel.tsx` uses existing cards, forms, table, warnings and success feedback for partial/full cash refunds, original receipt selection, item quantities and return history.
+- Sidebar and Ctrl+K destinations include Sales Returns. Reports now distinguish gross cash sales from refund-adjusted cash activity; all remain pilot data, not financial statements. No approval claim until browser evidence.
