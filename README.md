@@ -54,3 +54,8 @@ The initial shell is NOT the approved AH-POS visual design. It is a temporary de
 Initial Laravel 13 installation succeeded on the developer PC. Laravel skeleton's own Composer post-create scripts auto-created a local SQLite DB and migrated three default tables. This does NOT represent the one planned PostgreSQL AH-POS test DB. No legacy SQL Server DBs were affected as far as user-supplied logs show.
 
 The `scripts/bootstrap-backend.ps1` script has been fixed for future fresh installations to suppress Composer scripts and implicit migrations. **Do not rerun it against existing backend/**. Backend code was generated locally; it has not been automatically committed to GitHub. Review `git status` before staging source. Do not add `.env`, SQLite databases or credentials. PostgreSQL setup, tenant schema, Laravel tests and API endpoints remain pending.
+
+## 2026-11-19 — Operational MVP and new computer
+Earlier sections record historical setup; actual Laravel/React source now exists and is committed. PostgreSQL, login, tenant context and RBAC have been exercised on an earlier developer PC. On a **newly cloned Windows machine**, follow [docs/NEW_WINDOWS_DEV_SETUP.md](docs/NEW_WINDOWS_DEV_SETUP.md). The old local database and accounts do not accompany a git clone.
+
+P3 working product catalog source (migration, API, React page) is now committed but pending local verification. Target is a prioritized operational retail POS MVP within 10 working days; full ERP/offline/AI/WhatsApp cannot be promised on that timeframe. Never deploy unverified financial workflows, bypass tenant controls or migrate a historical sample SQL Server backup as current production data.
