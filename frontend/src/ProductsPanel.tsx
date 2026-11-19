@@ -165,7 +165,7 @@ export function ProductsPanel({ tenant }: { tenant: TenantChoice }) {
                 ))}
               </tbody>
             </table>
-            {searching && <TableSkeleton rows={4} cols={7}/ >}
+            {searching && <TableSkeleton rows={4} cols={7}/>}
             {!searching && products.length === 0 && <p>No products found.</p>}
             {total > 30 && <p>Showing first 30 products. Pagination UI is pending.</p>}
           </div>
