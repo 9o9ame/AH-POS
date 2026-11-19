@@ -1,10 +1,16 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
-import { ApiError, createProduct, listProducts, type Product, type TenantChoice } from './api';
+import { ApiError, createProduct, listProducts, listProductMasters, type Product, type ProductMaster, type TenantChoice } from './api';
 
 export function ProductsPanel({ tenant }: { tenant: TenantChoice }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [query, setQuery] = useState('');
-  const [input, setInput] = useState({ sku: '', name: '', barcode: '', sale_price: '0.0000' });
+  const blank = { sku: '', name: '', barcode: '', sale_price: '0.0000',
+    category_ulid: '', subcategory_ulid: '', brand_ulid: '', unit_ulid: '' };
+  const [input, setInput] = useState(blank);
+  const [masters, setMasters] = useState<{
+    categories: ProductMaster[]; subcategories: ProductMaster[];
+    brands: ProductMaster[]; units: ProductMaster[];
+  }>({categories:[],subcategories:[],brands:[],units:[]});
   const [busy, setBusy] = useState(false);
   const [searching, setSearching] = useState(false);
   const [message, setMessage] = useState('');
@@ -33,15 +39,31 @@ export function ProductsPanel({ tenant }: { tenant: TenantChoice }) {
 
   useEffect(() => {
     void refresh('');
-  }, [refresh]);
+    let active = true;
+    void Promise.all([
+      listProductMasters(tenant.ulid,'categories'),
+      listProductMasters(tenant.ulid,'subcategories'),
+      listProductMasters(tenant.ulid,'brands'),
+      listProductMasters(tenant.ulid,'units'),
+    ]).then(([categories,subcategories,brands,units])=>{
+      if(active)setMasters({categories,subcategories,brands,units});
+    }).catch(()=>{ if(active)setMessage('Products loaded; definition master choices are unavailable.'); });
+    return ()=>{active=false};
+  }, [refresh,tenant.ulid]);
 
   async function add(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true);
     setMessage('');
     try {
-      const created = await createProduct(tenant.ulid, input);
-      setInput({ sku: '', name: '', barcode: '', sale_price: '0.0000' });
+      const created = await createProduct(tenant.ulid, {
+        ...input,
+        category_ulid: input.category_ulid || null,
+        subcategory_ulid: input.subcategory_ulid || null,
+        brand_ulid: input.brand_ulid || null,
+        unit_ulid: input.unit_ulid || null,
+      });
+      setInput(blank);
       setMessage(`Product "${created.name}" saved successfully.`);
       await refresh(query);
     } catch (error) {
@@ -62,7 +84,7 @@ export function ProductsPanel({ tenant }: { tenant: TenantChoice }) {
       <div className="between">
         <div>
           <h2 id="catalog-title">Products — {tenant.name}</h2>
-          <p>Tenant-scoped catalog. Stock and purchasing are not connected yet.</p>
+          <p>Tenant-scoped product catalog linked to category, brand and unit masters. Inventory and purchasing use these product SKUs.</p>
         </div>
         <span className="catalog-count">{total} products</span>
       </div>
@@ -84,6 +106,32 @@ export function ProductsPanel({ tenant }: { tenant: TenantChoice }) {
               <label>Sale price (PKR)
                 <input required inputMode="decimal" pattern="(0|[1-9][0-9]{0,15})(\\.[0-9]{1,4})?" value={input.sale_price} onChange={e => setInput(v => ({ ...v, sale_price: e.target.value }))} />
               </label>
+              <label>Category (optional)
+                <select value={input.category_ulid} onChange={e=>setInput(v=>({...v,category_ulid:e.target.value,subcategory_ulid:''}))}>
+                  <option value="">Uncategorized</option>
+                  {masters.categories.filter(x=>x.is_active).map(x=><option value={x.ulid} key={x.ulid}>{x.name}</option>)}
+                </select>
+              </label>
+              <label>Sub Category (optional)
+                <select value={input.subcategory_ulid} disabled={!input.category_ulid}
+                  onChange={e=>setInput(v=>({...v,subcategory_ulid:e.target.value}))}>
+                  <option value="">None</option>
+                  {masters.subcategories.filter(x=>x.is_active&&x.category_ulid===input.category_ulid)
+                    .map(x=><option value={x.ulid} key={x.ulid}>{x.name}</option>)}
+                </select>
+              </label>
+              <label>Brand (optional)
+                <select value={input.brand_ulid} onChange={e=>setInput(v=>({...v,brand_ulid:e.target.value}))}>
+                  <option value="">No brand</option>
+                  {masters.brands.filter(x=>x.is_active).map(x=><option value={x.ulid} key={x.ulid}>{x.name}</option>)}
+                </select>
+              </label>
+              <label>Base Unit (optional)
+                <select value={input.unit_ulid} onChange={e=>setInput(v=>({...v,unit_ulid:e.target.value}))}>
+                  <option value="">Unspecified</option>
+                  {masters.units.filter(x=>x.is_active).map(x=><option value={x.ulid} key={x.ulid}>{x.name}</option>)}
+                </select>
+              </label>
             </div>
             <button type="submit" disabled={busy}>{busy ? 'Saving…' : 'Save product'}</button>
           </form>
@@ -97,11 +145,14 @@ export function ProductsPanel({ tenant }: { tenant: TenantChoice }) {
           </form>
           <div className="catalog-table-wrap">
             <table className="catalog-table">
-              <thead><tr><th>SKU</th><th>Product</th><th>Barcode</th><th>Sale price</th><th>Status</th></tr></thead>
+              <thead><tr><th>SKU</th><th>Product</th><th>Category</th><th>Brand / Unit</th><th>Barcode</th><th>Sale price</th><th>Status</th></tr></thead>
               <tbody>
                 {products.map(product => (
                   <tr key={product.ulid}>
-                    <td>{product.sku}</td><td>{product.name}</td><td>{product.barcode || '—'}</td>
+                    <td>{product.sku}</td><td>{product.name}</td>
+                    <td>{masters.categories.find(x=>x.ulid===product.category_ulid)?.name||'—'}</td>
+                    <td>{[masters.brands.find(x=>x.ulid===product.brand_ulid)?.name,masters.units.find(x=>x.ulid===product.unit_ulid)?.code].filter(Boolean).join(' / ')||'—'}</td>
+                    <td>{product.barcode || '—'}</td>
                     <td>PKR {product.sale_price}</td><td>{product.is_active ? 'Active' : 'Inactive'}</td>
                   </tr>
                 ))}
