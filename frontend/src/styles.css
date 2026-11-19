@@ -637,3 +637,26 @@ button:not(:disabled):active{transform:scale(.985)}
   .work-window:has(.receipt-overlay){height:auto!important;border:0!important;box-shadow:none!important;overflow:visible!important}
   .work-window-body:has(.receipt-overlay){padding:0!important;overflow:visible!important}
 }
+
+
+/* Persistent On Hold / Get controls, backed by cashier/tenant-scoped held_sales. */
+.pos-checkout-actions{display:grid;grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr);gap:10px;align-items:stretch;margin-top:17px}
+.pos-checkout-actions .pos-pay-button{margin-top:0;height:100%}
+.pos-hold-button{
+  width:100%;display:flex;align-items:center;justify-content:center;gap:9px;
+  min-height:49px!important;padding:12px 11px!important;border:1px solid #badacf!important;
+  border-radius:10px!important;background:#e9f9f3!important;color:#087e72!important;
+  font-weight:800!important;font-size:12px!important;white-space:normal
+}
+.pos-hold-button:hover:not(:disabled){background:#cff3e6!important;box-shadow:0 6px 17px rgba(9,130,110,.12)}
+.held-section-heading{border-top:1px solid #e9edf3;padding-top:20px;margin:25px 0 8px}
+.held-document{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:13px 11px;margin:7px 0;border:1px solid #d5e9e1;border-radius:11px;background:linear-gradient(115deg,#f6fcf8,#fff)}
+.held-document-details{min-width:0;flex:1}
+.held-document-details strong,.held-document-details small{display:block}
+.held-document-details strong{color:#1b3447;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.held-document-details small{color:#8497a8;font-size:10px;line-height:1.5;margin-top:5px}
+.held-document-actions{display:flex;gap:6px;align-items:center}
+.held-document-actions button{min-height:34px!important;padding:8px 12px!important;font-size:11px!important}
+.held-document-actions .held-restore{background:#0c9684!important;color:white!important;border-radius:8px!important}
+.held-document-actions .held-discard{background:#fff0ef!important;color:#b54b49!important;border-radius:8px!important;border:1px solid #f3d2cf!important}
+@media(max-width:640px){.pos-checkout-actions{grid-template-columns:1fr}}
