@@ -5,7 +5,6 @@ import {
   type TenantChoice, type TenantDevice, type TenantRoleTemplate,
   type TenantStaffRoleName, type TenantStaffRow,
 } from './api';
-import { AppIcon } from './AppIcon';
 import { EntityModal, TableSkeleton } from './EntityModal';
 
 export function StaffSecurityPanel({tenant, initialTab='staff'}:{
