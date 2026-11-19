@@ -65,3 +65,8 @@ Catalog create/list is user-verified in the browser. A new tenant-scoped custome
 
 ## Larger operational batch: workspace and inventory (2026-11-19)
 New app shell (dashboard/sidebar/mobile navigation) and inbound inventory source are committed. A new migration adds tenant-scoped warehouses and append-only incoming stock entries with idempotency and a read-only per-warehouse balance view. Existing local account/tenant/product/customer persist. On the existing `ahpos_test` dev DB: `git pull origin main`, `cd backend && php artisan migrate`, rerun `php artisan ahpos:grant-local-catalog` to add inventory permissions, and verify warehouse + opening stock from the Vite browser. Keep `npm run dev` running; HMR avoids repeated production builds. This is NOT yet a full purchase, sale, journal, valuation or production-ready system.
+
+## 2026-11-19 — Purchase / POS / operations report local pilot
+New local-only purchase and cash checkout flows, receipt printing and operational reports are committed. Existing PostgreSQL `ahpos_test` needs additive migration `2026_11_19_000006_create_purchase_and_cash_sale_documents`. See [docs/LOCAL_TRADE_PILOT_WORKFLOW.md](docs/LOCAL_TRADE_PILOT_WORKFLOW.md) for the exact browser demonstration, targeted test and **production release blockers**. The local `Local Catalog Operator` role automatically covers these expressly enumerated demo business permissions; no repeated manual grant is required.
+
+**Very important:** Sale/purchase posting is disabled on staging/production until double-entry accounting, tax compliance, inventory cost layers, RLS/runtime DB separation, returns, printer/UAT and backup/reconciliation acceptance are implemented. Do not mistake operational pilot data for financial statements.
