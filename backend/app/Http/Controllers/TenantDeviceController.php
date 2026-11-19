@@ -99,8 +99,11 @@ final class TenantDeviceController extends Controller
         return response()->json(['data' => $devices]);
     }
 
-    public function decision(Request $request, TenantContext $context, string $device): JsonResponse
+    public function decision(Request $request, TenantContext $context): JsonResponse
     {
+        // Read named route parameter. The URI also contains {tenant}; positional
+        // controller injection otherwise passes tenant ULID as $device (404).
+        $device = (string) $request->route('device');
         $data = $request->validate(['decision' => ['required', 'in:approve,reject,revoke']]);
         $decision = $data['decision'];
         $result = DB::transaction(function () use ($request, $context, $device, $decision): array {
