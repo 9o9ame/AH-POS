@@ -4,7 +4,7 @@ import {ApiError,getPlatformSession,platformLogin,platformLogout,transferPlatfor
 import {PlatformPanel} from './PlatformPanel';
 import {AppIcon} from './AppIcon';
 
-type View='dashboard'|'businesses'|'staff'|'audit'|'security';
+type View='dashboard'|'businesses'|'plans'|'staff'|'roles'|'devices'|'audit'|'settings'|'security';
 
 export function PlatformApp(){
   const [session,setSession]=useState<PlatformSession|null>(null);
@@ -16,8 +16,9 @@ export function PlatformApp(){
   const [success,setSuccess]=useState('');
   const changePath=useCallback((next:View)=>{
     const urls:Record<View,string>={
-      dashboard:'/platform',businesses:'/platform/businesses',staff:'/platform/staff',
-      audit:'/platform/audit',security:'/platform/security',
+      dashboard:'/platform',businesses:'/platform/businesses',plans:'/platform/plans',
+      staff:'/platform/staff',roles:'/platform/roles',devices:'/platform/devices',
+      audit:'/platform/audit',settings:'/platform/settings',security:'/platform/security',
     };
     window.history.pushState({},'',urls[next]);
     setView(next);setError('');
@@ -26,8 +27,12 @@ export function PlatformApp(){
     const read=()=>{
       const path=window.location.pathname;
       setView(path.startsWith('/platform/businesses')?'businesses':
+        path.startsWith('/platform/plans')?'plans':
         path.startsWith('/platform/staff')?'staff':
+        path.startsWith('/platform/roles')?'roles':
+        path.startsWith('/platform/devices')?'devices':
         path.startsWith('/platform/audit')?'audit':
+        path.startsWith('/platform/settings')?'settings':
         path.startsWith('/platform/security')?'security':'dashboard');
     };
     read();window.addEventListener('popstate',read);
@@ -94,28 +99,35 @@ export function PlatformApp(){
     </div></section>
   </main>;
 
-  const items:{id:View;label:string;icon:'dashboard'|'warehouse'|'people'|'shield'|'settings'}[]=[
-    {id:'dashboard',label:'Overview',icon:'dashboard'},
-    {id:'businesses',label:'Admin businesses',icon:'warehouse'},
-    {id:'staff',label:'Platform operators',icon:'people'},
-    {id:'audit',label:'Audit & compliance',icon:'shield'},
-    {id:'security',label:'Platform security',icon:'settings'},
+  const items:{id:View;label:string;icon:'dashboard'|'warehouse'|'people'|'shield'|'settings'|'reports';group:string;permission?:string;planned?:boolean}[]=[
+    {id:'dashboard',label:'Overview',icon:'dashboard',group:'PLATFORM'},
+    {id:'businesses',label:'Admin businesses',icon:'warehouse',group:'PLATFORM',permission:'platform.admins.read'},
+    {id:'plans',label:'Plans & subscriptions',icon:'reports',group:'PLATFORM',planned:true},
+    {id:'staff',label:'Platform operators',icon:'people',group:'ACCESS CONTROL',permission:'platform.staff.read'},
+    {id:'roles',label:'Roles & permissions',icon:'shield',group:'ACCESS CONTROL',planned:true},
+    {id:'devices',label:'Device activity',icon:'shield',group:'SECURITY',planned:true},
+    {id:'audit',label:'Audit & compliance',icon:'shield',group:'SECURITY',permission:'platform.audit.read'},
+    {id:'security',label:'Super Admin identity',icon:'settings',group:'SECURITY'},
+    {id:'settings',label:'Platform settings',icon:'settings',group:'SYSTEM',planned:true},
   ];
-  const allowedItems=items.filter(i=>
-    i.id==='security'||i.id==='dashboard'||
-    (i.id==='businesses'&&session?.permissions.includes('platform.admins.read'))||
-    (i.id==='staff'&&session?.permissions.includes('platform.staff.read'))||
-    (i.id==='audit'&&session?.permissions.includes('platform.audit.read'))
-  );
+  const allowedItems=items.filter(i=>!i.permission||Boolean(session?.permissions.includes(i.permission)));
   return <div className="platform-app-frame">
     <aside className="platform-sidebar">
       <div className="platform-sidebar-brand"><div className="platform-logo">AH<span> POS</span></div>
         <span>PLATFORM CONTROL</span></div>
-      <div className="platform-sidebar-caption">CONTROL CENTER</div>
       <nav aria-label="Platform management">
-        {allowedItems.map(i=><button type="button" key={i.id}
-          className={view===i.id?'selected':''} aria-current={view===i.id?'page':undefined}
-          onClick={()=>changePath(i.id)}><AppIcon name={i.icon} size={18}/>{i.label}</button>)}
+        {Array.from(new Set(allowedItems.map(item=>item.group))).map(group=>
+          <div className="platform-nav-group" key={group}>
+            <span className="platform-sidebar-caption">{group}</span>
+            {allowedItems.filter(item=>item.group===group).map(i=>
+              <button type="button" key={i.id}
+                title={i.planned?i.label+' (planned)':i.label}
+                className={view===i.id?'selected':''} aria-current={view===i.id?'page':undefined}
+                onClick={()=>changePath(i.id)}>
+                <AppIcon name={i.icon} size={18}/>{i.label}
+                {i.planned&&<small className="platform-nav-soon">Soon</small>}
+              </button>)}
+          </div>)}
       </nav>
       <div className="platform-sidebar-bottom">
         <div className="platform-account"><span>{session?.name.slice(0,1).toUpperCase()}</span>
@@ -131,7 +143,22 @@ export function PlatformApp(){
         <div className="platform-control-indicator"><AppIcon name="shield" size={15}/> Vendor control plane</div>
       </header>
       <div className="platform-main-scroller">
-        {view==='security'?<section className="platform-security-page">
+        {(['plans','roles','devices','settings'] as View[]).includes(view) ?
+          <section className="platform-security-page platform-coming-soon">
+            <span className="small-overline">PLATFORM / IMPLEMENTATION ROADMAP</span>
+            <h1>{items.find(item=>item.id===view)?.label}</h1>
+            <p>This module belongs to the Super Admin Platform, not a tenant workspace.
+              Its server-side policies and data model are not implemented in AH-POS yet.
+              The navigation slot is reserved; no simulated records or fake save buttons.</p>
+            <div className="platform-roadmap-lines">
+              {(view==='plans'?['Subscription tiers and entitlements','Billing lifecycle and tenant limits','Plan activation audit']:
+                view==='roles'?['Platform role editor','Permission delegation constraints','MFA for privilege changes']:
+                view==='devices'?['Cross-business device activity','Admin device policy oversight','Trusted telemetry and consent']:
+                ['Platform branding and defaults','System notification configuration','AI/WhatsApp tenant entitlements']
+              ).map(text=><div key={text}><AppIcon name="check" size={15}/>{text}<span>Planned</span></div>)}
+            </div>
+          </section>:
+        view==='security'?<section className="platform-security-page">
           <span className="small-overline">SECURITY / IDENTITY SEPARATION</span>
           <h1>Dedicated Platform Super Admin identity</h1>
           <p>For the initial local setup, the original Ali tenant account was also granted Platform access. Transfer that privilege to a dedicated Platform-only account, without changing Ali's business data or tenant memberships. This is a one-time security handover.</p>
