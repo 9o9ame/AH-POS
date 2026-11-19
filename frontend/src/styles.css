@@ -48,3 +48,8 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 .catalog-table th, .catalog-table td { padding: 11px 10px; border-bottom: 1px solid #e0e4e9; font-size: 14px; }
 .catalog-table th { background: #f6f7f9; color: #526274; }
 @media (max-width: 650px) { .catalog-fields { grid-template-columns: 1fr; } .catalog-search-row { flex-direction: column; } }
+
+.directory-tabs { display:flex; gap:8px; margin-top:18px; }
+.directory-tabs button.tab-inactive { background:#fff; border-color:#a9b2be; color:#245a8d; }
+.directory-tabs button.tab-active { background:#245a8d; color:#fff; }
+.directory-tabs button:focus-visible { outline: 3px solid #8ab5e6; outline-offset:2px; }
