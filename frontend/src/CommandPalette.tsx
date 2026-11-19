@@ -1,13 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AppIcon, type AppIconName } from './AppIcon';
 
-export type CommandDestination = 'dashboard' | 'products' | 'customers' | 'suppliers' | 'inventory';
+export type CommandDestination = 'dashboard' | 'products' | 'customers' | 'suppliers' | 'inventory' | 'purchases' | 'sales' | 'reports';
 const commands: { destination: CommandDestination; label: string; detail: string; icon: AppIconName; terms: string }[] = [
   { destination: 'dashboard', label: 'Business overview', detail: 'Dashboard and KPIs', icon: 'dashboard', terms: 'home overview dashboard' },
   { destination: 'products', label: 'Manage products', detail: 'SKUs, barcodes, selling prices', icon: 'products', terms: 'add new product catalog search sku barcode' },
   { destination: 'customers', label: 'Open customers', detail: 'Contacts and customer directory', icon: 'people', terms: 'customer contact buyer' },
   { destination: 'suppliers', label: 'Open suppliers', detail: 'Supplier directory', icon: 'truck', terms: 'supplier vendor contacts' },
   { destination: 'inventory', label: 'Inventory & warehouses', detail: 'Receiving, stock balances', icon: 'inventory', terms: 'warehouse stock opening receipt goods inward' },
+  { destination: 'purchases', label: 'Supplier purchasing', detail: 'Receive goods against purchase', icon: 'truck', terms: 'purchase order supplier bill receive' },
+  { destination: 'sales', label: 'Open Point of Sale', detail: 'Cash checkout and printable receipts', icon: 'sales', terms: 'sell checkout cashier barcode receipt' },
+  { destination: 'reports', label: 'Operations reports', detail: 'Cash sales and purchase analytics', icon: 'reports', terms: 'analytics reports figures trend revenue' },
 ];
 
 export function CommandPalette({ open, close, navigate }: {
