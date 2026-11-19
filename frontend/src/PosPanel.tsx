@@ -10,7 +10,9 @@ const money = (value: number) => new Intl.NumberFormat('en-PK', {
   style: 'currency', currency: 'PKR', minimumFractionDigits: 2,
 }).format(value);
 
-export function PosPanel({ tenant }: { tenant: TenantChoice }) {
+export function PosPanel({ tenant, onDraftChange, active = true }: {
+  tenant: TenantChoice; onDraftChange?: (dirty: boolean) => void; active?: boolean;
+}) {
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [warehouse, setWarehouse] = useState('');
   const [customers, setCustomers] = useState<Party[]>([]);
@@ -45,7 +47,8 @@ export function PosPanel({ tenant }: { tenant: TenantChoice }) {
       setError(true); setStatus('Could not load checkout data. Verify permissions and server.');
     }
   }, [tenant.ulid]);
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => { if (active) void load(); }, [load, active]);
+  useEffect(() => { onDraftChange?.(cart.length > 0 || cash.trim() !== ''); }, [cart, cash, onDraftChange]);
 
   async function queryCatalog(query: string) {
     setLoading(true);
