@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\TenantMembership;
 use App\Support\TenantContext;
+use App\Support\TenantStaffAccess;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,6 +37,22 @@ final class ResolveTenantContext
 
         if ($membership === null) {
             abort(404);
+        }
+
+        if ($membership->requires_device_approval
+            && ! $request->routeIs('tenant.device.request', 'tenant.device.status')) {
+            $device = TenantStaffAccess::currentDevice(
+                $request, (int) $membership->tenant_id, (int) $membership->getKey(),
+                strtoupper($selectedUlid),
+            );
+            if ($device === null || $device->status !== 'approved') {
+                // Member exists but this browser installation is not authorized.
+                // No business API, settings, receipt or inventory access.
+                return response()->json([
+                    'message' => 'This device requires approval from your Admin.',
+                    'code' => 'DEVICE_APPROVAL_REQUIRED',
+                ], 423);
+            }
         }
 
         $context = app(TenantContext::class);
