@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import {
   ApiError, createPlatformAdmin, createPlatformStaff, getPlatformAdmins, getPlatformAudit,
+  changePlatformAdminStatus,
   assignPlatformExistingOwner, listPlatformOwnerCandidates, type PlatformOwnerCandidate,
   getPlatformOverview, getPlatformStaff, type PlatformAdminRecord, type PlatformAuditRecord,
   type PlatformOverview, type PlatformSession, type PlatformStaffRecord,
@@ -16,6 +17,10 @@ export function PlatformPanel({session, onSignOut, initialTab='admins', focus='o
   const [tab,setTab] = useState<'admins'|'staff'|'audit'>(initialTab);
   const [overview,setOverview] = useState<PlatformOverview|null>(null);
   const [admins,setAdmins] = useState<PlatformAdminRecord[]>([]);
+  const [adminSearch,setAdminSearch] = useState('');
+  const [adminStatusFilter,setAdminStatusFilter] = useState<'all'|'active'|'suspended'>('all');
+  const [statusTarget,setStatusTarget] = useState<PlatformAdminRecord|null>(null);
+  const [statusReason,setStatusReason] = useState('');
   const [staff,setStaff] = useState<PlatformStaffRecord[]>([]);
   const [audit,setAudit] = useState<PlatformAuditRecord[]>([]);
   const [loading,setLoading] = useState(true);
@@ -90,6 +95,24 @@ export function PlatformPanel({session, onSignOut, initialTab='admins', focus='o
       setError(ex instanceof ApiError?ex.message:'Could not assign business owner.');
     }finally{setBusy(false)}
   }
+  async function saveAdminStatus(event:FormEvent<HTMLFormElement>){
+    event.preventDefault();
+    if(!statusTarget)return;
+    setBusy(true);setError('');setSuccess('');
+    const next=statusTarget.status==='active'?'suspended':'active';
+    try{
+      await changePlatformAdminStatus(statusTarget.ulid,next,statusReason.trim());
+      setStatusTarget(null);setStatusReason('');
+      setSuccess(statusTarget.name+' is now '+next+'. Business data and memberships were preserved.');
+      await load();
+    }catch(ex){setError(ex instanceof ApiError?ex.message:'Unable to change Admin status.');}
+    finally{setBusy(false)}
+  }
+  const visibleAdmins=admins.filter(row=>{
+    const matchesSearch=[row.name,row.owner_name||'',row.owner_email||'']
+      .join(' ').toLowerCase().includes(adminSearch.trim().toLowerCase());
+    return matchesSearch && (adminStatusFilter==='all'||row.status===adminStatusFilter);
+  });
   return <div className="platform-console">
     {focus==='overview'&&<header className="platform-hero">
       <div><span className="small-overline">AH POS / CONTROL PLANE</span>
@@ -119,14 +142,29 @@ export function PlatformPanel({session, onSignOut, initialTab='admins', focus='o
         <div className="dense-actions"><span className="count-pill">{admins.length} loaded</span>
           {can('platform.admins.create')&&<button type="button" className="list-create-button" onClick={()=>setEditor('admin')}>+ Create Admin</button>}
         </div></div>
+      <div className="platform-register-toolbar">
+        <input aria-label="Search Admin businesses" placeholder="Search business, Admin, email…"
+          value={adminSearch} onChange={e=>setAdminSearch(e.target.value)}/>
+        <select aria-label="Filter Admin status" value={adminStatusFilter}
+          onChange={e=>setAdminStatusFilter(e.target.value as 'all'|'active'|'suspended')}>
+          <option value="all">All statuses</option><option value="active">Active</option>
+          <option value="suspended">Suspended</option>
+        </select>
+        <span className="count-pill">{visibleAdmins.length} displayed</span>
+      </div>
       <div className="table-scroll"><table className="data-table">
         <thead><tr><th>Business</th><th>Admin owner</th><th>Owner email</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
-        <tbody>{admins.map(t=><tr key={t.ulid}><td><strong>{t.name}</strong></td>
+        <tbody>{visibleAdmins.map(t=><tr key={t.ulid}><td><strong>{t.name}</strong></td>
           <td>{t.owner_name||'No mapped owner'}</td><td>{t.owner_email||'—'}</td><td>{t.status}</td>
           <td>{new Date(t.created_at).toLocaleDateString()}</td><td>
             {!t.owner_email && can('platform.admins.create') && t.status === 'active' &&
               <button type="button" className="btn-ghost" disabled={busy}
                 onClick={() => {void openOwnerAssignment(t);}}>Assign Owner</button>}
+            {can('platform.admins.create')&&['active','suspended'].includes(t.status)&&
+              <button type="button" className="btn-ghost" disabled={busy}
+                onClick={()=>{setStatusTarget(t);setStatusReason('');setError('')}}>
+                {t.status==='active'?'Suspend':'Reactivate'}
+              </button>}
           </td></tr>)}</tbody></table></div>
       {loading&&<TableSkeleton rows={6} cols={5}/>}
       {!loading&&admins.length===0&&<p className="empty-copy">No Admin workspaces visible.</p>}
@@ -184,6 +222,26 @@ export function PlatformPanel({session, onSignOut, initialTab='admins', focus='o
         {ownerCandidates.length===0 && <p className="inline-alert">No active members available for this business.</p>}
         <button type="submit" className="list-create-button" disabled={busy||!selectedOwnerEmail}>
           {busy?'Assigning…':'Confirm Admin Owner'}
+        </button>
+      </form>
+    </EntityModal>}
+    {statusTarget && <EntityModal
+      title={statusTarget.status==='active'?'Suspend Admin':'Reactivate Admin'}
+      subtitle={'Business: '+statusTarget.name}
+      busy={busy} onClose={()=>setStatusTarget(null)}>
+      <form className="platform-form" onSubmit={e=>{void saveAdminStatus(e)}}>
+        <p className="muted">{statusTarget.status==='active'
+          ? 'Suspending this Admin will block all its staff and owners from business API access. No financial or stock records will be deleted.'
+          : 'Reactivation restores active-membership workspace access; individual staff and device policies still apply.'}</p>
+        <label>Reason for audited change
+          <textarea required minLength={3} maxLength={300} rows={3}
+            value={statusReason} onChange={e=>setStatusReason(e.target.value)}
+            placeholder="Reason (minimum 3 characters)"/>
+        </label>
+        {error&&<p role="alert" className="inline-alert">{error}</p>}
+        <button disabled={busy||statusReason.trim().length<3} type="submit"
+          className="list-create-button">
+          {busy?'Saving…':statusTarget.status==='active'?'Confirm suspension':'Confirm reactivation'}
         </button>
       </form>
     </EntityModal>}
