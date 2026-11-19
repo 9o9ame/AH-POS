@@ -33,15 +33,15 @@ final class PlatformOnboardingTest extends TestCase
         $super = User::factory()->create();
         $ordinary = User::factory()->create();
         $this->getJson('/api/platform/me')->assertUnauthorized();
-        $this->actingAs($ordinary)->getJson('/api/platform/overview')->assertForbidden();
-        $this->getJson('/api/platform/me')->assertForbidden();
+        $this->actingAs($ordinary)->getJson('/api/platform/overview')->assertUnauthorized();
+        $this->getJson('/api/platform/me')->assertUnauthorized();
 
         $roleId = PlatformPermissions::ensureRole('Super Admin', PlatformPermissions::known());
         DB::table('platform_user_roles')->insert([
             'user_id' => $super->getKey(), 'role_id' => $roleId,
         ]);
 
-        $this->actingAs($super)->getJson('/api/platform/me')
+        $this->withSession(['platform_user_id' => $super->getKey()])->actingAs($super)->getJson('/api/platform/me')
             ->assertOk()->assertJsonFragment(['platform.admins.create']);
         $created = $this->postJson('/api/platform/admins', [
             'business_name' => 'Retail Demo Store',
@@ -64,16 +64,17 @@ final class PlatformOnboardingTest extends TestCase
         $this->getJson('/api/tenants/'.$created['ulid'].'/products')->assertNotFound();
 
         $owner = User::query()->where('email', $created['owner_email'])->firstOrFail();
-        $this->actingAs($owner)->getJson('/api/platform/overview')->assertForbidden();
+        $this->withSession(['platform_user_id' => null])->actingAs($owner)
+            ->getJson('/api/platform/overview')->assertUnauthorized();
         $this->getJson('/api/tenants/'.$created['ulid'].'/products')->assertOk();
 
-        $this->actingAs($super);
+        $this->withSession(['platform_user_id' => $super->getKey()])->actingAs($super);
         $staff = $this->postJson('/api/platform/staff', [
             'name' => 'Support Worker', 'email' => 'support-'.uniqid().'@example.com',
             'password' => 'StrongTest123!Password', 'role' => 'Support Operator',
         ])->assertCreated()->json('data');
         $support = User::query()->where('email', $staff['email'])->firstOrFail();
-        $this->actingAs($support);
+        $this->withSession(['platform_user_id' => $support->getKey()])->actingAs($support);
         $this->getJson('/api/platform/admins')->assertOk();
         $this->postJson('/api/platform/admins', [
             'business_name' => 'Forbidden Store', 'owner_name' => 'No Permissions',
