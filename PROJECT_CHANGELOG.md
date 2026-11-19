@@ -169,3 +169,10 @@
 - Added database-persisted `held_sales`, cashier-scoped protected Save Hold/Get/Discard API, saved-bill selector, local pilot financial guard, per-hold uniqueness and consumption upon successful sale. Held bill never reserves stock. New test `HeldSaleWorkflowTest` added; pending migration/browser/test.
 - Improved cancelable live server catalog searches in POS and Purchasing. AH-POS original UI preserved; BluePOS consulted for workflow, not cloned artwork/SQL Server database.
 - Production blockers and source status documented; no old tests rerun, no fake accepted completion claims.
+
+## 2026-11-19 — Full enterprise module shell and real product definition masters
+- User verified prior persisted Held Bills workflow test: 1 pass/14 assertions and new held_sales migration DONE.
+- Replaced flat website-style sidebar with AH-POS's **Home / Definitions / Daily Entries / Reports / Tools / Administration / Help** main ribbon, contextual submenus, module explorer, 60+ mapped business workflows and clearly distinguished available vs planned routes. Global Ctrl+K searches the same taxonomy; no fake working buttons or BluePOS UI asset cloning.
+- Added category/subcategory/brand/unit PostgreSQL tenant-owned masters with optional composite product ownership FKs and cross-tenant controls; added RBAC-scoped APIs, real tabbed master CRUD/create/activate/deactivate screen, Product create catalog references and table columns.
+- Added one `ProductDefinitionMastersTest` focused security regression (pending user execution), additive migration 000010 (pending local run) and documented exact local smoke/build steps at `docs/ENTERPRISE_MODULE_NAVIGATION.md`.
+- Financial posting remains local-only. Most ERP families are mapped backlog not working modules; no false production/acceptance claim.
