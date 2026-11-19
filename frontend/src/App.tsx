@@ -3,20 +3,24 @@ import { AppIcon, type AppIconName } from './AppIcon';
 import { CommandPalette } from './CommandPalette';
 import { DashboardPanel } from './DashboardPanel';
 import { InventoryPanel } from './InventoryPanel';
+import { PurchasingPanel } from './PurchasingPanel';
+import { PosPanel } from './PosPanel';
+import { ReportsPanel } from './ReportsPanel';
 import { ProductsPanel } from './ProductsPanel';
 import { PartiesPanel } from './PartiesPanel';
 import { ApiError, login, logout, me, myTenants, tenantContext, type Profile, type TenantChoice } from './api';
 
 type Screen = 'loading' | 'guest' | 'authenticated' | 'unavailable';
-type Page = 'dashboard' | 'products' | 'customers' | 'suppliers' | 'inventory' | 'sales' | 'reports';
+type Page = 'dashboard' | 'products' | 'customers' | 'suppliers' | 'inventory' | 'purchases' | 'sales' | 'reports';
 const pages: { id: Page; label: string; icon: AppIconName; group: string; ready: boolean }[] = [
   { id: 'dashboard', label: 'Overview', icon: 'dashboard', group: 'WORKSPACE', ready: true },
   { id: 'products', label: 'Products', icon: 'products', group: 'CATALOG', ready: true },
   { id: 'customers', label: 'Customers', icon: 'people', group: 'CATALOG', ready: true },
   { id: 'suppliers', label: 'Suppliers', icon: 'truck', group: 'CATALOG', ready: true },
   { id: 'inventory', label: 'Inventory & Warehouses', icon: 'inventory', group: 'OPERATIONS', ready: true },
-  { id: 'sales', label: 'Point of Sale', icon: 'sales', group: 'OPERATIONS', ready: false },
-  { id: 'reports', label: 'Reports', icon: 'reports', group: 'INSIGHTS', ready: false },
+  { id: 'purchases', label: 'Purchasing', icon: 'truck', group: 'OPERATIONS', ready: true },
+  { id: 'sales', label: 'Point of Sale', icon: 'sales', group: 'OPERATIONS', ready: true },
+  { id: 'reports', label: 'Reports', icon: 'reports', group: 'INSIGHTS', ready: true },
 ];
 
 export function App() {
@@ -209,7 +213,10 @@ export function App() {
                 page === 'products' ? 'Manage SKUs, barcodes and selling prices.' :
                 page === 'inventory' ? 'Track warehouses, incoming stock and available quantities.' :
                 page === 'customers' ? 'Keep your customers organized and ready for sales.' :
-                page === 'suppliers' ? 'Manage your purchasing contacts.' : 'Module in development.'}</p>
+                page === 'suppliers' ? 'Manage your purchasing contacts.' :
+                page === 'purchases' ? 'Receive supplier purchases and update stock.' :
+                page === 'sales' ? 'Fast, keyboard-friendly cash checkout.' :
+                page === 'reports' ? 'Live operational sales and purchasing insights.' : 'Module in development.'}</p>
             </div>
             <button className="workspace-switch" type="button" onClick={() => { setSelected(null); setPage('dashboard'); }}>
               <AppIcon name="warehouse" size={16} /><span>{selected.name}</span><AppIcon name="chevron" size={15} />
@@ -220,7 +227,9 @@ export function App() {
           {page === 'customers' && <PartiesPanel key={selected.ulid + '-customer'} tenant={selected} initialType="customer" />}
           {page === 'suppliers' && <PartiesPanel key={selected.ulid + '-supplier'} tenant={selected} initialType="supplier" />}
           {page === 'inventory' && <InventoryPanel key={selected.ulid} tenant={selected} />}
-          {(page === 'sales' || page === 'reports') && <div className="panel-card"><h2>Coming next</h2><p className="muted">This module is not ready for transactions yet.</p></div>}
+          {page === 'purchases' && <PurchasingPanel key={selected.ulid} tenant={selected} />}
+          {page === 'sales' && <PosPanel key={selected.ulid} tenant={selected} />}
+          {page === 'reports' && <ReportsPanel key={selected.ulid} tenant={selected} />}
         </>}
       </main>
     </div>
