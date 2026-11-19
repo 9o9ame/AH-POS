@@ -176,3 +176,7 @@
 - Added category/subcategory/brand/unit PostgreSQL tenant-owned masters with optional composite product ownership FKs and cross-tenant controls; added RBAC-scoped APIs, real tabbed master CRUD/create/activate/deactivate screen, Product create catalog references and table columns.
 - Added one `ProductDefinitionMastersTest` focused security regression (pending user execution), additive migration 000010 (pending local run) and documented exact local smoke/build steps at `docs/ENTERPRISE_MODULE_NAVIGATION.md`.
 - Financial posting remains local-only. Most ERP families are mapped backlog not working modules; no false production/acceptance claim.
+
+## 2026-11-19 — Fix definitions master permission registration
+- Verified user evidence: migration 000010 completed; ProductDefinitionMastersTest returned 403 at first category create.
+- Root cause: definition read/manage keys were included only in local-demo permissions, missing from canonical `TenantPermissions::known()`. Added them to known list so normal explicitly-assigned roles can pass RBAC check. Scoped access remains default-deny; focused test rerun pending.
