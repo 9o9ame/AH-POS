@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rules\Password;
+use App\Support\DevelopmentPasswordRules;
 
 final class PlatformAuthController extends Controller
 {
@@ -59,8 +59,7 @@ final class PlatformAuthController extends Controller
         $input = $request->validate([
             'name' => ['required', 'string', 'min:2', 'max:160'],
             'email' => ['required', 'email', 'max:255'],
-            'password' => ['required', 'string',
-                Password::min(12)->mixedCase()->numbers()->symbols()],
+            'password' => DevelopmentPasswordRules::creation(),
             'current_password' => ['required', 'string'],
             'confirm' => ['required', 'accepted'],
         ]);
