@@ -29,7 +29,11 @@ export function App() {
   const [masterKind, setMasterKind] = useState<ProductMasterKind>('categories');
   const [directoryOpen, setDirectoryOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarPinned, setSidebarPinned] = useState(false);
+  const [pinnedModule, setPinnedModule] = useState<ModuleId | null>(null);
+  const [hoveredModule, setHoveredModule] = useState<ModuleId | null>(null);
+  const sidebarLeaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const visibleSidebarModule = hoveredModule ?? pinnedModule ?? activeModule;
+  const sidebarPinned = pinnedModule !== null;
   const [commandOpen, setCommandOpen] = useState(false);
   const [workWindows, setWorkWindows] = useState<WorkWindow[]>([]);
   const [holdsVersion, setHoldsVersion] = useState(0);
@@ -50,6 +54,7 @@ export function App() {
     setPage(kind === 'sale' ? 'sales' : 'purchases');
     setActiveModule('daily');
     setDirectoryOpen(false);
+    setHoveredModule(null);
     setSidebarOpen(false);
     setCommandOpen(false);
   }, []);
@@ -162,7 +167,9 @@ export function App() {
         setCommandOpen(open => !open);
       } else if (event.key === 'Escape') {
         setCommandOpen(false);
+        setHoveredModule(null);
         setSidebarOpen(false);
+        setPinnedModule(null);
       }
     }
     window.addEventListener('keydown', onKeyboard);
@@ -221,32 +228,70 @@ export function App() {
     if (next === 'purchases') { openWorkWindow('purchase'); return; }
     setPage(next);
     setActiveModule(moduleForPage(next));
+    setPinnedModule(null);
     setDirectoryOpen(false);
     setActiveWindowId(null);
-    if (!sidebarPinned) setSidebarOpen(false);
-    setCommandOpen(false);
-  }
-
-  function chooseModule(next: ModuleId) {
-    if (activeModule === next && directoryOpen) {
-      // Repeating the active ribbon tab acts as a toggle. Keep the current
-      // business page visible; close only menu directory and pinned submenu.
-      setDirectoryOpen(false);
-      setSidebarPinned(false);
-      setSidebarOpen(false);
-      return;
-    }
-    setActiveModule(next);
-    setDirectoryOpen(true);
-    setActiveWindowId(null);
-    // A module switch closes the previously pinned submenu. Edge hover
-    // exposes the new module; clicking the edge/menu pin keeps it open.
-    if (activeModule !== next) setSidebarPinned(false);
+    setHoveredModule(null);
     setSidebarOpen(false);
     setCommandOpen(false);
   }
 
+  function clearSidebarTimer() {
+    if (sidebarLeaveTimer.current !== null) {
+      clearTimeout(sidebarLeaveTimer.current);
+      sidebarLeaveTimer.current = null;
+    }
+  }
+
+  function previewRibbonModule(next: ModuleId) {
+    clearSidebarTimer();
+    setHoveredModule(next);
+    setSidebarOpen(true);
+  }
+
+  function leaveRibbon() {
+    clearSidebarTimer();
+    sidebarLeaveTimer.current = setTimeout(() => {
+      setHoveredModule(null);
+      setSidebarOpen(pinnedModule !== null);
+      sidebarLeaveTimer.current = null;
+    }, 240);
+  }
+
+  function enterSidebar() {
+    clearSidebarTimer();
+    setSidebarOpen(true);
+  }
+
+  function leaveSidebar() {
+    clearSidebarTimer();
+    setHoveredModule(null);
+    setSidebarOpen(pinnedModule !== null);
+  }
+
+  function chooseModule(next: ModuleId) {
+    clearSidebarTimer();
+    setHoveredModule(null);
+    if (pinnedModule === next) {
+      // Clicking the current pinned ribbon tab again closes its submenu.
+      setPinnedModule(null);
+      setSidebarOpen(false);
+      return;
+    }
+    // Switching a ribbon tab replaces the previous pinned submenu.
+    setPinnedModule(next);
+    setActiveModule(next);
+    setDirectoryOpen(true);
+    setActiveWindowId(null);
+    setSidebarOpen(true);
+    setCommandOpen(false);
+  }
+
   function showHome() {
+    clearSidebarTimer();
+    setPinnedModule(null);
+    setHoveredModule(null);
+    setSidebarOpen(false);
     navigate('dashboard');
   }
 
@@ -286,25 +331,14 @@ export function App() {
 
   return <div className="app-frame compact-shell">
     <CommandPalette open={commandOpen && selected !== null} close={() => setCommandOpen(false)} navigate={navigate} />
-    {sidebarOpen && !sidebarPinned && <button type="button" className="sidebar-shade" aria-label="Close navigation"
-      onClick={() => { setSidebarOpen(false); setSidebarPinned(false); }} />}
-    {selected && <button type="button" className="sidebar-edge-handle"
-      onMouseEnter={() => setSidebarOpen(true)}
-      onFocus={() => setSidebarOpen(true)}
-      onClick={() => { setSidebarPinned(v => !v); setSidebarOpen(true); }}
-      aria-label={sidebarPinned ? 'Unpin submenu' : 'Reveal submenu'}
-      aria-expanded={sidebarOpen}><AppIcon name="menu" size={16}/></button>}
-    <aside className={`app-sidebar ${sidebarOpen || sidebarPinned ? 'sidebar-open' : ''}`}
-      onMouseEnter={() => setSidebarOpen(true)}
-      onMouseLeave={() => { if (!sidebarPinned) setSidebarOpen(false); }}>
+    <aside className={`app-sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}
+      aria-label={moduleById(visibleSidebarModule).title + ' submenu'}
+      onMouseEnter={enterSidebar}
+      onMouseLeave={leaveSidebar}>
       <div className="sidebar-brand">
         <span className="brand-mark">A<span>H</span></span>
         <span className="brand-text">AH POS<small>OPERATIONS SUITE</small></span>
       </div>
-      <button type="button" className="sidebar-pin-control"
-        onClick={() => { setSidebarPinned(v => !v); setSidebarOpen(true); }}>
-        <AppIcon name="menu" size={16}/> {sidebarPinned ? 'Unpin menu' : 'Pin menu'}
-      </button>
       <div className="sidebar-tenant">
         <div className="tenant-badge">{(selected?.name || tenants[0]?.name || 'W').slice(0, 1).toUpperCase()}</div>
         <div><span className="tenant-overline">CURRENT WORKSPACE</span>
@@ -314,15 +348,15 @@ export function App() {
       <nav className="sidebar-nav enterprise-sidebar" aria-label="Module navigation">
         <div className="sidebar-module-current">
           <span>ACTIVE MODULE</span>
-          <strong>{moduleById(activeModule).title}</strong>
-          <button type="button" onClick={() => chooseModule(activeModule)}>Browse all <AppIcon name="arrow" size={13}/></button>
+          <strong>{moduleById(visibleSidebarModule).title}</strong>
+          <button type="button" onClick={() => { setActiveModule(visibleSidebarModule); setDirectoryOpen(true); setHoveredModule(null); setSidebarOpen(sidebarPinned); }}>Browse all <AppIcon name="arrow" size={13}/></button>
         </div>
         <button type="button" className={'nav-link '+(!directoryOpen && page === 'dashboard' ? 'nav-active' : '')}
           disabled={!selected} onClick={showHome}><AppIcon name="dashboard" size={19}/><span>Business Overview</span></button>
-        {Array.from(new Set(moduleById(activeModule).items.map(item => item.group))).map(group => (
+        {Array.from(new Set(moduleById(visibleSidebarModule).items.map(item => item.group))).map(group => (
           <div className="nav-group" key={group}>
             <span className="nav-group-title">{group}</span>
-            {moduleById(activeModule).items.filter(item => item.group === group)
+            {moduleById(visibleSidebarModule).items.filter(item => item.group === group)
               .map(item => item.page ? <button key={item.id} type="button"
                 disabled={!selected}
                 className={'nav-link '+(!directoryOpen && page === item.page ? 'nav-active' : '')}
@@ -342,11 +376,10 @@ export function App() {
       </div>
     </aside>
     <div className="app-main">
-      {selected && <ModuleRibbon activeModule={activeModule} choose={chooseModule} home={showHome}
-        profileName={profile?.name} workspaceName={selected.name} sidebarPinned={sidebarPinned}
-        toggleSidebar={() => {
-          setSidebarPinned(v => !v); setSidebarOpen(true);
-        }}/>}
+      {selected && <ModuleRibbon activeModule={activeModule} pinnedModule={pinnedModule}
+        previewModule={hoveredModule} choose={chooseModule} preview={previewRibbonModule}
+        leave={leaveRibbon} home={showHome}
+        profileName={profile?.name} workspaceName={selected.name}/>}
       <main className="workspace-main">
         {!selected && autoSelecting ? <div className="tenant-picker"><div className="skeleton-cell" style={{width:'45%',height:24}}/>
           <p>Verifying your Admin workspace…</p></div> :
