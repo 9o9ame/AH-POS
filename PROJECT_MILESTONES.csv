@@ -6,5 +6,5 @@ P3,Master data and tenant import engine,14,implemented_unverified,0,0,,Product a
 P4,Purchasing inventory and accounting,14,implemented_unverified,0,0,,Inbound inventory verified previously; new supplier purchase documents and stock receipt committed pending migration; accounting COGS and production release blocked
 P5,Online sales POS returns and receipts,15,implemented_unverified,0,0,,Local cash POS purchase-to-sale critical test verified; immutable partial/full cash returns source committed pending migration and focused local test; tax GL cost and production blocked
 P6,Offline browser sales and synchronization,10,not_started,0,0,,Retry idempotency conflict and device tests
-P7,Reports administration and operations,8,implemented_unverified,0,0,,Tenant-scoped cash sales purchasing and stock operational report committed pending local verification; not accounting reporting
+P7,Reports administration and operations,8,implemented_unverified,0,0,,Sales Returns browser history verified; cashier-specific shift/immutable cash close pilot committed pending local migration and targeted test; not accounting or reconciled finance reporting
 P8,AI copilot minimum viable release,6,not_started,0,0,,Authorized navigation and draft accuracy
