@@ -10,8 +10,9 @@ import { ReturnsPanel } from './ReturnsPanel';
 import { CashRegisterPanel } from './CashRegisterPanel';
 import { ReportsPanel } from './ReportsPanel';
 import { ProductsPanel } from './ProductsPanel';
+import { ProductMastersPanel } from './ProductMastersPanel';
 import { PartiesPanel } from './PartiesPanel';
-import { ApiError, login, logout, me, myTenants, tenantContext, type Profile, type SaleHold, type TenantChoice } from './api';
+import { ApiError, login, logout, me, myTenants, tenantContext, type ProductMasterKind, type Profile, type SaleHold, type TenantChoice } from './api';
 
 type Screen = 'loading' | 'guest' | 'authenticated' | 'unavailable';
 type Page = WorkspacePage;
@@ -25,6 +26,7 @@ export function App() {
   const [password, setPassword] = useState('');
   const [page, setPage] = useState<Page>('dashboard');
   const [activeModule, setActiveModule] = useState<ModuleId>('overview');
+  const [masterKind, setMasterKind] = useState<ProductMasterKind>('categories');
   const [directoryOpen, setDirectoryOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [commandOpen, setCommandOpen] = useState(false);
@@ -190,7 +192,11 @@ export function App() {
     } finally { setBusy(false); }
   }
 
-  function navigate(next: Page) {
+  function navigate(next: Page, itemId?: string) {
+    if (next === 'masters') {
+      const selectedKind = itemId === 'brands' || itemId === 'units' || itemId === 'subcategories' ? itemId : 'categories';
+      setMasterKind(selectedKind);
+    }
     if (next === 'sales') { openWorkWindow('sale'); return; }
     if (next === 'purchases') { openWorkWindow('purchase'); return; }
     setPage(next);
@@ -276,7 +282,7 @@ export function App() {
               .map(item => item.page ? <button key={item.id} type="button"
                 disabled={!selected}
                 className={'nav-link '+(!directoryOpen && page === item.page ? 'nav-active' : '')}
-                onClick={() => navigate(item.page!)}>
+                onClick={() => navigate(item.page!, item.id)}>
                 <AppIcon name={item.icon} size={19}/><span>{item.name}</span>
               </button> : <div key={item.id} className="nav-planned" title={item.description}>
                 <AppIcon name={item.icon} size={16}/><span>{item.name}</span><small>Planned</small>
@@ -353,6 +359,7 @@ export function App() {
           </div>
           {directoryOpen && <ModuleDirectory activeModule={activeModule} navigate={navigate} section={chooseModule} />}
           {!directoryOpen && page === 'dashboard' && <DashboardPanel key={selected.ulid} tenant={selected} navigate={navigate} />}
+          {!directoryOpen && page === 'masters' && <ProductMastersPanel key={selected.ulid + masterKind} tenant={selected} initialKind={masterKind} />}
           {!directoryOpen && page === 'products' && <ProductsPanel key={selected.ulid} tenant={selected} />}
           {!directoryOpen && page === 'customers' && <PartiesPanel key={selected.ulid + '-customer'} tenant={selected} initialType="customer" />}
           {!directoryOpen && page === 'suppliers' && <PartiesPanel key={selected.ulid + '-supplier'} tenant={selected} initialType="supplier" />}
