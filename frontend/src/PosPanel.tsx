@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import {
-  ApiError, getInventory, getSaleReceipt, listParties, listProducts, listSales, listWarehouses, postSale,
-  type Party, type Product, type SaleReceipt, type SaleRecord, type StockBalance, type TenantChoice, type Warehouse,
+  ApiError, getInventory, getSaleReceipt, listParties, listProducts, listSales, listWarehouses, postSale, saveSaleHold,
+  type Party, type Product, type SaleHold, type SaleReceipt, type SaleRecord, type StockBalance, type TenantChoice, type Warehouse,
 } from './api';
 import { AppIcon } from './AppIcon';
 
@@ -10,18 +10,21 @@ const money = (value: number) => new Intl.NumberFormat('en-PK', {
   style: 'currency', currency: 'PKR', minimumFractionDigits: 2,
 }).format(value);
 
-export function PosPanel({ tenant, onDraftChange, active = true }: {
+export function PosPanel({ tenant, onDraftChange, active = true, initialHold, onHoldSaved, onMinimize, windowLabel }: {
   tenant: TenantChoice; onDraftChange?: (dirty: boolean) => void; active?: boolean;
+  initialHold?: SaleHold | null; onHoldSaved?: () => void; onMinimize?: () => void;
+  windowLabel?: string;
 }) {
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
-  const [warehouse, setWarehouse] = useState('');
+  const [warehouse, setWarehouse] = useState(initialHold?.warehouse_ulid || '');
   const [customers, setCustomers] = useState<Party[]>([]);
-  const [customer, setCustomer] = useState('');
+  const [customer, setCustomer] = useState(initialHold?.customer_ulid || '');
   const [search, setSearch] = useState('');
   const [products, setProducts] = useState<Product[]>([]);
   const [balances, setBalances] = useState<StockBalance[]>([]);
-  const [cart, setCart] = useState<CartLine[]>([]);
-  const [cash, setCash] = useState('');
+  const [cart, setCart] = useState<CartLine[]>(initialHold?.lines.filter(line => line.product !== null)
+    .map(line => ({ product: line.product as Product, quantity: line.quantity })) || []);
+  const [cash, setCash] = useState(initialHold?.amount_paid || '');
   const [history, setHistory] = useState<SaleRecord[]>([]);
   const [receipt, setReceipt] = useState<SaleReceipt | null>(null);
   const [busy, setBusy] = useState(false);
@@ -29,6 +32,9 @@ export function PosPanel({ tenant, onDraftChange, active = true }: {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
   const key = useRef(crypto.randomUUID());
+  const holdClientRef = useRef(initialHold?.client_ref || crypto.randomUUID());
+  const [holdUlid, setHoldUlid] = useState<string | null>(initialHold?.ulid || null);
+  const [holding, setHolding] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
@@ -99,13 +105,16 @@ export function PosPanel({ tenant, onDraftChange, active = true }: {
     try {
       const saved = await postSale(tenant.ulid, {
         warehouse_ulid: warehouse, customer_ulid: customer || null,
-        idempotency_key: key.current, amount_paid: cash,
+        idempotency_key: key.current, amount_paid: cash, hold_ulid: holdUlid,
         lines: cart.map(line => ({ product_ulid: line.product.ulid, quantity: line.quantity })),
       });
       const details = await getSaleReceipt(tenant.ulid, saved.ulid);
       setReceipt(details);
       key.current = crypto.randomUUID();
+      holdClientRef.current = crypto.randomUUID();
+      setHoldUlid(null);
       setCart([]); setCash('');
+      onHoldSaved?.();
       setStatus(saved.replayed ? 'Existing sale confirmed; stock was not deducted twice.'
         : 'Cash sale recorded. Receipt ready to print.');
       await load();
@@ -114,6 +123,28 @@ export function PosPanel({ tenant, onDraftChange, active = true }: {
       setStatus(exception instanceof ApiError
         ? exception.message : 'Could not complete checkout. Review the cart and retry.');
     } finally { setBusy(false); }
+  }
+
+  async function holdBill() {
+    if (cart.length === 0 || holding || busy) return;
+    setHolding(true); setError(false); setStatus('');
+    try {
+      const saved = await saveSaleHold(tenant.ulid, {
+        client_ref: holdClientRef.current,
+        title: initialHold?.title || windowLabel || 'Held cash sale',
+        warehouse_ulid: warehouse || null,
+        customer_ulid: customer || null,
+        amount_paid: cash.trim() || null,
+        lines: cart.map(line => ({ product_ulid: line.product.ulid, quantity: line.quantity })),
+      });
+      setHoldUlid(saved.ulid);
+      setStatus('Bill saved on server as a held invoice. You can restore it from Sales workspace.');
+      onHoldSaved?.();
+      onMinimize?.();
+    } catch (ex) {
+      setError(true);
+      setStatus(ex instanceof ApiError ? ex.message : 'Unable to save held bill. Draft remains in this window.');
+    } finally { setHolding(false); }
   }
 
   async function showReceipt(ulid: string) {
@@ -185,12 +216,18 @@ export function PosPanel({ tenant, onDraftChange, active = true }: {
         </button>
         <div><span>Estimated change</span><strong>{money(Math.max(0,changeEstimate))}</strong></div>
       </div>
+      <div className="pos-checkout-actions">
+        <button type="button" className="pos-hold-button" disabled={busy || holding || cart.length === 0}
+          onClick={() => void holdBill()}>
+          <AppIcon name="package" size={19}/>{holding ? 'Saving hold…' : holdUlid ? 'Update held bill' : 'Hold bill & switch'}
+        </button>
       <button type="button" className="primary-post pos-pay-button"
-        disabled={busy || cart.length===0 || !warehouse || !cash || changeEstimate < -0.0001}
+        disabled={busy || holding || cart.length===0 || !warehouse || !cash || changeEstimate < -0.0001}
         onClick={() => void checkout()}>
         <AppIcon name="check" size={20}/>{busy ? 'Completing sale…' : 'Complete cash sale'}
       </button>
-      <p className="pos-warning">Development-only transactions. Accounting, cost valuation, fiscal tax and payment integrations are not ready for production.</p>
+      </div>
+      <p className="pos-warning">Held bills are saved to the local test database only when you use Hold bill. They do not reserve stock. Development-only transactions. Accounting, cost valuation, fiscal tax and payment integrations are not ready for production.</p>
       {status && <p role="status" className={error?'inline-alert':'inline-success'}>{status}</p>}
     </section>
 
