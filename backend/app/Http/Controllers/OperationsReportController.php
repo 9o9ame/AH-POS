@@ -15,6 +15,13 @@ final class OperationsReportController extends Controller
         $sales = DB::table('sales')->where('tenant_id', $tenantId)
             ->selectRaw('COUNT(*) AS document_count, COALESCE(SUM(total),0)::numeric(20,4)::text AS total')
             ->first();
+        $returns = DB::table('sale_returns')->where('tenant_id', $tenantId)
+            ->selectRaw('COUNT(*) AS document_count, COALESCE(SUM(refund_total),0)::numeric(20,4)::text AS total')
+            ->first();
+        $netCash = (string) DB::selectOne(
+            'SELECT (CAST(? AS numeric) - CAST(? AS numeric))::numeric(20,4)::text AS value',
+            [(string) ($sales->total ?? '0'), (string) ($returns->total ?? '0')]
+        )->value;
         $purchases = DB::table('purchases')->where('tenant_id', $tenantId)
             ->selectRaw('COUNT(*) AS document_count, COALESCE(SUM(total),0)::numeric(20,4)::text AS total')
             ->first();
@@ -39,13 +46,18 @@ final class OperationsReportController extends Controller
                 'count' => (int) ($sales->document_count ?? 0),
                 'total' => (string) ($sales->total ?? '0.0000'),
             ],
+            'cash_returns' => [
+                'count' => (int) ($returns->document_count ?? 0),
+                'total' => (string) ($returns->total ?? '0.0000'),
+            ],
+            'net_cash_sales' => $netCash,
             'purchases' => [
                 'count' => (int) ($purchases->document_count ?? 0),
                 'total' => (string) ($purchases->total ?? '0.0000'),
             ],
             'stocked_product_locations' => $stocked,
             'daily_cash_sales' => $daily,
-            'disclaimer' => 'Local pilot operational totals; not accounting, tax, profit or reconciled financial reports.',
+            'disclaimer' => 'Gross sales, refunds and net cash are local pilot activity; not a reconciled cash drawer, GL, tax or profit statement.',
         ]]);
     }
 }
