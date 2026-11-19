@@ -183,6 +183,8 @@ Route::middleware('platform.auth')->group(function (): void {
         ->middleware('platform.permission:platform.overview.read');
     Route::get('/api/platform/admins', [PlatformController::class, 'admins'])
         ->middleware('platform.permission:platform.admins.read');
+    Route::patch('/api/platform/admins/{tenant}/status', [PlatformController::class, 'changeAdminStatus'])
+        ->middleware(['platform.permission:platform.admins.create', 'throttle:8,1']);
     Route::get('/api/platform/admins/{tenant}/owner-candidates', [PlatformController::class, 'ownerCandidates'])
         ->middleware('platform.permission:platform.admins.create');
     Route::post('/api/platform/admins/{tenant}/assign-owner', [PlatformController::class, 'assignExistingOwner'])
