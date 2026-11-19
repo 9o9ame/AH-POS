@@ -71,6 +71,7 @@ final class TenantPermissions
         // pilot is separately blocked by the posting controllers outside local.
         return in_array($permission, [
             'products.read', 'products.create',
+            'definitions.read', 'definitions.manage',
             'parties.read', 'parties.create',
             'warehouses.read', 'warehouses.create',
             'inventory.read', 'inventory.receive',
