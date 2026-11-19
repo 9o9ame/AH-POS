@@ -226,3 +226,49 @@ Artisan::command('ahpos:grant-local-catalog', function (): int {
     $this->info('Local catalog, party and inventory permissions granted successfully.');
     return 0;
 })->purpose('Explicitly authorize one local test membership for catalog and party directory development');
+
+
+/**
+ * One-time local-only opt-in Platform bootstrap; existing authenticated user
+ * remains owner only of their explicitly provisioned tenant memberships.
+ * Never seeds a platform password or silently grants anyone root powers.
+ */
+Artisan::command('ahpos:bootstrap-platform-superadmin', function (): int {
+    if (! app()->environment('local')
+        || config('database.default') !== 'pgsql'
+        || config('database.connections.pgsql.database') !== 'ahpos_test'
+        || ! in_array(config('database.connections.pgsql.host'), ['127.0.0.1', 'localhost'], true)) {
+        $this->error('Only local PostgreSQL ahpos_test Platform bootstrap is allowed.');
+        return 1;
+    }
+    $email = strtolower(trim((string) $this->ask('Existing local user email to authorize as Platform Super Admin')));
+    $user = User::query()->whereRaw('lower(email) = ?', [$email])->first();
+    if ($user === null) {
+        $this->error('No such local user. No platform privilege assigned.');
+        return 1;
+    }
+    if (! $this->confirm('Grant PLATFORM SUPER ADMIN authority to '.$email.' (platform-wide)?', false)) {
+        $this->info('Cancelled; nothing changed.');
+        return 0;
+    }
+    DB::transaction(function () use ($user): void {
+        $roleId = \App\Support\PlatformPermissions::ensureRole(
+            'Super Admin', \App\Support\PlatformPermissions::allAdminRolePermissions(),
+        );
+        DB::table('platform_user_roles')->insertOrIgnore([
+            'user_id' => $user->getKey(), 'role_id' => $roleId,
+        ]);
+        DB::table('platform_audit_events')->insert([
+            'ulid' => (string) \Illuminate\Support\Str::ulid(),
+            'actor_id' => $user->getKey(),
+            'action' => 'platform.bootstrap.super_admin',
+            'target_type' => 'platform_user',
+            'target_ulid' => null,
+            'metadata' => json_encode(['local_only' => true]),
+            'ip_address' => null,
+            'created_at' => now(),
+        ]);
+    });
+    $this->info('Explicit local Platform Super Admin bootstrap completed.');
+    return 0;
+})->purpose('Explicit one-time local bootstrap of existing user into separate Platform authority');
