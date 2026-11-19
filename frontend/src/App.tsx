@@ -227,12 +227,15 @@ export function App() {
     if (next === 'sales') { openWorkWindow('sale'); return; }
     if (next === 'purchases') { openWorkWindow('purchase'); return; }
     setPage(next);
-    setActiveModule(moduleForPage(next));
-    setPinnedModule(null);
+    const targetModule = moduleForPage(next);
+    setActiveModule(targetModule);
+    // A clicked/pinned ribbon family stays available while navigating its
+    // subpages. Switching to a route from another family clears old pin.
+    if (pinnedModule !== targetModule) setPinnedModule(null);
     setDirectoryOpen(false);
     setActiveWindowId(null);
     setHoveredModule(null);
-    setSidebarOpen(false);
+    setSidebarOpen(pinnedModule === targetModule);
     setCommandOpen(false);
   }
 
