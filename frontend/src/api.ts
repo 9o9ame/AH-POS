@@ -483,3 +483,14 @@ export function requestTenantDevice(tenantUlid:string,deviceName:string):Promise
     tenantApi(tenantUlid,'device/request'),{device_name:deviceName},
   ).then(v=>v.data);
 }
+
+export type PlatformOwnerCandidate = {name:string;email:string};
+export function listPlatformOwnerCandidates(tenantUlid:string):Promise<PlatformOwnerCandidate[]>{
+  return getData<PlatformOwnerCandidate[]>('/api/platform/admins/'+encodeURIComponent(tenantUlid)+'/owner-candidates');
+}
+export function assignPlatformExistingOwner(tenantUlid:string,ownerEmail:string):Promise<PlatformAdminRecord>{
+  return post<DataResponse<PlatformAdminRecord>>(
+    '/api/platform/admins/'+encodeURIComponent(tenantUlid)+'/assign-owner',
+    {owner_email:ownerEmail,confirm:true},
+  ).then(v=>v.data);
+}
