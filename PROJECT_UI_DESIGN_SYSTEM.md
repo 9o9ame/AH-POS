@@ -76,3 +76,8 @@ Approve unique design direction (logo, palette, navigation, component style), bu
 - A platform-authorized user sees Platform entry in the main ribbon; Platform-only staff without a tenant enters Platform console directly. The Platform console has a separate premium AH-POS control-plane header and dense list/create-modal registers for Admin onboarding, Platform operators and audit.
 - Unauthorized users never see Platform link. Platform UI does not show business transactions or bypass tenant RBAC. Source is NOT yet browser/TypeScript verified.
 - Top family-hover sidebar correction remains source-of-truth: hover any top tab previews matching subnav; click pins, same click unpins, switch replaces. No edge hamburger.
+
+## 2026-11-19 — Real tenant Staff + Device Approval administration UI
+- Top ribbon Administration → Users & Staff, Roles & Permissions and Device Management now map to one compact `StaffSecurityPanel` with contextual tab, Create Staff modal, role-permission display and device approval/reject/revoke table. Each action is backed by tenant/RBAC server APIs; local old Ali tenant requires explicit Admin Owner grant.
+- On single-staff login without approved device, show dedicated `DevicePendingPanel` with device label form, pending status, refresh/check approval action and logout. No tenant data is rendered until server returns approved member context; HttpOnly cookie is not exposed to React/IndexedDB.
+- No browser acceptance yet. No fake GPS or notification claims. Continue original top-ribbon hover-preview, click-pin, toggle submenu and compact modal/table density without creating an extra left-edge hover button.
