@@ -301,7 +301,7 @@ export function App() {
       <header className="top-bar">
         <div className="top-left">
           <button type="button" className="mobile-menu" aria-label="Toggle navigation" onClick={() => setSidebarOpen(v => !v)}><AppIcon name="menu" /></button>
-          <div className="breadcrumb"><span>Workspace</span><span className="crumb-sep">/</span><strong>{directoryOpen ? moduleById(activeModule).title : moduleById(activeModule).items.find(item => item.page === page)?.name || page}</strong></div>
+          <div className="breadcrumb"><span>Workspace</span><span className="crumb-sep">/</span><strong>{directoryOpen ? moduleById(activeModule).title : (page === 'masters' ? ({categories:'Categories',subcategories:'Sub Categories',brands:'Brands',units:'Units'} as const)[masterKind] : moduleById(activeModule).items.find(item => item.page === page)?.name || page)}</strong></div>
           {selected && <div className="top-invoice-actions">
             <button type="button" onClick={() => openWorkWindow('sale')} title="New sale (F2)">
               <AppIcon name="sales" size={16}/> Sale <kbd>F2</kbd>
@@ -337,9 +337,10 @@ export function App() {
         </div> : <>
           <div className="page-heading">
             <div><span className="small-overline">AH POS / {selected.name.toUpperCase()}</span>
-              <h1>{directoryOpen ? moduleById(activeModule).title : page === 'dashboard' ? 'Business overview' : moduleById(activeModule).items.find(item => item.page === page)?.name || page}</h1>
+              <h1>{directoryOpen ? moduleById(activeModule).title : page === 'dashboard' ? 'Business overview' : (page === 'masters' ? ({categories:'Categories',subcategories:'Sub Categories',brands:'Brands',units:'Units'} as const)[masterKind] : moduleById(activeModule).items.find(item => item.page === page)?.name || page)}</h1>
               <p>{directoryOpen ? moduleById(activeModule).subtitle : page === 'dashboard' ? 'Your business at a glance.' :
                 page === 'products' ? 'Manage SKUs, barcodes and selling prices.' :
+                page === 'masters' ? 'Manage real tenant-owned category, subcategory, brand and unit masters.' :
                 page === 'inventory' ? 'Track warehouses, incoming stock and available quantities.' :
                 page === 'customers' ? 'Keep your customers organized and ready for sales.' :
                 page === 'suppliers' ? 'Manage your purchasing contacts.' :
