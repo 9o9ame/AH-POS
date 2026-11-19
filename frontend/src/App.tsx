@@ -170,6 +170,7 @@ export function App() {
     if (next === 'sales') { openWorkWindow('sale'); return; }
     if (next === 'purchases') { openWorkWindow('purchase'); return; }
     setPage(next);
+    setActiveWindowId(null);
     setSidebarOpen(false);
     setCommandOpen(false);
   }
