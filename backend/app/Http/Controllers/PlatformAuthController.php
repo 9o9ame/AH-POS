@@ -77,7 +77,7 @@ final class PlatformAuthController extends Controller
         }
         $result = DB::transaction(function () use ($request, $actor, $input, $email): array {
             $actorRoleIds = DB::table('platform_user_roles')->where('user_id', $actor->getKey())
-                ->pluck('role_id')->all();
+                ->lockForUpdate()->pluck('role_id')->all();
             $superAdminRoleId = DB::table('platform_roles')->where('name', 'Super Admin')->value('id');
             if ($superAdminRoleId === null || ! in_array((int) $superAdminRoleId, array_map('intval',$actorRoleIds), true)) {
                 abort(403);
