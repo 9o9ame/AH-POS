@@ -1127,3 +1127,40 @@ button:not(:disabled):active{transform:scale(.985)}
   .compact-shell .enterprise-ribbon{scrollbar-width:none}
   .compact-shell .app-sidebar{width:min(265px,90vw)!important;min-width:0!important}
 }
+
+/* Platform: separate vendor control plane, never a business tenant dashboard. */
+.platform-console{display:grid;gap:14px}
+.platform-hero{display:flex;justify-content:space-between;align-items:center;gap:20px;
+  border-radius:13px;padding:24px 26px;
+  background:linear-gradient(112deg,#10233d,#1d3957 62%,#126f70);color:#fff;
+  box-shadow:0 12px 34px rgba(16,36,57,.1)}
+.platform-hero .small-overline{color:#99e6d9}
+.platform-hero h1{font-size:23px;letter-spacing:-.04em;color:white;margin:7px 0}
+.platform-hero p{font-size:11px;line-height:1.65;color:#d0e2e9;margin:0}
+.platform-hero .platform-signout{display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.15)!important;color:white!important;
+  border:1px solid rgba(255,255,255,.2)!important}
+.platform-stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.platform-stat{border:1px solid #e1eaf0;background:#fff;border-radius:11px;padding:14px;
+  display:grid;gap:11px;min-height:105px}
+.platform-stat span{display:flex;gap:8px;align-items:center;color:#7790a4;font-size:11px;font-weight:700}
+.platform-stat span svg{color:#0a9987}
+.platform-stat strong{font-size:24px;color:#172f46;font-family:Manrope,sans-serif}
+.platform-tabs{display:flex;align-items:center;gap:7px;flex-wrap:wrap;border-bottom:1px solid #e3e9ef;padding:3px 0 9px}
+.platform-tabs button{min-height:33px!important;padding:8px 14px!important;background:#fff!important;
+  border:1px solid #dbe6ec!important;color:#657a8e!important;border-radius:8px!important;font-size:11px!important}
+.platform-tabs button.selected{background:#dff6ee!important;border-color:#b4e3d5!important;color:#08796c!important}
+.platform-form{display:grid;gap:12px}
+.platform-form label{font-size:11px}
+.platform-form input,.platform-form select{min-height:37px}
+.platform-form button{justify-self:start}
+.platform-topnav{display:flex;justify-content:space-between;align-items:center;width:100%}
+.platform-topnav>strong{display:flex;align-items:center;gap:10px;font-size:13px;color:#123952}
+.platform-topnav>strong svg{color:#099784}
+.platform-topnav-actions{display:flex;align-items:center;gap:12px;font-size:11px;color:#607e92}
+.compact-shell .enterprise-ribbon .platform-ribbon-link{display:inline-flex;align-items:center;gap:7px;
+  background:#e9f6f3!important;color:#0c8477!important;border-radius:8px!important;
+  min-height:33px!important;padding:7px 10px!important;font-size:11px!important}
+.compact-shell .enterprise-ribbon .platform-ribbon-link svg{color:#0c8477}
+@media(max-width:720px){.platform-stat-grid{grid-template-columns:1fr 1fr}.platform-hero{padding:18px;align-items:flex-start;flex-direction:column}}
+@media(max-width:460px){.platform-stat-grid{grid-template-columns:1fr}.platform-hero h1{font-size:19px}.platform-hero p{font-size:10px}}
