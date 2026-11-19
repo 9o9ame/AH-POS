@@ -143,3 +143,8 @@
 - Added separate purchasing, cashier POS, printable thermal-style receipt, sale history and operations reports; expanded sidebar, quick search, dashboard and CSS transaction layout.
 - Added one rollback-only integrated `TradeWorkflowTest`, not executed locally yet.
 - **Production checkout disabled by explicit local-only guard** until accounting journal, cost valuation, tax/fiscal, returns, RLS and release approval. No balance/accounting result fabricated. User should run new migration and focused test once.
+
+## 2026-11-19 — Focused trade test environment gate fix
+- User screenshot shows successful local cash-sale receipt (Socks qty 2, PKR 200), migration `create_purchase_and_cash_sale_documents` DONE.
+- `TradeWorkflowTest` failed 503 because `phpunit.xml` forces `APP_ENV=testing`. Updated `DocumentPosting::assertLocalOnly` to allow `testing` only for Laravel's running-unit-tests process, local PostgreSQL `ahpos_test` and localhost DB host. Staging/production posting stays blocked.
+- Rerun only `php artisan test --filter=TradeWorkflowTest`. No new migration.
