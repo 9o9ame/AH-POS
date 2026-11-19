@@ -28,7 +28,7 @@ return new class extends Migration
             $table->foreignId('product_id');
             $table->foreignId('created_by')->constrained('users')->restrictOnDelete();
             $table->ulid('ulid')->unique();
-            $table->ulid('idempotency_key');
+            $table->uuid('idempotency_key');
             $table->char('payload_hash', 64);
             $table->string('type', 24);
             $table->decimal('quantity', 20, 6);
