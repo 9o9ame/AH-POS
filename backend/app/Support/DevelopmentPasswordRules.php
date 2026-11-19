@@ -5,15 +5,15 @@ namespace App\Support;
 use Illuminate\Validation\Rules\Password;
 
 /**
- * Local developer convenience only; never makes production API credentials
- * weaker. In ahpos_test on loopback under APP_ENV=local, minimum is 3.
+ * Local developer/test convenience only; never makes production API credentials
+ * weaker. In ahpos_test on loopback under APP_ENV=local/testing, minimum is 3.
  */
 final class DevelopmentPasswordRules
 {
     /** @return array<int, mixed> */
     public static function creation(): array
     {
-        $localPilot = app()->environment('local')
+        $localPilot = app()->environment('local', 'testing')
             && config('database.default') === 'pgsql'
             && config('database.connections.pgsql.database') === 'ahpos_test'
             && in_array(config('database.connections.pgsql.host'), ['127.0.0.1', 'localhost'], true);
