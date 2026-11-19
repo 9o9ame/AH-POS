@@ -238,3 +238,10 @@ Added `php artisan ahpos:create-platform-superadmin` local-only CLI to create a 
 
 ## 2026-11-19 — Platform-only Super Admin created on local development DB
 User verified successful first-time `ahpos:create-platform-superadmin`: a dedicated Platform-only account (Anwaar) created with Platform Super Admin authority and no business tenant membership. Prior `min:3` local-password fix worked. Account credentials excluded from repository notes. Browser Platform sign-in remains to be checked; no migrations or test reruns needed.
+
+## 2026-11-19 — Fix all shared Create/Add modals and expand real Platform business management
+- Root-caused shared modal invisible behind transforms/overflow: `page-enter` animation creates fixed positioning context. React `EntityModal` now uses `createPortal` into document.body with accessible focus management, Escape/backdrop closure, internal scrolling and visible server validation errors.
+- Enabled Add button guard on Products/Parties to avoid clickable-yet-invisible action when list read denied. Platform Create Admin/Add Operator/Assign Owner and tenant Products/Parties/Masters/Warehouse/Staff share the fix; Staff Suspend and Device decisions now confirmation modals rather than native browser alert.
+- Platform Admin business register searchable/filterable and now supports audited reversible Suspend/Reactivate via server-authenticated tenant status API, with required reason, explicit Platform authority, row lock and no business-data deletion.
+- Standardized local-only min3 password policy across real Admin/Platform staff/tenant staff creation APIs, preserving production 12+ complex requirements; forms use Vite DEV length hint. Added PlatformAdminStatusTest and LocalPilotModalCreationTest, rollback-only.
+- No database migration, reset, new default accounts or repetitive old tests; source compilation, new tests and visual browser UAT remain pending.
