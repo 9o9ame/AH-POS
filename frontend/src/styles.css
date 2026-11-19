@@ -32,3 +32,19 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 .modules li > span { color: inherit; font-size: 15px; }
 .notice { padding: 14px; border: 1px solid #c77a35; border-radius: 6px; background: #fff7eb; color: #7f3b10; }
 @media (max-width: 600px) { .between { flex-direction: column; } }
+
+/* Temporary operational catalog UI. Final design system approval is pending. */
+.catalog h3 { font-size: 17px; margin: 0 0 14px; }
+.catalog-form { padding: 18px; border: 1px solid #e0e4e9; border-radius: 9px; margin: 20px 0; }
+.catalog-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-bottom: 16px; }
+.catalog-fields label, .catalog-search label { font-size: 14px; font-weight: 600; display: grid; gap: 7px; }
+.catalog-fields input, .catalog-search input { width: 100%; min-width: 0; min-height: 42px; padding: 9px 11px; border: 1px solid #a9b2be; border-radius: 6px; font: inherit; }
+.catalog-search { margin: 20px 0; }
+.catalog-search-row { display: flex; gap: 10px; }
+.catalog-search-row input { flex: 1; }
+.catalog-count { color: #526274; font-size: 14px; white-space: nowrap; }
+.catalog-table-wrap { overflow-x: auto; }
+.catalog-table { width: 100%; border-collapse: collapse; text-align: left; min-width: 560px; }
+.catalog-table th, .catalog-table td { padding: 11px 10px; border-bottom: 1px solid #e0e4e9; font-size: 14px; }
+.catalog-table th { background: #f6f7f9; color: #526274; }
+@media (max-width: 650px) { .catalog-fields { grid-template-columns: 1fr; } .catalog-search-row { flex-direction: column; } }
