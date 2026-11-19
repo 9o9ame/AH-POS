@@ -7,7 +7,7 @@ import {
 
 type Props = {
   activeModule: ModuleId;
-  navigate: (page: WorkspacePage) => void;
+  navigate: (page: WorkspacePage, itemId?: string) => void;
   section: (module: ModuleId) => void;
 };
 
@@ -24,7 +24,7 @@ export function ModuleDirectory({ activeModule, navigate, section }: Props) {
   const allCount = module.items.length;
 
   function go(item: ModuleItem) {
-    if (item.page) navigate(item.page);
+    if (item.page) navigate(item.page, item.id);
   }
 
   return <div className="module-directory">
