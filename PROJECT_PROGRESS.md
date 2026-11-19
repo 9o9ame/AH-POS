@@ -115,3 +115,6 @@ User verified one `ProductDefinitionMastersTest` PASS/17 assertions and browser 
 
 ## 2026-11-19 — User rejected edge hover trigger; top-ribbon hover/click pin behavior now committed
 Two user screenshots showed correct list-first Products page but wrong detached sidebar edge trigger. Implemented top navigation as unique hover/focus trigger, clickable pin/unpin and family switch; removed left edge and duplicate hamburger, positioned drawer below ribbon, preserved subpage pinned state. **Source committed, Vite build and browser interaction review pending**; prior Platform/Admin/device and IndexedDB work still planned/not implemented. No accepted percentage change.
+
+## 2026-11-19 — Platform Super Admin first real vertical slice committed (not verified)
+After screenshot correction of top-hover ribbon and removal of edge button, added real separate Platform RBAC schema/guard, local explicit Super Admin bootstrap, authenticated Platform overview/Admin onboarding/Platform staff/audit APIs, Admin owner tenant role creation in one transaction, separate Platform UI and focused cross-scope denial test. **Migration 000011, PlatformOnboardingTest and frontend TypeScript/browser acceptance pending.** No actual device approval or tenant staff invitation yet. Count 0 accepted percentage until evidence and production security gates.
