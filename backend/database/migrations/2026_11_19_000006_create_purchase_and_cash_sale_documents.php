@@ -110,10 +110,8 @@ BEGIN
     RAISE EXCEPTION 'Posted stock movements are append-only';
 END;
 $$;
-CREATE TRIGGER ahpos_stock_no_mutation
-BEFORE UPDATE OR DELETE ON stock_movements
-FOR EACH ROW EXECUTE FUNCTION ahpos_protect_stock_movement();
 SQL);
+        DB::statement('CREATE TRIGGER ahpos_stock_no_mutation BEFORE UPDATE OR DELETE ON stock_movements FOR EACH ROW EXECUTE FUNCTION ahpos_protect_stock_movement()');
         foreach (['purchases', 'purchase_lines', 'sales', 'sale_lines'] as $table) {
             DB::unprepared("CREATE TRIGGER ahpos_{$table}_no_mutation BEFORE UPDATE OR DELETE ON {$table} FOR EACH ROW EXECUTE FUNCTION ahpos_protect_stock_movement()");
         }
