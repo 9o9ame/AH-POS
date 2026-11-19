@@ -183,3 +183,11 @@
 
 ## 2026-11-19 — Correct expected foreign tenant denial in Definitions test
 - Existing ResolveTenantContext returns HTTP 404 when the caller has no active membership of the selected tenant; existing TenantAccessTest asserts this behavior. Definitions integration test had incorrectly expected 403 for this case. Updated test to expect 404, with comment documenting intentional tenant existence concealment. No data migrations or authorization relaxation.
+
+## 2026-11-19 — Compact AH-POS desktop shell, live charts and modal master entry
+- User confirmed ProductDefinitionMastersTest 1 PASS/17 assertions; screenshot confirms six-family module explorer.
+- React shell: removed redundant breadcrumb/search/development top bar; put six-family ribbon on top with compact workspace and account initials; auto-enter sole authorized business after server tenant verification; hover/keyboard edge sidebar reveal, pin/unpin, active-family toggle and responsive animation.
+- Rebuilt Admin dashboard with server-derived 7-day cash sales bars, counted sale/purchase/refund donut, true pilot figures, Stock Watch with explicitly provisional quantity<=5 color rule and Sale/Purchase/Held shortcuts. Each async region has themed skeleton; no GL numbers invented.
+- Products, Customers/Suppliers, Category/Subcategory/Brand/Unit masters, Warehouse and Stock Inward all now use list-first tables with Add entry modals; responsive dense UI, internal panel scroll and fixed app viewport.
+- Added ADR-0003 for separate Super Admin Platform vs tenant Admin/staff, role delegation, secure device approval/revoke, IP and consented coarse location audit, and device-partitioned IndexedDB after security controls. **These backend features are planned, not implemented**. No migration, permission grant or repeated backend test required.
+- Frontend compilation/browser verification pending; detailed handoff under `docs/COMPACT_ADMIN_UX_AND_PLATFORM_HANDOFF.md`.
