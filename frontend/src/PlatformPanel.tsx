@@ -106,7 +106,7 @@ export function PlatformPanel({session, onSignOut, initialTab='admins', focus='o
           <span><AppIcon name={metric.icon as 'warehouse'|'check'|'people'} size={18}/>{metric.label}</span>
           <strong>{loading?'…':metric.value??'Restricted'}</strong>
         </div>)}
-    </div>
+    </div>}
     {focus==='overview'&&<div className="platform-tabs" role="tablist" aria-label="Platform management">
       {([{id:'admins',label:'Admin businesses',permission:'platform.admins.read'},
         {id:'staff',label:'Platform staff',permission:'platform.staff.read'},
