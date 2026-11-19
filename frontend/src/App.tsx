@@ -228,8 +228,12 @@ export function App() {
   }
 
   function chooseModule(next: ModuleId) {
-    if (activeModule === next && sidebarPinned && sidebarOpen) {
-      setSidebarPinned(false); setSidebarOpen(false);
+    if (activeModule === next && directoryOpen) {
+      // Repeating the active ribbon tab acts as a toggle. Keep the current
+      // business page visible; close only menu directory and pinned submenu.
+      setDirectoryOpen(false);
+      setSidebarPinned(false);
+      setSidebarOpen(false);
       return;
     }
     setActiveModule(next);
@@ -282,7 +286,7 @@ export function App() {
 
   return <div className="app-frame compact-shell">
     <CommandPalette open={commandOpen && selected !== null} close={() => setCommandOpen(false)} navigate={navigate} />
-    {sidebarOpen && <button type="button" className="sidebar-shade" aria-label="Close navigation"
+    {sidebarOpen && !sidebarPinned && <button type="button" className="sidebar-shade" aria-label="Close navigation"
       onClick={() => { setSidebarOpen(false); setSidebarPinned(false); }} />}
     {selected && <button type="button" className="sidebar-edge-handle"
       onMouseEnter={() => setSidebarOpen(true)}
