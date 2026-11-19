@@ -366,18 +366,18 @@ Artisan::command('ahpos:create-platform-superadmin', function (): int {
         }
         $name = trim((string) $this->ask('Dedicated Platform Super Admin name'));
         $email = strtolower(trim((string) $this->ask('NEW Platform login email (not existing POS email)')));
-        $password = (string) $this->secret('New Platform password (12+ chars, upper/lower, number, symbol)');
+        $password = (string) $this->secret('New Platform password (LOCAL TEST: minimum 3 characters)');
         $again = (string) $this->secret('Confirm new Platform password');
 
         $validator = Validator::make(compact('name', 'email', 'password'), [
             'name' => ['required', 'string', 'min:2', 'max:160'],
             'email' => ['required', 'email', 'max:255'],
             'password' => ['required', 'string',
-                \Illuminate\Validation\Rules\Password::min(12)->mixedCase()->numbers()->symbols()],
+                'min:3'],
         ]);
         if ($validator->fails() || ! hash_equals($password, $again)
             || DB::table('users')->whereRaw('lower(email) = ?', [$email])->exists()) {
-            $this->error('Invalid input, duplicate email, weak password or mismatch. Nothing changed.');
+            $this->error('Invalid name/email, duplicate email, password shorter than 3 characters or confirmation mismatch. Nothing changed.');
             return 1;
         }
         $this->line('New Platform-only login: '.$name.' ('.$email.')');
@@ -458,7 +458,7 @@ Artisan::command('ahpos:create-platform-superadmin', function (): int {
     $this->warn('The selected account keeps its tenant POS access. ALL its Platform roles will move to a NEW Platform-only account.');
     $name = trim((string) $this->ask('New dedicated Platform Super Admin display name'));
     $email = strtolower(trim((string) $this->ask('New dedicated Platform login email (must be unused)')));
-    $password = (string) $this->secret('New strong Platform password (12+, upper/lower, number, symbol)');
+    $password = (string) $this->secret('New Platform password (LOCAL TEST: minimum 3 characters)');
     $confirmation = (string) $this->secret('Confirm new Platform password');
     $currentPassword = (string) $this->secret('Existing mixed Super Admin password (to authorize transfer)');
 
@@ -469,13 +469,13 @@ Artisan::command('ahpos:create-platform-superadmin', function (): int {
             'email' => ['required', 'email', 'max:255'],
             'password' => [
                 'required', 'string',
-                \Illuminate\Validation\Rules\Password::min(12)->mixedCase()->numbers()->symbols(),
+                'min:3',
             ],
         ],
     );
     if ($validator->fails() || ! hash_equals($password, $confirmation)
         || DB::table('users')->whereRaw('lower(email) = ?', [$email])->exists()) {
-        $this->error('Invalid input, duplicate email, weak password or mismatch. Nothing changed.');
+        $this->error('Invalid name/email, duplicate email, password shorter than 3 characters or confirmation mismatch. Nothing changed.');
         return 1;
     }
     if (! \Illuminate\Support\Facades\Hash::check($currentPassword, (string) DB::table('users')
