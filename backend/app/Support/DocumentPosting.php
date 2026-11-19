@@ -32,7 +32,12 @@ final class DocumentPosting
 
     public static function assertLocalOnly(): void
     {
-        if (! app()->environment('local')
+        // PHPUnit sets APP_ENV=testing even when the test DB is the same local
+        // ahpos_test. Permit that mode only inside an actual test process.
+        $approvedEnvironment = app()->environment('local')
+            || (app()->environment('testing') && app()->runningUnitTests());
+
+        if (! $approvedEnvironment
             || config('database.default') !== 'pgsql'
             || config('database.connections.pgsql.database') !== 'ahpos_test'
             || ! in_array(config('database.connections.pgsql.host'), ['127.0.0.1', 'localhost'], true)) {
