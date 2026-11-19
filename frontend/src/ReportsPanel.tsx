@@ -45,8 +45,8 @@ export function ReportsPanel({ tenant }: { tenant: TenantChoice }) {
     </div>
     <div className="panel-card report-chart-card">
       <div className="panel-heading"><div><span className="small-overline">LAST 7 DAYS</span>
-        <h2>Cash sales trend</h2></div><span className="count-pill">Daily totals</span></div>
-      <div className="report-bars" role="img" aria-label="Cash sales for the last seven calendar days">
+        <h2>Gross cash sales trend</h2></div><span className="count-pill">Gross daily totals</span></div>
+      <div className="report-bars" role="img" aria-label="Gross cash sales for the last seven calendar days">
         {daily.map(row => <div className="report-bar-group" key={row.day}
           title={row.day + ': ' + money(row.total) + ', ' + row.sale_count + ' sales'}>
           <div className="report-bar-track"><div className="report-bar"
