@@ -56,6 +56,7 @@ final class SaleController extends Controller
             'warehouse_ulid' => ['required', 'ulid'],
             'customer_ulid' => ['nullable', 'ulid'],
             'idempotency_key' => ['required', 'uuid'],
+            'hold_ulid' => ['nullable', 'ulid'],
             'amount_paid' => ['required', 'regex:/^(?:0|[1-9][0-9]{0,15})(?:\\.[0-9]{1,4})?$/D'],
             'lines' => ['required', 'array', 'min:1', 'max:50'],
             'lines.*.product_ulid' => ['required', 'ulid'],
@@ -68,6 +69,7 @@ final class SaleController extends Controller
             strtoupper($data['warehouse_ulid']),
             strtoupper((string) ($data['customer_ulid'] ?? '')),
             (string) $data['amount_paid'], $data['lines'],
+            strtoupper((string) ($data['hold_ulid'] ?? '')),
         ]);
         DocumentPosting::lockKey($tenantId, 'sale', $key);
         $existing = DB::table('sales')->where('tenant_id', $tenantId)
@@ -101,6 +103,18 @@ final class SaleController extends Controller
         // Serializes checkout for the warehouse across concurrent cashiers.
         // Manual stock inwards are additive; sale stock-outs use this same lock.
         DocumentPosting::lockWarehouse($tenantId, (int) $warehouse->id);
+        $holdId = null;
+        if (! empty($data['hold_ulid'])) {
+            $hold = DB::table('held_sales')
+                ->where('tenant_id', $tenantId)
+                ->where('cashier_id', $request->user()->getKey())
+                ->where('ulid', strtoupper($data['hold_ulid']))
+                ->lockForUpdate()->first(['id', 'status']);
+            if ($hold === null || $hold->status !== 'held') {
+                return response()->json(['message' => 'Held sale is already posted or unavailable. Refresh held invoices.'], 409);
+            }
+            $holdId = $hold->id;
+        }
         $seen = [];
         $lines = [];
         foreach ($data['lines'] as $input) {
@@ -171,6 +185,12 @@ final class SaleController extends Controller
                 'quantity' => '-'.$line['quantity'], 'unit_cost' => '0.0000',
                 'note' => 'Cash sale '.$saleUlid, 'created_at' => $now, 'updated_at' => $now,
             ]);
+        }
+
+        if ($holdId !== null) {
+            DB::table('held_sales')->where('tenant_id', $tenantId)
+                ->where('id', $holdId)->where('status', 'held')
+                ->update(['status' => 'consumed', 'posted_sale_id' => $saleId, 'updated_at' => $now]);
         }
 
         return response()->json(['data' => [
