@@ -232,3 +232,6 @@ Added `php artisan ahpos:create-platform-superadmin` local-only CLI to create a 
 ## 2026-11-19 — Fix dedicated Super Admin CLI on uninitialized local Platform RBAC
 - User reported first run of `ahpos:create-platform-superadmin`: `No existing Platform Super Admin role`; no data changed.
 - Same command now supports safe first-time `ahpos_test` initialization only if no Platform roles or assignments exist, with explicit confirmation, new distinct account, strong hidden password, advisory transaction lock, Platform-role/permission assignment and audit. Existing role transfer unchanged; partial RBAC state fails closed. No tenant data changes or migration. Local execution pending.
+
+## 2026-11-19 — Respect minimum-3 local Super Admin bootstrap password policy
+- User reports local first-run dedicated Super Admin CLI rejected entered credentials; requirement is minimum 3 characters, with no symbol/case/number rules for local test credentials. Corrected both CLI bootstrap and role-transfer password validators/prompts to minimum 3 only. Kept confirmation, email uniqueness and local-only database guard. Source committed; local rerun pending; no migrations.
