@@ -9,6 +9,7 @@ use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\SaleReturnController;
 use App\Http\Controllers\CashShiftController;
+use App\Http\Controllers\HeldSaleController;
 use App\Http\Controllers\OperationsReportController;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
@@ -138,4 +139,15 @@ Route::middleware(['auth', 'tenant.context', 'tenant.db-scope'])->group(function
         ->middleware('tenant.permission:cash_shifts.open');
     Route::post('/api/tenants/{tenant}/cash-shifts/{shift}/close', [CashShiftController::class, 'close'])
         ->middleware('tenant.permission:cash_shifts.close');
+});
+
+
+// Server-persisted unposted invoices. Cashier-scoped, not inventory reservations.
+Route::middleware(['auth', 'tenant.context', 'tenant.db-scope'])->group(function (): void {
+    Route::get('/api/tenants/{tenant}/sale-holds', [HeldSaleController::class, 'index'])
+        ->middleware('tenant.permission:sales.holds.read');
+    Route::post('/api/tenants/{tenant}/sale-holds', [HeldSaleController::class, 'save'])
+        ->middleware('tenant.permission:sales.holds.write');
+    Route::post('/api/tenants/{tenant}/sale-holds/{hold}/discard', [HeldSaleController::class, 'discard'])
+        ->middleware('tenant.permission:sales.holds.write');
 });
