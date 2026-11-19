@@ -446,10 +446,11 @@ export function App() {
         </div> : <>
           <div className="page-heading">
             <div><span className="small-overline">AH POS / {selected.name.toUpperCase()}</span>
-              <h1>{directoryOpen ? moduleById(activeModule).title : page === 'dashboard' ? 'Business overview' : (page === 'masters' ? ({categories:'Categories',subcategories:'Sub Categories',brands:'Brands',units:'Units'} as const)[masterKind] : moduleById(activeModule).items.find(item => item.page === page)?.name || page)}</h1>
+              <h1>{directoryOpen ? moduleById(activeModule).title : page === 'dashboard' ? 'Business overview' : page === 'staff' ? (staffTab === 'devices' ? 'Device Management' : staffTab === 'roles' ? 'Roles & Permissions' : 'Users & Staff') : (page === 'masters' ? ({categories:'Categories',subcategories:'Sub Categories',brands:'Brands',units:'Units'} as const)[masterKind] : moduleById(activeModule).items.find(item => item.page === page)?.name || page)}</h1>
               <p>{directoryOpen ? moduleById(activeModule).subtitle : page === 'dashboard' ? 'Your business at a glance.' :
                 page === 'products' ? 'Manage SKUs, barcodes and selling prices.' :
                 page === 'masters' ? 'Manage real tenant-owned category, subcategory, brand and unit masters.' :
+                page === 'staff' ? 'Manage authorized employees, their assigned roles and device approval requests.' :
                 page === 'inventory' ? 'Track warehouses, incoming stock and available quantities.' :
                 page === 'customers' ? 'Keep your customers organized and ready for sales.' :
                 page === 'suppliers' ? 'Manage your purchasing contacts.' :
