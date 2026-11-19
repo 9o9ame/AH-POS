@@ -70,3 +70,6 @@ User verified RBAC migration DONE and 12 tests PASS (24 assertions) across Tenan
 
 ## 2026-11-19 — 17 security tests PASS; read-only RLS preflight implemented
 User-verified local evidence: TenantDbTransactionTest 3 PASS/5 assertions, TenantRbacIntegrityTest 2 PASS/4 assertions, TenantRbacTest 4 PASS/7 assertions, TenantAccessTest 8 PASS/17 assertions; **17 total tests PASS / 33 assertions**. Added read-only PostgreSQL role/RLS catalog preflight and test, unexecuted. RLS not enabled; non-owner runtime role not created. No accepted milestone increment.
+
+## 2026-11-19 — Delivery reprioritized to 10-day operational POS MVP
+User explicitly prioritized functional business features over repeated test-only milestones. New computer cloned repository; local database/runtime not yet configured. Committed P3 product catalog schema, secured create/list APIs, React product editor/list, explicit dev-only catalog grant and one critical feature test. **Not migrated or built locally yet** on the new PC; not accepted. P1 RLS remains pending, and full ERP scope in ten days is not a safe commitment. `docs/NEW_WINDOWS_DEV_SETUP.md` sets proposed delivery order and release gates.
