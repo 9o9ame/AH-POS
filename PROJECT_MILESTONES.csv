@@ -1,10 +1,10 @@
 phase_id,phase_name,weight_percent,status,accepted_fraction,contribution_percent,acceptance_evidence,notes
 P0,Legacy DB restoration and reverse engineering,12,not_started,0,0,,Historical backup is test reference; migration acceptance deferred to fresh go-live backup
 P1,Architecture tenancy security and CI,13,implemented_unverified,0,0,,PostgreSQL migrated; auth and tenant tests user-verified; RBAC migration and 12 isolation tests user-verified; transaction-scope and composite FK tests user-verified (17 test results overall); read-only RLS preflight pending local run; runtime role/RLS/CI incomplete
-P2,Brand design system and web shell,8,implemented_unverified,0,0,,Original responsive shell was browser verified; desktop modal multi-invoice workspace committed pending browser screenshot and keyboard acceptance
-P3,Master data and tenant import engine,14,implemented_unverified,0,0,,Product and customer create/list browser verified; supplier source implemented; import and richer masters incomplete
+P2,Brand design system and web shell,8,implemented_unverified,0,0,,Original shell and cashier modal browser tested by user; enterprise six-family ribbon and grouped module directory committed pending frontend build and visual acceptance
+P3,Master data and tenant import engine,14,implemented_unverified,0,0,,Catalog and contact browser verified; category/subcategory/brand/unit masters with optional product links committed pending focused test/migration; import and accounting masters missing
 P4,Purchasing inventory and accounting,14,implemented_unverified,0,0,,Inbound inventory verified previously; new supplier purchase documents and stock receipt committed pending migration; accounting COGS and production release blocked
-P5,Online sales POS returns and receipts,15,implemented_unverified,0,0,,Cash POS and cash shift critical tests user verified; multi-window Sale/Purchase and server-held Sales On Hold/Get committed pending held-sale migration/browser test; tax GL cost and production blocked
+P5,Online sales POS returns and receipts,15,implemented_unverified,0,0,,POS cash-shift and held-sale critical tests verified (18/21/14 assertions respectively); multi-modal browser tested per user; pricing tax GL COGS and production blocked
 P6,Offline browser sales and synchronization,10,not_started,0,0,,Retry idempotency conflict and device tests
 P7,Reports administration and operations,8,implemented_unverified,0,0,,Sales Returns browser history verified; cashier-specific shift/immutable cash close pilot committed pending local migration and targeted test; not accounting or reconciled finance reporting
 P8,AI copilot minimum viable release,6,not_started,0,0,,Authorized navigation and draft accuracy
