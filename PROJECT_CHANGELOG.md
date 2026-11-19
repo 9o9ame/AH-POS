@@ -196,3 +196,10 @@
 - User explicitly marked every top ribbon family as desired hover target and crossed out left-edge menu button. Removed detached edge and redundant ribbon hamburger from React UI, anchored animated submenu beneath top navigation.
 - Hover/focus shows that family's submenu without changing page, click pins and opens module directory, same tab click closes, clicking another tab replaces pinned family; moving into submenu holds transient preview, leaving hides it when unpinned. Subpage navigation preserves same-family pin.
 - No database migration, backend authorization modifications or test reruns. Frontend TypeScript build and visual/keyboard review **pending**.
+
+## 2026-11-19 — Platform Super Admin pilot + local-only secure bootstrap
+- Added one additive migration 000011 for Platform RBAC and Platform audit events, deliberately separate from tenant memberships/roles.
+- Platform permission middleware default-denies, Admin creation transactionally provisions tenant, owner, explicit tenant owner role, membership and audit; existing tenants untouched.
+- Platform Support Operator and Admin Manager scoped roles; support has no tenant membership. Explicit one-time local-only Super Admin bootstrap command for an existing user; no default credentials, implicit upgrade, or production bypass.
+- Separate React Platform management console with Admin and operator registers/create modals and audit history, only visible after authorized Platform session; existing single-tenant Admin login still opens its dashboard.
+- Focused PlatformOnboardingTest tests cross-tenant/Platform privilege denial; **pending user local run**, as are migration and frontend build. Device enforcement and full admin employee lifecycle remain future implementation; no production claim.
