@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AppIcon, type AppIconName } from './AppIcon';
 
-export type CommandDestination = 'dashboard' | 'products' | 'customers' | 'suppliers' | 'inventory' | 'purchases' | 'sales' | 'returns' | 'reports';
+export type CommandDestination = 'dashboard' | 'products' | 'customers' | 'suppliers' | 'inventory' | 'purchases' | 'sales' | 'returns' | 'cash' | 'reports';
 const commands: { destination: CommandDestination; label: string; detail: string; icon: AppIconName; terms: string }[] = [
   { destination: 'dashboard', label: 'Business overview', detail: 'Dashboard and KPIs', icon: 'dashboard', terms: 'home overview dashboard' },
   { destination: 'products', label: 'Manage products', detail: 'SKUs, barcodes, selling prices', icon: 'products', terms: 'add new product catalog search sku barcode' },
@@ -11,6 +11,7 @@ const commands: { destination: CommandDestination; label: string; detail: string
   { destination: 'purchases', label: 'Supplier purchasing', detail: 'Receive goods against purchase', icon: 'truck', terms: 'purchase order supplier bill receive' },
   { destination: 'sales', label: 'Open Point of Sale', detail: 'Cash checkout and printable receipts', icon: 'sales', terms: 'sell checkout cashier barcode receipt' },
   { destination: 'returns', label: 'Sales returns', detail: 'Record cash refunds and restock items', icon: 'arrow', terms: 'refund return reversal credit note sales' },
+  { destination: 'cash', label: 'Cash register & closing', detail: 'Open cashier shifts and reconcile cash', icon: 'warehouse', terms: 'cash drawer float shift close opening closing variance' },
   { destination: 'reports', label: 'Operations reports', detail: 'Cash sales and purchase analytics', icon: 'reports', terms: 'analytics reports figures trend revenue' },
 ];
 
