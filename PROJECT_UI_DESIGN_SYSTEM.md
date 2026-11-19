@@ -71,3 +71,8 @@ Approve unique design direction (logo, palette, navigation, component style), bu
 - Remove detached left-edge trigger and ribbon hamburger completely. Sidebar animates from under top ribbon, never obscures the top navigation. Side menu chosen via top navbar not anonymous edge. Keyboard focus previews ribbon item; Escape closes; reduced-motion disables transition.
 - Opening a subpage inside the clicked family retains the pinned submenu, rather than resetting it. Switch across families clears/changes pin. Platform vs Admin staff/permissions, secure device approval and IndexedDB remain separate unimplemented security milestones.
 - **Committed source, NOT locally built/browser tested**. Verify hover-to-drawer traversal, pin/reclick/switch, mobile touch, keyboard and dashboard. Older paragraphs referencing hover-left-edge are historical and superseded by this explicit correction.
+
+## 2026-11-19 — Platform console distinct from business Admin shell
+- A platform-authorized user sees Platform entry in the main ribbon; Platform-only staff without a tenant enters Platform console directly. The Platform console has a separate premium AH-POS control-plane header and dense list/create-modal registers for Admin onboarding, Platform operators and audit.
+- Unauthorized users never see Platform link. Platform UI does not show business transactions or bypass tenant RBAC. Source is NOT yet browser/TypeScript verified.
+- Top family-hover sidebar correction remains source-of-truth: hover any top tab previews matching subnav; click pins, same click unpins, switch replaces. No edge hamburger.
