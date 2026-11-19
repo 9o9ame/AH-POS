@@ -3,6 +3,8 @@
 use App\Http\Controllers\AuthSessionController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PlatformController;
+use App\Http\Controllers\TenantStaffController;
+use App\Http\Controllers\TenantDeviceController;
 use App\Http\Controllers\DefinitionMasterController;
 use App\Http\Controllers\PartyController;
 use App\Http\Controllers\WarehouseController;
@@ -182,4 +184,33 @@ Route::middleware('auth')->group(function (): void {
         ->middleware(['platform.permission:platform.staff.manage', 'throttle:8,1']);
     Route::get('/api/platform/audit', [PlatformController::class, 'auditEvents'])
         ->middleware('platform.permission:platform.audit.read');
+});
+
+
+// Staff management is strictly tenant Admin RBAC. New staff receive only a
+// pre-defined cashier, purchaser, inventory or manager role. No platform powers.
+Route::middleware(['auth', 'tenant.context', 'tenant.db-scope'])->group(function (): void {
+    Route::get('/api/tenants/{tenant}/staff', [TenantStaffController::class, 'index'])
+        ->middleware('tenant.permission:tenant.members.read');
+    Route::get('/api/tenants/{tenant}/staff/role-templates', [TenantStaffController::class, 'roleTemplates'])
+        ->middleware('tenant.permission:tenant.members.read');
+    Route::post('/api/tenants/{tenant}/staff', [TenantStaffController::class, 'store'])
+        ->middleware(['tenant.permission:tenant.members.manage', 'throttle:8,1']);
+    Route::patch('/api/tenants/{tenant}/staff/{staff}/status', [TenantStaffController::class, 'changeStatus'])
+        ->middleware('tenant.permission:tenant.members.manage');
+
+    Route::get('/api/tenants/{tenant}/devices', [TenantDeviceController::class, 'index'])
+        ->middleware('tenant.permission:tenant.devices.read');
+    Route::post('/api/tenants/{tenant}/devices/{device}/decision', [TenantDeviceController::class, 'decision'])
+        ->middleware('tenant.permission:tenant.devices.manage');
+});
+
+// These two routes must remain reachable by an authenticated tenant member
+// with pending device status; all normal tenant routes are blocked by the
+// central ResolveTenantContext device check until an Admin approves.
+Route::middleware(['auth', 'tenant.context', 'tenant.db-scope'])->group(function (): void {
+    Route::get('/api/tenants/{tenant}/device/status', [TenantDeviceController::class, 'status'])
+        ->name('tenant.device.status');
+    Route::post('/api/tenants/{tenant}/device/request', [TenantDeviceController::class, 'request'])
+        ->middleware('throttle:5,1')->name('tenant.device.request');
 });
