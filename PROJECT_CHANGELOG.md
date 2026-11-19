@@ -148,3 +148,10 @@
 - User screenshot shows successful local cash-sale receipt (Socks qty 2, PKR 200), migration `create_purchase_and_cash_sale_documents` DONE.
 - `TradeWorkflowTest` failed 503 because `phpunit.xml` forces `APP_ENV=testing`. Updated `DocumentPosting::assertLocalOnly` to allow `testing` only for Laravel's running-unit-tests process, local PostgreSQL `ahpos_test` and localhost DB host. Staging/production posting stays blocked.
 - Rerun only `php artisan test --filter=TradeWorkflowTest`. No new migration.
+
+## 2026-11-19 — Verified trade flow and added linked cash returns
+- TradeWorkflowTest PASS from user on local PostgreSQL (1 test, 18 assertions).
+- Added immutable cash refund documents and lines, original-sale composite ownership constraints and positive sale-return movements on same stock ledger.
+- Added guarded return posting with purchase/sale locking, original sale price refund calculation, maximum refundable quantity/amount validation and idempotent local-only transactions.
+- Added responsive Sales Returns page, Ctrl+K navigation, recent refund history and separate gross/refund/net cash activity cards; renamed inventory ledger column to signed qty.
+- Added one focused `CashReturnWorkflowTest` and detailed `docs/LOCAL_CASH_RETURNS_WORKFLOW.md`. Not yet locally migrated/run; staging/production cash returns still disabled, no cash drawer/GL/COGS/tax reversal.
