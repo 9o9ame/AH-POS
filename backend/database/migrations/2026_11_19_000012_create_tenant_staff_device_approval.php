@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -32,6 +33,19 @@ return new class extends Migration
                 ->references(['tenant_id', 'id'])->on('tenant_memberships')->restrictOnDelete();
             $table->index(['tenant_id', 'membership_id', 'status']);
         });
+
+        // Grant only explicitly named Admin Owner tenant roles (not Local
+        // Catalog Operator or generic Manager) the new approval permissions.
+        $ownerRoles = DB::table('tenant_roles')->where('name', 'Admin Owner')
+            ->get(['tenant_id', 'id']);
+        foreach ($ownerRoles as $role) {
+            foreach (['tenant.devices.read', 'tenant.devices.manage'] as $permission) {
+                DB::table('tenant_role_permissions')->insertOrIgnore([
+                    'tenant_id' => $role->tenant_id, 'role_id' => $role->id,
+                    'permission' => $permission,
+                ]);
+            }
+        }
 
         Schema::create('tenant_staff_audit_events', function (Blueprint $table): void {
             $table->id();
