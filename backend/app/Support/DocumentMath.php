@@ -25,6 +25,16 @@ final class DocumentMath
         )->amount;
     }
 
+    /** @param list<string> $quantities */
+    public static function sumQuantity(array $quantities): string
+    {
+        return (string) DB::selectOne(
+            'SELECT COALESCE(SUM(item::numeric), 0)::numeric(20,6)::text AS amount
+             FROM jsonb_array_elements_text(CAST(? AS jsonb)) AS quantities(item)',
+            [json_encode($quantities, JSON_THROW_ON_ERROR)]
+        )->amount;
+    }
+
     public static function covers(string $paid, string $total): bool
     {
         return (int) DB::selectOne(
