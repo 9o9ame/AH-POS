@@ -246,6 +246,8 @@ export function getSaleReceipt(tenantUlid: string, saleUlid: string): Promise<Sa
 
 export type OperationsReport = {
   cash_sales: { count: number; total: string };
+  cash_returns: { count: number; total: string };
+  net_cash_sales: string;
   purchases: { count: number; total: string };
   stocked_product_locations: number;
   daily_cash_sales: { day: string; sale_count: number; total: string }[];
