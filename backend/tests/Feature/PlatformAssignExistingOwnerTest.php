@@ -48,16 +48,16 @@ final class PlatformAssignExistingOwnerTest extends TestCase
 
         $base = '/api/platform/admins/'.$tenant->ulid;
         $this->actingAs($member)
-            ->getJson($base.'/owner-candidates')->assertForbidden();
+            ->getJson($base.'/owner-candidates')->assertUnauthorized();
         $this->postJson($base.'/assign-owner', [
             'owner_email' => $member->email, 'confirm' => true,
-        ])->assertForbidden();
+        ])->assertUnauthorized();
 
         $roleId = PlatformPermissions::ensureRole('Super Admin', PlatformPermissions::known());
         DB::table('platform_user_roles')->insert([
             'user_id' => $platform->getKey(), 'role_id' => $roleId,
         ]);
-        $this->actingAs($platform)
+        $this->withSession(['platform_user_id'=>$platform->getKey()])->actingAs($platform)
             ->getJson($base.'/owner-candidates')->assertOk()
             ->assertJsonPath('data.0.email', $member->email);
 
@@ -86,9 +86,9 @@ final class PlatformAssignExistingOwnerTest extends TestCase
             'owner_email' => $member->email, 'confirm' => true,
         ])->assertStatus(409);
 
-        $this->actingAs($member)
+        $this->withSession(['platform_user_id'=>null])->actingAs($member)
             ->getJson('/api/tenants/'.$tenant->ulid.'/staff')->assertOk();
-        $this->getJson('/api/platform/overview')->assertForbidden();
+        $this->getJson('/api/platform/overview')->assertUnauthorized();
         $this->getJson('/api/tenants/'.$secondTenant->ulid.'/staff')->assertNotFound();
     }
 }
