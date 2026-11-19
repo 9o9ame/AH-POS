@@ -19,8 +19,8 @@ final class DocumentMath
     public static function sum(array $amounts): string
     {
         return (string) DB::selectOne(
-            'SELECT COALESCE(SUM(value::numeric), 0)::numeric(20,4)::text AS amount
-             FROM jsonb_array_elements_text(CAST(? AS jsonb)) AS value',
+            'SELECT COALESCE(SUM(item::numeric), 0)::numeric(20,4)::text AS amount
+             FROM jsonb_array_elements_text(CAST(? AS jsonb)) AS amounts(item)',
             [json_encode($amounts, JSON_THROW_ON_ERROR)]
         )->amount;
     }
