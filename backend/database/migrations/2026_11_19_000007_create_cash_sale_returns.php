@@ -10,7 +10,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('sale_lines', function (Blueprint $table): void {
-            $table->unique(['tenant_id', 'id']);
+            $table->unique(['tenant_id', 'sale_id', 'id']);
         });
 
         Schema::create('sale_returns', function (Blueprint $table): void {
@@ -28,6 +28,7 @@ return new class extends Migration
             $table->string('status', 16)->default('posted');
             $table->timestamps();
             $table->unique(['tenant_id', 'id']);
+            $table->unique(['tenant_id', 'sale_id', 'id']);
             $table->unique(['tenant_id', 'idempotency_key']);
             $table->foreign(['tenant_id', 'sale_id'], 'sale_return_sale_fk')
                 ->references(['tenant_id', 'id'])->on('sales')->restrictOnDelete();
@@ -39,16 +40,17 @@ return new class extends Migration
             $table->id();
             $table->foreignId('tenant_id');
             $table->foreignId('return_id');
+            $table->foreignId('sale_id');
             $table->foreignId('sale_line_id');
             $table->foreignId('product_id');
             $table->ulid('ulid')->unique();
             $table->decimal('quantity', 20, 6);
             $table->decimal('unit_price', 20, 4);
             $table->decimal('refund_total', 20, 4);
-            $table->foreign(['tenant_id', 'return_id'], 'sale_return_line_header_fk')
-                ->references(['tenant_id', 'id'])->on('sale_returns')->restrictOnDelete();
-            $table->foreign(['tenant_id', 'sale_line_id'], 'sale_return_line_origin_fk')
-                ->references(['tenant_id', 'id'])->on('sale_lines')->restrictOnDelete();
+            $table->foreign(['tenant_id', 'sale_id', 'return_id'], 'sale_return_line_header_fk')
+                ->references(['tenant_id', 'sale_id', 'id'])->on('sale_returns')->restrictOnDelete();
+            $table->foreign(['tenant_id', 'sale_id', 'sale_line_id'], 'sale_return_line_origin_fk')
+                ->references(['tenant_id', 'sale_id', 'id'])->on('sale_lines')->restrictOnDelete();
             $table->foreign(['tenant_id', 'product_id'], 'sale_return_line_product_fk')
                 ->references(['tenant_id', 'id'])->on('products')->restrictOnDelete();
             $table->unique(['return_id', 'sale_line_id']);
@@ -84,7 +86,7 @@ return new class extends Migration
         Schema::dropIfExists('sale_return_lines');
         Schema::dropIfExists('sale_returns');
         Schema::table('sale_lines', function (Blueprint $table): void {
-            $table->dropUnique(['tenant_id', 'id']);
+            $table->dropUnique(['tenant_id', 'sale_id', 'id']);
         });
     }
 };
