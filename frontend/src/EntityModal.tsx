@@ -8,8 +8,8 @@ import { AppIcon } from './AppIcon';
  * clicked Add button could mount a dialog that was clipped out of view.
  * A body portal escapes BOTH tenant workspace and Platform scroll containers.
  */
-export function EntityModal({ title, subtitle, children, onClose, busy = false }: {
-  title: string; subtitle?: string; children: ReactNode; onClose: () => void; busy?: boolean;
+export function EntityModal({ title, subtitle, children, onClose, busy = false, error }: {
+  title: string; subtitle?: string; children: ReactNode; onClose: () => void; busy?: boolean; error?: string;
 }) {
   const dialogRef = useRef<HTMLElement>(null);
   const previousFocus = useRef<HTMLElement | null>(null);
@@ -79,7 +79,7 @@ export function EntityModal({ title, subtitle, children, onClose, busy = false }
           <button type="button" className="entity-modal-close" onClick={onClose} disabled={busy}
             aria-label="Close dialog"><AppIcon name="logout" size={17}/></button>
         </header>
-        <div className="entity-modal-body">{children}</div>
+        <div className="entity-modal-body">{error && <p className="inline-alert" role="alert">{error}</p>}{children}</div>
       </section>
     </div>,
     document.body,
