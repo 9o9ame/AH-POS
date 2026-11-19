@@ -96,7 +96,7 @@ export function InventoryPanel({ tenant }: { tenant: TenantChoice }) {
           </div></div>
         <div className="chip-row">{warehouses.map(w=><span className="location-chip" key={w.ulid}>{w.name} <small>{w.code}</small></span>)}</div>
       </section>
-      {editor === 'warehouse' && <EntityModal title="Create Warehouse" subtitle="Add a new storage location for the current Admin." onClose={()=>setEditor(null)} busy={busy}>
+      {editor === 'warehouse' && <EntityModal title="Create Warehouse" subtitle="Add a new storage location for the current Admin." onClose={()=>setEditor(null)} busy={busy} error={error ? message : undefined}>
         <form className="compact-form" onSubmit={e => { void addWarehouse(e); }}>
           <div className="field-row">
             <label>Code<input required maxLength={40} placeholder="MAIN" value={warehouse.code}
@@ -108,7 +108,7 @@ export function InventoryPanel({ tenant }: { tenant: TenantChoice }) {
         </form>
 
       </EntityModal>}
-      {editor === 'receipt' && <EntityModal title="Receive Stock" subtitle="Immutable inventory ledger entry. Backend validates quantities and permissions." onClose={()=>setEditor(null)} busy={busy}>
+      {editor === 'receipt' && <EntityModal title="Receive Stock" subtitle="Immutable inventory ledger entry. Backend validates quantities and permissions." onClose={()=>setEditor(null)} busy={busy} error={error ? message : undefined}>
         <form className="compact-form" onSubmit={e => { void postReceipt(e); }}>
           <div className="field-row">
             <label>Warehouse<select required value={receipt.warehouse_ulid} onChange={e => setReceipt(v => ({...v, warehouse_ulid: e.target.value}))}>
