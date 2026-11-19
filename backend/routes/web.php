@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthSessionController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PlatformController;
+use App\Http\Controllers\PlatformAuthController;
 use App\Http\Controllers\TenantStaffController;
 use App\Http\Controllers\TenantDeviceController;
 use App\Http\Controllers\DefinitionMasterController;
@@ -170,7 +171,13 @@ Route::middleware(['auth', 'tenant.context', 'tenant.db-scope'])->group(function
 
 // Super Admin Platform authority is separate from tenant context. Platform
 // operators never acquire business data access through these routes.
-Route::middleware('auth')->group(function (): void {
+Route::post('/api/platform/auth/login', [PlatformAuthController::class, 'login'])
+    ->middleware('throttle:5,1');
+
+Route::middleware('platform.auth')->group(function (): void {
+    Route::post('/api/platform/auth/logout', [PlatformAuthController::class, 'logout']);
+    Route::post('/api/platform/auth/separate-identity', [PlatformAuthController::class, 'separateIdentity'])
+        ->middleware(['platform.permission:platform.staff.manage', 'throttle:3,1']);
     Route::get('/api/platform/me', [PlatformController::class, 'me']);
     Route::get('/api/platform/overview', [PlatformController::class, 'overview'])
         ->middleware('platform.permission:platform.overview.read');
