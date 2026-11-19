@@ -49,6 +49,7 @@ final class TenantStaffAccess
 
         $roleId = DB::table('tenant_roles')
             ->where('tenant_id', $tenantId)->where('name', $name)->value('id');
+        $roleExisted = $roleId !== null;
         if ($roleId === null) {
             $roleId = DB::table('tenant_roles')->insertGetId([
                 'tenant_id' => $tenantId, 'ulid' => (string) Str::ulid(),
@@ -60,6 +61,9 @@ final class TenantStaffAccess
         $existing = DB::table('tenant_role_permissions')
             ->where('tenant_id', $tenantId)->where('role_id', $roleId)
             ->pluck('permission')->all();
+        if ($roleExisted && $existing === []) {
+            throw new \DomainException('Existing tenant role with this name has no template permissions.');
+        }
         if ($existing !== []) {
             $sortedCurrent = $existing;
             $sortedTemplate = $permissions;
