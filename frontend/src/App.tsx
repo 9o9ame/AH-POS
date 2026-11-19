@@ -6,13 +6,14 @@ import { InventoryPanel } from './InventoryPanel';
 import { PurchasingPanel } from './PurchasingPanel';
 import { PosPanel } from './PosPanel';
 import { ReturnsPanel } from './ReturnsPanel';
+import { CashRegisterPanel } from './CashRegisterPanel';
 import { ReportsPanel } from './ReportsPanel';
 import { ProductsPanel } from './ProductsPanel';
 import { PartiesPanel } from './PartiesPanel';
 import { ApiError, login, logout, me, myTenants, tenantContext, type Profile, type TenantChoice } from './api';
 
 type Screen = 'loading' | 'guest' | 'authenticated' | 'unavailable';
-type Page = 'dashboard' | 'products' | 'customers' | 'suppliers' | 'inventory' | 'purchases' | 'sales' | 'returns' | 'reports';
+type Page = 'dashboard' | 'products' | 'customers' | 'suppliers' | 'inventory' | 'purchases' | 'sales' | 'returns' | 'cash' | 'reports';
 const pages: { id: Page; label: string; icon: AppIconName; group: string; ready: boolean }[] = [
   { id: 'dashboard', label: 'Overview', icon: 'dashboard', group: 'WORKSPACE', ready: true },
   { id: 'products', label: 'Products', icon: 'products', group: 'CATALOG', ready: true },
@@ -22,6 +23,7 @@ const pages: { id: Page; label: string; icon: AppIconName; group: string; ready:
   { id: 'purchases', label: 'Purchasing', icon: 'truck', group: 'OPERATIONS', ready: true },
   { id: 'sales', label: 'Point of Sale', icon: 'sales', group: 'OPERATIONS', ready: true },
   { id: 'returns', label: 'Sales Returns', icon: 'arrow', group: 'OPERATIONS', ready: true },
+  { id: 'cash', label: 'Cash Register', icon: 'warehouse', group: 'OPERATIONS', ready: true },
   { id: 'reports', label: 'Reports', icon: 'reports', group: 'INSIGHTS', ready: true },
 ];
 
@@ -219,6 +221,7 @@ export function App() {
                 page === 'purchases' ? 'Receive supplier purchases and update stock.' :
                 page === 'sales' ? 'Fast, keyboard-friendly cash checkout.' :
                 page === 'returns' ? 'Record partial refunds without editing the original sale.' :
+                page === 'cash' ? 'Open a cashier shift, count physical cash and reconcile closing.' :
                 page === 'reports' ? 'Live operational sales and purchasing insights.' : 'Module in development.'}</p>
             </div>
             <button className="workspace-switch" type="button" onClick={() => { setSelected(null); setPage('dashboard'); }}>
@@ -233,6 +236,7 @@ export function App() {
           {page === 'purchases' && <PurchasingPanel key={selected.ulid} tenant={selected} />}
           {page === 'sales' && <PosPanel key={selected.ulid} tenant={selected} />}
           {page === 'returns' && <ReturnsPanel key={selected.ulid} tenant={selected} />}
+          {page === 'cash' && <CashRegisterPanel key={selected.ulid} tenant={selected} />}
           {page === 'reports' && <ReportsPanel key={selected.ulid} tenant={selected} />}
         </>}
       </main>
