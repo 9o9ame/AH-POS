@@ -100,9 +100,12 @@ final class ProductDefinitionMastersTest extends TestCase
             'brand_ulid' => $foreignBrand,
         ])->assertUnprocessable();
 
+        // ResolveTenantContext intentionally returns 404 for a tenant where
+        // the authenticated user has no active membership. Do not reveal
+        // whether another tenant exists with a 403 permission response.
         $this->postJson("/api/tenants/{$other->ulid}/definitions/brands", [
             'code' => 'HACK', 'name' => 'Invalid attempt',
-        ])->assertForbidden();
+        ])->assertNotFound();
 
         $this->assertSame(1, DB::table('products')->where('tenant_id', $tenant->getKey())->count());
     }
