@@ -1,3 +1,4 @@
+import { EntityModal, TableSkeleton } from './EntityModal';
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import {
   ApiError, createWarehouse, getInventory, listProducts, listWarehouses, receiveStock,
@@ -6,6 +7,8 @@ import {
 
 export function InventoryPanel({ tenant }: { tenant: TenantChoice }) {
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+  const [editor, setEditor] = useState<'warehouse'|'receipt'|null>(null);
+  const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
   const [overview, setOverview] = useState<InventoryOverview | null>(null);
   const [warehouse, setWarehouse] = useState({ code: '', name: '' });
@@ -19,6 +22,7 @@ export function InventoryPanel({ tenant }: { tenant: TenantChoice }) {
   const [error, setError] = useState(false);
 
   const load = useCallback(async () => {
+    setLoading(true);
     try {
       const [locations, catalog, inventory] = await Promise.all([
         listWarehouses(tenant.ulid), listProducts(tenant.ulid), getInventory(tenant.ulid),
@@ -36,9 +40,9 @@ export function InventoryPanel({ tenant }: { tenant: TenantChoice }) {
     } catch (e) {
       setError(true);
       setMessage(e instanceof ApiError && e.status === 403
-        ? 'Inventory permissions missing. Ask the local administrator to re-run the local grant.'
+        ? 'Inventory permissions missing. Ask your Admin for inventory permissions.'
         : 'Unable to load warehouses or inventory.');
-    }
+    } finally { setLoading(false); }
   }, [tenant.ulid]);
 
   useEffect(() => { void load(); }, [load]);
@@ -48,6 +52,7 @@ export function InventoryPanel({ tenant }: { tenant: TenantChoice }) {
     try {
       const created = await createWarehouse(tenant.ulid, warehouse);
       setWarehouse({ code: '', name: '' });
+      setEditor(null);
       await load();
       setReceipt(v => ({ ...v, warehouse_ulid: created.ulid }));
       setMessage(`Warehouse ${created.name} created.`);
@@ -67,6 +72,7 @@ export function InventoryPanel({ tenant }: { tenant: TenantChoice }) {
       });
       receiptKey.current = crypto.randomUUID();
       setReceipt(v => ({ ...v, quantity: '1', note: '' }));
+      setEditor(null);
       await load();
       setMessage(saved.replayed ? 'Existing receipt confirmed; no duplicate stock added.'
         : 'Stock received successfully. Inventory balance updated.');
@@ -82,9 +88,15 @@ export function InventoryPanel({ tenant }: { tenant: TenantChoice }) {
 
   return (
     <div className="inventory-layout">
-      <div className="panel-card">
-        <div className="panel-heading"><div><span className="small-overline">SETUP</span><h2>Warehouses</h2></div>
-          <span className="count-pill">{warehouses.length} locations</span></div>
+      <section className="panel-card inventory-toolbar">
+        <div className="panel-heading"><div><span className="small-overline">INVENTORY / LOCATIONS</span><h2>Warehouses and stock movements</h2></div>
+          <div className="dense-actions"><span className="count-pill">{warehouses.length} active warehouses</span>
+            <button className="list-create-button" type="button" onClick={()=>setEditor('warehouse')}>+ Warehouse</button>
+            <button className="list-create-button" type="button" onClick={()=>setEditor('receipt')}>+ Stock inward</button>
+          </div></div>
+        <div className="chip-row">{warehouses.map(w=><span className="location-chip" key={w.ulid}>{w.name} <small>{w.code}</small></span>)}</div>
+      </section>
+      {editor === 'warehouse' && <EntityModal title="Create Warehouse" subtitle="Add a new storage location for the current Admin." onClose={()=>setEditor(null)} busy={busy}>
         <form className="compact-form" onSubmit={e => { void addWarehouse(e); }}>
           <div className="field-row">
             <label>Code<input required maxLength={40} placeholder="MAIN" value={warehouse.code}
@@ -94,14 +106,9 @@ export function InventoryPanel({ tenant }: { tenant: TenantChoice }) {
           </div>
           <button type="submit" disabled={busy}>+ Add warehouse</button>
         </form>
-        <div className="chip-row">{warehouses.map(w => <span className="location-chip" key={w.ulid}>{w.name} <small>{w.code}</small></span>)}</div>
-        {warehouses.length === 0 && <p className="muted">Create a warehouse before receiving stock.</p>}
-      </div>
 
-      <div className="panel-card">
-        <div className="panel-heading"><div><span className="small-overline">INVENTORY</span><h2>Receive stock</h2></div>
-          <span className="status-tag">Append-only</span></div>
-        <p className="muted">Record opening stock or a basic goods receipt. Purchasing bills and accounting posting are not connected yet.</p>
+      </EntityModal>}
+      {editor === 'receipt' && <EntityModal title="Receive Stock" subtitle="Immutable inventory ledger entry. Backend validates quantities and permissions." onClose={()=>setEditor(null)} busy={busy}>
         <form className="compact-form" onSubmit={e => { void postReceipt(e); }}>
           <div className="field-row">
             <label>Warehouse<select required value={receipt.warehouse_ulid} onChange={e => setReceipt(v => ({...v, warehouse_ulid: e.target.value}))}>
@@ -122,8 +129,8 @@ export function InventoryPanel({ tenant }: { tenant: TenantChoice }) {
           </div>
           <button type="submit" disabled={busy || warehouses.length === 0 || products.length === 0}>{busy ? 'Recording…' : 'Record stock inward'}</button>
         </form>
-        {products.length >= 30 && <p className="muted">Product selector shows first 30 products; searchable picker is scheduled next.</p>}
-      </div>
+
+      </EntityModal>}
 
       <div className="panel-card panel-wide">
         <div className="panel-heading"><div><span className="small-overline">LIVE STOCK</span><h2>Warehouse balances</h2></div>
@@ -134,7 +141,8 @@ export function InventoryPanel({ tenant }: { tenant: TenantChoice }) {
             <td>{b.sku}</td><td>{b.product_name}</td><td>{b.warehouse_name}</td><td className="num"><strong>{b.quantity}</strong></td>
           </tr>)}</tbody>
         </table></div>
-        {!overview?.balances.length && <p className="empty-copy">No stock entries yet. Record an opening balance above.</p>}
+        {loading && <TableSkeleton rows={5} cols={4}/>}
+        {!loading && !overview?.balances.length && <p className="empty-copy">No stock entries yet. Record an opening balance above.</p>}
         {(overview?.balances.length || 0) >= 100 && <p className="muted">Showing first 100 balance rows.</p>}
       </div>
       <div className="panel-card panel-wide">
@@ -146,7 +154,8 @@ export function InventoryPanel({ tenant }: { tenant: TenantChoice }) {
           <td>{new Date(m.created_at).toLocaleString()}</td><td>{m.type}</td><td>{m.product_name}</td>
           <td>{m.warehouse_name}</td><td className="num">{m.quantity}</td><td className="num">PKR {m.unit_cost}</td>
         </tr>)}</tbody></table></div>
-        {!overview?.movements.length && <p className="empty-copy">No stock movements recorded yet.</p>}
+        {loading && <TableSkeleton rows={5} cols={6}/>}
+        {!loading && !overview?.movements.length && <p className="empty-copy">No stock movements recorded yet.</p>}
       </div>
       {message && <p role="status" className={error ? 'inline-alert' : 'inline-success'}>{message}</p>}
     </div>
