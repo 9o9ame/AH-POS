@@ -90,13 +90,14 @@ export type Product = {
 
 type ProductPage = { data: Product[]; current_page: number; last_page: number; total: number };
 
-export async function listProducts(tenantUlid: string, query = ''): Promise<ProductPage> {
+export async function listProducts(tenantUlid: string, query = '', signal?: AbortSignal): Promise<ProductPage> {
   const parameters = new URLSearchParams();
   if (query.trim()) parameters.set('q', query.trim());
   const qs = parameters.toString();
   const response = await fetch(`/api/tenants/${encodeURIComponent(tenantUlid)}/products${qs ? `?${qs}` : ''}`, {
     credentials: 'same-origin',
     cache: 'no-store',
+    signal,
     headers: { Accept: 'application/json' },
   });
   return readJson<ProductPage>(response);
