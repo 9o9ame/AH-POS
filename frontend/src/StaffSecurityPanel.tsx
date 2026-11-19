@@ -138,8 +138,8 @@ export function StaffSecurityPanel({tenant, initialTab='staff'}:{
         <label>Staff role<select value={form.role} onChange={e=>setForm(v=>({...v,role:e.target.value as TenantStaffRoleName}))}>
           {(['Cashier','Purchaser','Inventory Clerk','Manager'] as const).map(role=><option key={role} value={role}>{role}</option>)}
         </select></label>
-        <label>Temporary password (12+ complex characters)
-          <input required type="password" autoComplete="new-password" minLength={12}
+        <label>Initial password (local pilot: 3+ characters)
+          <input required type="password" autoComplete="new-password" minLength={import.meta.env.DEV ? 3 : 12}
             value={form.password} onChange={e=>setForm(v=>({...v,password:e.target.value}))}/>
         </label>
         <p className="muted">No new staff device will access business data until this Admin approves its pending request.</p>
