@@ -77,3 +77,37 @@ export async function tenantContext(ulid: string): Promise<TenantChoice> {
   });
   return (await readJson<DataResponse<TenantChoice>>(response)).data;
 }
+
+
+export type Product = {
+  ulid: string;
+  sku: string;
+  name: string;
+  barcode: string | null;
+  sale_price: string;
+  is_active: boolean;
+};
+
+type ProductPage = { data: Product[]; current_page: number; last_page: number; total: number };
+
+export async function listProducts(tenantUlid: string, query = ''): Promise<ProductPage> {
+  const parameters = new URLSearchParams();
+  if (query.trim()) parameters.set('q', query.trim());
+  const qs = parameters.toString();
+  const response = await fetch(`/api/tenants/${encodeURIComponent(tenantUlid)}/products${qs ? `?${qs}` : ''}`, {
+    credentials: 'same-origin',
+    cache: 'no-store',
+    headers: { Accept: 'application/json' },
+  });
+  return readJson<ProductPage>(response);
+}
+
+export async function createProduct(
+  tenantUlid: string,
+  input: { sku: string; name: string; barcode: string; sale_price: string },
+): Promise<Product> {
+  return (await post<DataResponse<Product>>(
+    `/api/tenants/${encodeURIComponent(tenantUlid)}/products`,
+    { ...input, barcode: input.barcode.trim() || null },
+  )).data;
+}
