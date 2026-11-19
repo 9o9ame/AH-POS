@@ -90,7 +90,9 @@ export function ProductsPanel({ tenant }: { tenant: TenantChoice }) {
           <p>Tenant-scoped product catalog linked to category, brand and unit masters. Inventory and purchasing use these product SKUs.</p>
         </div>
         <div className="dense-actions"><span className="catalog-count">{total} products</span>
-          <button type="button" className="list-create-button" onClick={() => setEditorOpen(true)}>+ Add Product</button>
+          <button type="button" className="list-create-button" disabled={!canRead}
+            title={!canRead?'Your Admin has not granted product access':undefined}
+            onClick={() => {setMessage('');setEditorOpen(true);}}>+ Add Product</button>
         </div>
       </div>
 
