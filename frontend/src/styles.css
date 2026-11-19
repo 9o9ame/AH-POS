@@ -438,13 +438,15 @@ button:not(:disabled):active{transform:scale(.985)}
 }
 @media(max-width:430px){.pos-product-grid,.pos-history-grid,.report-metric-grid,.dashboard-financial-strip{grid-template-columns:1fr}.pos-cart-row{grid-template-columns:30px minmax(0,1fr) 48px;gap:6px}.pos-cart-row b{grid-column:2}.pos-cart-row .icon-dismiss{grid-column:3;grid-row:2}}
 @media print{
-  @page{size:80mm auto;margin:4mm}
-  html,body,#root,.app-frame{background:white!important;width:100%!important;min-height:0!important;overflow:visible!important}
-  .app-sidebar,.top-bar,.workspace-main,.command-overlay,.sidebar-shade{display:none!important}
-  .receipt-overlay{display:block!important;position:static!important;padding:0!important;margin:0!important;background:white!important;backdrop-filter:none!important}
-  .receipt-modal{display:block!important;position:static!important;box-shadow:none!important;border:0!important;border-radius:0!important;max-height:none!important;width:100%!important;max-width:none!important;overflow:visible!important}
+  @page{margin:4mm}
+  body *{visibility:hidden!important}
+  .receipt-overlay,.receipt-overlay *{visibility:visible!important}
+  .receipt-overlay{position:absolute!important;left:0!important;top:0!important;
+    width:100%!important;display:block!important;overflow:visible!important;
+    background:white!important;padding:0!important;backdrop-filter:none!important}
+  .receipt-modal{position:static!important;display:block!important;
+    max-height:none!important;max-width:none!important;width:100%!important;
+    overflow:visible!important;background:white!important;box-shadow:none!important;border:0!important}
   .receipt-actions{display:none!important}
   .print-receipt{width:72mm!important;margin:0 auto!important;padding:0!important;font-size:11px!important}
-  .app-main{display:block!important;width:100%!important}
-  .pos-layout{display:block!important}
 }
