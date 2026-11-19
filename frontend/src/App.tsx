@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
+import { ProductsPanel } from './ProductsPanel';
 import {
   ApiError, login, logout, me, myTenants, tenantContext,
   type Profile, type TenantChoice,
@@ -143,13 +144,14 @@ export function App() {
                 ))}
               </ul>
             )}
-            {selected && <p role="status">Authorized context: <strong>{selected.name}</strong>. Business modules are not implemented yet.</p>}
+            {selected && <p role="status">Authorized context: <strong>{selected.name}</strong>.</p>}
           </section>
+          {selected && <ProductsPanel key={selected.ulid} tenant={selected} />}
         </>
       )}
 
       {message && <p className="notice" role="alert">{message}</p>}
-      <footer>Local test environment. No production tenant access, sales posting, or financial operations are available.</footer>
+      <footer>Local test environment. Product catalog only; sales posting, stock movements and accounting are not yet available.</footer>
     </main>
   );
 }
