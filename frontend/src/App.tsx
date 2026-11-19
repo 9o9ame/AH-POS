@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
-import { AppIcon, type AppIconName } from './AppIcon';
+import { AppIcon } from './AppIcon';
+import { ModuleDirectory, ModuleRibbon } from './ModuleDirectory';
+import { moduleById, moduleForPage, type ModuleId, type WorkspacePage } from './ModuleCatalog';
 import { CommandPalette } from './CommandPalette';
 import { DashboardPanel } from './DashboardPanel';
 import { InventoryPanel } from './InventoryPanel';
@@ -12,20 +14,7 @@ import { PartiesPanel } from './PartiesPanel';
 import { ApiError, login, logout, me, myTenants, tenantContext, type Profile, type SaleHold, type TenantChoice } from './api';
 
 type Screen = 'loading' | 'guest' | 'authenticated' | 'unavailable';
-type Page = 'dashboard' | 'products' | 'customers' | 'suppliers' | 'inventory' | 'purchases' | 'sales' | 'held' | 'returns' | 'cash' | 'reports';
-const pages: { id: Page; label: string; icon: AppIconName; group: string; ready: boolean }[] = [
-  { id: 'dashboard', label: 'Overview', icon: 'dashboard', group: 'WORKSPACE', ready: true },
-  { id: 'products', label: 'Products', icon: 'products', group: 'CATALOG', ready: true },
-  { id: 'customers', label: 'Customers', icon: 'people', group: 'CATALOG', ready: true },
-  { id: 'suppliers', label: 'Suppliers', icon: 'truck', group: 'CATALOG', ready: true },
-  { id: 'inventory', label: 'Inventory & Warehouses', icon: 'inventory', group: 'OPERATIONS', ready: true },
-  { id: 'purchases', label: 'Purchasing', icon: 'truck', group: 'OPERATIONS', ready: true },
-  { id: 'sales', label: 'Point of Sale', icon: 'sales', group: 'OPERATIONS', ready: true },
-  { id: 'held', label: 'Held Bills', icon: 'package', group: 'OPERATIONS', ready: true },
-  { id: 'returns', label: 'Sales Returns', icon: 'arrow', group: 'OPERATIONS', ready: true },
-  { id: 'cash', label: 'Cash Register', icon: 'warehouse', group: 'OPERATIONS', ready: true },
-  { id: 'reports', label: 'Reports', icon: 'reports', group: 'INSIGHTS', ready: true },
-];
+type Page = WorkspacePage;
 
 export function App() {
   const [screen, setScreen] = useState<Screen>('loading');
@@ -35,6 +24,8 @@ export function App() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [page, setPage] = useState<Page>('dashboard');
+  const [activeModule, setActiveModule] = useState<ModuleId>('overview');
+  const [directoryOpen, setDirectoryOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [commandOpen, setCommandOpen] = useState(false);
   const [workWindows, setWorkWindows] = useState<WorkWindow[]>([]);
@@ -53,6 +44,8 @@ export function App() {
     }]);
     setActiveWindowId(id);
     setPage(kind === 'sale' ? 'sales' : 'purchases');
+    setActiveModule('daily');
+    setDirectoryOpen(false);
     setSidebarOpen(false);
     setCommandOpen(false);
   }, []);
@@ -63,6 +56,8 @@ export function App() {
     if (existing) {
       setActiveWindowId(existing.id);
       setPage('sales');
+      setActiveModule('daily');
+      setDirectoryOpen(false);
       return;
     }
     const number = nextWindowNumber.current.sale++;
@@ -73,6 +68,8 @@ export function App() {
     }]);
     setActiveWindowId(id);
     setPage('sales');
+    setActiveModule('daily');
+    setDirectoryOpen(false);
   }, [workWindows]);
 
   const onHoldsChanged = useCallback((id: string, holdUlid?: string) => {
@@ -162,7 +159,7 @@ export function App() {
       const user = await login(email.trim(), password);
       const choices = await myTenants();
       setProfile(user); setTenants(choices); setPassword('');
-      setSelected(null); setPage('dashboard'); setScreen('authenticated');
+      setSelected(null); setPage('dashboard'); setActiveModule('overview'); setDirectoryOpen(false); setScreen('authenticated');
     } catch (error) {
       setMessage(error instanceof ApiError && error.status === 401
         ? 'Invalid email or password.'
@@ -176,7 +173,7 @@ export function App() {
     setBusy(true); setMessage('');
     try {
       const verified = await tenantContext(choice.ulid);
-      setSelected(verified); setPage('dashboard'); setSidebarOpen(false);
+      setSelected(verified); setPage('dashboard'); setActiveModule('overview'); setDirectoryOpen(false); setSidebarOpen(false);
     } catch {
       setSelected(null); setMessage('Tenant access denied or your session expired.');
     } finally { setBusy(false); }
@@ -187,7 +184,7 @@ export function App() {
     setBusy(true); setMessage('');
     try {
       await logout();
-      setProfile(null); setTenants([]); setSelected(null); setPage('dashboard'); setScreen('guest');
+      setProfile(null); setTenants([]); setSelected(null); setPage('dashboard'); setActiveModule('overview'); setDirectoryOpen(false); setScreen('guest');
     } catch {
       setMessage('Logout could not be confirmed. Retry.');
     } finally { setBusy(false); }
@@ -197,9 +194,23 @@ export function App() {
     if (next === 'sales') { openWorkWindow('sale'); return; }
     if (next === 'purchases') { openWorkWindow('purchase'); return; }
     setPage(next);
+    setActiveModule(moduleForPage(next));
+    setDirectoryOpen(false);
     setActiveWindowId(null);
     setSidebarOpen(false);
     setCommandOpen(false);
+  }
+
+  function chooseModule(next: ModuleId) {
+    setActiveModule(next);
+    setDirectoryOpen(true);
+    setActiveWindowId(null);
+    setSidebarOpen(false);
+    setCommandOpen(false);
+  }
+
+  function showHome() {
+    navigate('dashboard');
   }
 
   if (screen === 'loading') {
@@ -250,19 +261,28 @@ export function App() {
           <strong>{selected?.name || 'Select a business'}</strong></div>
         <AppIcon name="chevron" size={17} />
       </div>
-      <nav className="sidebar-nav" aria-label="Primary navigation">
-        {Array.from(new Set(pages.map(item => item.group))).map(group => <div className="nav-group" key={group}>
-          <span className="nav-group-title">{group}</span>
-          {pages.filter(item => item.group === group).map(item =>
-            <button key={item.id} type="button"
-              disabled={!selected || !item.ready}
-              className={`nav-link ${page === item.id && selected ? 'nav-active' : ''}`}
-              onClick={() => navigate(item.id)}>
-              <AppIcon name={item.icon} size={19} />
-              <span>{item.label}</span>
-              {!item.ready && <small className="nav-soon">Soon</small>}
-            </button>)}
-        </div>)}
+      <nav className="sidebar-nav enterprise-sidebar" aria-label="Module navigation">
+        <div className="sidebar-module-current">
+          <span>ACTIVE MODULE</span>
+          <strong>{moduleById(activeModule).title}</strong>
+          <button type="button" onClick={() => chooseModule(activeModule)}>Browse all <AppIcon name="arrow" size={13}/></button>
+        </div>
+        <button type="button" className={'nav-link '+(!directoryOpen && page === 'dashboard' ? 'nav-active' : '')}
+          disabled={!selected} onClick={showHome}><AppIcon name="dashboard" size={19}/><span>Business Overview</span></button>
+        {Array.from(new Set(moduleById(activeModule).items.map(item => item.group))).map(group => (
+          <div className="nav-group" key={group}>
+            <span className="nav-group-title">{group}</span>
+            {moduleById(activeModule).items.filter(item => item.group === group)
+              .map(item => item.page ? <button key={item.id} type="button"
+                disabled={!selected}
+                className={'nav-link '+(!directoryOpen && page === item.page ? 'nav-active' : '')}
+                onClick={() => navigate(item.page!)}>
+                <AppIcon name={item.icon} size={19}/><span>{item.name}</span>
+              </button> : <div key={item.id} className="nav-planned" title={item.description}>
+                <AppIcon name={item.icon} size={16}/><span>{item.name}</span><small>Planned</small>
+              </div>)}
+          </div>
+        ))}
       </nav>
       <div className="sidebar-bottom">
         <div className="sidebar-release"><span className="release-pulse"/><span>Development environment<small>Operational modules in progress</small></span></div>
@@ -275,7 +295,7 @@ export function App() {
       <header className="top-bar">
         <div className="top-left">
           <button type="button" className="mobile-menu" aria-label="Toggle navigation" onClick={() => setSidebarOpen(v => !v)}><AppIcon name="menu" /></button>
-          <div className="breadcrumb"><span>Workspace</span><span className="crumb-sep">/</span><strong>{pages.find(item => item.id === page)?.label}</strong></div>
+          <div className="breadcrumb"><span>Workspace</span><span className="crumb-sep">/</span><strong>{directoryOpen ? moduleById(activeModule).title : moduleById(activeModule).items.find(item => item.page === page)?.name || page}</strong></div>
           {selected && <div className="top-invoice-actions">
             <button type="button" onClick={() => openWorkWindow('sale')} title="New sale (F2)">
               <AppIcon name="sales" size={16}/> Sale <kbd>F2</kbd>
@@ -295,6 +315,7 @@ export function App() {
         </div>
       </header>
 
+      {selected && <ModuleRibbon activeModule={activeModule} choose={chooseModule} home={showHome}/>}
       <main className="workspace-main">
         {!selected ? <div className="tenant-picker">
           <span className="small-overline">LET'S GET STARTED</span><h1>Choose your workspace</h1>
@@ -310,8 +331,8 @@ export function App() {
         </div> : <>
           <div className="page-heading">
             <div><span className="small-overline">AH POS / {selected.name.toUpperCase()}</span>
-              <h1>{page === 'dashboard' ? 'Business overview' : pages.find(item => item.id === page)?.label}</h1>
-              <p>{page === 'dashboard' ? 'Your business at a glance.' :
+              <h1>{directoryOpen ? moduleById(activeModule).title : page === 'dashboard' ? 'Business overview' : moduleById(activeModule).items.find(item => item.page === page)?.name || page}</h1>
+              <p>{directoryOpen ? moduleById(activeModule).subtitle : page === 'dashboard' ? 'Your business at a glance.' :
                 page === 'products' ? 'Manage SKUs, barcodes and selling prices.' :
                 page === 'inventory' ? 'Track warehouses, incoming stock and available quantities.' :
                 page === 'customers' ? 'Keep your customers organized and ready for sales.' :
@@ -325,25 +346,26 @@ export function App() {
             </div>
             <button className="workspace-switch" type="button" onClick={() => {
               if (!clearWorkWindows()) return;
-              setSelected(null); setPage('dashboard');
+              setSelected(null); setPage('dashboard'); setActiveModule('overview'); setDirectoryOpen(false);
             }}>
               <AppIcon name="warehouse" size={16} /><span>{selected.name}</span><AppIcon name="chevron" size={15} />
             </button>
           </div>
-          {page === 'dashboard' && <DashboardPanel key={selected.ulid} tenant={selected} navigate={navigate} />}
-          {page === 'products' && <ProductsPanel key={selected.ulid} tenant={selected} />}
-          {page === 'customers' && <PartiesPanel key={selected.ulid + '-customer'} tenant={selected} initialType="customer" />}
-          {page === 'suppliers' && <PartiesPanel key={selected.ulid + '-supplier'} tenant={selected} initialType="supplier" />}
-          {page === 'inventory' && <InventoryPanel key={selected.ulid} tenant={selected} />}
-          {page === 'purchases' && <TransactionHome kind="purchase" tenant={selected}
+          {directoryOpen && <ModuleDirectory activeModule={activeModule} navigate={navigate} section={chooseModule} />}
+          {!directoryOpen && page === 'dashboard' && <DashboardPanel key={selected.ulid} tenant={selected} navigate={navigate} />}
+          {!directoryOpen && page === 'products' && <ProductsPanel key={selected.ulid} tenant={selected} />}
+          {!directoryOpen && page === 'customers' && <PartiesPanel key={selected.ulid + '-customer'} tenant={selected} initialType="customer" />}
+          {!directoryOpen && page === 'suppliers' && <PartiesPanel key={selected.ulid + '-supplier'} tenant={selected} initialType="supplier" />}
+          {!directoryOpen && page === 'inventory' && <InventoryPanel key={selected.ulid} tenant={selected} />}
+          {!directoryOpen && page === 'purchases' && <TransactionHome kind="purchase" tenant={selected}
             windows={workWindows} holdsVersion={holdsVersion} restoreHold={restoreHeldSale}
             open={openWorkWindow} activate={setActiveWindowId} />}
-          {(page === 'sales' || page === 'held') && <TransactionHome kind="sale" tenant={selected}
+          {!directoryOpen && (page === 'sales' || page === 'held') && <TransactionHome kind="sale" tenant={selected}
             windows={workWindows} holdsVersion={holdsVersion} restoreHold={restoreHeldSale}
             open={openWorkWindow} activate={setActiveWindowId} />}
-          {page === 'returns' && <ReturnsPanel key={selected.ulid} tenant={selected} />}
-          {page === 'cash' && <CashRegisterPanel key={selected.ulid} tenant={selected} />}
-          {page === 'reports' && <ReportsPanel key={selected.ulid} tenant={selected} />}
+          {!directoryOpen && page === 'returns' && <ReturnsPanel key={selected.ulid} tenant={selected} />}
+          {!directoryOpen && page === 'cash' && <CashRegisterPanel key={selected.ulid} tenant={selected} />}
+          {!directoryOpen && page === 'reports' && <ReportsPanel key={selected.ulid} tenant={selected} />}
         </>}
       </main>
     </div>
