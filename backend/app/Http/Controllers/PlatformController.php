@@ -41,6 +41,8 @@ final class PlatformController extends Controller
         return response()->json(['data' => [
             'name' => $request->user()->name,
             'permissions' => $permissions,
+            'mixed_identity' => DB::table('tenant_memberships')
+                ->where('user_id', $request->user()->getKey())->exists(),
         ]]);
     }
 
