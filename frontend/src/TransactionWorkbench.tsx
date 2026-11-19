@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect } from 'react';
 import { AppIcon } from './AppIcon';
 import { PosPanel } from './PosPanel';
 import { PurchasingPanel } from './PurchasingPanel';
@@ -56,7 +56,7 @@ export function TransactionWorkbench({
 
   const shortcuts: { name: string; key: string }[] = [
     { name: 'New sale', key: 'F2' },
-    { name: 'New purchase', key: 'F4' },
+    { name: 'New purchase', key: 'Shift+F2' },
     { name: 'Switch window', key: 'Bottom dock' },
   ];
 
@@ -114,7 +114,7 @@ export function TransactionWorkbench({
       <button type="button" className="dock-add" onClick={() => open('sale')} title="New sale (F2)">
         + Sale
       </button>
-      <button type="button" className="dock-add" onClick={() => open('purchase')} title="New purchase (F4)">
+      <button type="button" className="dock-add" onClick={() => open('purchase')} title="New purchase (Shift+F2)">
         + Purchase
       </button>
     </nav>}
@@ -136,7 +136,7 @@ export function TransactionHome({ kind, windows, open, activate }: {
         other drafts. Open another window, minimize an invoice, or switch directly using the bottom task dock.</p>
       <button type="button" className="launch-primary" onClick={() => open(kind)}>
         <AppIcon name={icon} size={21}/> Open new {kind === 'sale' ? 'sale' : 'purchase'} window
-        <kbd>{kind === 'sale' ? 'F2' : 'F4'}</kbd>
+        <kbd>{kind === 'sale' ? 'F2' : 'Shift+F2'}</kbd>
       </button>
       <div className="launch-controls">
         <span><AppIcon name="check" size={16}/> Independent cart per window</span>
