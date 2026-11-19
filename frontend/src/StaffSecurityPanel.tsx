@@ -17,6 +17,9 @@ export function StaffSecurityPanel({tenant, initialTab='staff'}:{
   const [busy,setBusy] = useState(false);
   const [loading,setLoading] = useState(true);
   const [editor,setEditor] = useState(false);
+  const [pendingAction,setPendingAction] = useState<
+    {kind:'staff';row:TenantStaffRow}|{kind:'device';row:TenantDevice;decision:'approve'|'reject'|'revoke'}|null
+  >(null);
   const [message,setMessage] = useState('');
   const [error,setError] = useState(false);
   const [form,setForm] = useState({
@@ -52,22 +55,21 @@ export function StaffSecurityPanel({tenant, initialTab='staff'}:{
   }
   async function toggleStatus(row:TenantStaffRow){
     const next=row.status==='active'?'suspended':'active';
-    if(!window.confirm((next==='suspended'?'Suspend ':'Reactivate ')+row.name+'?'))return;
     setBusy(true);setError(false);setMessage('');
     try{
       await setTenantStaffStatus(tenant.ulid,row.email,next);
       setMessage(row.name+' '+next+'. Previously approved devices are revoked on suspension.');
+      setPendingAction(null);
       await load();
     }catch(ex){setError(true);setMessage(ex instanceof ApiError?ex.message:'Unable to change staff status.');}
     finally{setBusy(false)}
   }
   async function decide(row:TenantDevice,decision:'approve'|'reject'|'revoke'){
-    if(!window.confirm((decision==='approve'?'Approve ':decision==='reject'?'Reject ':'Revoke ')+
-      row.device_name+' for '+row.staff_name+'?'))return;
     setBusy(true);setMessage('');setError(false);
     try{
       await decideTenantDevice(tenant.ulid,row.ulid,decision);
       setMessage('Device '+decision+' completed for '+row.staff_name+'.');
+      setPendingAction(null);
       await load();
     }catch(ex){setError(true);setMessage(ex instanceof ApiError?ex.message:'Device decision failed.');}
     finally{setBusy(false)}
@@ -99,7 +101,7 @@ export function StaffSecurityPanel({tenant, initialTab='staff'}:{
           <td>{row.role||'Unassigned'}</td><td><span className={row.status==='active'?'master-state-active':'master-state-inactive'}>{row.status}</span></td>
           <td>{row.requires_device_approval?'Approval required':'Legacy/Owner exempt'}</td>
           <td>{row.role!=='Admin Owner'&&<button type="button" disabled={busy} className="btn-ghost"
-            onClick={()=>{void toggleStatus(row)}}>{row.status==='active'?'Suspend':'Reactivate'}</button>}</td>
+            onClick={()=>{setError(false);setMessage('');setPendingAction({kind:'staff',row})}}>{row.status==='active'?'Suspend':'Reactivate'}</button>}</td>
         </tr>)}</tbody></table></div>
       {loading&&<TableSkeleton rows={5} cols={6}/>}
     </section>}
@@ -122,10 +124,10 @@ export function StaffSecurityPanel({tenant, initialTab='staff'}:{
           <td>{new Date(d.created_at).toLocaleString()}</td>
           <td><span className={d.status==='approved'?'master-state-active':'master-state-inactive'}>{d.status}</span></td>
           <td><div className="dense-actions">{d.status==='pending'&&<>
-            <button type="button" disabled={busy} className="btn-ghost" onClick={()=>{void decide(d,'approve')}}>Approve</button>
-            <button type="button" disabled={busy} className="btn-ghost" onClick={()=>{void decide(d,'reject')}}>Reject</button>
+            <button type="button" disabled={busy} className="btn-ghost" onClick={()=>{setError(false);setMessage('');setPendingAction({kind:'device',row:d,decision:'approve'})}}>Approve</button>
+            <button type="button" disabled={busy} className="btn-ghost" onClick={()=>{setError(false);setMessage('');setPendingAction({kind:'device',row:d,decision:'reject'})}}>Reject</button>
           </>}{d.status==='approved'&&<button type="button" disabled={busy} className="btn-ghost"
-            onClick={()=>{void decide(d,'revoke')}}>Revoke</button>}</div></td>
+            onClick={()=>{setError(false);setMessage('');setPendingAction({kind:'device',row:d,decision:'revoke'})}}>Revoke</button>}</div></td>
         </tr>)}</tbody></table></div>
       {loading&&<TableSkeleton rows={5} cols={6}/>}
       {!loading&&devices.length===0&&<p className="empty-copy">No device approvals requested yet.</p>}
@@ -145,6 +147,28 @@ export function StaffSecurityPanel({tenant, initialTab='staff'}:{
         <p className="muted">No new staff device will access business data until this Admin approves its pending request.</p>
         <button type="submit" className="list-create-button" disabled={busy}>{busy?'Creating…':'Create Staff Account'}</button>
       </form></EntityModal>}
+    {pendingAction&&<EntityModal
+      title={pendingAction.kind==='staff'
+        ? (pendingAction.row.status==='active'?'Suspend Staff Member':'Reactivate Staff Member')
+        : (pendingAction.decision==='approve'?'Approve Device':pendingAction.decision==='reject'?'Reject Device':'Revoke Device')}
+      subtitle={pendingAction.kind==='staff'?pendingAction.row.name:
+        pendingAction.row.device_name+' · '+pendingAction.row.staff_name}
+      busy={busy} error={error?message:undefined} onClose={()=>setPendingAction(null)}>
+      <div className="platform-form">
+        <p className="muted">{pendingAction.kind==='staff'
+          ? 'This change affects this Admin workspace only. Suspending staff also revokes their previously approved devices.'
+          : 'This decision is recorded against the selected employee and registered browser device. Do not approve devices you do not recognize.'}</p>
+        <div className="dense-actions">
+          <button type="button" className="btn-ghost" disabled={busy}
+            onClick={()=>setPendingAction(null)}>Cancel</button>
+          <button type="button" className="list-create-button" disabled={busy}
+            onClick={() => {if(!pendingAction)return;
+              if(pendingAction.kind==='staff')void toggleStatus(pendingAction.row);
+              else void decide(pendingAction.row,pendingAction.decision);
+            }}>{busy?'Saving…':'Confirm action'}</button>
+        </div>
+      </div>
+    </EntityModal>}
     {message&&<p role={error?'alert':'status'} className={error?'inline-alert':'inline-success'}>{message}</p>}
   </div>;
 }
