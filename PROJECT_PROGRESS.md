@@ -73,3 +73,6 @@ User-verified local evidence: TenantDbTransactionTest 3 PASS/5 assertions, Tenan
 
 ## 2026-11-19 — Delivery reprioritized to 10-day operational POS MVP
 User explicitly prioritized functional business features over repeated test-only milestones. New computer cloned repository; local database/runtime not yet configured. Committed P3 product catalog schema, secured create/list APIs, React product editor/list, explicit dev-only catalog grant and one critical feature test. **Not migrated or built locally yet** on the new PC; not accepted. P1 RLS remains pending, and full ERP scope in ten days is not a safe commitment. `docs/NEW_WINDOWS_DEV_SETUP.md` sets proposed delivery order and release gates.
+
+## 2026-11-19 — New PC operational setup confirmed, focused catalog failure diagnosed
+New Windows machine: PHP/Node/Composer/PostgreSQL installed; all 6 Laravel migrations DONE including Products; local test user+tenant+catalog grant created; frontend/backend servers running. Focused `ProductCatalogTest` reported 2 FAIL due to stale Laravel tenant context across multiple HTTP calls, not DB installation. Fixed context release in middleware `finally`, pending one focused local re-test and product save smoke. Accepted progress unchanged until verified.
