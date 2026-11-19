@@ -119,3 +119,9 @@
 - User new-PC logs confirmed full PostgreSQL/Laravel setup and product migration, local test account and catalog permissions. Two focused product tests failed with HTTP 500 on a second request due to stale TenantContext.
 - Added `TenantContext::clear` and unconditional middleware `finally` cleanup, restoring request-bound context even when permissions deny or downstream throws.
 - No new migration, role grant, user provisioning, or broad regression test suite requested. Targeted product test and manual catalog save pending local verification.
+
+## 2026-11-19 — Customer/supplier operational directory
+- User browser screenshot proves previously added Product Catalog works with tenant `ali`, new product persisted and displayed.
+- Added tenant-owned `parties` schema with ULIDs, customer/supplier discriminator, name, phone/email/address and status. Added tenant-scoped paginated list/search and create controller with server-side tenant context.
+- Added explicit permission keys and guarded routes, extended local-only operator grant, typed frontend API and customer/supplier forms/list tabs.
+- Pending new-PC migration, frontend compilation and one customer/one supplier manual smoke check. No accounting balance or financial posting.
