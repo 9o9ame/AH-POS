@@ -45,11 +45,12 @@ export function TransactionWorkbench({
   useEffect(() => {
     if (!active) return;
     function onKey(event: KeyboardEvent) {
-      if (event.key === 'Escape' && !(event.target instanceof HTMLElement &&
-          event.target.closest('.receipt-modal'))) {
-        event.preventDefault();
-        minimize();
-      }
+      if (event.key !== 'Escape' || event.defaultPrevented) return;
+      if (event.target instanceof HTMLElement &&
+          event.target.closest('.receipt-overlay, .command-dialog')) return;
+      if (document.querySelector('.receipt-overlay, .command-dialog')) return;
+      event.preventDefault();
+      minimize();
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
