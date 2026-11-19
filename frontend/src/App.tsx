@@ -54,6 +54,7 @@ export function App() {
     setPage(kind === 'sale' ? 'sales' : 'purchases');
     setActiveModule('daily');
     setDirectoryOpen(false);
+    setPinnedModule(null);
     setHoveredModule(null);
     setSidebarOpen(false);
     setCommandOpen(false);
@@ -67,6 +68,8 @@ export function App() {
       setPage('sales');
       setActiveModule('daily');
       setDirectoryOpen(false);
+      setPinnedModule(null);
+      setHoveredModule(null);
       return;
     }
     const number = nextWindowNumber.current.sale++;
@@ -182,7 +185,7 @@ export function App() {
       const user = await login(email.trim(), password);
       const choices = await myTenants();
       setProfile(user); setTenants(choices); setPassword('');
-      setSelected(null); setPage('dashboard'); setActiveModule('overview'); setDirectoryOpen(false); setScreen('authenticated');
+      setSelected(null); setPage('dashboard'); setActiveModule('overview'); setDirectoryOpen(false); setPinnedModule(null); setHoveredModule(null); setSidebarOpen(false); setScreen('authenticated');
       if (choices.length === 1) {
         setAutoSelecting(true);
         try { setSelected(await tenantContext(choices[0].ulid)); }
@@ -202,7 +205,7 @@ export function App() {
     setBusy(true); setMessage('');
     try {
       const verified = await tenantContext(choice.ulid);
-      setSelected(verified); setPage('dashboard'); setActiveModule('overview'); setDirectoryOpen(false); setSidebarOpen(false);
+      setSelected(verified); setPage('dashboard'); setActiveModule('overview'); setDirectoryOpen(false); setPinnedModule(null); setHoveredModule(null); setSidebarOpen(false);
     } catch {
       setSelected(null); setMessage('Tenant access denied or your session expired.');
     } finally { setBusy(false); }
@@ -213,7 +216,7 @@ export function App() {
     setBusy(true); setMessage('');
     try {
       await logout();
-      setProfile(null); setTenants([]); setSelected(null); setPage('dashboard'); setActiveModule('overview'); setDirectoryOpen(false); setScreen('guest');
+      setProfile(null); setTenants([]); setSelected(null); setPage('dashboard'); setActiveModule('overview'); setDirectoryOpen(false); setPinnedModule(null); setHoveredModule(null); setSidebarOpen(false); setScreen('guest');
     } catch {
       setMessage('Logout could not be confirmed. Retry.');
     } finally { setBusy(false); }
