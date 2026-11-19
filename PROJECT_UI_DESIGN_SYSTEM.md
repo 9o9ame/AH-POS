@@ -21,3 +21,8 @@ AppShell; Sidebar; Topbar; PageHeader; UiButton; UiInput; UiSelect; UiDatePicker
 
 ## Next
 Approve unique design direction (logo, palette, navigation, component style), build tokens/components and record signoff. Do not claim designs finalized yet.
+
+## 2026-11-19 — Implemented provisional visual direction (NOT YET APPROVED)
+- New `frontend/src/styles.css` global tokens: navy sidebar, teal action/accent, soft gray workspace, white cards, Manrope/DM Sans typography with system fallback, responsive nav and accessible focus states.
+- Shared visual building blocks: `AppIcon`, `App` nav/tenant shell, `DashboardPanel`, metric cards and table/card styling. Existing product/party/inventory modules reuse this design without copied BluePOS branding.
+- User requested a recognizable full POS application appearance rather than a narrow engineering demo. This batch is **implemented_unverified** until browser screenshot/review; final logo, palette and component geometry still need explicit signoff. Do not mark P2 accepted on source-only evidence.
