@@ -7,6 +7,7 @@ use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\SaleController;
+use App\Http\Controllers\OperationsReportController;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
 use App\Support\TenantContext;
@@ -111,3 +112,7 @@ Route::middleware(['auth', 'tenant.context', 'tenant.db-scope'])->group(function
     Route::get('/api/tenants/{tenant}/sales/{sale}', [SaleController::class, 'show'])
         ->middleware('tenant.permission:sales.read');
 });
+
+Route::middleware(['auth', 'tenant.context', 'tenant.db-scope'])
+    ->get('/api/tenants/{tenant}/reports/operations', [OperationsReportController::class, 'overview'])
+    ->middleware('tenant.permission:reports.read');
