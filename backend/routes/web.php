@@ -8,6 +8,7 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\SaleReturnController;
+use App\Http\Controllers\CashShiftController;
 use App\Http\Controllers\OperationsReportController;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
@@ -125,4 +126,16 @@ Route::middleware(['auth', 'tenant.context', 'tenant.db-scope'])->group(function
         ->middleware('tenant.permission:returns.read');
     Route::post('/api/tenants/{tenant}/sale-returns', [SaleReturnController::class, 'store'])
         ->middleware('tenant.permission:returns.create');
+});
+
+
+// Local pilot: shift snapshots link only transactions created while shift is open.
+// Old/unassigned documents are never silently pulled into a cashier close.
+Route::middleware(['auth', 'tenant.context', 'tenant.db-scope'])->group(function (): void {
+    Route::get('/api/tenants/{tenant}/cash-shifts', [CashShiftController::class, 'index'])
+        ->middleware('tenant.permission:cash_shifts.read');
+    Route::post('/api/tenants/{tenant}/cash-shifts', [CashShiftController::class, 'open'])
+        ->middleware('tenant.permission:cash_shifts.open');
+    Route::post('/api/tenants/{tenant}/cash-shifts/{shift}/close', [CashShiftController::class, 'close'])
+        ->middleware('tenant.permission:cash_shifts.close');
 });
