@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { ApiError, createParty, listParties, type Party, type PartyType, type TenantChoice } from './api';
 
-export function PartiesPanel({ tenant }: { tenant: TenantChoice }) {
-  const [kind, setKind] = useState<PartyType>('customer');
+export function PartiesPanel({ tenant, initialType }: { tenant: TenantChoice; initialType: PartyType }) {
+  const kind = initialType;
   const [records, setRecords] = useState<Party[]>([]);
   const [query, setQuery] = useState('');
   const [input, setInput] = useState({ name: '', phone: '', email: '', address: '' });
@@ -60,16 +60,10 @@ export function PartiesPanel({ tenant }: { tenant: TenantChoice }) {
     <section className="section catalog" aria-labelledby="parties-title">
       <div className="between">
         <div>
-          <h2 id="parties-title">Customers &amp; Suppliers — {tenant.name}</h2>
+          <h2 id="parties-title">{kind === 'customer' ? 'Customers' : 'Suppliers'} — {tenant.name}</h2>
           <p>Contact directory. Credit ledger and opening balances are not implemented yet.</p>
         </div>
         <span className="catalog-count">{total} {kind === 'customer' ? 'customers' : 'suppliers'}</span>
-      </div>
-      <div className="directory-tabs" role="group" aria-label="Directory type">
-        <button type="button" className={kind === 'customer' ? 'tab-active' : 'tab-inactive'}
-          onClick={() => setKind('customer')}>Customers</button>
-        <button type="button" className={kind === 'supplier' ? 'tab-active' : 'tab-inactive'}
-          onClick={() => setKind('supplier')}>Suppliers</button>
       </div>
       {allowed && <>
         <form className="catalog-form" onSubmit={e => { void save(e); }}>
