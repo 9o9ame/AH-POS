@@ -29,6 +29,7 @@ export function App() {
   const [masterKind, setMasterKind] = useState<ProductMasterKind>('categories');
   const [directoryOpen, setDirectoryOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarPinned, setSidebarPinned] = useState(false);
   const [commandOpen, setCommandOpen] = useState(false);
   const [workWindows, setWorkWindows] = useState<WorkWindow[]>([]);
   const [holdsVersion, setHoldsVersion] = useState(0);
@@ -36,6 +37,7 @@ export function App() {
   const nextWindowNumber = useRef({sale: 1, purchase: 1});
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
+  const [autoSelecting, setAutoSelecting] = useState(false);
 
   const openWorkWindow = useCallback((kind: WorkKind) => {
     const number = nextWindowNumber.current[kind]++;
@@ -129,6 +131,18 @@ export function App() {
         setProfile(user);
         setTenants(choices);
         setScreen('authenticated');
+        // An Admin/staff user with one authorized business goes directly home.
+        // Always verify server membership again; never assume client selection is authorization.
+        if (choices.length === 1) {
+          setAutoSelecting(true);
+          void tenantContext(choices[0].ulid).then(verified => {
+            if (!cancelled) setSelected(verified);
+          }).catch(() => {
+            if (!cancelled) setMessage('Workspace verification failed. Contact your Admin.');
+          }).finally(() => {
+            if (!cancelled) setAutoSelecting(false);
+          });
+        }
       }
     }).catch((error: unknown) => {
       if (cancelled) return;
@@ -162,6 +176,12 @@ export function App() {
       const choices = await myTenants();
       setProfile(user); setTenants(choices); setPassword('');
       setSelected(null); setPage('dashboard'); setActiveModule('overview'); setDirectoryOpen(false); setScreen('authenticated');
+      if (choices.length === 1) {
+        setAutoSelecting(true);
+        try { setSelected(await tenantContext(choices[0].ulid)); }
+        catch { setMessage('Workspace membership could not be verified.'); }
+        finally { setAutoSelecting(false); }
+      }
     } catch (error) {
       setMessage(error instanceof ApiError && error.status === 401
         ? 'Invalid email or password.'
@@ -203,14 +223,21 @@ export function App() {
     setActiveModule(moduleForPage(next));
     setDirectoryOpen(false);
     setActiveWindowId(null);
-    setSidebarOpen(false);
+    if (!sidebarPinned) setSidebarOpen(false);
     setCommandOpen(false);
   }
 
   function chooseModule(next: ModuleId) {
+    if (activeModule === next && sidebarPinned && sidebarOpen) {
+      setSidebarPinned(false); setSidebarOpen(false);
+      return;
+    }
     setActiveModule(next);
     setDirectoryOpen(true);
     setActiveWindowId(null);
+    // A module switch closes the previously pinned submenu. Edge hover
+    // exposes the new module; clicking the edge/menu pin keeps it open.
+    if (activeModule !== next) setSidebarPinned(false);
     setSidebarOpen(false);
     setCommandOpen(false);
   }
@@ -253,14 +280,27 @@ export function App() {
     </div>;
   }
 
-  return <div className="app-frame">
+  return <div className="app-frame compact-shell">
     <CommandPalette open={commandOpen && selected !== null} close={() => setCommandOpen(false)} navigate={navigate} />
-    {sidebarOpen && <button type="button" className="sidebar-shade" aria-label="Close navigation" onClick={() => setSidebarOpen(false)} />}
-    <aside className={`app-sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
+    {sidebarOpen && <button type="button" className="sidebar-shade" aria-label="Close navigation"
+      onClick={() => { setSidebarOpen(false); setSidebarPinned(false); }} />}
+    {selected && <button type="button" className="sidebar-edge-handle"
+      onMouseEnter={() => setSidebarOpen(true)}
+      onFocus={() => setSidebarOpen(true)}
+      onClick={() => { setSidebarPinned(v => !v); setSidebarOpen(true); }}
+      aria-label={sidebarPinned ? 'Unpin submenu' : 'Reveal submenu'}
+      aria-expanded={sidebarOpen}><AppIcon name="menu" size={16}/></button>}
+    <aside className={`app-sidebar ${sidebarOpen || sidebarPinned ? 'sidebar-open' : ''}`}
+      onMouseEnter={() => setSidebarOpen(true)}
+      onMouseLeave={() => { if (!sidebarPinned) setSidebarOpen(false); }}>
       <div className="sidebar-brand">
         <span className="brand-mark">A<span>H</span></span>
         <span className="brand-text">AH POS<small>OPERATIONS SUITE</small></span>
       </div>
+      <button type="button" className="sidebar-pin-control"
+        onClick={() => { setSidebarPinned(v => !v); setSidebarOpen(true); }}>
+        <AppIcon name="menu" size={16}/> {sidebarPinned ? 'Unpin menu' : 'Pin menu'}
+      </button>
       <div className="sidebar-tenant">
         <div className="tenant-badge">{(selected?.name || tenants[0]?.name || 'W').slice(0, 1).toUpperCase()}</div>
         <div><span className="tenant-overline">CURRENT WORKSPACE</span>
@@ -298,32 +338,15 @@ export function App() {
       </div>
     </aside>
     <div className="app-main">
-      <header className="top-bar">
-        <div className="top-left">
-          <button type="button" className="mobile-menu" aria-label="Toggle navigation" onClick={() => setSidebarOpen(v => !v)}><AppIcon name="menu" /></button>
-          <div className="breadcrumb"><span>Workspace</span><span className="crumb-sep">/</span><strong>{directoryOpen ? moduleById(activeModule).title : (page === 'masters' ? ({categories:'Categories',subcategories:'Sub Categories',brands:'Brands',units:'Units'} as const)[masterKind] : moduleById(activeModule).items.find(item => item.page === page)?.name || page)}</strong></div>
-          {selected && <div className="top-invoice-actions">
-            <button type="button" onClick={() => openWorkWindow('sale')} title="New sale (F2)">
-              <AppIcon name="sales" size={16}/> Sale <kbd>F2</kbd>
-            </button>
-            <button type="button" onClick={() => openWorkWindow('purchase')} title="New purchase (Shift+F2)">
-              <AppIcon name="truck" size={16}/> Purchase
-            </button>
-          </div>}
-        </div>
-        <div className="top-right">
-          {selected && <button className="top-search" type="button" aria-label="Quick navigation, Ctrl K" onClick={() => setCommandOpen(true)}>
-            <AppIcon name="search" size={17} /><span>Search anything…</span><kbd>Ctrl K</kbd>
-          </button>}
-          <span className="dev-chip"><span/> Local development</span>
-          <div className="user-chip"><span className="user-initials">{profile?.name.slice(0, 1).toUpperCase()}</span>
-            <span><strong>{profile?.name}</strong><small>Signed in</small></span></div>
-        </div>
-      </header>
-
-      {selected && <ModuleRibbon activeModule={activeModule} choose={chooseModule} home={showHome}/>}
+      {selected && <ModuleRibbon activeModule={activeModule} choose={chooseModule} home={showHome}
+        profileName={profile?.name} workspaceName={selected.name} sidebarPinned={sidebarPinned}
+        toggleSidebar={() => {
+          setSidebarPinned(v => !v); setSidebarOpen(true);
+        }}/>}
       <main className="workspace-main">
-        {!selected ? <div className="tenant-picker">
+        {!selected && autoSelecting ? <div className="tenant-picker"><div className="skeleton-cell" style={{width:'45%',height:24}}/>
+          <p>Verifying your Admin workspace…</p></div> :
+        !selected ? <div className="tenant-picker">
           <span className="small-overline">LET'S GET STARTED</span><h1>Choose your workspace</h1>
           <p className="muted">Select an active business you are authorized to access.</p>
           {tenants.length === 0 ? <p className="inline-alert">No active tenant membership. Contact your administrator.</p>
@@ -351,12 +374,12 @@ export function App() {
                 page === 'cash' ? 'Open a cashier shift, count physical cash and reconcile closing.' :
                 page === 'reports' ? 'Live operational sales and purchasing insights.' : 'Module in development.'}</p>
             </div>
-            <button className="workspace-switch" type="button" onClick={() => {
+            {tenants.length > 1 && <button className="workspace-switch" type="button" onClick={() => {
               if (!clearWorkWindows()) return;
               setSelected(null); setPage('dashboard'); setActiveModule('overview'); setDirectoryOpen(false);
             }}>
               <AppIcon name="warehouse" size={16} /><span>{selected.name}</span><AppIcon name="chevron" size={15} />
-            </button>
+            </button>}
           </div>
           {directoryOpen && <ModuleDirectory activeModule={activeModule} navigate={navigate} section={chooseModule} />}
           {!directoryOpen && page === 'dashboard' && <DashboardPanel key={selected.ulid} tenant={selected} navigate={navigate} />}
