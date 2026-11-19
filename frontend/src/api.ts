@@ -381,3 +381,46 @@ export async function setProductMasterStatus(
   );
   await readJson<DataResponse<{ulid: string; is_active: boolean}>>(response);
 }
+
+
+// Separate Super Admin Platform authority; never uses selected business ULID.
+export type PlatformSession = { name: string; permissions: string[] };
+export type PlatformOverview = { admins: number; active_admins: number; platform_staff: number };
+export type PlatformAdminRecord = {
+  ulid: string; name: string; status: string; created_at: string;
+  owner_name: string | null; owner_email: string | null;
+};
+export type PlatformStaffRecord = { name: string; email: string; platform_role: string };
+export type PlatformAuditRecord = {
+  ulid: string; action: string; target_type: string; target_ulid: string | null;
+  created_at: string; actor_name: string;
+};
+export async function getPlatformSession(): Promise<PlatformSession | null> {
+  try { return await getData<PlatformSession>('/api/platform/me'); }
+  catch (error) {
+    if (error instanceof ApiError && (error.status === 403 || error.status === 404)) return null;
+    throw error;
+  }
+}
+export function getPlatformOverview(): Promise<PlatformOverview> {
+  return getData<PlatformOverview>('/api/platform/overview');
+}
+export function getPlatformAdmins(): Promise<PlatformAdminRecord[]> {
+  return getData<PlatformAdminRecord[]>('/api/platform/admins');
+}
+export function createPlatformAdmin(input: {
+  business_name: string; owner_name: string; owner_email: string; password: string;
+}): Promise<PlatformAdminRecord> {
+  return post<DataResponse<PlatformAdminRecord>>('/api/platform/admins', input).then(r => r.data);
+}
+export function getPlatformStaff(): Promise<PlatformStaffRecord[]> {
+  return getData<PlatformStaffRecord[]>('/api/platform/staff');
+}
+export function createPlatformStaff(input: {
+  name: string; email: string; password: string; role: 'Support Operator' | 'Admin Manager';
+}): Promise<PlatformStaffRecord> {
+  return post<DataResponse<PlatformStaffRecord>>('/api/platform/staff', input).then(r => r.data);
+}
+export function getPlatformAudit(): Promise<PlatformAuditRecord[]> {
+  return getData<PlatformAuditRecord[]>('/api/platform/audit');
+}
