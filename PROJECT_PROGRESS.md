@@ -133,3 +133,6 @@ User reports `AuthSessionTest`, `PlatformRealmSeparationTest`, `PlatformOnboardi
 
 ## 2026-11-19 — Dedicated Platform Super Admin CLI creation committed
 User requested terminal creation. Added `ahpos:create-platform-superadmin` local-only interactive secure account creation/transfer: numbered existing mixed Super Admin selection, distinct login with strong password/current-password verification, transactionally transfers Platform roles to new tenant-free user, revokes old Ali Platform roles and audits. No migration, tenant data or ULID entry. Not executed locally; browser login verification pending. Platform `platform_users` schema/MFA hardening remains incomplete.
+
+## 2026-11-19 — Local CLI validation discrepancy corrected
+Super Admin dedicated local CLI had mistakenly retained 12+ complex password policy despite local test minimum-3 requirement. Both initialization/transfer paths now accept any password of length >=3, with mandatory confirmation and safe local DB guard; pending user rerun. No data change in previously failed run and no migration needed.
