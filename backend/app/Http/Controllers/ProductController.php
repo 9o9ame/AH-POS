@@ -40,6 +40,13 @@ final class ProductController extends Controller
     {
         $tenantId = $context->id();
 
+        // Canonicalize before uniqueness validation so padded SKU/barcode cannot bypass it.
+        $request->merge([
+            'sku' => trim((string) $request->input('sku', '')),
+            'name' => trim((string) $request->input('name', '')),
+            'barcode' => $request->filled('barcode') ? trim((string) $request->input('barcode')) : null,
+        ]);
+
         $data = $request->validate([
             'sku' => [
                 'required', 'string', 'max:64',
