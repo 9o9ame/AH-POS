@@ -281,3 +281,34 @@ export function postSaleReturn(tenantUlid: string, input: SaleReturnInput): Prom
     `/api/tenants/${encodeURIComponent(tenantUlid)}/sale-returns`, input,
   ).then(result => result.data);
 }
+
+
+export type CashShift = {
+  ulid: string; opening_cash: string; opening_note: string | null; created_at: string;
+  warehouse_ulid: string; warehouse_name: string; is_open: boolean;
+  closure_ulid: string | null; cash_sales: string; cash_refunds: string;
+  expected_cash: string; counted_cash: string | null; difference: string | null;
+  closed_at: string | null;
+};
+export type CashClosure = {
+  closure_ulid: string; cash_sales: string; cash_refunds: string;
+  expected_cash: string; counted_cash: string; difference: string;
+};
+export function listCashShifts(tenantUlid: string): Promise<CashShift[]> {
+  return getData<CashShift[]>(`/api/tenants/${encodeURIComponent(tenantUlid)}/cash-shifts`);
+}
+export function openCashShift(tenantUlid: string, payload: {
+  warehouse_ulid: string; opening_cash: string; opening_note: string;
+}): Promise<{ ulid: string; is_open: boolean }> {
+  return post<DataResponse<{ulid: string;is_open: boolean}>>(
+    `/api/tenants/${encodeURIComponent(tenantUlid)}/cash-shifts`, payload,
+  ).then(result => result.data);
+}
+export function closeCashShift(tenantUlid: string, shiftUlid: string, payload: {
+  counted_cash: string; closing_note: string;
+}): Promise<CashClosure> {
+  return post<DataResponse<CashClosure>>(
+    `/api/tenants/${encodeURIComponent(tenantUlid)}/cash-shifts/${encodeURIComponent(shiftUlid)}/close`,
+    payload,
+  ).then(result => result.data);
+}
