@@ -56,15 +56,26 @@ export function PosPanel({ tenant, onDraftChange, active = true, initialHold, on
   useEffect(() => { if (active) void load(); }, [load, active]);
   useEffect(() => { onDraftChange?.(cart.length > 0 || cash.trim() !== ''); }, [cart, cash, onDraftChange]);
 
-  async function queryCatalog(query: string) {
-    setLoading(true);
-    try {
-      const result = await listProducts(tenant.ulid, query);
-      setProducts(result.data.filter(p => p.is_active));
-    } catch {
-      setStatus('Product search unavailable. Please retry.'); setError(true);
-    } finally { setLoading(false); }
-  }
+  // Cancel stale searches when a barcode scanner or cashier types rapidly.
+  // Avoid a blocking overlay for ordinary entry, just update suggestions.
+  useEffect(() => {
+    if (!active) return;
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => {
+      setLoading(true);
+      void listProducts(tenant.ulid, search, controller.signal)
+        .then(result => {
+          if (!controller.signal.aborted) setProducts(result.data.filter(p => p.is_active));
+        })
+        .catch(() => {
+          if (!controller.signal.aborted) {
+            setStatus('Product search unavailable. Please retry.'); setError(true);
+          }
+        })
+        .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    }, search.trim() ? 160 : 240);
+    return () => { window.clearTimeout(timer); controller.abort(); };
+  }, [search, tenant.ulid, active]);
 
   function add(product: Product) {
     setCart(lines => {
@@ -160,7 +171,7 @@ export function PosPanel({ tenant, onDraftChange, active = true, initialHold, on
         <AppIcon name="search" size={20}/>
         <input ref={searchRef} placeholder="Scan barcode or search product / SKU" value={search}
           aria-label="Search or scan products"
-          onChange={e => { setSearch(e.target.value); void queryCatalog(e.target.value); }}/>
+          onChange={e => setSearch(e.target.value)}/>
         <kbd>ENTER</kbd>
       </form>
       <div className="pos-product-grid">
