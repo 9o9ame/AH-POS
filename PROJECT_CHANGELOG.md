@@ -136,3 +136,10 @@
 - Verified from user console: inventory migration DONE; critical stock-in/idempotency isolation test 1 PASS (11 assertions).
 - Updated `TenantPermissions` to honor an already explicitly assigned `Local Catalog Operator` role for strictly enumerated business permissions only within local PostgreSQL `ahpos_test` on localhost. This removes recurring local grant prompts after future feature updates while retaining production default-deny RBAC.
 - Added `CommandPalette` search navigation (Ctrl/Cmd+K), keyboard arrows/Enter/Esc, top-bar quick search, motion curves, lightweight glass layers, responsive hover/focus/feedback and reduced-motion support. New code not yet locally compiled or visually reviewed.
+
+## 2026-11-19 — Purchasing, local cash POS, stock-out, receipts and operations analytics
+- Added purchase/sale header and detail schema with composite tenant foreign keys and ULID public identifiers; purchase/sale stock ledger links and PostgreSQL immutable posted-row triggers; signed sale stock movement shares prior stock ledger (no parallel inventory flow).
+- Added PostgreSQL-NUMERIC server totals/line arithmetic, warehouse row locking, transaction-scoped idempotency locks, cash tendered/change checking, server catalog pricing, oversell denial, supplier/customer/warehouse/product tenant checks.
+- Added separate purchasing, cashier POS, printable thermal-style receipt, sale history and operations reports; expanded sidebar, quick search, dashboard and CSS transaction layout.
+- Added one rollback-only integrated `TradeWorkflowTest`, not executed locally yet.
+- **Production checkout disabled by explicit local-only guard** until accounting journal, cost valuation, tax/fiscal, returns, RLS and release approval. No balance/accounting result fabricated. User should run new migration and focused test once.
