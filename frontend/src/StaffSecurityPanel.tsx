@@ -132,7 +132,7 @@ export function StaffSecurityPanel({tenant, initialTab='staff'}:{
       <p className="pos-warning">Request IP is diagnostic only—not accurate GPS proof. A copied browser token is not hardware attestation; stronger hardware-backed device trust is a production gate.</p>
     </section>}
     {editor&&<EntityModal title="Create Staff Account" subtitle="This employee gets a tenant-only role and requires Admin device approval."
-      busy={busy} onClose={()=>setEditor(false)}><form className="platform-form" onSubmit={e=>{void create(e)}}>
+      busy={busy} onClose={()=>setEditor(false)} error={error ? message : undefined}><form className="platform-form" onSubmit={e=>{void create(e)}}>
         <label>Full name<input required minLength={2} maxLength={160} value={form.name} onChange={e=>setForm(v=>({...v,name:e.target.value}))}/></label>
         <label>Work email<input required type="email" value={form.email} onChange={e=>setForm(v=>({...v,email:e.target.value}))}/></label>
         <label>Staff role<select value={form.role} onChange={e=>setForm(v=>({...v,role:e.target.value as TenantStaffRoleName}))}>
