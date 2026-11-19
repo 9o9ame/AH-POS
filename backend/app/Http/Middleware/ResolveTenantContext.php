@@ -38,8 +38,16 @@ final class ResolveTenantContext
             abort(404);
         }
 
-        app(TenantContext::class)->setFromAuthenticatedMembership((int) $membership->tenant_id);
+        $context = app(TenantContext::class);
+        $context->setFromAuthenticatedMembership((int) $membership->tenant_id);
 
-        return $next($request);
+        try {
+            return $next($request);
+        } finally {
+            // Some execution modes (feature tests, long-lived workers) reuse
+            // the application container across requests. Always fail closed
+            // rather than leaking tenant scope to the following request.
+            $context->clear();
+        }
     }
 }
