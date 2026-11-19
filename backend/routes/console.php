@@ -332,3 +332,138 @@ Artisan::command('ahpos:authorize-local-admin-owner', function (): int {
     $this->info('Tenant Admin Owner permissions explicitly granted to this local membership.');
     return 0;
 })->purpose('Opt-in LOCAL conversion of an existing test tenant member into Admin Owner');
+
+
+/**
+ * LOCAL ONLY: Create a dedicated Platform Super Admin account by transferring
+ * the existing mixed (tenant+Platform) Super Admin's platform roles.
+ *
+ * The old user remains a tenant user and keeps all existing tenant data,
+ * memberships and passwords. No Platform authority is duplicated.
+ */
+Artisan::command('ahpos:create-platform-superadmin', function (): int {
+    if (! app()->environment('local')
+        || config('database.default') !== 'pgsql'
+        || config('database.connections.pgsql.database') !== 'ahpos_test'
+        || ! in_array(config('database.connections.pgsql.host'), ['127.0.0.1', 'localhost'], true)) {
+        $this->error('This sensitive command works ONLY with local PostgreSQL ahpos_test on loopback.');
+        return 1;
+    }
+
+    $superRoleId = DB::table('platform_roles')->where('name', 'Super Admin')->value('id');
+    if ($superRoleId === null) {
+        $this->error('No existing Platform Super Admin role. Refusing to mint a new root identity.');
+        return 1;
+    }
+
+    $sources = DB::table('platform_user_roles as ur')
+        ->join('users as u', 'u.id', '=', 'ur.user_id')
+        ->where('ur.role_id', $superRoleId)
+        ->whereExists(function ($q): void {
+            $q->selectRaw('1')->from('tenant_memberships as m')
+                ->whereColumn('m.user_id', 'u.id');
+        })
+        ->orderBy('u.email')->distinct()
+        ->get(['u.id', 'u.name', 'u.email']);
+    if ($sources->isEmpty()) {
+        $this->error('No mixed tenant/Platform Super Admin to separate. Nothing changed.');
+        return 1;
+    }
+
+    // A readable numbered list removes any need for ULIDs or pasted IDs.
+    $sourceLabel = $this->choice(
+        'Which existing mixed Super Admin should transfer Platform authority?',
+        $sources->map(fn ($u) => $u->name.' ('.$u->email.')')->all(),
+        0,
+    );
+    $sourceIndex = $sources->search(fn ($u) => $u->name.' ('.$u->email.')' === $sourceLabel);
+    if ($sourceIndex === false) {
+        $this->error('Invalid source selection. Nothing changed.');
+        return 1;
+    }
+    $source = $sources[$sourceIndex];
+
+    $this->warn('The selected account keeps its tenant POS access. ALL its Platform roles will move to a NEW Platform-only account.');
+    $name = trim((string) $this->ask('New dedicated Platform Super Admin display name'));
+    $email = strtolower(trim((string) $this->ask('New dedicated Platform login email (must be unused)')));
+    $password = (string) $this->secret('New strong Platform password (12+, upper/lower, number, symbol)');
+    $confirmation = (string) $this->secret('Confirm new Platform password');
+    $currentPassword = (string) $this->secret('Existing mixed Super Admin password (to authorize transfer)');
+
+    $validator = Validator::make(
+        compact('name', 'email', 'password'),
+        [
+            'name' => ['required', 'string', 'min:2', 'max:160'],
+            'email' => ['required', 'email', 'max:255'],
+            'password' => [
+                'required', 'string',
+                \Illuminate\Validation\Rules\Password::min(12)->mixedCase()->numbers()->symbols(),
+            ],
+        ],
+    );
+    if ($validator->fails() || ! hash_equals($password, $confirmation)
+        || DB::table('users')->whereRaw('lower(email) = ?', [$email])->exists()) {
+        $this->error('Invalid input, duplicate email, weak password or mismatch. Nothing changed.');
+        return 1;
+    }
+    if (! \Illuminate\Support\Facades\Hash::check($currentPassword, (string) DB::table('users')
+        ->where('id', $source->id)->value('password'))) {
+        $this->error('Existing Super Admin password incorrect. Nothing changed.');
+        return 1;
+    }
+
+    $this->line('From: '.$source->name.' ('.$source->email.') — tenant account stays intact');
+    $this->line('To: '.$name.' ('.$email.') — Platform-only account');
+    if (! $this->confirm('Transfer ALL Platform permissions to this dedicated account?', false)) {
+        $this->info('Cancelled. No data changed.');
+        return 0;
+    }
+
+    try {
+        DB::transaction(function () use ($source, $superRoleId, $name, $email, $password): void {
+            $roleIds = DB::table('platform_user_roles')
+                ->where('user_id', $source->id)->lockForUpdate()->pluck('role_id')->all();
+            if (! in_array((int) $superRoleId, array_map('intval', $roleIds), true)) {
+                throw new \RuntimeException('Source no longer has Platform Super Admin authority.');
+            }
+            if (DB::table('users')->whereRaw('lower(email) = ?', [$email])->exists()) {
+                throw new \RuntimeException('Email was registered during confirmation.');
+            }
+
+            $dedicated = User::create([
+                'name' => $name, 'email' => $email,
+                'password' => $password, // hashed by User model cast
+            ]);
+            foreach ($roleIds as $roleId) {
+                DB::table('platform_user_roles')->insert([
+                    'user_id' => $dedicated->getKey(), 'role_id' => $roleId,
+                ]);
+            }
+            DB::table('platform_user_roles')->where('user_id', $source->id)->delete();
+
+            DB::table('platform_audit_events')->insert([
+                'ulid' => (string) \Illuminate\Support\Str::ulid(),
+                'actor_id' => $source->id,
+                'action' => 'platform.super_admin.cli_identity_separated',
+                'target_type' => 'platform_user',
+                'target_ulid' => null,
+                'metadata' => json_encode([
+                    'local_only' => true,
+                    'from_email' => $source->email,
+                    'to_email' => $email,
+                ], JSON_THROW_ON_ERROR),
+                'ip_address' => null, 'created_at' => now(),
+            ]);
+        });
+    } catch (\Throwable $exception) {
+        $this->error('Transfer failed; transaction rolled back. '.get_class($exception));
+        return 1;
+    }
+
+    $this->info('SUCCESS: Dedicated Platform Super Admin created and Platform roles TRANSFERRED.');
+    $this->line('Platform login email: '.$email);
+    $this->line('Tenant POS account unchanged: '.$source->email);
+    $this->line('Platform URL: http://localhost:5173/platform/login');
+    $this->warn('Sign in using the new Platform password; do not put credentials in chat, screenshots or Git.');
+    return 0;
+})->purpose('LOCAL ONLY: securely transfer existing mixed Super Admin roles to a dedicated Platform-only account');
