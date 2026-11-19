@@ -76,3 +76,6 @@ User explicitly prioritized functional business features over repeated test-only
 
 ## 2026-11-19 — New PC operational setup confirmed, focused catalog failure diagnosed
 New Windows machine: PHP/Node/Composer/PostgreSQL installed; all 6 Laravel migrations DONE including Products; local test user+tenant+catalog grant created; frontend/backend servers running. Focused `ProductCatalogTest` reported 2 FAIL due to stale Laravel tenant context across multiple HTTP calls, not DB installation. Fixed context release in middleware `finally`, pending one focused local re-test and product save smoke. Accepted progress unchanged until verified.
+
+## 2026-11-19 — Catalog CRUD browser verified, parties workflow source added
+User screenshot confirmed authenticated tenant selection and product `Socks` saved and listed with PKR 100.0000 price. Added new `parties` migration, secured customer/supplier create/list/search API, React directory tabs and entry forms; local-only grant CLI can add `parties.read/create`. New code **not run locally**, not accepted yet. No repeat of previously passing suites. Production finance/security release gates pending; 10-day operational MVP priority unchanged.
