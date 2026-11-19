@@ -55,10 +55,20 @@ final class TenantStaffAccess
                 'name' => $name, 'created_at' => now(), 'updated_at' => now(),
             ]);
         }
-        // Existing tenant-defined roles may share labels; never silently expand
-        // or overwrite an existing custom role.
-        if (! DB::table('tenant_role_permissions')
-            ->where('tenant_id', $tenantId)->where('role_id', $roleId)->exists()) {
+        // Do not re-purpose a pre-existing custom role with the same display
+        // name but different permissions. A template must match exactly.
+        $existing = DB::table('tenant_role_permissions')
+            ->where('tenant_id', $tenantId)->where('role_id', $roleId)
+            ->pluck('permission')->all();
+        if ($existing !== []) {
+            $sortedCurrent = $existing;
+            $sortedTemplate = $permissions;
+            sort($sortedCurrent);
+            sort($sortedTemplate);
+            if ($sortedCurrent !== $sortedTemplate) {
+                throw new \\DomainException('Existing tenant role conflicts with the staff template.');
+            }
+        } else {
             foreach ($permissions as $permission) {
                 DB::table('tenant_role_permissions')->insertOrIgnore([
                     'tenant_id' => $tenantId, 'role_id' => $roleId, 'permission' => $permission,
