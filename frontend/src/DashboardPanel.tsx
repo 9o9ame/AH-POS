@@ -66,13 +66,10 @@ export function DashboardPanel({
         </div>
         <div className="panel-card roadmap-card">
           <div className="panel-heading"><div><span className="small-overline">DELIVERY TRACKER</span><h2>Operations rollout</h2></div></div>
-          <div className="progress-row"><span>Catalog & contacts</span><span className="progress-done">Working</span></div>
-          <div className="progress-track"><span style={{ width: '100%' }} /></div>
-          <div className="progress-row"><span>Warehouse receiving</span><span>New module</span></div>
-          <div className="progress-track"><span style={{ width: '62%' }} /></div>
-          <div className="progress-row"><span>Sales, accounting & reports</span><span>Pending</span></div>
-          <div className="progress-track"><span style={{ width: '0%' }} /></div>
-          <p className="muted">Visual delivery stages only, not verified completion percentages.</p>
+          <div className="progress-row"><span>Catalog & contacts</span><span className="progress-done">Browser verified</span></div>
+          <div className="progress-row"><span>Warehouse receiving</span><span>Awaiting local verification</span></div>
+          <div className="progress-row"><span>Sales, accounting & reports</span><span>Not yet implemented</span></div>
+          <p className="muted">These are evidence-based feature statuses, not project completion percentages.</p>
         </div>
       </div>
       {summary && <p className="muted">Recent stock entries (last 30): {summary.recent}. Statistics update when this page opens.</p>}
