@@ -66,7 +66,7 @@ final class TenantStaffAccess
             sort($sortedCurrent);
             sort($sortedTemplate);
             if ($sortedCurrent !== $sortedTemplate) {
-                throw new \\DomainException('Existing tenant role conflicts with the staff template.');
+                throw new \DomainException('Existing tenant role conflicts with the staff template.');
             }
         } else {
             foreach ($permissions as $permission) {
