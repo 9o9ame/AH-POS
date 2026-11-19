@@ -90,8 +90,11 @@ final class TenantStaffController extends Controller
         return response()->json(['data' => $result], 201);
     }
 
-    public function changeStatus(Request $request, TenantContext $context, string $staff): JsonResponse
+    public function changeStatus(Request $request, TenantContext $context): JsonResponse
     {
+        // Read named route parameter; otherwise {tenant} binds first and a
+        // staff status mutation wrongly searches for tenant ULID as an email.
+        $staff = (string) $request->route('staff');
         $data = $request->validate(['status' => ['required', 'in:active,suspended']]);
         $user = User::query()->where('email', strtolower($staff))->first();
         if ($user === null || $user->getKey() === $request->user()->getKey()) abort(404);
