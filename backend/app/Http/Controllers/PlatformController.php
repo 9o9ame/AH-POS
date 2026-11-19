@@ -222,6 +222,46 @@ final class PlatformController extends Controller
         return response()->json(['data' => $result]);
     }
 
+
+    /**
+     * Reversible Platform suspension of an Admin business. Existing tenant
+     * memberships/data remain untouched. Active business context middleware
+     * denies all business reads/writes while suspended.
+     */
+    public function changeAdminStatus(Request $request): JsonResponse
+    {
+        $tenantUlid = (string) $request->route('tenant');
+        $values = $request->validate([
+            'status' => ['required', 'in:active,suspended'],
+            'reason' => ['required', 'string', 'min:3', 'max:300'],
+        ]);
+
+        $result = DB::transaction(function () use ($request, $tenantUlid, $values): array {
+            $tenant = DB::table('tenants')
+                ->where('ulid', strtoupper($tenantUlid))
+                ->lockForUpdate()->first(['id','ulid','name','status']);
+            if ($tenant === null) abort(404);
+            if (! in_array($tenant->status, ['active','suspended'], true)) {
+                abort(409, 'Unsupported existing Admin status; investigate before changing.');
+            }
+            if ($tenant->status === $values['status']) {
+                abort(409, 'Admin already has that status.');
+            }
+            DB::table('tenants')->where('id', $tenant->id)->update([
+                'status' => $values['status'],
+                'updated_at' => now(),
+            ]);
+            $this->audit($request, 'platform.admin.status_changed', 'tenant', $tenant->ulid, [
+                'from_status' => $tenant->status,
+                'to_status' => $values['status'],
+                'reason' => trim($values['reason']),
+            ]);
+            return ['ulid' => $tenant->ulid, 'name' => $tenant->name, 'status' => $values['status']];
+        });
+
+        return response()->json(['data' => $result])->header('Cache-Control', 'no-store');
+    }
+
     public function staff(): JsonResponse
     {
         $users = DB::table('platform_user_roles as ur')
