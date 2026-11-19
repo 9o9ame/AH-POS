@@ -68,15 +68,13 @@ export function App() {
   }, []);
 
   const closeWorkWindow = useCallback((id: string) => {
-    setWorkWindows(previous => {
-      const item = previous.find(window => window.id === id);
-      if (!item) return previous;
-      if (item.dirty && !window.confirm('Discard this unposted ' + item.label +
-          '? Its cart and unsaved values will be lost.')) return previous;
-      return previous.filter(window => window.id !== id);
-    });
+    const item = workWindows.find(window => window.id === id);
+    if (!item) return;
+    if (item.dirty && !window.confirm('Discard this unposted ' + item.label +
+        '? Its cart and unsaved values will be lost.')) return;
+    setWorkWindows(previous => previous.filter(window => window.id !== id));
     setActiveWindowId(current => current === id ? null : current);
-  }, []);
+  }, [workWindows]);
 
   function clearWorkWindows(): boolean {
     if (workWindows.some(window => window.dirty)
