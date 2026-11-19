@@ -53,3 +53,7 @@
 ## Constraints
 
 Development retains **one PostgreSQL `ahpos_test`** database with multiple logical tenant rows. Platform control plane uses distinct schema/tables/authority context in that DB; no separate test DB. Staging and production each use separate independent DBs/secrets. No destructive migration, tenant reset, fake user, hidden credential or production bypass. Status remains architecture/proposal until real API/migrations/security evidence.
+
+## 2026-11-19 UX amendment: ribbon hover replaces edge hover
+
+User explicitly rejected the earlier left-edge hover target in annotated screenshot. **This amendment supersedes the UX sidebar bullet above:** every top application ribbon tab previews its own contextual left submenu on hover/focus. Clicking a tab pins that family's submenu; clicking the pinned tab again closes it; selecting a different tab replaces it. Submenu slide-in begins below ribbon so module bar remains fully visible. Pointer can move to submenu without premature closing; unpinned preview collapses on exit; Escape closes. No detached edge trigger or redundant hamburger. This is an interaction-only amendment; Platform/device/IndexedDB policy and status unchanged.
