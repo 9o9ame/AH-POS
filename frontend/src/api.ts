@@ -494,3 +494,15 @@ export function assignPlatformExistingOwner(tenantUlid:string,ownerEmail:string)
     {owner_email:ownerEmail,confirm:true},
   ).then(v=>v.data);
 }
+
+export function platformLogin(email:string,password:string):Promise<Profile>{
+  return post<DataResponse<Profile>>('/api/platform/auth/login',{email,password}).then(r=>r.data);
+}
+export function platformLogout():Promise<void>{
+  return post<{message:string}>('/api/platform/auth/logout').then(()=>undefined);
+}
+export function transferPlatformIdentity(input:{
+  name:string;email:string;password:string;current_password:string;confirm:boolean;
+}):Promise<Profile>{
+  return post<DataResponse<Profile>>('/api/platform/auth/separate-identity',input).then(r=>r.data);
+}
