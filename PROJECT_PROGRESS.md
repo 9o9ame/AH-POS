@@ -130,3 +130,6 @@ Read BluePOS actual Platform App, routes, auth and backend Platform routes; foun
 
 ## 2026-11-19 — Independent Platform/POS security batch locally verified
 User reports `AuthSessionTest`, `PlatformRealmSeparationTest`, `PlatformOnboardingTest`, `PlatformAssignExistingOwnerTest`, and `TenantStaffDeviceWorkflowTest`: 8 tests PASS / 99 assertions. React/TypeScript/Vite production build PASS (50 modules). No migration. Browser UAT of both URLs, dedicated new vendor account transfer, tenant Ali Admin Owner status and production identity hardening remain pending; do not rerun tests without a related change.
+
+## 2026-11-19 — Dedicated Platform Super Admin CLI creation committed
+User requested terminal creation. Added `ahpos:create-platform-superadmin` local-only interactive secure account creation/transfer: numbered existing mixed Super Admin selection, distinct login with strong password/current-password verification, transactionally transfers Platform roles to new tenant-free user, revokes old Ali Platform roles and audits. No migration, tenant data or ULID entry. Not executed locally; browser login verification pending. Platform `platform_users` schema/MFA hardening remains incomplete.
