@@ -225,3 +225,6 @@
 
 ## 2026-11-19 — Local verification evidence for Platform/POS split
 User confirmed focused `AuthSessionTest|PlatformRealmSeparationTest|PlatformOnboardingTest|PlatformAssignExistingOwnerTest|TenantStaffDeviceWorkflowTest`: **8 PASS / 99 assertions**. Frontend `npm run build` TypeScript and Vite v7.3.8 **PASS**, 50 transformed modules, build 4.24s. Platform browser UAT, real Ali identity handover and production controls remain unverified. No migration or database reset.
+
+## 2026-11-19 — Secure terminal Super Admin creation without mixed Ali role
+Added `php artisan ahpos:create-platform-superadmin` local-only CLI to create a dedicated Platform login from an existing mixed Platform/tenant account, with current-password authorization and atomic Platform-role transfer. Prompts new email/name/strong password (hidden), selects source by numbered menu (no ULIDs), audits transition and preserves original tenant user, memberships and financial data. Command and actual login unverified on user's machine. No migration or default credentials.
