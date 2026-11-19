@@ -48,3 +48,22 @@ npm run build
 ## Next implementation milestone
 
 **Platform + tenant staff/device backend enforcement**, not fake menu completion: secure bootstrap, platform RBAC and tenant creation API, Admin owner membership, invitation and role delegation, device approval + revoke and audit. Must build focused negative tests (platform staff denied tenant books, foreign tenant forbidden/404, revoked device denied) and preserve existing `ali` demo account through additive migrations and documented grandfathering plan. Then approved device-scoped IndexedDB reference caching, server-defined low-stock thresholds/notification center, final financial GL/costing and production RLS. **Cannot promise ten-day full ERP production readiness** without gate evidence.
+
+## 2026-11-19 Screenshot correction (this section supersedes sidebar directions above)
+
+The user's annotated screenshot marks **top ribbon tabs Home, Definitions, Daily Entries, Reports, Tools, Administration, Help** as the sole sidebar hover targets and puts an X on the detached left-edge hamburger. The previous "hover the left edge" wording was wrong.
+
+Now in source: hover/focus a top ribbon family to preview *that family's* sidebar without changing the current page; pointer can enter sidebar (close timer cancelled) to click a submenu item. Leaving an unpinned preview hides it. Click the ribbon family to pin/open its directory, click the same pinned tab to unpin/close, click another family to replace the pinned family. Selecting a submenu page inside pinned family preserves the submenu. Home hover shows overview submenu; Home click returns to dashboard. Sidebar animates **beneath** top navbar so it does not cover menu labels. No extra left-side button or redundant ribbon hamburger. Escape resets the menu. No DB changes.
+
+**Validation still pending:** one frontend `npm run build`, desktop hover/pin/click/switch, keyboard focus/Escape, narrow/touch. No prior backend tests need rerun.
+
+### Original 7-point requirements status audit
+1. Separate Super Admin Platform creates Admin business workspaces: **ADR designed only; backend/platform UI not implemented**.
+2. Platform staff and their scoped roles: **architecture only**.
+3. Every Admin has isolated POS and own staff/roles: existing tenant API isolation and RBAC source in place; Admin-facing employee lifecycle/delegation still **not implemented**.
+4. Direct Admin login: single authorized membership now server-verified then dashboard; device approval, IP and consented location tracking **not yet implemented**.
+5. Dashboard bar/donut, Sale/Purchase shortcuts: source implemented from real tenant operational data, browser validation pending.
+6. Table/list-first pages, Create modal, hidden/pinned responsive sidebar, compact scroll: Product/Parties/Masters/Inventory source implemented, top-tab hover now corrected. Other operational document screens have their own workflows; not all lists are redesigned.
+7. IndexedDB: **not implemented** until approved-device security and tenant/user scoping, revocation purge; region-specific theme skeleton source added. Low-stock colors are only provisional display threshold, **not a server alert/notification center**.
+
+Avoid reporting unimplemented items as done. Production blocked by accounting, costing/GL, RLS, secure device enforcement, audited migration/UAT.
