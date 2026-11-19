@@ -85,6 +85,10 @@ export type Product = {
   name: string;
   barcode: string | null;
   sale_price: string;
+  category_ulid?: string | null;
+  subcategory_ulid?: string | null;
+  brand_ulid?: string | null;
+  unit_ulid?: string | null;
   is_active: boolean;
 };
 
@@ -105,7 +109,9 @@ export async function listProducts(tenantUlid: string, query = '', signal?: Abor
 
 export async function createProduct(
   tenantUlid: string,
-  input: { sku: string; name: string; barcode: string; sale_price: string },
+  input: { sku: string; name: string; barcode: string; sale_price: string;
+    category_ulid?: string | null; subcategory_ulid?: string | null;
+    brand_ulid?: string | null; unit_ulid?: string | null },
 ): Promise<Product> {
   return (await post<DataResponse<Product>>(
     `/api/tenants/${encodeURIComponent(tenantUlid)}/products`,
@@ -340,4 +346,38 @@ export function discardSaleHold(tenantUlid: string, ulid: string): Promise<{disc
   return post<DataResponse<{discarded: boolean}>>(
     `/api/tenants/${encodeURIComponent(tenantUlid)}/sale-holds/${encodeURIComponent(ulid)}/discard`,
   ).then(result => result.data);
+}
+
+
+// Real tenant-owned definition masters used by the product catalog.
+export type ProductMasterKind = 'categories' | 'subcategories' | 'brands' | 'units';
+export type ProductMaster = {
+  ulid: string; code: string; name: string; is_active: boolean;
+  category_ulid?: string; category_name?: string;
+};
+export function listProductMasters(tenantUlid: string, kind: ProductMasterKind): Promise<ProductMaster[]> {
+  return getData<ProductMaster[]>(
+    `/api/tenants/${encodeURIComponent(tenantUlid)}/definitions/${kind}`,
+  );
+}
+export function createProductMaster(tenantUlid: string, kind: ProductMasterKind, payload: {
+  code: string; name: string; category_ulid?: string;
+}): Promise<ProductMaster> {
+  return post<DataResponse<ProductMaster>>(
+    `/api/tenants/${encodeURIComponent(tenantUlid)}/definitions/${kind}`, payload,
+  ).then(response => response.data);
+}
+export async function setProductMasterStatus(
+  tenantUlid: string, kind: ProductMasterKind, masterUlid: string, active: boolean,
+): Promise<void> {
+  const token = await csrfToken();
+  const response = await fetch(
+    `/api/tenants/${encodeURIComponent(tenantUlid)}/definitions/${kind}/${encodeURIComponent(masterUlid)}/status`,
+    {
+      method: 'PATCH', credentials: 'same-origin',
+      headers: {Accept:'application/json','Content-Type':'application/json','X-CSRF-TOKEN':token},
+      body: JSON.stringify({is_active: active}),
+    },
+  );
+  await readJson<DataResponse<{ulid: string; is_active: boolean}>>(response);
 }
