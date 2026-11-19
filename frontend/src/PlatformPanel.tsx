@@ -8,9 +8,12 @@ import {
 import { EntityModal, TableSkeleton } from './EntityModal';
 import { AppIcon } from './AppIcon';
 
-export function PlatformPanel({session, onSignOut}: {session:PlatformSession; onSignOut:()=>void}) {
+export function PlatformPanel({session, onSignOut, initialTab='admins', focus='overview'}: {
+  session:PlatformSession;onSignOut:()=>void;
+  initialTab?:'admins'|'staff'|'audit';focus?:'overview'|'register';
+}) {
   const can = (permission:string) => session.permissions.includes(permission);
-  const [tab,setTab] = useState<'admins'|'staff'|'audit'>('admins');
+  const [tab,setTab] = useState<'admins'|'staff'|'audit'>(initialTab);
   const [overview,setOverview] = useState<PlatformOverview|null>(null);
   const [admins,setAdmins] = useState<PlatformAdminRecord[]>([]);
   const [staff,setStaff] = useState<PlatformStaffRecord[]>([]);
@@ -88,14 +91,14 @@ export function PlatformPanel({session, onSignOut}: {session:PlatformSession; on
     }finally{setBusy(false)}
   }
   return <div className="platform-console">
-    <header className="platform-hero">
+    {focus==='overview'&&<header className="platform-hero">
       <div><span className="small-overline">AH POS / CONTROL PLANE</span>
         <h1>Super Admin Platform</h1>
         <p>Manage Admin businesses and platform operators. Tenant transactions are deliberately not available here.</p>
       </div>
       <button type="button" className="platform-signout" onClick={onSignOut}><AppIcon name="logout" size={15}/> Sign out</button>
-    </header>
-    <div className="platform-stat-grid">
+    </header>}
+    {focus==='overview'&&<div className="platform-stat-grid">
       {[{label:'Admin workspaces',value:overview?.admins,icon:'warehouse'},
         {label:'Active Admins',value:overview?.active_admins,icon:'check'},
         {label:'Platform operators',value:overview?.platform_staff,icon:'people'}].map(metric=>
@@ -104,13 +107,13 @@ export function PlatformPanel({session, onSignOut}: {session:PlatformSession; on
           <strong>{loading?'…':metric.value??'Restricted'}</strong>
         </div>)}
     </div>
-    <div className="platform-tabs" role="tablist" aria-label="Platform management">
+    {focus==='overview'&&<div className="platform-tabs" role="tablist" aria-label="Platform management">
       {([{id:'admins',label:'Admin businesses',permission:'platform.admins.read'},
         {id:'staff',label:'Platform staff',permission:'platform.staff.read'},
         {id:'audit',label:'Audit trail',permission:'platform.audit.read'}] as const)
         .filter(t=>can(t.permission)).map(t=><button role="tab" aria-selected={tab===t.id}
           type="button" key={t.id} className={tab===t.id?'selected':''} onClick={()=>setTab(t.id)}>{t.label}</button>)}
-    </div>
+    </div>}
     {tab==='admins' && can('platform.admins.read')&&<section className="panel-card">
       <div className="panel-heading"><div><span className="small-overline">BUSINESS ONBOARDING</span><h2>Admin workspaces</h2></div>
         <div className="dense-actions"><span className="count-pill">{admins.length} loaded</span>
