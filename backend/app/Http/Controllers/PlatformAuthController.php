@@ -65,6 +65,9 @@ final class PlatformAuthController extends Controller
             'confirm' => ['required', 'accepted'],
         ]);
         $actor = $request->user();
+        if (! DB::table('tenant_memberships')->where('user_id', $actor->getKey())->exists()) {
+            return response()->json(['message' => 'This Platform account is already separate from tenant identities.'], 409);
+        }
         if (! Hash::check($input['current_password'], $actor->password)) {
             return response()->json(['message' => 'Current Platform password incorrect.'], 422);
         }
