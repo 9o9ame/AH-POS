@@ -21,6 +21,15 @@ final class TenantContext
         $this->tenantId = $tenantId;
     }
 
+    /**
+     * Clears the authenticated context at the end of the HTTP request,
+     * including authorization failures. Does not grant/switch tenant.
+     */
+    public function clear(): void
+    {
+        $this->tenantId = null;
+    }
+
     public function id(): int
     {
         return $this->tenantId ?? throw new LogicException('Tenant context was not resolved.');
