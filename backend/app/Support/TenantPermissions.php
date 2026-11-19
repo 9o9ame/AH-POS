@@ -41,6 +41,8 @@ final class TenantPermissions
             'tenant.settings.read',
             'tenant.members.read',
             'tenant.members.manage',
+            'products.read',
+            'products.create',
         ];
     }
 }
