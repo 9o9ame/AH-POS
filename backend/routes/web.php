@@ -3,6 +3,8 @@
 use App\Http\Controllers\AuthSessionController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PartyController;
+use App\Http\Controllers\WarehouseController;
+use App\Http\Controllers\InventoryController;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
 use App\Support\TenantContext;
@@ -76,4 +78,18 @@ Route::middleware(['auth', 'tenant.context', 'tenant.db-scope'])->group(function
         ->middleware('tenant.permission:parties.read');
     Route::post('/api/tenants/{tenant}/parties', [PartyController::class, 'store'])
         ->middleware('tenant.permission:parties.create');
+});
+
+
+// Inventory v1: tenant-owned warehouses, stock inwards and read-only balances.
+// No sale posting, stock decrements or accounting journal here.
+Route::middleware(['auth', 'tenant.context', 'tenant.db-scope'])->group(function (): void {
+    Route::get('/api/tenants/{tenant}/warehouses', [WarehouseController::class, 'index'])
+        ->middleware('tenant.permission:warehouses.read');
+    Route::post('/api/tenants/{tenant}/warehouses', [WarehouseController::class, 'store'])
+        ->middleware('tenant.permission:warehouses.create');
+    Route::get('/api/tenants/{tenant}/inventory', [InventoryController::class, 'overview'])
+        ->middleware('tenant.permission:inventory.read');
+    Route::post('/api/tenants/{tenant}/inventory/receive', [InventoryController::class, 'receive'])
+        ->middleware('tenant.permission:inventory.receive');
 });
