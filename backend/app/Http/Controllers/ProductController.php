@@ -41,9 +41,9 @@ final class ProductController extends Controller
             $query->where(function ($q) use ($search): void {
                 // Treat % and _ as plain characters, not SQL wildcards.
                 $term = '%'.str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $search).'%';
-                $q->where('name', 'ilike', $term)
-                    ->orWhere('sku', 'ilike', $term)
-                    ->orWhere('barcode', 'ilike', $term);
+                $q->where('products.name', 'ilike', $term)
+                    ->orWhere('products.sku', 'ilike', $term)
+                    ->orWhere('products.barcode', 'ilike', $term);
             });
         }
 
