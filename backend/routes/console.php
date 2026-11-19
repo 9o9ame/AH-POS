@@ -155,3 +155,74 @@ Artisan::command('ahpos:rls-preflight', function (): int {
     $this->warn('CATALOG CHECKS PASS ONLY: runtime privileges, policies, cross-tenant access and login flows still require active verification.');
     return 0;
 })->purpose('Read-only PostgreSQL RBAC RLS readiness report; never changes the database');
+
+
+/**
+ * Explicit local development catalog grant to an already active tenant member.
+ * No web endpoint can assign permissions and no user is granted automatically.
+ */
+Artisan::command('ahpos:grant-local-catalog', function (): int {
+    if (! app()->environment('local')
+        || config('database.default') !== 'pgsql'
+        || config('database.connections.pgsql.database') !== 'ahpos_test'
+        || ! in_array(config('database.connections.pgsql.host'), ['127.0.0.1', 'localhost'], true)) {
+        $this->error('Refusing: only a local PostgreSQL ahpos_test database is allowed.');
+        return 1;
+    }
+
+    $email = strtolower(trim((string) $this->ask('Existing test user email')));
+    $tenantUlid = strtoupper(trim((string) $this->ask('Existing tenant ULID')));
+    $membership = DB::table('tenant_memberships as m')
+        ->join('users as u', 'u.id', '=', 'm.user_id')
+        ->join('tenants as t', 't.id', '=', 'm.tenant_id')
+        ->where('u.email', $email)
+        ->where('t.ulid', $tenantUlid)
+        ->where('m.status', 'active')
+        ->where('t.status', 'active')
+        ->select(['m.id as membership_id', 'm.tenant_id', 't.name as tenant_name'])
+        ->first();
+
+    if ($membership === null) {
+        $this->error('No active membership found for the supplied user and tenant; no changes.');
+        return 1;
+    }
+
+    $this->warn('LOCAL TEST ONLY: grant products.read and products.create to '.$email.' for '.$membership->tenant_name.'.');
+    if (! $this->confirm('Grant these permissions?', false)) {
+        $this->line('Cancelled; no changes.');
+        return 0;
+    }
+
+    DB::transaction(function () use ($membership): void {
+        $role = DB::table('tenant_roles')
+            ->where('tenant_id', $membership->tenant_id)
+            ->where('name', 'Local Catalog Operator')->first();
+
+        $roleId = $role?->id;
+        if ($roleId === null) {
+            $roleId = DB::table('tenant_roles')->insertGetId([
+                'tenant_id' => $membership->tenant_id,
+                'ulid' => (string) \Illuminate\Support\Str::ulid(),
+                'name' => 'Local Catalog Operator',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        foreach (['products.read', 'products.create'] as $permission) {
+            DB::table('tenant_role_permissions')->insertOrIgnore([
+                'tenant_id' => $membership->tenant_id,
+                'role_id' => $roleId,
+                'permission' => $permission,
+            ]);
+        }
+        DB::table('tenant_membership_roles')->insertOrIgnore([
+            'tenant_id' => $membership->tenant_id,
+            'membership_id' => $membership->membership_id,
+            'role_id' => $roleId,
+        ]);
+    });
+
+    $this->info('Local catalog permissions granted successfully.');
+    return 0;
+})->purpose('Explicitly authorize one local test membership for product catalog development');
