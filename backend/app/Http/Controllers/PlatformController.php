@@ -137,6 +137,89 @@ final class PlatformController extends Controller
         return response()->json(['data' => $result], 201);
     }
 
+
+    /**
+     * Platform-authorized onboarding of an already existing business.
+     * Only a currently ACTIVE member may become its initial Admin Owner.
+     * No client-provided internal IDs or tenant financial data are exposed.
+     */
+    public function ownerCandidates(string $tenant): JsonResponse
+    {
+        $tenantRow = DB::table('tenants')->where('ulid', strtoupper($tenant))
+            ->where('status', 'active')->first(['id', 'ulid']);
+        if ($tenantRow === null) abort(404);
+
+        $members = DB::table('tenant_memberships as m')
+            ->join('users as u', 'u.id', '=', 'm.user_id')
+            ->where('m.tenant_id', $tenantRow->id)->where('m.status', 'active')
+            ->orderBy('u.name')->limit(100)->get(['u.name', 'u.email']);
+        return response()->json(['data' => $members])->header('Cache-Control', 'no-store');
+    }
+
+    public function assignExistingOwner(Request $request, string $tenant): JsonResponse
+    {
+        $values = $request->validate([
+            'owner_email' => ['required', 'email', 'max:255'],
+            'confirm' => ['required', 'accepted'],
+        ]);
+        $email = strtolower(trim($values['owner_email']));
+
+        $result = DB::transaction(function () use ($request, $tenant, $email): array {
+            $business = DB::table('tenants')->where('ulid', strtoupper($tenant))
+                ->where('status', 'active')->lockForUpdate()->first(['id', 'ulid', 'name']);
+            if ($business === null) abort(404);
+
+            $alreadyHasOwner = DB::table('tenant_membership_roles as mr')
+                ->join('tenant_roles as r', function ($join): void {
+                    $join->on('r.id', '=', 'mr.role_id')
+                        ->on('r.tenant_id', '=', 'mr.tenant_id');
+                })
+                ->join('tenant_memberships as m', function ($join): void {
+                    $join->on('m.id', '=', 'mr.membership_id')
+                        ->on('m.tenant_id', '=', 'mr.tenant_id');
+                })
+                ->where('mr.tenant_id', $business->id)
+                ->where('r.name', 'Admin Owner')->where('m.status', 'active')
+                ->exists();
+            if ($alreadyHasOwner) {
+                return ['conflict' => true];
+            }
+
+            $member = DB::table('tenant_memberships as m')
+                ->join('users as u', 'u.id', '=', 'm.user_id')
+                ->where('m.tenant_id', $business->id)->where('m.status', 'active')
+                ->whereRaw('lower(u.email) = ?', [$email])
+                ->first(['m.id as membership_id', 'u.name as owner_name', 'u.email as owner_email']);
+            if ($member === null) abort(404);
+
+            $role = DB::table('tenant_roles')->where('tenant_id', $business->id)
+                ->where('name', 'Admin Owner')->first(['id']);
+            $roleId = $role?->id ?? DB::table('tenant_roles')->insertGetId([
+                'tenant_id' => $business->id, 'ulid' => (string) Str::ulid(),
+                'name' => 'Admin Owner', 'created_at' => now(), 'updated_at' => now(),
+            ]);
+            foreach (TenantPermissions::known() as $permission) {
+                DB::table('tenant_role_permissions')->insertOrIgnore([
+                    'tenant_id' => $business->id, 'role_id' => $roleId,
+                    'permission' => $permission,
+                ]);
+            }
+            DB::table('tenant_membership_roles')->insertOrIgnore([
+                'tenant_id' => $business->id,
+                'membership_id' => $member->membership_id, 'role_id' => $roleId,
+            ]);
+            $this->audit($request, 'platform.admin.existing_owner_assigned', 'tenant', $business->ulid, [
+                'owner_email' => $member->owner_email,
+            ]);
+            return ['ulid' => $business->ulid, 'name' => $business->name,
+                'owner_name' => $member->owner_name, 'owner_email' => $member->owner_email];
+        });
+        if (isset($result['conflict'])) {
+            return response()->json(['message' => 'An active Admin Owner already exists.'], 409);
+        }
+        return response()->json(['data' => $result]);
+    }
+
     public function staff(): JsonResponse
     {
         $users = DB::table('platform_user_roles as ur')
