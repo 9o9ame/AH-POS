@@ -111,3 +111,42 @@ export async function createProduct(
     { ...input, barcode: input.barcode.trim() || null },
   )).data;
 }
+
+
+export type PartyType = 'customer' | 'supplier';
+export type Party = {
+  ulid: string;
+  type: PartyType;
+  name: string;
+  phone: string | null;
+  email: string | null;
+  address: string | null;
+  is_active: boolean;
+};
+
+export async function listParties(tenantUlid: string, type: PartyType, query = ''): Promise<{ data: Party[]; total: number }> {
+  const parameters = new URLSearchParams({ type });
+  if (query.trim()) parameters.set('q', query.trim());
+  const response = await fetch(`/api/tenants/${encodeURIComponent(tenantUlid)}/parties?${parameters.toString()}`, {
+    credentials: 'same-origin',
+    cache: 'no-store',
+    headers: { Accept: 'application/json' },
+  });
+  return readJson<{ data: Party[]; total: number }>(response);
+}
+
+export async function createParty(
+  tenantUlid: string,
+  input: { type: PartyType; name: string; phone: string; email: string; address: string },
+): Promise<Party> {
+  return (await post<DataResponse<Party>>(
+    `/api/tenants/${encodeURIComponent(tenantUlid)}/parties`,
+    {
+      type: input.type,
+      name: input.name,
+      phone: input.phone.trim() || null,
+      email: input.email.trim() || null,
+      address: input.address.trim() || null,
+    },
+  )).data;
+}
