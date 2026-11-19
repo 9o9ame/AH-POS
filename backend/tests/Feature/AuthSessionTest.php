@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Models\Tenant;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use RuntimeException;
@@ -65,10 +66,17 @@ final class AuthSessionTest extends TestCase
 
     public function test_successful_login_profile_and_logout(): void
     {
-        User::factory()->create([
+        $user = User::factory()->create([
             'name' => 'AH Test User',
             'email' => 'example-user@ahpos.test',
             'password' => Hash::make('correct-secret'),
+        ]);
+        // Business login now requires an active tenant membership; isolated
+        // Platform-only users cannot sign in through the tenant POS.
+        $tenant = Tenant::create(['name' => 'Auth Test Business']);
+        DB::table('tenant_memberships')->insert([
+            'tenant_id' => $tenant->getKey(), 'user_id' => $user->getKey(),
+            'status' => 'active', 'created_at' => now(), 'updated_at' => now(),
         ]);
 
         $this->postJson('/api/login', [
