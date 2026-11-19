@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Support\TenantContext;
-use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -79,8 +78,10 @@ final class InventoryController extends Controller
         }
 
         // Canonical decimal strings without float conversions for idempotency.
-        $quantity = rtrim(rtrim((string) $data['quantity'], '0'), '.');
-        $unitCost = rtrim(rtrim((string) $data['unit_cost'], '0'), '.');
+        $quantity = str_contains((string) $data['quantity'], '.')
+            ? rtrim(rtrim((string) $data['quantity'], '0'), '.') : (string) $data['quantity'];
+        $unitCost = str_contains((string) $data['unit_cost'], '.')
+            ? rtrim(rtrim((string) $data['unit_cost'], '0'), '.') : (string) $data['unit_cost'];
         if ($quantity === '') $quantity = '0';
         if ($unitCost === '') $unitCost = '0';
         $note = trim((string) ($data['note'] ?? ''));
@@ -99,30 +100,31 @@ final class InventoryController extends Controller
                 : response()->json(['message' => 'Idempotency key already used with different details.'], 409);
         }
 
-        try {
-            $ulid = (string) Str::ulid();
-            DB::table('stock_movements')->insert([
-                'tenant_id' => $tenantId,
-                'warehouse_id' => $warehouse->id,
-                'product_id' => $product->id,
-                'created_by' => $request->user()->getKey(),
-                'ulid' => $ulid,
-                'idempotency_key' => $key,
-                'payload_hash' => $hash,
-                'type' => $data['type'],
-                'quantity' => $quantity,
-                'unit_cost' => $unitCost,
-                'note' => $note !== '' ? $note : null,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        } catch (QueryException $e) {
-            // DB unique constraint is the final concurrency guard; do not retry
-            // a failed PostgreSQL transaction after a unique violation.
-            if (($e->errorInfo[0] ?? null) === '23505') {
-                return response()->json(['message' => 'Duplicate receipt request; refresh stock and retry if needed.'], 409);
+        $ulid = (string) Str::ulid();
+        // ON CONFLICT DO NOTHING keeps the transaction usable during retries.
+        $inserted = DB::table('stock_movements')->insertOrIgnore([
+            'tenant_id' => $tenantId,
+            'warehouse_id' => $warehouse->id,
+            'product_id' => $product->id,
+            'created_by' => $request->user()->getKey(),
+            'ulid' => $ulid,
+            'idempotency_key' => $key,
+            'payload_hash' => $hash,
+            'type' => $data['type'],
+            'quantity' => $quantity,
+            'unit_cost' => $unitCost,
+            'note' => $note !== '' ? $note : null,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        if ($inserted === 0) {
+            $duplicate = DB::table('stock_movements')
+                ->where('tenant_id', $tenantId)->where('idempotency_key', $key)
+                ->first(['ulid', 'payload_hash']);
+            if ($duplicate !== null && $duplicate->payload_hash === $hash) {
+                return response()->json(['data' => ['ulid' => $duplicate->ulid, 'replayed' => true]]);
             }
-            throw $e;
+            return response()->json(['message' => 'Duplicate or conflicting stock receipt.'], 409);
         }
 
         return response()->json(['data' => ['ulid' => $ulid, 'replayed' => false]], 201);
