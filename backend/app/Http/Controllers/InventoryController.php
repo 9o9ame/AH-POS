@@ -55,7 +55,7 @@ final class InventoryController extends Controller
         $data = $request->validate([
             'warehouse_ulid' => ['required', 'ulid'],
             'product_ulid' => ['required', 'ulid'],
-            'idempotency_key' => ['required', 'ulid'],
+            'idempotency_key' => ['required', 'uuid'],
             'type' => ['required', Rule::in(['opening', 'receipt'])],
             'quantity' => ['required', 'regex:/^(?:0|[1-9][0-9]{0,13})(?:\\.[0-9]{1,6})?$/D'],
             'unit_cost' => ['required', 'regex:/^(?:0|[1-9][0-9]{0,15})(?:\\.[0-9]{1,4})?$/D'],
@@ -85,7 +85,7 @@ final class InventoryController extends Controller
         if ($quantity === '') $quantity = '0';
         if ($unitCost === '') $unitCost = '0';
         $note = trim((string) ($data['note'] ?? ''));
-        $key = strtoupper($data['idempotency_key']);
+        $key = strtolower($data['idempotency_key']);
         $hash = hash('sha256', json_encode([
             $tenantId, $warehouse->id, $product->id, $data['type'],
             $quantity, $unitCost, $note,
