@@ -212,7 +212,8 @@ export type SaleRecord = {
 };
 export type SaleInput = {
   warehouse_ulid: string; customer_ulid: string | null; idempotency_key: string;
-  amount_paid: string; lines: { product_ulid: string; quantity: string }[];
+  amount_paid: string; hold_ulid?: string | null;
+  lines: { product_ulid: string; quantity: string }[];
 };
 export type SaleReceipt = {
   sale: SaleRecord & {
@@ -310,5 +311,32 @@ export function closeCashShift(tenantUlid: string, shiftUlid: string, payload: {
   return post<DataResponse<CashClosure>>(
     `/api/tenants/${encodeURIComponent(tenantUlid)}/cash-shifts/${encodeURIComponent(shiftUlid)}/close`,
     payload,
+  ).then(result => result.data);
+}
+
+
+export type SaleHold = {
+  ulid: string; client_ref: string; title: string;
+  warehouse_ulid: string | null; warehouse_name: string | null;
+  customer_ulid: string | null; customer_name: string | null;
+  amount_paid: string | null; created_at: string; updated_at: string;
+  lines: { product_ulid: string; quantity: string; product: Product | null }[];
+};
+export type SaveSaleHold = {
+  client_ref: string; title: string; warehouse_ulid: string | null;
+  customer_ulid: string | null; amount_paid: string | null;
+  lines: { product_ulid: string; quantity: string }[];
+};
+export function listSaleHolds(tenantUlid: string): Promise<SaleHold[]> {
+  return getData<SaleHold[]>(`/api/tenants/${encodeURIComponent(tenantUlid)}/sale-holds`);
+}
+export function saveSaleHold(tenantUlid: string, payload: SaveSaleHold): Promise<{ulid: string; saved: boolean}> {
+  return post<DataResponse<{ulid: string; saved: boolean}>>(
+    `/api/tenants/${encodeURIComponent(tenantUlid)}/sale-holds`, payload,
+  ).then(result => result.data);
+}
+export function discardSaleHold(tenantUlid: string, ulid: string): Promise<{discarded: boolean}> {
+  return post<DataResponse<{discarded: boolean}>>(
+    `/api/tenants/${encodeURIComponent(tenantUlid)}/sale-holds/${encodeURIComponent(ulid)}/discard`,
   ).then(result => result.data);
 }
