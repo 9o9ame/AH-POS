@@ -67,7 +67,8 @@ final class TenantPermissions
         }
 
         // Extend deliberately when shipping a module. NEVER wildcard
-        // platform administration, user management or financial posting.
+        // platform administration or user management. The local cash/purchase
+        // pilot is separately blocked by the posting controllers outside local.
         return in_array($permission, [
             'products.read', 'products.create',
             'parties.read', 'parties.create',
