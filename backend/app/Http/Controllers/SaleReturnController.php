@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Support\DocumentMath;
+use App\Support\CashShiftScope;
 use App\Support\DocumentPosting;
 use App\Support\TenantContext;
 use Illuminate\Http\JsonResponse;
@@ -107,6 +108,7 @@ final class SaleReturnController extends Controller
         $returnUlid = (string) Str::ulid();
         $returnId = DB::table('sale_returns')->insertGetId([
             'tenant_id' => $tenantId, 'sale_id' => $sale->id, 'warehouse_id' => $sale->warehouse_id,
+            'cash_shift_id' => CashShiftScope::activeId($tenantId, (int) $sale->warehouse_id, (int) $request->user()->getKey()),
             'created_by' => $request->user()->getKey(), 'ulid' => $returnUlid,
             'idempotency_key' => $key, 'payload_hash' => $hash,
             'reason' => $reason, 'refund_total' => $refundTotal, 'refund_method' => 'cash',
