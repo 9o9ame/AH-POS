@@ -33,6 +33,10 @@ export function ReportsPanel({ tenant }: { tenant: TenantChoice }) {
     <div className="report-metric-grid">
       <div className="panel-card report-kpi"><span>Cash sales</span><AppIcon name="sales" size={22}/>
         <strong>{data ? money(data.cash_sales.total) : '—'}</strong><small>{data?.cash_sales.count ?? 0} transactions</small></div>
+      <div className="panel-card report-kpi"><span>Cash refunds</span><AppIcon name="arrow" size={22}/>
+        <strong>{data ? money(data.cash_returns.total) : '—'}</strong><small>{data?.cash_returns.count ?? 0} return documents</small></div>
+      <div className="panel-card report-kpi"><span>Net cash sale activity</span><AppIcon name="sales" size={22}/>
+        <strong>{data ? money(data.net_cash_sales) : '—'}</strong><small>Gross sales less recorded refunds</small></div>
       <div className="panel-card report-kpi"><span>Purchases received</span><AppIcon name="truck" size={22}/>
         <strong>{data ? money(data.purchases.total) : '—'}</strong><small>{data?.purchases.count ?? 0} purchase documents</small></div>
       <div className="panel-card report-kpi"><span>Stocked product locations</span><AppIcon name="inventory" size={22}/>
