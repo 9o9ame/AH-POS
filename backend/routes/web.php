@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthSessionController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PlatformController;
 use App\Http\Controllers\DefinitionMasterController;
 use App\Http\Controllers\PartyController;
 use App\Http\Controllers\WarehouseController;
@@ -162,4 +163,23 @@ Route::middleware(['auth', 'tenant.context', 'tenant.db-scope'])->group(function
         ->middleware('tenant.permission:definitions.manage');
     Route::patch('/api/tenants/{tenant}/definitions/{kind}/{master}/status', [DefinitionMasterController::class, 'setStatus'])
         ->middleware('tenant.permission:definitions.manage');
+});
+
+
+// Super Admin Platform authority is separate from tenant context. Platform
+// operators never acquire business data access through these routes.
+Route::middleware('auth')->group(function (): void {
+    Route::get('/api/platform/me', [PlatformController::class, 'me']);
+    Route::get('/api/platform/overview', [PlatformController::class, 'overview'])
+        ->middleware('platform.permission:platform.overview.read');
+    Route::get('/api/platform/admins', [PlatformController::class, 'admins'])
+        ->middleware('platform.permission:platform.admins.read');
+    Route::post('/api/platform/admins', [PlatformController::class, 'createAdmin'])
+        ->middleware(['platform.permission:platform.admins.create', 'throttle:8,1']);
+    Route::get('/api/platform/staff', [PlatformController::class, 'staff'])
+        ->middleware('platform.permission:platform.staff.read');
+    Route::post('/api/platform/staff', [PlatformController::class, 'createStaff'])
+        ->middleware(['platform.permission:platform.staff.manage', 'throttle:8,1']);
+    Route::get('/api/platform/audit', [PlatformController::class, 'auditEvents'])
+        ->middleware('platform.permission:platform.audit.read');
 });
