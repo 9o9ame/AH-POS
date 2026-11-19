@@ -1088,3 +1088,8 @@ button:not(:disabled):active{transform:scale(.985)}
 .entity-modal-body .compact-form{border:0!important;padding:0!important;margin:0!important}
 .entity-modal-body .compact-form .field-row{gap:10px}
 @media(max-width:750px){.compact-shell .inventory-toolbar{grid-column:1/-1}}
+
+.compact-shell .definition-master-grid{display:block}
+.compact-shell .definition-master-register{width:100%}
+.compact-shell .dashboard-stock-list{max-height:185px;overflow:auto;scrollbar-width:thin}
+.compact-shell .admin-dashboard{min-height:0}
