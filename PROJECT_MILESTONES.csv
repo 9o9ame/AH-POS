@@ -4,7 +4,7 @@ P1,Architecture tenancy security and CI,13,implemented_unverified,0,0,,PostgreSQ
 P2,Brand design system and web shell,8,implemented_unverified,0,0,,New nav sidebar dashboard and shared UI tokens committed; awaiting local build screenshot and visual signoff
 P3,Master data and tenant import engine,14,implemented_unverified,0,0,,Product and customer create/list browser verified; supplier source implemented; import and richer masters incomplete
 P4,Purchasing inventory and accounting,14,implemented_unverified,0,0,,Inbound inventory verified previously; new supplier purchase documents and stock receipt committed pending migration; accounting COGS and production release blocked
-P5,Online sales POS returns and receipts,15,implemented_unverified,0,0,,Local-only cash POS sale stock-out history and receipt committed; focused test and browser UAT pending; returns tax and production release blocked
+P5,Online sales POS returns and receipts,15,implemented_unverified,0,0,,Local cash POS purchase-to-sale critical test verified; immutable partial/full cash returns source committed pending migration and focused local test; tax GL cost and production blocked
 P6,Offline browser sales and synchronization,10,not_started,0,0,,Retry idempotency conflict and device tests
 P7,Reports administration and operations,8,implemented_unverified,0,0,,Tenant-scoped cash sales purchasing and stock operational report committed pending local verification; not accounting reporting
 P8,AI copilot minimum viable release,6,not_started,0,0,,Authorized navigation and draft accuracy
