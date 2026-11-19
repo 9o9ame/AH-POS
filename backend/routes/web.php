@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthSessionController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PartyController;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
 use App\Support\TenantContext;
@@ -65,4 +66,14 @@ Route::middleware(['auth', 'tenant.context', 'tenant.db-scope'])->group(function
         ->middleware('tenant.permission:products.read');
     Route::post('/api/tenants/{tenant}/products', [ProductController::class, 'store'])
         ->middleware('tenant.permission:products.create');
+});
+
+
+// Operational customer and supplier directory: active tenant membership,
+// transaction scope and explicit permissions required.
+Route::middleware(['auth', 'tenant.context', 'tenant.db-scope'])->group(function (): void {
+    Route::get('/api/tenants/{tenant}/parties', [PartyController::class, 'index'])
+        ->middleware('tenant.permission:parties.read');
+    Route::post('/api/tenants/{tenant}/parties', [PartyController::class, 'store'])
+        ->middleware('tenant.permission:parties.create');
 });
