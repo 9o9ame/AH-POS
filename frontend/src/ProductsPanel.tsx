@@ -1,8 +1,10 @@
+import { EntityModal, TableSkeleton } from './EntityModal';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { ApiError, createProduct, listProducts, listProductMasters, type Product, type ProductMaster, type TenantChoice } from './api';
 
 export function ProductsPanel({ tenant }: { tenant: TenantChoice }) {
   const [products, setProducts] = useState<Product[]>([]);
+  const [editorOpen, setEditorOpen] = useState(false);
   const [query, setQuery] = useState('');
   const blank = { sku: '', name: '', barcode: '', sale_price: '0.0000',
     category_ulid: '', subcategory_ulid: '', brand_ulid: '', unit_ulid: '' };
@@ -64,6 +66,7 @@ export function ProductsPanel({ tenant }: { tenant: TenantChoice }) {
         unit_ulid: input.unit_ulid || null,
       });
       setInput(blank);
+      setEditorOpen(false);
       setMessage(`Product "${created.name}" saved successfully.`);
       await refresh(query);
     } catch (error) {
@@ -86,13 +89,16 @@ export function ProductsPanel({ tenant }: { tenant: TenantChoice }) {
           <h2 id="catalog-title">Products — {tenant.name}</h2>
           <p>Tenant-scoped product catalog linked to category, brand and unit masters. Inventory and purchasing use these product SKUs.</p>
         </div>
-        <span className="catalog-count">{total} products</span>
+        <div className="dense-actions"><span className="catalog-count">{total} products</span>
+          <button type="button" className="list-create-button" onClick={() => setEditorOpen(true)}>+ Add Product</button>
+        </div>
       </div>
 
       {canRead && (
         <>
-          <form className="catalog-form" onSubmit={(event) => void add(event)}>
-            <h3>Add product</h3>
+          {editorOpen && <EntityModal title="Add Product" subtitle="Create an authorized catalog record in this Admin workspace." onClose={() => setEditorOpen(false)} busy={busy}>
+          <form className="catalog-form modal-entry-form" onSubmit={(event) => void add(event)}>
+            
             <div className="catalog-fields">
               <label>SKU
                 <input required maxLength={64} value={input.sku} onChange={e => setInput(v => ({ ...v, sku: e.target.value }))} placeholder="SKU-001" />
@@ -136,6 +142,7 @@ export function ProductsPanel({ tenant }: { tenant: TenantChoice }) {
             <button type="submit" disabled={busy}>{busy ? 'Saving…' : 'Save product'}</button>
           </form>
 
+          </EntityModal>}
           <form className="catalog-search" onSubmit={e => { e.preventDefault(); void refresh(query); }}>
             <label htmlFor="product-search">Search products</label>
             <div className="catalog-search-row">
@@ -158,7 +165,8 @@ export function ProductsPanel({ tenant }: { tenant: TenantChoice }) {
                 ))}
               </tbody>
             </table>
-            {products.length === 0 && <p>{searching ? 'Loading…' : 'No products found.'}</p>}
+            {searching && <TableSkeleton rows={4} cols={7}/ >}
+            {!searching && products.length === 0 && <p>No products found.</p>}
             {total > 30 && <p>Showing first 30 products. Pagination UI is pending.</p>}
           </div>
         </>
