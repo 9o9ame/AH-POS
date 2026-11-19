@@ -424,3 +424,62 @@ export function createPlatformStaff(input: {
 export function getPlatformAudit(): Promise<PlatformAuditRecord[]> {
   return getData<PlatformAuditRecord[]>('/api/platform/audit');
 }
+
+
+// Tenant Admin access management. Tenant staff are NEVER platform operators.
+export type TenantStaffRoleName = 'Cashier' | 'Purchaser' | 'Inventory Clerk' | 'Manager';
+export type TenantStaffRow = {
+  name:string;email:string;status:string;role:string|null;requires_device_approval:boolean;
+};
+export type TenantRoleTemplate = {name:TenantStaffRoleName;permissions:string[]};
+export type TenantDevice = {
+  ulid:string;device_name:string;status:'pending'|'approved'|'rejected'|'revoked';
+  requested_ip:string|null;approved_at:string|null;revoked_at:string|null;
+  created_at:string;staff_name:string;staff_email:string;
+};
+export type MyDeviceStatus = {
+  required:boolean;status:'unregistered'|'pending'|'approved'|'rejected'|'revoked';
+  device_ulid:string|null;device_name:string|null;
+};
+const tenantApi = (tenantUlid:string,resource:string) =>
+  `/api/tenants/${encodeURIComponent(tenantUlid)}/${resource}`;
+
+export function listTenantStaff(tenantUlid:string):Promise<TenantStaffRow[]> {
+  return getData<TenantStaffRow[]>(tenantApi(tenantUlid,'staff'));
+}
+export function listTenantRoleTemplates(tenantUlid:string):Promise<TenantRoleTemplate[]> {
+  return getData<TenantRoleTemplate[]>(tenantApi(tenantUlid,'staff/role-templates'));
+}
+export function createTenantStaff(tenantUlid:string,input:{
+  name:string;email:string;password:string;role:TenantStaffRoleName;
+}):Promise<TenantStaffRow>{
+  return post<DataResponse<TenantStaffRow>>(tenantApi(tenantUlid,'staff'),input).then(v=>v.data);
+}
+async function patchData<T>(url:string,payload:object):Promise<T>{
+  const csrf=await csrfToken();
+  const result=await fetch(url,{method:'PATCH',credentials:'same-origin',
+    headers:{Accept:'application/json','Content-Type':'application/json','X-CSRF-TOKEN':csrf},
+    body:JSON.stringify(payload)});
+  return (await readJson<DataResponse<T>>(result)).data;
+}
+export function setTenantStaffStatus(tenantUlid:string,email:string,status:'active'|'suspended'):
+  Promise<{email:string;status:string}>{
+  return patchData(tenantApi(tenantUlid,'staff/'+encodeURIComponent(email)+'/status'),{status});
+}
+export function listTenantDevices(tenantUlid:string):Promise<TenantDevice[]>{
+  return getData<TenantDevice[]>(tenantApi(tenantUlid,'devices'));
+}
+export function decideTenantDevice(tenantUlid:string,deviceUlid:string,decision:'approve'|'reject'|'revoke'):
+  Promise<{ulid:string;status:string}>{
+  return post<DataResponse<{ulid:string;status:string}>>(
+    tenantApi(tenantUlid,'devices/'+encodeURIComponent(deviceUlid)+'/decision'),{decision},
+  ).then(v=>v.data);
+}
+export function myTenantDeviceStatus(tenantUlid:string):Promise<MyDeviceStatus>{
+  return getData<MyDeviceStatus>(tenantApi(tenantUlid,'device/status'));
+}
+export function requestTenantDevice(tenantUlid:string,deviceName:string):Promise<{device_ulid:string;status:string}>{
+  return post<DataResponse<{device_ulid:string;status:string}>>(
+    tenantApi(tenantUlid,'device/request'),{device_name:deviceName},
+  ).then(v=>v.data);
+}
