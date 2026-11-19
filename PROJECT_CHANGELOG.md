@@ -106,3 +106,11 @@
 - Added `ahpos:rls-preflight` read-only Artisan command examining active role flags, RBAC table ownership and catalog RLS ENABLE/FORCE/policy status. It reports NOT READY without modifying data.
 - Added one read-only feature test for report behavior, pending local execution. No database migrations or privilege changes.
 - Current PostgreSQL role remains table owner; true RLS enforcement under separate non-owner runtime role remains incomplete.
+
+## 2026-11-19 — Actual operational catalog delivery and new-machine setup
+- Responded to urgent 10-working-day constraint by moving from repetitive test checks to functional POS MVP priority.
+- Added tenant-owned product table migration, decimal-safe selling price column, SKU/barcode uniqueness, active flag and ULID.
+- Implemented scoped product list/search and create endpoints, permission allowlist, React product creation/search table after tenant selection, and explicit local-only catalog role grant command.
+- Added a single critical PostgreSQL rollback feature test for product authorization, forged tenant ownership and duplicate SKU.
+- Added `docs/NEW_WINDOWS_DEV_SETUP.md` with clean clone, PostgreSQL, Laravel, React, account and permission setup. No new local machine migration/build or runtime verification yet. Existing test/tenant from old PC not implicitly transferred.
+- Full finance/inventory, production security/RLS and deployment acceptance still pending.
