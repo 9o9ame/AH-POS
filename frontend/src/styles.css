@@ -876,3 +876,9 @@ button:not(:disabled):active{transform:scale(.985)}
 .master-state-inactive{background:#f1f4f7;color:#8994a3}
 @media(max-width:1120px){.definition-master-grid{grid-template-columns:1fr}.definition-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:610px){.definition-tabs{grid-template-columns:1fr 1fr}.definition-tab{padding:11px!important;gap:7px}.definition-tab small{display:none}}
+
+.command-item.command-planned{opacity:.56;cursor:not-allowed;background:#f8fafd!important}
+.command-item.command-planned:hover{transform:none!important}
+.command-pending{font-size:10px;font-weight:800;color:#8394a7;background:#edf1f5;border-radius:6px;padding:5px 7px;white-space:nowrap}
+.command-description{min-width:0}
+.command-description small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
