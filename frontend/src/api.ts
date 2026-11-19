@@ -158,7 +158,7 @@ export type StockBalance = {
   product_ulid: string; sku: string; product_name: string; quantity: string;
 };
 export type StockMovement = {
-  ulid: string; type: 'opening' | 'receipt'; quantity: string;
+  ulid: string; type: 'opening' | 'receipt' | 'sale' | 'sale_return'; quantity: string;
   unit_cost: string; note: string | null; created_at: string;
   product_name: string; warehouse_name: string;
 };
