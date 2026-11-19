@@ -3,7 +3,7 @@ import type { AppIconName } from './AppIcon';
 export type ModuleId = 'overview' | 'definitions' | 'daily' | 'reports' | 'tools' | 'administration' | 'help';
 export type WorkspacePage =
   | 'dashboard' | 'products' | 'masters' | 'customers' | 'suppliers' | 'inventory'
-  | 'purchases' | 'sales' | 'held' | 'returns' | 'cash' | 'reports';
+  | 'purchases' | 'sales' | 'held' | 'returns' | 'cash' | 'reports' | 'staff';
 export type ModuleItem = {
   id: string;
   name: string;
@@ -122,9 +122,9 @@ export const modules: ModuleDefinition[] = [
       item('company', 'Business / Tenant Profile', 'BUSINESS SETUP', 'Legal profile, defaults and permitted settings', 'warehouse'),
       item('branches-admin', 'Branch Management', 'BUSINESS SETUP', 'Branch access and location configuration', 'warehouse'),
       item('warehouse-admin', 'Warehouse Operations', 'BUSINESS SETUP', 'Current locations and inventory activity', 'warehouse', 'inventory'),
-      item('users', 'Users & Staff', 'ACCESS & SECURITY', 'Invite and manage staff lifecycle', 'people'),
-      item('roles', 'Roles & Permissions', 'ACCESS & SECURITY', 'RBAC administration and audit', 'shield'),
-      item('devices', 'Device Management', 'ACCESS & SECURITY', 'Register and revoke POS devices', 'shield'),
+      item('users', 'Users & Staff', 'ACCESS & SECURITY', 'Create tenant staff and suspend access', 'people', 'staff'),
+      item('roles', 'Roles & Permissions', 'ACCESS & SECURITY', 'View fixed cashier, purchaser, inventory, manager roles', 'shield', 'staff'),
+      item('devices', 'Device Management', 'ACCESS & SECURITY', 'Review, approve and revoke staff devices', 'shield', 'staff'),
       item('session-security', 'Sessions & Security', 'ACCESS & SECURITY', 'Session revocation and access policy', 'shield'),
       item('audit', 'Audit Trail', 'ACCESS & SECURITY', 'Tamper-aware event history', 'reports'),
       item('appearance', 'Themes & Appearance', 'PREFERENCES', 'Light/dark, density and interface style', 'settings'),
@@ -153,6 +153,7 @@ export function moduleForPage(page: WorkspacePage): ModuleId {
     case 'products': case 'masters': case 'customers': case 'suppliers': return 'definitions';
     case 'purchases': case 'sales': case 'held': case 'returns': case 'cash': case 'inventory': return 'daily';
     case 'reports': return 'reports';
+    case 'staff': return 'administration';
     default: return 'overview';
   }
 }
