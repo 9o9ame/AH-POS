@@ -12,6 +12,7 @@ export type WorkWindow = {
   number: number;
   dirty: boolean;
   initialHold?: SaleHold;
+  savedHoldUlid?: string;
 };
 
 type Props = {
@@ -23,7 +24,7 @@ type Props = {
   minimize: () => void;
   close: (id: string) => void;
   markDirty: (id: string, dirty: boolean) => void;
-  onHoldsChanged: () => void;
+  onHoldsChanged: (windowId: string, holdUlid?: string) => void;
 };
 
 function WindowContent({ kind, tenant, onDirtyChange, active, initialHold, windowLabel, onHoldsChanged, onMinimize }: {
@@ -33,7 +34,7 @@ function WindowContent({ kind, tenant, onDirtyChange, active, initialHold, windo
   active: boolean;
   initialHold?: SaleHold;
   windowLabel: string;
-  onHoldsChanged: () => void;
+  onHoldsChanged: (holdUlid?: string) => void;
   onMinimize: () => void;
 }) {
   return kind === 'sale'
@@ -102,7 +103,7 @@ export function TransactionWorkbench({
           <div className="work-window-body">
             <WindowContent kind={item.kind} tenant={tenant} active={item.id === activeId}
               initialHold={item.initialHold} windowLabel={item.label}
-              onHoldsChanged={onHoldsChanged} onMinimize={minimize}
+              onHoldsChanged={holdUlid => onHoldsChanged(item.id, holdUlid)} onMinimize={minimize}
               onDirtyChange={dirty => markDirty(item.id, dirty)}/>
           </div>
           <footer className="work-window-status">
