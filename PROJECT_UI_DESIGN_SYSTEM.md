@@ -26,3 +26,8 @@ Approve unique design direction (logo, palette, navigation, component style), bu
 - New `frontend/src/styles.css` global tokens: navy sidebar, teal action/accent, soft gray workspace, white cards, Manrope/DM Sans typography with system fallback, responsive nav and accessible focus states.
 - Shared visual building blocks: `AppIcon`, `App` nav/tenant shell, `DashboardPanel`, metric cards and table/card styling. Existing product/party/inventory modules reuse this design without copied BluePOS branding.
 - User requested a recognizable full POS application appearance rather than a narrow engineering demo. This batch is **implemented_unverified** until browser screenshot/review; final logo, palette and component geometry still need explicit signoff. Do not mark P2 accepted on source-only evidence.
+
+## 2026-11-19 — Premium UX iteration (pending user visual approval)
+- 2026 researched direction: command-first navigation, calm-density business data, meaningful motion, restrained translucent control surfaces, strong keyboard accessibility. No verifiable universal visual style called "V7" or "V24"; use actual reference URLs/screenshots if the user specifies them.
+- Implementation: `CommandPalette.tsx`, Ctrl/Cmd+K search/arrow/Enter/Escape, top-bar search affordance; CSS tokens `--ease-expressive`, `--motion-short/medium`, translucent sticky header and modal backdrop; subtle cards, navigation, toast motion and `prefers-reduced-motion` fallbacks.
+- Favor cashier speed, 60fps transforms/opacity, measurable interaction responsiveness, readable dense stock/sales tables over broad glass/blur decoration. UI remains NOT approved or locally visually verified for this commit.
