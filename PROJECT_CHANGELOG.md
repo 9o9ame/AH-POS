@@ -235,3 +235,6 @@ Added `php artisan ahpos:create-platform-superadmin` local-only CLI to create a 
 
 ## 2026-11-19 — Respect minimum-3 local Super Admin bootstrap password policy
 - User reports local first-run dedicated Super Admin CLI rejected entered credentials; requirement is minimum 3 characters, with no symbol/case/number rules for local test credentials. Corrected both CLI bootstrap and role-transfer password validators/prompts to minimum 3 only. Kept confirmation, email uniqueness and local-only database guard. Source committed; local rerun pending; no migrations.
+
+## 2026-11-19 — Platform-only Super Admin created on local development DB
+User verified successful first-time `ahpos:create-platform-superadmin`: a dedicated Platform-only account (Anwaar) created with Platform Super Admin authority and no business tenant membership. Prior `min:3` local-password fix worked. Account credentials excluded from repository notes. Browser Platform sign-in remains to be checked; no migrations or test reruns needed.
