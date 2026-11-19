@@ -162,3 +162,10 @@
 - Linked new cashier sales and refunds to active shifts, without silently including old transactions; warehouse/row locks synchronize posting with closing.
 - Added scoped open/list/close cash shift APIs, fixed known permission allowlist and local demo grants, PostgreSQL NUMERIC cash movement summaries/closing variance.
 - Added polished Cash Register React page, sidebar/Ctrl+K routing, mobile CSS and close audit history, plus one focused `CashShiftWorkflowTest`. Source committed, **pending** user migration/test and browser verification; not GL/cash deposit reconciliation.
+
+## 2026-11-19 — BluePOS-informed desktop multi-invoice operations, Hold/Get and cashier switching
+- User local evidence: cash shift migration DONE and `CashShiftWorkflowTest` PASS (1 test, 21 assertions); browser screenshot confirms Main Store open shift.
+- Introduced `TransactionWorkbench` (maximized modal invoice windows, persistent task dock, independent Sale and Purchase carts, maximize-like workspace, F2 and Shift+F2, minimize, restore, discard warning), `TransactionHome` and new topbar/sidebar navigation. Existing POS and Purchasing functional components reused; each preserves its own submission/idempotency state and refreshes live data on activation.
+- Added database-persisted `held_sales`, cashier-scoped protected Save Hold/Get/Discard API, saved-bill selector, local pilot financial guard, per-hold uniqueness and consumption upon successful sale. Held bill never reserves stock. New test `HeldSaleWorkflowTest` added; pending migration/browser/test.
+- Improved cancelable live server catalog searches in POS and Purchasing. AH-POS original UI preserved; BluePOS consulted for workflow, not cloned artwork/SQL Server database.
+- Production blockers and source status documented; no old tests rerun, no fake accepted completion claims.
