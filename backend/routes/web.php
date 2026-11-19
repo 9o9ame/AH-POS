@@ -5,6 +5,8 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PartyController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\SaleController;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
 use App\Support\TenantContext;
@@ -92,4 +94,20 @@ Route::middleware(['auth', 'tenant.context', 'tenant.db-scope'])->group(function
         ->middleware('tenant.permission:inventory.read');
     Route::post('/api/tenants/{tenant}/inventory/receive', [InventoryController::class, 'receive'])
         ->middleware('tenant.permission:inventory.receive');
+});
+
+
+// Local-only finance-pilot posting is guarded inside controllers until GL/tax approval.
+// Every endpoint still authenticates, verifies tenant and checks specific role access.
+Route::middleware(['auth', 'tenant.context', 'tenant.db-scope'])->group(function (): void {
+    Route::get('/api/tenants/{tenant}/purchases', [PurchaseController::class, 'index'])
+        ->middleware('tenant.permission:purchases.read');
+    Route::post('/api/tenants/{tenant}/purchases', [PurchaseController::class, 'store'])
+        ->middleware('tenant.permission:purchases.create');
+    Route::get('/api/tenants/{tenant}/sales', [SaleController::class, 'index'])
+        ->middleware('tenant.permission:sales.read');
+    Route::post('/api/tenants/{tenant}/sales', [SaleController::class, 'store'])
+        ->middleware('tenant.permission:sales.create');
+    Route::get('/api/tenants/{tenant}/sales/{sale}', [SaleController::class, 'show'])
+        ->middleware('tenant.permission:sales.read');
 });
