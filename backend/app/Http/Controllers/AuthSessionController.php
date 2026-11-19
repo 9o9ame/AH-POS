@@ -19,6 +19,9 @@ final class AuthSessionController extends Controller
             return response()->json(['message' => 'Invalid credentials.'], 401);
         }
 
+        // A business workspace login invalidates a prior Platform session.
+        // Only one security realm can be active in the same browser cookie.
+        $request->session()->forget('platform_user_id');
         $request->session()->regenerate();
 
         return response()->json(['data' => [
