@@ -1387,3 +1387,37 @@ body > .entity-modal-backdrop .list-create-button {
   body > .entity-modal-backdrop > .entity-modal { max-height:95dvh; }
   body > .entity-modal-backdrop .entity-modal-body { padding:14px; }
 }
+
+/* Platform business register: constrained, searchable, action-oriented list. */
+.platform-register-toolbar {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:4px 0 13px;
+}
+.platform-register-toolbar input {
+  flex:1 1 240px;
+  width:100%;
+  max-width:410px;
+  min-height:34px;
+  padding:8px 11px;
+  border:1px solid #dce7ec;
+  border-radius:8px;
+  background:#fff;
+  font-size:11px;
+}
+.platform-register-toolbar select {
+  min-height:34px;
+  width:auto;
+  min-width:130px;
+  padding:7px 10px;
+  border:1px solid #dce7ec;
+  border-radius:8px;
+  background:#fff;
+  font-size:11px;
+}
+.platform-register-toolbar .count-pill {margin-left:auto}
+.platform-console .data-table td:last-child {white-space:nowrap}
+.platform-console .data-table td:last-child .btn-ghost {margin:2px 5px 2px 0}
+body > .entity-modal-backdrop .inline-alert {margin:0 0 12px;line-height:1.5}
