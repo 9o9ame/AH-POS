@@ -243,3 +243,16 @@ export function getSaleReceipt(tenantUlid: string, saleUlid: string): Promise<Sa
     `/api/tenants/${encodeURIComponent(tenantUlid)}/sales/${encodeURIComponent(saleUlid)}`,
   );
 }
+
+export type OperationsReport = {
+  cash_sales: { count: number; total: string };
+  purchases: { count: number; total: string };
+  stocked_product_locations: number;
+  daily_cash_sales: { day: string; sale_count: number; total: string }[];
+  disclaimer: string;
+};
+export function getOperationsReport(tenantUlid: string): Promise<OperationsReport> {
+  return getData<OperationsReport>(
+    `/api/tenants/${encodeURIComponent(tenantUlid)}/reports/operations`,
+  );
+}
