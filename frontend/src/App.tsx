@@ -12,10 +12,9 @@ import { ReportsPanel } from './ReportsPanel';
 import { ProductsPanel } from './ProductsPanel';
 import { ProductMastersPanel } from './ProductMastersPanel';
 import { PartiesPanel } from './PartiesPanel';
-import { PlatformPanel } from './PlatformPanel';
 import { StaffSecurityPanel } from './StaffSecurityPanel';
 import { DevicePendingPanel } from './DevicePendingPanel';
-import { ApiError, getPlatformSession, login, logout, me, myTenants, tenantContext, type PlatformSession, type ProductMasterKind, type Profile, type SaleHold, type TenantChoice } from './api';
+import { ApiError, login, logout, me, myTenants, tenantContext, type ProductMasterKind, type Profile, type SaleHold, type TenantChoice } from './api';
 
 type Screen = 'loading' | 'guest' | 'authenticated' | 'unavailable';
 type Page = WorkspacePage;
@@ -25,8 +24,6 @@ export function App() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [tenants, setTenants] = useState<TenantChoice[]>([]);
   const [selected, setSelected] = useState<TenantChoice | null>(null);
-  const [platformSession, setPlatformSession] = useState<PlatformSession | null>(null);
-  const [platformOpen, setPlatformOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [page, setPage] = useState<Page>('dashboard');
@@ -142,12 +139,9 @@ export function App() {
     let cancelled = false;
     void me().then(async user => {
       const choices = await myTenants();
-      const platform = await getPlatformSession().catch(() => null);
       if (!cancelled) {
         setProfile(user);
         setTenants(choices);
-        setPlatformSession(platform);
-        setPlatformOpen(choices.length === 0 && platform !== null);
         setScreen('authenticated');
         // An Admin/staff user with one authorized business goes directly home.
         // Always verify server membership again; never assume client selection is authorization.
@@ -177,7 +171,7 @@ export function App() {
 
   useEffect(() => {
     function onKeyboard(event: KeyboardEvent) {
-      if (selected && !platformOpen && event.key === 'F2' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      if (selected && event.key === 'F2' && !event.ctrlKey && !event.metaKey && !event.altKey) {
         event.preventDefault();
         openWorkWindow(event.shiftKey ? 'purchase' : 'sale');
       } else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
@@ -199,9 +193,7 @@ export function App() {
     try {
       const user = await login(email.trim(), password);
       const choices = await myTenants();
-      const platform = await getPlatformSession().catch(() => null);
-      setProfile(user); setTenants(choices); setPlatformSession(platform);
-      setPlatformOpen(choices.length === 0 && platform !== null); setPassword('');
+      setProfile(user); setTenants(choices); setPassword('');
       setSelected(null); setPendingDeviceTenant(null); setPage('dashboard'); setActiveModule('overview'); setDirectoryOpen(false); setPinnedModule(null); setHoveredModule(null); setSidebarOpen(false); setScreen('authenticated');
       if (choices.length === 1) {
         setAutoSelecting(true);
@@ -238,7 +230,7 @@ export function App() {
     setBusy(true); setMessage('');
     try {
       await logout();
-      setProfile(null); setTenants([]); setSelected(null); setPendingDeviceTenant(null); setPlatformSession(null); setPlatformOpen(false); setPage('dashboard'); setActiveModule('overview'); setDirectoryOpen(false); setPinnedModule(null); setHoveredModule(null); setSidebarOpen(false); setScreen('guest');
+      setProfile(null); setTenants([]); setSelected(null); setPendingDeviceTenant(null); setPage('dashboard'); setActiveModule('overview'); setDirectoryOpen(false); setPinnedModule(null); setHoveredModule(null); setSidebarOpen(false); setScreen('guest');
     } catch {
       setMessage('Logout could not be confirmed. Retry.');
     } finally { setBusy(false); }
@@ -361,11 +353,11 @@ export function App() {
   }
 
   return <div className="app-frame compact-shell">
-    <CommandPalette open={commandOpen && selected !== null && !platformOpen} close={() => setCommandOpen(false)} navigate={navigate} />
+    <CommandPalette open={commandOpen && selected !== null} close={() => setCommandOpen(false)} navigate={navigate} />
     <aside className={`app-sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}
       aria-label={moduleById(visibleSidebarModule).title + ' submenu'}
       onMouseEnter={enterSidebar}
-      onMouseLeave={leaveSidebar} style={{display: platformOpen ? 'none' : undefined}}>
+      onMouseLeave={leaveSidebar}>
       <div className="sidebar-brand">
         <span className="brand-mark">A<span>H</span></span>
         <span className="brand-text">AH POS<small>OPERATIONS SUITE</small></span>
@@ -407,29 +399,14 @@ export function App() {
       </div>
     </aside>
     <div className="app-main">
-      {platformOpen && platformSession && <nav className="enterprise-ribbon platform-topnav" aria-label="Platform navigation">
-        <strong><AppIcon name="shield" size={19}/> AH POS Platform</strong>
-        <div className="platform-topnav-actions">
-          {tenants.length > 0 && <button type="button" onClick={() => {
-            setPlatformOpen(false); setPage('dashboard'); setActiveModule('overview');
-          }}>Admin workspace</button>}
-          <span>{profile?.name}</span>
-        </div>
-      </nav>}
-      {!platformOpen && selected && <ModuleRibbon activeModule={activeModule} pinnedModule={pinnedModule}
+      {selected && <ModuleRibbon activeModule={activeModule} pinnedModule={pinnedModule}
         previewModule={hoveredModule} choose={chooseModule} preview={previewRibbonModule}
         leave={leaveRibbon} home={showHome}
-        profileName={profile?.name} workspaceName={selected.name}
-        onPlatform={platformSession ? () => {
-          if (!clearWorkWindows()) return;
-          setPlatformOpen(true); setSidebarOpen(false); setPinnedModule(null); setHoveredModule(null);
-          setActiveWindowId(null);
-        } : undefined}/>}
+        profileName={profile?.name} workspaceName={selected.name}/>}
       <main className="workspace-main">
-        {!platformOpen && pendingDeviceTenant ? <DevicePendingPanel tenant={pendingDeviceTenant}
+        {pendingDeviceTenant ? <DevicePendingPanel tenant={pendingDeviceTenant}
           onApproved={verified => {setSelected(verified); setPendingDeviceTenant(null);setPage('dashboard');}}
           onSignOut={() => {void submitLogout();}}/> :
-        platformOpen && platformSession ? <PlatformPanel session={platformSession} onSignOut={() => {void submitLogout();}}/> :
         !selected && autoSelecting ? <div className="tenant-picker"><div className="skeleton-cell" style={{width:'45%',height:24}}/>
           <p>Verifying your Admin workspace…</p></div> :
         !selected ? <div className="tenant-picker">
