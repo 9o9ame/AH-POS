@@ -1,10 +1,9 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { AppIcon, type AppIconName } from './AppIcon';
 import { CommandPalette } from './CommandPalette';
 import { DashboardPanel } from './DashboardPanel';
 import { InventoryPanel } from './InventoryPanel';
-import { PurchasingPanel } from './PurchasingPanel';
-import { PosPanel } from './PosPanel';
+import { TransactionHome, TransactionWorkbench, type WorkKind, type WorkWindow } from './TransactionWorkbench';
 import { ReturnsPanel } from './ReturnsPanel';
 import { CashRegisterPanel } from './CashRegisterPanel';
 import { ReportsPanel } from './ReportsPanel';
@@ -37,8 +36,66 @@ export function App() {
   const [page, setPage] = useState<Page>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [commandOpen, setCommandOpen] = useState(false);
+  const [workWindows, setWorkWindows] = useState<WorkWindow[]>([]);
+  const [activeWindowId, setActiveWindowId] = useState<string | null>(null);
+  const nextWindowNumber = useRef({sale: 1, purchase: 1});
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
+
+  const openWorkWindow = useCallback((kind: WorkKind) => {
+    const number = nextWindowNumber.current[kind]++;
+    const id = crypto.randomUUID();
+    setWorkWindows(previous => [...previous, {
+      id, kind, number, label: (kind === 'sale' ? 'Sale' : 'Purchase') + ' #' + number,
+      dirty: false,
+    }]);
+    setActiveWindowId(id);
+    setPage(kind === 'sale' ? 'sales' : 'purchases');
+    setSidebarOpen(false);
+    setCommandOpen(false);
+  }, []);
+
+  const minimizeWorkWindow = useCallback(() => {
+    setActiveWindowId(null);
+  }, []);
+
+  const markWindowDirty = useCallback((id: string, dirty: boolean) => {
+    setWorkWindows(previous => {
+      const item = previous.find(window => window.id === id);
+      if (!item || item.dirty === dirty) return previous;
+      return previous.map(window => window.id === id ? {...window, dirty} : window);
+    });
+  }, []);
+
+  const closeWorkWindow = useCallback((id: string) => {
+    setWorkWindows(previous => {
+      const item = previous.find(window => window.id === id);
+      if (!item) return previous;
+      if (item.dirty && !window.confirm('Discard this unposted ' + item.label +
+          '? Its cart and unsaved values will be lost.')) return previous;
+      return previous.filter(window => window.id !== id);
+    });
+    setActiveWindowId(current => current === id ? null : current);
+  }, []);
+
+  function clearWorkWindows(): boolean {
+    if (workWindows.some(window => window.dirty)
+        && !window.confirm('Unposted sale or purchase windows are open. Discard their drafts and change workspace?')) {
+      return false;
+    }
+    setWorkWindows([]);
+    setActiveWindowId(null);
+    nextWindowNumber.current = {sale: 1, purchase: 1};
+    return true;
+  }
+
+  useEffect(() => {
+    function onBeforeUnload(event: BeforeUnloadEvent) {
+      if (workWindows.some(window => window.dirty)) event.preventDefault();
+    }
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, [workWindows]);
 
   useEffect(() => {
     let cancelled = false;
@@ -59,7 +116,10 @@ export function App() {
 
   useEffect(() => {
     function onKeyboard(event: KeyboardEvent) {
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+      if (selected && event.key === 'F2' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        event.preventDefault();
+        openWorkWindow(event.shiftKey ? 'purchase' : 'sale');
+      } else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault();
         setCommandOpen(open => !open);
       } else if (event.key === 'Escape') {
@@ -69,7 +129,7 @@ export function App() {
     }
     window.addEventListener('keydown', onKeyboard);
     return () => window.removeEventListener('keydown', onKeyboard);
-  }, []);
+  }, [selected, openWorkWindow]);
 
   async function submitLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setBusy(true); setMessage('');
@@ -87,6 +147,7 @@ export function App() {
   }
 
   async function chooseTenant(choice: TenantChoice) {
+    if (!clearWorkWindows()) return;
     setBusy(true); setMessage('');
     try {
       const verified = await tenantContext(choice.ulid);
@@ -97,6 +158,7 @@ export function App() {
   }
 
   async function submitLogout() {
+    if (!clearWorkWindows()) return;
     setBusy(true); setMessage('');
     try {
       await logout();
@@ -107,6 +169,8 @@ export function App() {
   }
 
   function navigate(next: Page) {
+    if (next === 'sales') { openWorkWindow('sale'); return; }
+    if (next === 'purchases') { openWorkWindow('purchase'); return; }
     setPage(next);
     setSidebarOpen(false);
     setCommandOpen(false);
@@ -186,6 +250,14 @@ export function App() {
         <div className="top-left">
           <button type="button" className="mobile-menu" aria-label="Toggle navigation" onClick={() => setSidebarOpen(v => !v)}><AppIcon name="menu" /></button>
           <div className="breadcrumb"><span>Workspace</span><span className="crumb-sep">/</span><strong>{pages.find(item => item.id === page)?.label}</strong></div>
+          {selected && <div className="top-invoice-actions">
+            <button type="button" onClick={() => openWorkWindow('sale')} title="New sale (F2)">
+              <AppIcon name="sales" size={16}/> Sale <kbd>F2</kbd>
+            </button>
+            <button type="button" onClick={() => openWorkWindow('purchase')} title="New purchase (Shift+F2)">
+              <AppIcon name="truck" size={16}/> Purchase
+            </button>
+          </div>}
         </div>
         <div className="top-right">
           {selected && <button className="top-search" type="button" aria-label="Quick navigation, Ctrl K" onClick={() => setCommandOpen(true)}>
@@ -224,7 +296,10 @@ export function App() {
                 page === 'cash' ? 'Open a cashier shift, count physical cash and reconcile closing.' :
                 page === 'reports' ? 'Live operational sales and purchasing insights.' : 'Module in development.'}</p>
             </div>
-            <button className="workspace-switch" type="button" onClick={() => { setSelected(null); setPage('dashboard'); }}>
+            <button className="workspace-switch" type="button" onClick={() => {
+              if (!clearWorkWindows()) return;
+              setSelected(null); setPage('dashboard');
+            }}>
               <AppIcon name="warehouse" size={16} /><span>{selected.name}</span><AppIcon name="chevron" size={15} />
             </button>
           </div>
@@ -233,13 +308,19 @@ export function App() {
           {page === 'customers' && <PartiesPanel key={selected.ulid + '-customer'} tenant={selected} initialType="customer" />}
           {page === 'suppliers' && <PartiesPanel key={selected.ulid + '-supplier'} tenant={selected} initialType="supplier" />}
           {page === 'inventory' && <InventoryPanel key={selected.ulid} tenant={selected} />}
-          {page === 'purchases' && <PurchasingPanel key={selected.ulid} tenant={selected} />}
-          {page === 'sales' && <PosPanel key={selected.ulid} tenant={selected} />}
+          {page === 'purchases' && <TransactionHome kind="purchase" windows={workWindows}
+            open={openWorkWindow} activate={setActiveWindowId} />}
+          {page === 'sales' && <TransactionHome kind="sale" windows={workWindows}
+            open={openWorkWindow} activate={setActiveWindowId} />}
           {page === 'returns' && <ReturnsPanel key={selected.ulid} tenant={selected} />}
           {page === 'cash' && <CashRegisterPanel key={selected.ulid} tenant={selected} />}
           {page === 'reports' && <ReportsPanel key={selected.ulid} tenant={selected} />}
         </>}
       </main>
     </div>
+    {selected && <TransactionWorkbench tenant={selected} windows={workWindows}
+      activeId={activeWindowId} open={openWorkWindow}
+      activate={setActiveWindowId} minimize={minimizeWorkWindow}
+      close={closeWorkWindow} markDirty={markWindowDirty} />}
   </div>;
 }
