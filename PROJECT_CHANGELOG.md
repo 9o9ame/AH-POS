@@ -180,3 +180,6 @@
 ## 2026-11-19 — Fix definitions master permission registration
 - Verified user evidence: migration 000010 completed; ProductDefinitionMastersTest returned 403 at first category create.
 - Root cause: definition read/manage keys were included only in local-demo permissions, missing from canonical `TenantPermissions::known()`. Added them to known list so normal explicitly-assigned roles can pass RBAC check. Scoped access remains default-deny; focused test rerun pending.
+
+## 2026-11-19 — Correct expected foreign tenant denial in Definitions test
+- Existing ResolveTenantContext returns HTTP 404 when the caller has no active membership of the selected tenant; existing TenantAccessTest asserts this behavior. Definitions integration test had incorrectly expected 403 for this case. Updated test to expect 404, with comment documenting intentional tenant existence concealment. No data migrations or authorization relaxation.
