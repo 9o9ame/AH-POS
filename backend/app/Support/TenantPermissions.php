@@ -93,6 +93,8 @@ final class TenantPermissions
             'tenant.members.manage',
             'products.read',
             'products.create',
+            'definitions.read',
+            'definitions.manage',
             'parties.read',
             'parties.create',
             'warehouses.read',
