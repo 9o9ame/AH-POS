@@ -2,7 +2,7 @@ import type { AppIconName } from './AppIcon';
 
 export type ModuleId = 'overview' | 'definitions' | 'daily' | 'reports' | 'tools' | 'administration' | 'help';
 export type WorkspacePage =
-  | 'dashboard' | 'products' | 'customers' | 'suppliers' | 'inventory'
+  | 'dashboard' | 'products' | 'masters' | 'customers' | 'suppliers' | 'inventory'
   | 'purchases' | 'sales' | 'held' | 'returns' | 'cash' | 'reports';
 export type ModuleItem = {
   id: string;
@@ -45,10 +45,10 @@ export const modules: ModuleDefinition[] = [
     items: [
       item('products', 'Products', 'PRODUCT MASTER', 'SKUs, barcodes and selling prices', 'products', 'products'),
       item('products-grid', 'Tabular Product View', 'PRODUCT MASTER', 'Editable product grid, mass updates and import', 'inventory'),
-      item('categories', 'Categories', 'PRODUCT MASTER', 'Product classification and hierarchy', 'package'),
-      item('subcategories', 'Sub Categories', 'PRODUCT MASTER', 'Nested product classification', 'package'),
-      item('brands', 'Brands', 'PRODUCT MASTER', 'Brand master list', 'products'),
-      item('units', 'Units & Conversions', 'PRODUCT MASTER', 'Base and secondary units, pack factors', 'inventory'),
+      item('categories', 'Categories', 'PRODUCT MASTER', 'Product classification and hierarchy', 'package', 'masters'),
+      item('subcategories', 'Sub Categories', 'PRODUCT MASTER', 'Nested product classification', 'package', 'masters'),
+      item('brands', 'Brands', 'PRODUCT MASTER', 'Brand master list', 'products', 'masters'),
+      item('units', 'Units', 'PRODUCT MASTER', 'Base unit definitions (conversions pending)', 'inventory', 'masters'),
       item('multiple-barcodes', 'Multiple Barcodes', 'PRODUCT MASTER', 'Barcode-to-unit mapping and labels', 'search'),
       item('price-lists', 'Price Lists', 'PRODUCT MASTER', 'Retail, wholesale and customer prices', 'sales'),
       item('vendors', 'Vendors / Suppliers', 'BUSINESS PARTNERS', 'Supplier contact directory', 'truck', 'suppliers'),
@@ -150,7 +150,7 @@ export const moduleById = (id: ModuleId): ModuleDefinition =>
 
 export function moduleForPage(page: WorkspacePage): ModuleId {
   switch (page) {
-    case 'products': case 'customers': case 'suppliers': return 'definitions';
+    case 'products': case 'masters': case 'customers': case 'suppliers': return 'definitions';
     case 'purchases': case 'sales': case 'held': case 'returns': case 'cash': case 'inventory': return 'daily';
     case 'reports': return 'reports';
     default: return 'overview';
