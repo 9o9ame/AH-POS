@@ -22,7 +22,6 @@ return new class extends Migration
 
             $table->index(['tenant_id', 'type', 'name']);
             $table->unique(['tenant_id', 'id']);
-            $table->check("type IN ('customer', 'supplier')");
         });
     }
 
