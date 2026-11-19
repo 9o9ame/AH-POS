@@ -115,7 +115,7 @@ final class SaleReturnController extends Controller
 
         foreach ($items as $item) {
             DB::table('sale_return_lines')->insert([
-                'tenant_id' => $tenantId, 'return_id' => $returnId,
+                'tenant_id' => $tenantId, 'return_id' => $returnId, 'sale_id' => $sale->id,
                 'sale_line_id' => $item['sale_line_id'], 'product_id' => $item['product_id'],
                 'ulid' => (string) Str::ulid(), 'quantity' => $item['quantity'],
                 'unit_price' => $item['unit_price'], 'refund_total' => $item['refund_total'],
