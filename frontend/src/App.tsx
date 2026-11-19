@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { ProductsPanel } from './ProductsPanel';
+import { PartiesPanel } from './PartiesPanel';
 import {
   ApiError, login, logout, me, myTenants, tenantContext,
   type Profile, type TenantChoice,
@@ -147,11 +148,12 @@ export function App() {
             {selected && <p role="status">Authorized context: <strong>{selected.name}</strong>.</p>}
           </section>
           {selected && <ProductsPanel key={selected.ulid} tenant={selected} />}
+          {selected && <PartiesPanel key={selected.ulid} tenant={selected} />}
         </>
       )}
 
       {message && <p className="notice" role="alert">{message}</p>}
-      <footer>Local test environment. Product catalog only; sales posting, stock movements and accounting are not yet available.</footer>
+      <footer>Local test environment. Catalog and contact directories available; stock, sales posting and accounting are not yet implemented.</footer>
     </main>
   );
 }
