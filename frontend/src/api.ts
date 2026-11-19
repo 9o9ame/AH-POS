@@ -150,3 +150,47 @@ export async function createParty(
     },
   )).data;
 }
+
+
+export type Warehouse = { ulid: string; code: string; name: string; is_active: boolean };
+export type StockBalance = {
+  warehouse_ulid: string; warehouse_name: string;
+  product_ulid: string; sku: string; product_name: string; quantity: string;
+};
+export type StockMovement = {
+  ulid: string; type: 'opening' | 'receipt'; quantity: string;
+  unit_cost: string; note: string | null; created_at: string;
+  product_name: string; warehouse_name: string;
+};
+export type InventoryOverview = {
+  balances: StockBalance[];
+  movements: StockMovement[];
+  warehouse_count: number;
+};
+
+async function getData<T>(url: string): Promise<T> {
+  const res = await fetch(url, {
+    credentials: 'same-origin', cache: 'no-store',
+    headers: { Accept: 'application/json' },
+  });
+  return (await readJson<DataResponse<T>>(res)).data;
+}
+
+export function listWarehouses(tenantUlid: string): Promise<Warehouse[]> {
+  return getData<Warehouse[]>(`/api/tenants/${encodeURIComponent(tenantUlid)}/warehouses`);
+}
+export function createWarehouse(tenantUlid: string, input: {code: string; name: string}): Promise<Warehouse> {
+  return post<DataResponse<Warehouse>>(`/api/tenants/${encodeURIComponent(tenantUlid)}/warehouses`, input)
+    .then(result => result.data);
+}
+export function getInventory(tenantUlid: string): Promise<InventoryOverview> {
+  return getData<InventoryOverview>(`/api/tenants/${encodeURIComponent(tenantUlid)}/inventory`);
+}
+export function receiveStock(tenantUlid: string, input: {
+  warehouse_ulid: string; product_ulid: string; idempotency_key: string;
+  type: 'opening' | 'receipt'; quantity: string; unit_cost: string; note: string;
+}): Promise<{ ulid: string; replayed: boolean }> {
+  return post<DataResponse<{ ulid: string; replayed: boolean }>>(
+    `/api/tenants/${encodeURIComponent(tenantUlid)}/inventory/receive`, input,
+  ).then(result => result.data);
+}
