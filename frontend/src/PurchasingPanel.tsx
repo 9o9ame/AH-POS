@@ -10,7 +10,9 @@ const currency = (amount: number) => new Intl.NumberFormat('en-PK', {
   style: 'currency', currency: 'PKR', minimumFractionDigits: 2,
 }).format(amount);
 
-export function PurchasingPanel({ tenant }: { tenant: TenantChoice }) {
+export function PurchasingPanel({ tenant, onDraftChange, active = true }: {
+  tenant: TenantChoice; onDraftChange?: (dirty: boolean) => void; active?: boolean;
+}) {
   const [suppliers, setSuppliers] = useState<Party[]>([]);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -43,7 +45,8 @@ export function PurchasingPanel({ tenant }: { tenant: TenantChoice }) {
     }
   }, [tenant.ulid]);
 
-  useEffect(() => { void refresh(); }, [refresh]);
+  useEffect(() => { if (active) void refresh(); }, [refresh, active]);
+  useEffect(() => { onDraftChange?.(lines.length > 0 || reference.trim() !== ''); }, [lines, reference, onDraftChange]);
 
   function add(product: Product) {
     setSearch('');
