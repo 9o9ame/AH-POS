@@ -1093,3 +1093,37 @@ button:not(:disabled):active{transform:scale(.985)}
 .compact-shell .definition-master-register{width:100%}
 .compact-shell .dashboard-stock-list{max-height:185px;overflow:auto;scrollbar-width:thin}
 .compact-shell .admin-dashboard{min-height:0}
+
+/* Ribbon-triggered contextual drawer (2026-11-19).
+   There is intentionally NO detached left-edge hover target or extra hamburger.
+   Top menu hover previews; click pins; repeat click unpins. */
+.compact-shell .sidebar-edge-handle,
+.compact-shell .sidebar-pin-control,
+.compact-shell .ribbon-sidebar-toggle{display:none!important}
+.compact-shell .app-sidebar{
+  top:55px!important;height:calc(100dvh - 55px)!important;
+  bottom:0!important;z-index:40!important;
+  box-shadow:11px 18px 38px rgba(13,38,56,.17);
+}
+.compact-shell .app-sidebar.sidebar-open{transform:translateX(0)!important;opacity:1}
+.compact-shell .enterprise-ribbon{
+  position:relative;z-index:60!important;
+  overflow-x:auto;
+  background:#fff;
+}
+.compact-shell .ribbon-tab,.compact-shell .ribbon-home{
+  transition:color .16s ease, background .16s ease, border-color .16s ease;
+}
+.compact-shell .ribbon-tab[aria-pressed="true"]{
+  background:#e6f8f1!important;color:#087d72!important;
+  border-bottom:3px solid #0fb59e!important;
+}
+.compact-shell .ribbon-tab:focus-visible{
+  outline:2px solid #12ab97;outline-offset:-3px;
+}
+.compact-shell .sidebar-brand{height:64px;padding-inline:20px}
+.compact-shell .sidebar-tenant{margin-top:12px}
+@media (max-width:620px){
+  .compact-shell .enterprise-ribbon{scrollbar-width:none}
+  .compact-shell .app-sidebar{width:min(265px,90vw)!important;min-width:0!important}
+}
