@@ -125,3 +125,9 @@
 - Added tenant-owned `parties` schema with ULIDs, customer/supplier discriminator, name, phone/email/address and status. Added tenant-scoped paginated list/search and create controller with server-side tenant context.
 - Added explicit permission keys and guarded routes, extended local-only operator grant, typed frontend API and customer/supplier forms/list tabs.
 - Pending new-PC migration, frontend compilation and one customer/one supplier manual smoke check. No accounting balance or financial posting.
+
+## 2026-11-19 — Major UX and inventory operational batch
+- User screenshot verified creation/listing of customer in browser; new party migration, local grant and Vite build PASS.
+- Replaced temporary vertical engineering screen with responsive AH POS navigation shell, sidebar, original token-based visual styling, live tenant dashboard counts, quick actions, distinct product/customer/supplier/inventory pages. Styling remains provisional until user approval.
+- Added warehouses and inbound stock movements (tenant composite FK integrity, positive NUMERIC quantities, unit cost, append-only API, per-tenant unique idempotency key), list/create warehouse endpoints, posted stock inward endpoint and balance/movement read API. No financial/stock-out workflow claimed.
+- Extended explicit local grant with warehouse/inventory permissions and added one focused critical inventory workflow test, pending local migration and verification. No old tests rerun.
