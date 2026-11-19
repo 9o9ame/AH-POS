@@ -75,6 +75,7 @@ final class TenantPermissions
             'inventory.read', 'inventory.receive',
             'purchases.read', 'purchases.create',
             'sales.read', 'sales.create',
+            'reports.read',
         ], true);
     }
 
