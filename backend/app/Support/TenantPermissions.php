@@ -45,6 +45,10 @@ final class TenantPermissions
             'products.create',
             'parties.read',
             'parties.create',
+            'warehouses.read',
+            'warehouses.create',
+            'inventory.read',
+            'inventory.receive',
         ];
     }
 }
