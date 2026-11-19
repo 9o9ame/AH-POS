@@ -186,7 +186,7 @@ export function PlatformPanel({session, onSignOut, initialTab='admins', focus='o
       {loading&&<TableSkeleton rows={5} cols={4}/>}
     </section>}
     {editor==='admin'&&<EntityModal title="Create Admin Business" subtitle="Provision a fully separate tenant and its owner role in one server transaction."
-      onClose={()=>setEditor(null)} busy={busy}><form className="platform-form" onSubmit={e=>{void saveAdmin(e)}}>
+      onClose={()=>setEditor(null)} busy={busy} error={error || undefined}><form className="platform-form" onSubmit={e=>{void saveAdmin(e)}}>
         <label>Business name<input required maxLength={160} minLength={2} value={adminInput.business_name} onChange={e=>setAdminInput(v=>({...v,business_name:e.target.value}))}/></label>
         <label>Admin owner name<input required maxLength={160} minLength={2} value={adminInput.owner_name} onChange={e=>setAdminInput(v=>({...v,owner_name:e.target.value}))}/></label>
         <label>Admin login email<input required type="email" maxLength={255} autoComplete="off" value={adminInput.owner_email} onChange={e=>setAdminInput(v=>({...v,owner_email:e.target.value}))}/></label>
@@ -210,7 +210,7 @@ export function PlatformPanel({session, onSignOut, initialTab='admins', focus='o
       </form></EntityModal>}
     {editor==='assignOwner' && ownerBusiness && <EntityModal title="Assign Admin Owner"
       subtitle={'Choose an existing active member of '+ownerBusiness.name+'. No tenant ID required.'}
-      busy={busy} onClose={()=>setEditor(null)}>
+      busy={busy} onClose={()=>setEditor(null)} error={error || undefined}>
       <form className="platform-form" onSubmit={e=>{void saveOwnerAssignment(e)}}>
         <p className="muted">This grants Admin Owner permissions for this business only. It does not give Platform authority.</p>
         <label>Existing business member
@@ -228,7 +228,7 @@ export function PlatformPanel({session, onSignOut, initialTab='admins', focus='o
     {statusTarget && <EntityModal
       title={statusTarget.status==='active'?'Suspend Admin':'Reactivate Admin'}
       subtitle={'Business: '+statusTarget.name}
-      busy={busy} onClose={()=>setStatusTarget(null)}>
+      busy={busy} onClose={()=>setStatusTarget(null)} error={error || undefined}>
       <form className="platform-form" onSubmit={e=>{void saveAdminStatus(e)}}>
         <p className="muted">{statusTarget.status==='active'
           ? 'Suspending this Admin will block all its staff and owners from business API access. No financial or stock records will be deleted.'
