@@ -90,11 +90,15 @@ export function ModuleDirectory({ activeModule, navigate, section }: Props) {
 }
 
 export function ModuleRibbon({
-  activeModule, choose, home,
+  activeModule, choose, home, profileName, workspaceName, sidebarPinned, toggleSidebar,
 }: {
   activeModule: ModuleId;
   choose: (id: ModuleId) => void;
   home: () => void;
+  profileName?: string;
+  workspaceName?: string;
+  sidebarPinned: boolean;
+  toggleSidebar: () => void;
 }) {
   return <nav className="enterprise-ribbon" aria-label="AH POS main application menu">
     <button type="button" className="ribbon-home" onClick={home} title="Business Overview">
@@ -111,5 +115,14 @@ export function ModuleRibbon({
           <AppIcon name={module.icon} size={17}/><span>{module.title}</span>
         </button>;
       })}
+    <div className="ribbon-account">
+      <button type="button" className="ribbon-sidebar-toggle" onClick={toggleSidebar}
+        aria-label={sidebarPinned ? 'Unpin submenu' : 'Pin submenu'}
+        aria-pressed={sidebarPinned} title={sidebarPinned ? 'Unpin submenu' : 'Pin submenu'}>
+        <AppIcon name="menu" size={17}/>
+      </button>
+      <span className="ribbon-workspace-name">{workspaceName || 'Workspace'}</span>
+      <span className="ribbon-avatar" title={profileName || 'Authorized user'}>{(profileName||'A').slice(0,1).toUpperCase()}</span>
+    </div>
   </nav>;
 }
