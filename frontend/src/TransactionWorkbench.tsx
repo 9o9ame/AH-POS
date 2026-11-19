@@ -24,14 +24,15 @@ type Props = {
   markDirty: (id: string, dirty: boolean) => void;
 };
 
-function WindowContent({ kind, tenant, onDirtyChange }: {
+function WindowContent({ kind, tenant, onDirtyChange, active }: {
   kind: WorkKind;
   tenant: TenantChoice;
   onDirtyChange: (dirty: boolean) => void;
+  active: boolean;
 }) {
   return kind === 'sale'
-    ? <PosPanel tenant={tenant} onDraftChange={onDirtyChange} />
-    : <PurchasingPanel tenant={tenant} onDraftChange={onDirtyChange} />;
+    ? <PosPanel tenant={tenant} onDraftChange={onDirtyChange} active={active} />
+    : <PurchasingPanel tenant={tenant} onDraftChange={onDirtyChange} active={active} />;
 }
 
 export function TransactionWorkbench({
