@@ -91,6 +91,8 @@ final class TenantPermissions
             'tenant.settings.read',
             'tenant.members.read',
             'tenant.members.manage',
+            'tenant.devices.read',
+            'tenant.devices.manage',
             'products.read',
             'products.create',
             'definitions.read',
