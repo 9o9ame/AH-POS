@@ -6,6 +6,7 @@ use App\Models\Tenant;
 use App\Models\User;
 use App\Support\PlatformPermissions;
 use App\Support\TenantPermissions;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -91,7 +92,8 @@ final class PlatformController extends Controller
             return response()->json(['message' => 'Email already belongs to an account; use a new email.'], 409);
         }
 
-        $result = DB::transaction(function () use ($values, $email, $request): array {
+        try {
+            $result = DB::transaction(function () use ($values, $email, $request): array {
             $owner = User::create([
                 'name' => trim($values['owner_name']),
                 'email' => $email,
@@ -124,7 +126,13 @@ final class PlatformController extends Controller
                 'ulid' => $tenant->ulid, 'name' => $tenant->name,
                 'status' => 'active', 'owner_name' => $owner->name, 'owner_email' => $owner->email,
             ];
-        });
+            });
+        } catch (QueryException $exception) {
+            if ($exception->getCode() === '23505') {
+                return response()->json(['message' => 'Duplicate account or role. Please refresh.'], 409);
+            }
+            throw $exception;
+        }
 
         return response()->json(['data' => $result], 201);
     }
