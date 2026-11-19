@@ -139,3 +139,6 @@ Super Admin dedicated local CLI had mistakenly retained 12+ complex password pol
 
 ## 2026-11-19 — First dedicated Platform Super Admin successfully created
 User confirmed interactive local `ahpos:create-platform-superadmin` returned SUCCESS for dedicated **Anwaar** Platform-only identity, zero tenant membership, Ali business account preserved. This closes CLI bootstrap verification. Platform login and dashboard browser UAT still pending; do not rerun initialization or passing test suites.
+
+## 2026-11-19 — Modal clipping root cause fixed in source; Platform management next batch
+Old shared fixed modal was nested under page-enter transformed/scroll-clipped ancestor; used ReactDOM portal to body, dialog focus trap/return and scoped scroll, validation shown inside dialogs. Applied to all live Admin/Platform create/modification actions. Next functional Platform batch adds searchable/status-filtered Admin register and reversible audited Suspend/Reactivate with server tenant denial, Staff/Device modern confirmation modals. Central local-only PostgreSQL ahpos_test min3 API passwords with strict production fallback. Two focused rollback-only tests added. **Code committed, frontend build and browser acceptance pending; no migration.** Existing 8 PASS/99 assertion evidence preserved.
