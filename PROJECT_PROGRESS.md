@@ -91,3 +91,6 @@ User screenshot verifies redesigned sidebar, dashboard and Ctrl+K quick search. 
 
 ## 2026-11-19 — Cash sale and receipt live verified; PHPUnit environment issue fixed
 User verified PostgreSQL trade migration DONE and browser receipt for Ali tenant: Socks 2 at PKR 100 = PKR 200, cash PKR 200. New `TradeWorkflowTest` failed 503 on first purchase because phpunit.xml sets APP_ENV=testing while local financial posting guard allowed only local. Corrected guard to allow actual PHPUnit testing on localhost PostgreSQL ahpos_test, pending targeted rerun. No repeated previous suites or migrations required. Actual production accounting/tax/RLS acceptance still pending.
+
+## 2026-11-19 — Trade integrated test PASS, sales returns operational pilot committed
+User independently verified `TradeWorkflowTest` 1 PASS/18 assertions and previously cash POS receipt for Socks qty 2 PKR 200. Implemented cash sale partial/full refunds as separate immutable documents tied via composite tenant/invoice FKs to original sale, with controlled stock reversal through existing ledger, duplicate protection, purchase/sale reporting split into gross/refund/net and new Sales Returns UI. Added one focused `CashReturnWorkflowTest`. **New migration, test and browser flow pending user execution**; no change to overall accepted percent or production financial posting gate.
