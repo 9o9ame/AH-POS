@@ -1,9 +1,9 @@
 phase_id,phase_name,weight_percent,status,accepted_fraction,contribution_percent,acceptance_evidence,notes
 P0,Legacy DB restoration and reverse engineering,12,not_started,0,0,,Historical backup is test reference; migration acceptance deferred to fresh go-live backup
 P1,Architecture tenancy security and CI,13,implemented_unverified,0,0,,PostgreSQL migrated; auth and tenant tests user-verified; RBAC migration and 12 isolation tests user-verified; transaction-scope and composite FK tests user-verified (17 test results overall); read-only RLS preflight pending local run; runtime role/RLS/CI incomplete
-P2,Brand design system and web shell,8,not_started,0,0,,Original UI shared components approval
-P3,Master data and tenant import engine,14,implemented_unverified,0,0,,Tenant product catalog UI and APIs committed pending local migration and smoke check; importing still not implemented
-P4,Purchasing inventory and accounting,14,not_started,0,0,,Posting invariant acceptance
+P2,Brand design system and web shell,8,implemented_unverified,0,0,,New nav sidebar dashboard and shared UI tokens committed; awaiting local build screenshot and visual signoff
+P3,Master data and tenant import engine,14,implemented_unverified,0,0,,Product and customer create/list browser verified; supplier source implemented; import and richer masters incomplete
+P4,Purchasing inventory and accounting,14,implemented_unverified,0,0,,Warehouse and inbound stock ledger source committed pending migration and critical tests; purchasing accounting and stock-out absent
 P5,Online sales POS returns and receipts,15,not_started,0,0,,Sale scenarios accepted
 P6,Offline browser sales and synchronization,10,not_started,0,0,,Retry idempotency conflict and device tests
 P7,Reports administration and operations,8,not_started,0,0,,Report and operational verification
