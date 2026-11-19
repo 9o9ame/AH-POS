@@ -17,6 +17,14 @@ final class PlatformPermissions
         ];
     }
 
+    public function hasAny(int $userId): bool
+    {
+        if ($userId < 1) return false;
+        return DB::table('platform_user_roles as ur')
+            ->join('platform_role_permissions as rp', 'rp.role_id', '=', 'ur.role_id')
+            ->where('ur.user_id', $userId)->exists();
+    }
+
     public function allows(int $userId, string $permission): bool
     {
         if ($userId <= 0 || ! in_array($permission, self::known(), true)) {
