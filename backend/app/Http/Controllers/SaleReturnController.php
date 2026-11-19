@@ -26,6 +26,8 @@ final class SaleReturnController extends Controller
     public function store(Request $request, TenantContext $context): JsonResponse
     {
         DocumentPosting::assertLocalOnly();
+        // Normalize the audit reason before server-side length validation.
+        $request->merge(['reason' => trim((string) $request->input('reason', ''))]);
         $data = $request->validate([
             'sale_ulid' => ['required', 'ulid'],
             'idempotency_key' => ['required', 'uuid'],
