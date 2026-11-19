@@ -141,7 +141,7 @@ export function InventoryPanel({ tenant }: { tenant: TenantChoice }) {
         <div className="panel-heading"><div><span className="small-overline">AUDIT TRAIL</span><h2>Recent stock movements</h2></div>
           <span className="count-pill">Last 30</span></div>
         <div className="table-scroll"><table className="data-table"><thead>
-          <tr><th>Date</th><th>Type</th><th>Product</th><th>Warehouse</th><th className="num">Qty in</th><th className="num">Unit cost</th></tr>
+          <tr><th>Date</th><th>Type</th><th>Product</th><th>Warehouse</th><th className="num">Signed qty</th><th className="num">Unit cost</th></tr>
         </thead><tbody>{overview?.movements.map(m => <tr key={m.ulid}>
           <td>{new Date(m.created_at).toLocaleString()}</td><td>{m.type}</td><td>{m.product_name}</td>
           <td>{m.warehouse_name}</td><td className="num">{m.quantity}</td><td className="num">PKR {m.unit_cost}</td>
