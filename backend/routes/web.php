@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthSessionController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\DefinitionMasterController;
 use App\Http\Controllers\PartyController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\InventoryController;
@@ -150,4 +151,15 @@ Route::middleware(['auth', 'tenant.context', 'tenant.db-scope'])->group(function
         ->middleware('tenant.permission:sales.holds.write');
     Route::post('/api/tenants/{tenant}/sale-holds/{hold}/discard', [HeldSaleController::class, 'discard'])
         ->middleware('tenant.permission:sales.holds.write');
+});
+
+
+// Real tenant-scoped product definition masters (not static mock menu items).
+Route::middleware(['auth', 'tenant.context', 'tenant.db-scope'])->group(function (): void {
+    Route::get('/api/tenants/{tenant}/definitions/{kind}', [DefinitionMasterController::class, 'index'])
+        ->middleware('tenant.permission:definitions.read');
+    Route::post('/api/tenants/{tenant}/definitions/{kind}', [DefinitionMasterController::class, 'store'])
+        ->middleware('tenant.permission:definitions.manage');
+    Route::patch('/api/tenants/{tenant}/definitions/{kind}/{master}/status', [DefinitionMasterController::class, 'setStatus'])
+        ->middleware('tenant.permission:definitions.manage');
 });
