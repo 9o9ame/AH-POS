@@ -96,7 +96,7 @@ export function ProductsPanel({ tenant }: { tenant: TenantChoice }) {
 
       {canRead && (
         <>
-          {editorOpen && <EntityModal title="Add Product" subtitle="Create an authorized catalog record in this Admin workspace." onClose={() => setEditorOpen(false)} busy={busy}>
+          {editorOpen && <EntityModal title="Add Product" subtitle="Create an authorized catalog record in this Admin workspace." onClose={() => setEditorOpen(false)} busy={busy} error={message || undefined}>
           <form className="catalog-form modal-entry-form" onSubmit={(event) => void add(event)}>
             
             <div className="catalog-fields">
