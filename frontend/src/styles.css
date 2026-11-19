@@ -472,3 +472,32 @@ button:not(:disabled):active{transform:scale(.985)}
 .returns-layout .pos-warning{padding-top:15px;border-top:1px dashed var(--line)}
 @media(max-width:1140px){.returns-layout{grid-template-columns:1fr}}
 @media(max-width:530px){.return-sale-summary{grid-template-columns:1fr}.refund-summary>div strong{font-size:17px}}
+
+
+/* Cash register: opening, linked live totals and immutable closing snapshot. */
+.cash-register-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:18px;align-items:start}
+.cash-register-layout>.panel-card{min-width:0}
+.cash-register-layout .compact-form{padding:0;border:0;margin:20px 0 12px}
+.cash-register-layout .compact-form>label{margin:12px 0}
+.cash-shift-card{padding:17px;border:1px solid #dcece9;border-radius:13px;margin-bottom:13px;background:linear-gradient(140deg,#fff,#f5fcfa)}
+.cash-shift-title{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.cash-shift-title>strong{font-size:13px}
+.cash-shift-title>small{font-size:10px;color:#8a98a7;margin-left:auto}
+.cash-shift-title .status-tag{display:inline-flex;gap:8px;align-items:center}
+.cash-shift-title .release-pulse{width:6px;height:6px}
+.cash-kpis{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0}
+.cash-kpis>div{display:flex;flex-direction:column;gap:5px;border:1px solid #e5edf0;background:#fff;border-radius:10px;padding:12px}
+.cash-kpis span{font-size:11px;color:#8091a4}
+.cash-kpis strong{font-size:15px;color:#183148;font-family:Manrope,sans-serif}
+.cash-kpis .cash-expected{background:#eafaf3;border-color:#bce7d6}
+.cash-kpis .cash-expected strong{color:#0c8972}
+.cash-close-trigger{display:flex;gap:9px;align-items:center;justify-content:center;width:100%}
+.cash-close-form{display:grid;gap:13px;border-top:1px dashed #cadbd6;padding-top:17px;margin-top:12px}
+.cash-close-actions{display:flex;justify-content:flex-end;gap:9px}
+.cash-close-actions .primary-post{width:auto}
+.cash-history{grid-column:1/-1}
+.cash-history-id{display:block;color:#94a4b7;font-size:10px;margin-top:4px}
+.cash-history .reconciled{color:#128868}
+.cash-history .variance{color:#ab4d48;font-weight:800}
+@media(max-width:1040px){.cash-register-layout{grid-template-columns:1fr}}
+@media(max-width:520px){.cash-kpis{grid-template-columns:1fr}.cash-close-actions{flex-direction:column}.cash-close-actions .primary-post{width:100%}}
