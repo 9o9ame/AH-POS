@@ -194,3 +194,52 @@ export function receiveStock(tenantUlid: string, input: {
     `/api/tenants/${encodeURIComponent(tenantUlid)}/inventory/receive`, input,
   ).then(result => result.data);
 }
+
+
+// Local development transaction pilots. Only backend calculates authoritative totals.
+export type PurchaseRecord = {
+  ulid: string; reference: string | null; total: string; status: string;
+  created_at: string; supplier_name: string; warehouse_name: string;
+};
+export type PurchaseInput = {
+  supplier_ulid: string; warehouse_ulid: string; idempotency_key: string; reference: string;
+  lines: { product_ulid: string; quantity: string; unit_cost: string }[];
+};
+export type TransactionResult = { ulid: string; total: string; replayed: boolean; change_due?: string };
+export type SaleRecord = {
+  ulid: string; total: string; amount_paid: string; change_due: string;
+  status: string; created_at: string; customer_name: string | null;
+};
+export type SaleInput = {
+  warehouse_ulid: string; customer_ulid: string | null; idempotency_key: string;
+  amount_paid: string; lines: { product_ulid: string; quantity: string }[];
+};
+export type SaleReceipt = {
+  sale: SaleRecord & {
+    subtotal: string; payment_method: string; warehouse_name: string;
+  };
+  lines: { ulid: string; sku: string; product_name: string;
+    quantity: string; unit_price: string; line_total: string }[];
+};
+
+export function listPurchases(tenantUlid: string): Promise<PurchaseRecord[]> {
+  return getData<PurchaseRecord[]>(`/api/tenants/${encodeURIComponent(tenantUlid)}/purchases`);
+}
+export function postPurchase(tenantUlid: string, input: PurchaseInput): Promise<TransactionResult> {
+  return post<DataResponse<TransactionResult>>(
+    `/api/tenants/${encodeURIComponent(tenantUlid)}/purchases`, input,
+  ).then(result => result.data);
+}
+export function listSales(tenantUlid: string): Promise<SaleRecord[]> {
+  return getData<SaleRecord[]>(`/api/tenants/${encodeURIComponent(tenantUlid)}/sales`);
+}
+export function postSale(tenantUlid: string, input: SaleInput): Promise<TransactionResult> {
+  return post<DataResponse<TransactionResult>>(
+    `/api/tenants/${encodeURIComponent(tenantUlid)}/sales`, input,
+  ).then(result => result.data);
+}
+export function getSaleReceipt(tenantUlid: string, saleUlid: string): Promise<SaleReceipt> {
+  return getData<SaleReceipt>(
+    `/api/tenants/${encodeURIComponent(tenantUlid)}/sales/${encodeURIComponent(saleUlid)}`,
+  );
+}
