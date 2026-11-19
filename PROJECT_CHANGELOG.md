@@ -191,3 +191,8 @@
 - Products, Customers/Suppliers, Category/Subcategory/Brand/Unit masters, Warehouse and Stock Inward all now use list-first tables with Add entry modals; responsive dense UI, internal panel scroll and fixed app viewport.
 - Added ADR-0003 for separate Super Admin Platform vs tenant Admin/staff, role delegation, secure device approval/revoke, IP and consented coarse location audit, and device-partitioned IndexedDB after security controls. **These backend features are planned, not implemented**. No migration, permission grant or repeated backend test required.
 - Frontend compilation/browser verification pending; detailed handoff under `docs/COMPACT_ADMIN_UX_AND_PLATFORM_HANDOFF.md`.
+
+## 2026-11-19 — Fix top-navbar hover contextual submenu (user-marked screenshots)
+- User explicitly marked every top ribbon family as desired hover target and crossed out left-edge menu button. Removed detached edge and redundant ribbon hamburger from React UI, anchored animated submenu beneath top navigation.
+- Hover/focus shows that family's submenu without changing page, click pins and opens module directory, same tab click closes, clicking another tab replaces pinned family; moving into submenu holds transient preview, leaving hides it when unpinned. Subpage navigation preserves same-family pin.
+- No database migration, backend authorization modifications or test reruns. Frontend TypeScript build and visual/keyboard review **pending**.
