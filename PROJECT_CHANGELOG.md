@@ -131,3 +131,8 @@
 - Replaced temporary vertical engineering screen with responsive AH POS navigation shell, sidebar, original token-based visual styling, live tenant dashboard counts, quick actions, distinct product/customer/supplier/inventory pages. Styling remains provisional until user approval.
 - Added warehouses and inbound stock movements (tenant composite FK integrity, positive NUMERIC quantities, unit cost, append-only API, per-tenant unique idempotency key), list/create warehouse endpoints, posted stock inward endpoint and balance/movement read API. No financial/stock-out workflow claimed.
 - Extended explicit local grant with warehouse/inventory permissions and added one focused critical inventory workflow test, pending local migration and verification. No old tests rerun.
+
+## 2026-11-19 — One-time local operator authorization and premium micro-interactions
+- Verified from user console: inventory migration DONE; critical stock-in/idempotency isolation test 1 PASS (11 assertions).
+- Updated `TenantPermissions` to honor an already explicitly assigned `Local Catalog Operator` role for strictly enumerated business permissions only within local PostgreSQL `ahpos_test` on localhost. This removes recurring local grant prompts after future feature updates while retaining production default-deny RBAC.
+- Added `CommandPalette` search navigation (Ctrl/Cmd+K), keyboard arrows/Enter/Esc, top-bar quick search, motion curves, lightweight glass layers, responsive hover/focus/feedback and reduced-motion support. New code not yet locally compiled or visually reviewed.
