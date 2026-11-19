@@ -64,3 +64,11 @@ Pilot is **not production device authentication**. Browser token is transferable
 ## Focused test boundary
 
 `TenantStaffDeviceWorkflowTest` transactionally checks owner creates Cashier restricted to tenant, foreign tenant deny 404, business API 423 pending, explicit device request, Admin approval and revoke status, hashed token match, suspension and no platform role. Test **NOT yet run**. If it fails, inspect exact failing line and fix only evidenced issue; do not rerun old tests.
+
+## 2026-11-19 correction — NO ULID CLI; migration verified; targeted tests pending
+
+**This section supersedes the historical one-time CLI guidance above.** User has confirmed 000012 **DONE** on `ahpos_test`; do not run `php artisan migrate` again. Their first targeted test failed at device approval line 104: controller action bound `{tenant}` to positional `$device` argument and returned 404, not an actual foreign-tenant security denial. Fixed it and the analogous staff-status action by resolving named `$request->route('device')` and `route('staff')`. User's frontend build failed TS6133 unused `AppIcon`, now removed. Both changes await local rerun.
+
+**Stop using `ahpos:authorize-local-admin-owner` in ordinary onboarding**. If its interactive prompt is still open, press Ctrl+C and return to PowerShell; nothing was granted by an unanswered ULID prompt. The vendor Super Admin is already bootstrapped, so do not repeat the bootstrap either. Instead, sign into AH-POS in browser, click **Platform** → **Admin businesses**, locate old `ali` row and click **Assign Owner**, choose from active members by **name/email**, then Confirm. This is a separately authenticated, `platform.admins.create` authorized, audited and tenant-scoped operation; internal ULIDs are handled by the frontend. No Platform privileges are transferred to the tenant owner.
+
+New focused `PlatformAssignExistingOwnerTest` checks Platform-only authority, selected current member, cross-tenant denial, refusal to assign twice, and tenant owner/Platform RBAC separation. It is source committed and unverified. Exact next local commands: `git pull origin main`, `cd backend`, `php artisan test --filter='TenantStaffDeviceWorkflowTest|PlatformAssignExistingOwnerTest'`; `cd ..\\frontend`, `npm run build`. No migrations, grants, old passed suites or database reset.
