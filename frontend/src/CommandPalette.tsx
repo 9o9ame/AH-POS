@@ -45,7 +45,6 @@ export function CommandPalette({ open, close, navigate }: {
             if (e.key === 'ArrowUp') { e.preventDefault(); setActive(n => Math.max(0, n - 1)); }
             if (e.key === 'Enter') { e.preventDefault(); execute(active); }
             if (e.key === 'Escape') { e.preventDefault(); close(); }
-            if (e.key === 'Tab') { e.preventDefault(); }
           }} />
         <kbd>ESC</kbd>
       </div>
