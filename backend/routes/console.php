@@ -187,7 +187,7 @@ Artisan::command('ahpos:grant-local-catalog', function (): int {
         return 1;
     }
 
-    $this->warn('LOCAL TEST ONLY: grant products.read and products.create to '.$email.' for '.$membership->tenant_name.'.');
+    $this->warn('LOCAL TEST ONLY: grant catalog and party directory permissions to '.$email.' for '.$membership->tenant_name.'.');
     if (! $this->confirm('Grant these permissions?', false)) {
         $this->line('Cancelled; no changes.');
         return 0;
@@ -209,7 +209,7 @@ Artisan::command('ahpos:grant-local-catalog', function (): int {
             ]);
         }
 
-        foreach (['products.read', 'products.create'] as $permission) {
+        foreach (['products.read', 'products.create', 'parties.read', 'parties.create'] as $permission) {
             DB::table('tenant_role_permissions')->insertOrIgnore([
                 'tenant_id' => $membership->tenant_id,
                 'role_id' => $roleId,
@@ -223,6 +223,6 @@ Artisan::command('ahpos:grant-local-catalog', function (): int {
         ]);
     });
 
-    $this->info('Local catalog permissions granted successfully.');
+    $this->info('Local catalog and party directory permissions granted successfully.');
     return 0;
-})->purpose('Explicitly authorize one local test membership for product catalog development');
+})->purpose('Explicitly authorize one local test membership for catalog and party directory development');
