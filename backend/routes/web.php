@@ -7,6 +7,7 @@ use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\SaleController;
+use App\Http\Controllers\SaleReturnController;
 use App\Http\Controllers\OperationsReportController;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
@@ -116,3 +117,12 @@ Route::middleware(['auth', 'tenant.context', 'tenant.db-scope'])->group(function
 Route::middleware(['auth', 'tenant.context', 'tenant.db-scope'])
     ->get('/api/tenants/{tenant}/reports/operations', [OperationsReportController::class, 'overview'])
     ->middleware('tenant.permission:reports.read');
+
+
+// Immutable, local-only sale return pilot: linked partial refunds and stock reversal.
+Route::middleware(['auth', 'tenant.context', 'tenant.db-scope'])->group(function (): void {
+    Route::get('/api/tenants/{tenant}/sale-returns', [SaleReturnController::class, 'index'])
+        ->middleware('tenant.permission:returns.read');
+    Route::post('/api/tenants/{tenant}/sale-returns', [SaleReturnController::class, 'store'])
+        ->middleware('tenant.permission:returns.create');
+});
