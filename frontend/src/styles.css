@@ -849,3 +849,30 @@ button:not(:disabled):active{transform:scale(.985)}
   .module-directory-heading p{font-size:11px}
 }
 @media(prefers-reduced-motion:reduce){.module-entry-live{transition:none!important}.module-entry-live:hover{transform:none!important}}
+
+
+/* Shared Definitions master screen: real tenant records, not demo cards. */
+.definition-master-workspace{display:grid;gap:19px}
+.definition-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
+.definition-tab{
+  display:flex;align-items:center;gap:12px;text-align:left;
+  min-height:81px!important;background:#fff!important;
+  color:#3f566c!important;border:1px solid #e0e9ee!important;
+  border-radius:12px!important;padding:15px!important;
+  box-shadow:0 4px 11px rgba(19,46,69,.028);
+}
+.definition-tab>svg{color:#128f83}
+.definition-tab span{display:grid;gap:5px}
+.definition-tab strong{font-size:12px;font-weight:800}
+.definition-tab small{font-size:10px;color:#8997aa;line-height:1.4}
+.definition-tab.selected{border-color:#64c8b8!important;background:#eafaF5!important;box-shadow:0 0 0 2px rgba(14,171,144,.11)}
+.definition-master-grid{display:grid;grid-template-columns:minmax(300px,.77fr) minmax(0,1.23fr);align-items:start;gap:18px}
+.definition-master-form{display:grid;gap:16px;margin-top:20px}
+.definition-master-form .primary-post{display:flex;align-items:center;justify-content:center;gap:9px;min-height:45px}
+.definition-master-register .picker-input{margin-bottom:15px}
+.definition-master-register .data-table{min-width:560px}
+.master-state-active,.master-state-inactive{display:inline-block;font-size:10px;font-weight:800;border-radius:19px;padding:6px 10px}
+.master-state-active{background:#e5f8f0;color:#108b70}
+.master-state-inactive{background:#f1f4f7;color:#8994a3}
+@media(max-width:1120px){.definition-master-grid{grid-template-columns:1fr}.definition-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:610px){.definition-tabs{grid-template-columns:1fr 1fr}.definition-tab{padding:11px!important;gap:7px}.definition-tab small{display:none}}
