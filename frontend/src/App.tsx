@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { AppIcon, type AppIconName } from './AppIcon';
+import { CommandPalette } from './CommandPalette';
 import { DashboardPanel } from './DashboardPanel';
 import { InventoryPanel } from './InventoryPanel';
 import { ProductsPanel } from './ProductsPanel';
@@ -27,6 +28,7 @@ export function App() {
   const [password, setPassword] = useState('');
   const [page, setPage] = useState<Page>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [commandOpen, setCommandOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -45,6 +47,20 @@ export function App() {
       if (!(error instanceof ApiError && error.status === 401)) setMessage('Backend unavailable. Check Laravel on port 8000.');
     });
     return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    function onKeyboard(event: KeyboardEvent) {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        setCommandOpen(open => !open);
+      } else if (event.key === 'Escape') {
+        setCommandOpen(false);
+        setSidebarOpen(false);
+      }
+    }
+    window.addEventListener('keydown', onKeyboard);
+    return () => window.removeEventListener('keydown', onKeyboard);
   }, []);
 
   async function submitLogin(event: FormEvent<HTMLFormElement>) {
@@ -85,6 +101,7 @@ export function App() {
   function navigate(next: Page) {
     setPage(next);
     setSidebarOpen(false);
+    setCommandOpen(false);
   }
 
   if (screen === 'loading') {
@@ -122,6 +139,7 @@ export function App() {
   }
 
   return <div className="app-frame">
+    <CommandPalette open={commandOpen && selected !== null} close={() => setCommandOpen(false)} navigate={navigate} />
     {sidebarOpen && <button type="button" className="sidebar-shade" aria-label="Close navigation" onClick={() => setSidebarOpen(false)} />}
     <aside className={`app-sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
       <div className="sidebar-brand">
@@ -162,6 +180,9 @@ export function App() {
           <div className="breadcrumb"><span>Workspace</span><span className="crumb-sep">/</span><strong>{pages.find(item => item.id === page)?.label}</strong></div>
         </div>
         <div className="top-right">
+          {selected && <button className="top-search" type="button" aria-label="Quick navigation, Ctrl K" onClick={() => setCommandOpen(true)}>
+            <AppIcon name="search" size={17} /><span>Search anything…</span><kbd>Ctrl K</kbd>
+          </button>}
           <span className="dev-chip"><span/> Local development</span>
           <div className="user-chip"><span className="user-initials">{profile?.name.slice(0, 1).toUpperCase()}</span>
             <span><strong>{profile?.name}</strong><small>Signed in</small></span></div>
