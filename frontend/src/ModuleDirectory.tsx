@@ -107,6 +107,7 @@ export function ModuleRibbon({
   return <nav className="enterprise-ribbon" aria-label="AH POS main application menu"
     onMouseLeave={leave}>
     <button type="button" className={'ribbon-home'+(activeModule === 'overview' ? ' ribbon-tab-active' : '')}
+      onMouseEnter={() => preview('overview')} onFocus={() => preview('overview')}
       onClick={home} title="Business Overview">
       <AppIcon name="dashboard" size={17}/><span>Home</span>
     </button>
