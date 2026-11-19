@@ -92,7 +92,7 @@ export function ProductMastersPanel({tenant, initialKind = 'categories'}: {
     </div>
     <div className="definition-master-grid">
       {editorOpen && <EntityModal title={'Add '+(kind==='subcategories'?'Sub Category':kind==='categories'?'Category':kind==='brands'?'Brand':'Unit')}
-        subtitle="Manage tenant-owned product definitions." onClose={() => setEditorOpen(false)} busy={busy}>
+        subtitle="Manage tenant-owned product definitions." onClose={() => setEditorOpen(false)} busy={busy} error={error ? message : undefined}>
         <form className="definition-master-form" onSubmit={event=>{void save(event)}}>
           {kind==='subcategories'&&<label>Parent category
             <select value={parent} required onChange={event=>setParent(event.target.value)}>
@@ -140,7 +140,7 @@ export function ProductMastersPanel({tenant, initialKind = 'categories'}: {
           </tr>)}</tbody>
         </table></div>
         {loading && <TableSkeleton rows={5} cols={kind==='subcategories'?5:4}/>}
-        {!loading && filtered.length===0&&<p className="empty-copy">{query?'No matching masters.':'No records. Add the first master on the left.'}</p>}
+        {!loading && filtered.length===0&&<p className="empty-copy">{query?'No matching masters.':'No records. Use the Add button above.'}</p>}
       </section>
     </div>
     {message&&<p className={error?'inline-alert':'inline-success'} role="status">{message}</p>}
