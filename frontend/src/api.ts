@@ -506,3 +506,9 @@ export function transferPlatformIdentity(input:{
 }):Promise<Profile>{
   return post<DataResponse<Profile>>('/api/platform/auth/separate-identity',input).then(r=>r.data);
 }
+
+export function changePlatformAdminStatus(
+  tenantUlid:string, status:'active'|'suspended', reason:string,
+):Promise<{ulid:string;name:string;status:string}> {
+  return patchData('/api/platform/admins/'+encodeURIComponent(tenantUlid)+'/status',{status,reason});
+}
