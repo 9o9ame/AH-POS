@@ -170,7 +170,7 @@ export function PlatformApp(){
               value={transfer.name} onChange={e=>setTransfer(v=>({...v,name:e.target.value}))}/></label>
             <label>New dedicated email<input required type="email" autoComplete="off"
               value={transfer.email} onChange={e=>setTransfer(v=>({...v,email:e.target.value}))}/></label>
-            <label>New strong password<input required minLength={12} type="password" autoComplete="new-password"
+            <label>New Platform password<input required minLength={import.meta.env.DEV ? 3 : 12} type="password" autoComplete="new-password"
               value={transfer.password} onChange={e=>setTransfer(v=>({...v,password:e.target.value}))}/></label>
             <label>Current Platform password (confirm authority)<input required type="password" autoComplete="current-password"
               value={transfer.current_password} onChange={e=>setTransfer(v=>({...v,current_password:e.target.value}))}/></label>
