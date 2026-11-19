@@ -1,3 +1,4 @@
+import { EntityModal, TableSkeleton } from './EntityModal';
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
 import {
   ApiError, createProductMaster, listProductMasters, setProductMasterStatus,
@@ -16,6 +17,8 @@ export function ProductMastersPanel({tenant, initialKind = 'categories'}: {
   tenant: TenantChoice; initialKind?: ProductMasterKind;
 }) {
   const [kind, setKind] = useState<ProductMasterKind>(initialKind);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<ProductMaster[]>([]);
   const [categories, setCategories] = useState<ProductMaster[]>([]);
   const [code, setCode] = useState('');
@@ -27,6 +30,7 @@ export function ProductMastersPanel({tenant, initialKind = 'categories'}: {
   const [error, setError] = useState(false);
 
   const load = useCallback(async () => {
+    setLoading(true);
     try {
       const [current, parents] = await Promise.all([
         listProductMasters(tenant.ulid, kind),
@@ -38,7 +42,7 @@ export function ProductMastersPanel({tenant, initialKind = 'categories'}: {
     } catch(ex) {
       setError(true);
       setMessage(ex instanceof ApiError ? ex.message : 'Unable to load definition masters.');
-    }
+    } finally { setLoading(false); }
   }, [tenant.ulid,kind]);
 
   useEffect(() => { void load(); }, [load]);
@@ -59,6 +63,7 @@ export function ProductMastersPanel({tenant, initialKind = 'categories'}: {
         ...(kind==='subcategories'?{category_ulid:parent}:{}),
       });
       setName('');setCode('');
+      setEditorOpen(false);
       setMessage(tabs.find(tab=>tab.kind===kind)?.label+' entry saved successfully.');
       await load();
     }catch(ex){
@@ -86,11 +91,8 @@ export function ProductMastersPanel({tenant, initialKind = 'categories'}: {
       </button>)}
     </div>
     <div className="definition-master-grid">
-      <section className="panel-card">
-        <div className="panel-heading"><div><span className="small-overline">DEFINITIONS / MASTER RECORDS</span>
-          <h2>Add {kind==='subcategories'?'sub category':kind==='categories'?'category':kind==='brands'?'brand':'unit'}</h2></div>
-          <span className="status-tag">Tenant scoped</span></div>
-        <p className="muted">Code and name are unique within this tenant. These masters can be linked to new product records; inactive choices cannot be assigned to new products.</p>
+      {editorOpen && <EntityModal title={'Add '+(kind==='subcategories'?'Sub Category':kind==='categories'?'Category':kind==='brands'?'Brand':'Unit')}
+        subtitle="Manage tenant-owned product definitions." onClose={() => setEditorOpen(false)} busy={busy}>
         <form className="definition-master-form" onSubmit={event=>{void save(event)}}>
           {kind==='subcategories'&&<label>Parent category
             <select value={parent} required onChange={event=>setParent(event.target.value)}>
@@ -112,11 +114,15 @@ export function ProductMastersPanel({tenant, initialKind = 'categories'}: {
             <AppIcon name="check" size={17}/>{busy?'Saving…':'Save definition'}
           </button>
         </form>
+
         <p className="pos-warning">Unit master currently records the unit identity only. Pack conversion factors, multi-unit stock and barcode-to-unit conversion are separate upcoming features.</p>
-      </section>
+
+      </EntityModal>}
       <section className="panel-card definition-master-register">
         <div className="panel-heading"><div><span className="small-overline">REFERENCE DIRECTORY</span><h2>{tabs.find(tab=>tab.kind===kind)?.label}</h2></div>
-          <span className="count-pill">{active} active / {items.length} total</span></div>
+          <div className="dense-actions"><span className="count-pill">{active} active / {items.length} total</span>
+            <button className="list-create-button" type="button" onClick={() => setEditorOpen(true)}>+ Add {kind==='subcategories'?'Sub Category':kind==='categories'?'Category':kind==='brands'?'Brand':'Unit'}</button>
+          </div></div>
         <div className="picker-input"><AppIcon name="search" size={17}/>
           <input aria-label="Search definition masters" placeholder="Search code, name or category…"
             value={query} onChange={e=>setQuery(e.target.value)}/>
@@ -133,7 +139,8 @@ export function ProductMastersPanel({tenant, initialKind = 'categories'}: {
               {item.is_active?'Deactivate':'Activate'}</button></td>
           </tr>)}</tbody>
         </table></div>
-        {filtered.length===0&&<p className="empty-copy">{query?'No matching masters.':'No records. Add the first master on the left.'}</p>}
+        {loading && <TableSkeleton rows={5} cols={kind==='subcategories'?5:4}/>}
+        {!loading && filtered.length===0&&<p className="empty-copy">{query?'No matching masters.':'No records. Add the first master on the left.'}</p>}
       </section>
     </div>
     {message&&<p className={error?'inline-alert':'inline-success'} role="status">{message}</p>}
