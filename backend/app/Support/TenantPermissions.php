@@ -76,6 +76,7 @@ final class TenantPermissions
             'inventory.read', 'inventory.receive',
             'purchases.read', 'purchases.create',
             'sales.read', 'sales.create',
+            'sales.holds.read', 'sales.holds.write',
             'returns.read', 'returns.create',
             'cash_shifts.read', 'cash_shifts.open', 'cash_shifts.close',
             'reports.read',
