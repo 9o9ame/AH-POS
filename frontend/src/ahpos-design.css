@@ -1,0 +1,286 @@
+/*
+ * AH-POS / Design evolution batch 01
+ * Structural chrome + authentication only. DO NOT hide or remove any ribbon
+ * command, workspace tab, report action, form field, permission or dialog.
+ * All colors derive from existing AppearanceProvider --ui-* tokens.
+ */
+
+/* Shared AH-POS identity: layered surfaces, defined chrome, breathing room. */
+html #root .app-shell {
+  --ah-shell-ink: #0f172a;
+  --ah-shell-soft: #17243a;
+  --ah-shell-highlight: #22c9ad;
+  --ah-shell-edge: rgba(255,255,255,.11);
+  background: var(--ui-bg);
+  color: var(--ui-text);
+}
+html #root .titlebar {
+  min-height: 57px;
+  height: auto;
+  padding: 8px clamp(12px,1.5vw,24px);
+  gap: 12px;
+  background: linear-gradient(110deg,var(--ah-shell-ink),var(--ah-shell-soft));
+  border-bottom: 1px solid var(--ah-shell-edge);
+  color: #e7f4f6;
+  box-shadow: 0 4px 18px rgba(3,12,25,.15);
+  z-index: 45;
+}
+html #root .titlebar-logo {
+  color: white;
+  font-family: Inter,system-ui,sans-serif;
+  font-weight: 850;
+  font-size: 18px;
+  letter-spacing: -.045em;
+  padding: 6px 12px 6px 2px;
+  border-right: 1px solid var(--ah-shell-edge);
+}
+html #root .titlebar-logo::first-letter { color: #41dcc0; }
+html #root .titlebar-meta { color: #c2d2df; }
+html #root .titlebar-center {
+  color: #dceaf2;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: .015em;
+}
+html #root .titlebar-env {
+  background: rgba(34,201,173,.12);
+  color: #69f6dc;
+  border: 1px solid rgba(105,246,220,.35);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+html #root .titlebar-controls > * { flex-shrink: 0; }
+html #root .titlebar :is(button,a):focus-visible {
+  outline:2px solid #58e4d0;
+  outline-offset: 2px;
+}
+
+/* Keep ALL existing ribbon commands: only restyle their container and geometry. */
+html #root .ribbon {
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  border-bottom: 1px solid var(--ui-border);
+  box-shadow: 0 5px 17px color-mix(in srgb,var(--ui-text) 8%,transparent);
+  position: relative;
+  z-index: 40;
+}
+html #root .ribbon-tabs {
+  padding: 7px clamp(10px,1.4vw,22px) 0;
+  gap: 5px;
+  border-bottom: 1px solid color-mix(in srgb,var(--ui-border) 80%,transparent);
+  background: var(--ui-surface);
+}
+html #root .ribbon-tabs .ribbon-tab {
+  border-radius: 10px 10px 0 0;
+  padding-inline: clamp(8px,1.1vw,16px);
+  font-family: Inter,system-ui,sans-serif;
+  font-weight: 700;
+  letter-spacing: -.015em;
+}
+html #root .ribbon-tabs .ribbon-tab.is-active {
+  background: var(--ui-accent-soft);
+  color: var(--ui-accent-strong);
+  box-shadow: inset 0 -3px 0 var(--ui-accent);
+}
+html #root .ribbon-body {
+  background: var(--ui-surface);
+  padding-left: clamp(8px,1.1vw,18px);
+  padding-right: clamp(8px,1.1vw,18px);
+}
+html #root .ribbon-group {
+  border-color: color-mix(in srgb,var(--ui-border) 70%,transparent);
+}
+
+/* Preserve concurrent transaction tabs, all close and dirty-state actions. */
+html #root .workspace-tabs {
+  background: color-mix(in srgb,var(--ui-bg) 88%,var(--ui-accent));
+  border-bottom: 1px solid var(--ui-border);
+  padding: 5px 12px 0;
+  gap: 5px;
+}
+html #root .workspace-tabs .workspace-tab {
+  border-radius: 9px 9px 0 0;
+  border-color: var(--ui-border);
+  background: var(--ui-surface-subtle);
+  min-height: 29px;
+}
+html #root .workspace-tabs .workspace-tab.is-active:not([data-voucher-type]) {
+  background: var(--ui-surface);
+  color: var(--ui-accent-strong);
+  box-shadow: inset 0 3px 0 var(--ui-accent);
+}
+html #root .workspace-host {
+  background: var(--ui-bg);
+  padding: 0;
+}
+html #root .statusbar {
+  background: var(--ah-shell-ink);
+  color: #c5d7e1;
+  border-top: 1px solid var(--ah-shell-edge);
+  min-height: 28px;
+  padding-inline: 14px;
+}
+html #root .statusbar .statusbar-item {
+  color: inherit;
+  border-color: rgba(255,255,255,.15);
+}
+
+/* Independent Platform: persistent permission-filtered nav stays present. */
+html #root .platform-shell {
+  --ah-platform-dark: #0b1530;
+  --ah-platform-glass: #172749;
+  background: var(--ui-bg);
+  font-family: Inter,system-ui,sans-serif;
+}
+html #root .platform-shell > .platform-header {
+  min-height: 64px;
+  background: linear-gradient(105deg,var(--ah-platform-dark),var(--ah-platform-glass));
+  border-bottom: 1px solid rgba(255,255,255,.12);
+  color: #f1f6ff;
+  padding: 10px 22px;
+}
+html #root .platform-shell .platform-sidebar-frame {
+  background: var(--ah-platform-dark);
+  padding: 11px 8px;
+}
+html #root .platform-shell .platform-sidebar-panel {
+  border-radius: 13px;
+  background: linear-gradient(155deg,#172749,#101e38);
+  border: 1px solid rgba(255,255,255,.1);
+  color: #ecf5ff;
+  box-shadow: none;
+}
+html #root .platform-shell .platform-sidebar-brand-text,
+html #root .platform-shell .platform-sidebar-label {
+  color: #ebf5fd;
+}
+html #root .platform-shell .platform-sidebar-brand-icon {
+  color: #43ebcd;
+  background: rgba(67,235,205,.12);
+  border: 1px solid rgba(67,235,205,.25);
+  border-radius: 9px;
+}
+html #root .platform-shell .platform-sidebar-link,
+html #root .platform-shell .platform-sidebar-group-trigger,
+html #root .platform-shell .platform-sidebar-footer-item {
+  color: #b9cce0;
+  border-radius: 9px;
+}
+html #root .platform-shell :is(.platform-sidebar-link,.platform-sidebar-group-trigger,.platform-sidebar-footer-item):hover,
+html #root .platform-shell .platform-sidebar-link.is-active {
+  color: #fff;
+  background: rgba(67,235,205,.16);
+}
+html #root .platform-shell .platform-sidebar-link.is-active:before { background:#43ebcd; }
+html #root .platform-shell .platform-sidebar-search {
+  color: #c6d9e5;
+  background: rgba(255,255,255,.07);
+  border-color: rgba(255,255,255,.15);
+  border-radius: 9px;
+}
+html #root .platform-shell .platform-sidebar-search input {color:white;}
+html #root .platform-shell .platform-main {
+  background: var(--ui-bg);
+  padding: clamp(12px,1.4vw,24px);
+}
+html #root .platform-shell .platform-main :is(.platform-dashboard-card,.platform-dashboard-metric,.platform-tenant-monitor-panel) {
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-border);
+  border-radius: var(--panel-radius);
+  box-shadow: var(--ui-card-shadow);
+}
+
+/* Dramatically new authentication composition, without modifying the forms. */
+html #root .auth-showcase {
+  grid-template-columns: minmax(320px,.9fr) minmax(0,1.1fr);
+  background: var(--ui-bg);
+}
+html #root .auth-showcase::before,
+html #root .auth-showcase::after {
+  display:none;
+  content:none;
+}
+html #root .auth-showcase-promo {
+  grid-column: 1;
+  background:linear-gradient(145deg,#0a1730,#123c50 68%,#08766f);
+  color:#fff;
+  border:0;
+  overflow:hidden;
+}
+html #root .auth-showcase-promo-content {
+  width:min(100%,480px);
+  max-width:480px;
+  padding:22px;
+  text-shadow:none;
+}
+html #root .auth-showcase-promo :is(h2,.auth-showcase-eyebrow,p) { color:#f0f9fc; }
+html #root .auth-showcase-promo .auth-showcase-promo-mark {
+  width:66px;
+  height:66px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.22);
+  background:rgba(255,255,255,.12);
+  box-shadow:none;
+  color:#a7ffe9;
+}
+html #root .auth-showcase-form-side {
+  grid-column:2;
+  background:var(--ui-bg);
+  padding:clamp(18px,4vw,52px);
+}
+html #root .auth-showcase-ring {
+  width:min(100%,510px);
+  height:auto;
+  min-height:0;
+  aspect-ratio:auto;
+  border:0;
+  border-radius:22px;
+  padding:0;
+  background:transparent;
+  box-shadow:none;
+}
+html #root .auth-showcase-form-card {
+  width:100%;
+  height:auto;
+  min-height:0;
+  border-radius:20px;
+  padding:clamp(22px,3vw,42px);
+  background:var(--ui-surface);
+  border:1px solid var(--ui-border);
+  box-shadow:0 22px 65px color-mix(in srgb,var(--ui-text) 12%,transparent);
+}
+html #root .auth-showcase-heading { text-align:left; }
+html #root .auth-showcase .auth-brand {
+  font-size:13px;
+  font-weight:850;
+  letter-spacing:-.025em;
+  color:var(--ui-accent-strong);
+}
+html #root .auth-showcase-form-card input:not([type=checkbox]) {
+  background:var(--ui-surface);
+  border:1px solid var(--ui-border);
+  border-radius:9px;
+  box-shadow:none;
+}
+html #root .auth-showcase-form-card button[type=submit] {
+  border-radius:9px;
+  min-height:39px;
+  box-shadow:none;
+}
+@media(max-width:900px) {
+  html #root .titlebar-center { position:static;transform:none; }
+  html #root .auth-showcase {grid-template-columns:1fr;}
+  html #root .auth-showcase-promo {display:none;}
+  html #root .auth-showcase-form-side {grid-column:1;min-height:100dvh;}
+}
+@media(max-width:640px) {
+  html #root .titlebar {flex-wrap:wrap;}
+  html #root .titlebar-center {order:3;width:100%;}
+  html #root .ribbon-tabs {overflow-x:auto;}
+  html #root .platform-shell .platform-main {padding:10px;}
+}
+@media(prefers-reduced-motion:reduce) {
+  html #root .auth-showcase-form-card,
+  html #root .ribbon-tab,
+  html #root .platform-sidebar-link {animation:none;transition:none;}
+}
