@@ -29,16 +29,16 @@ type AppearanceContextValue = AppearancePreferences & {
 
 const DEFAULT_PREFERENCES: AppearancePreferences = {
   theme: 'system',
-  skin: 'classic',
-  font: 'roboto-condensed',
-  primaryTheme: 'blue',
+  skin: 'advanced',
+  font: 'inter',
+  primaryTheme: 'teal',
   density: 'comfortable',
   radius: 'medium',
   shadow: 'soft',
   animations: true,
 }
 
-const STORAGE_PREFIX = 'bluepos.appearance'
+const STORAGE_PREFIX = 'ahpos.appearance'
 
 const AppearanceContext = createContext<AppearanceContextValue | null>(null)
 
