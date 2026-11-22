@@ -9,7 +9,7 @@ import { usePlatformCan } from '../features/platform/usePlatformCan'
 
 const PRIMARY = [
   { to: '/platform', label: 'Dashboard', end: true, can: 'platform.dashboard.view' },
-  { to: '/platform/tenants', label: 'Tenants', can: 'platform.tenants.view' },
+  { to: '/platform/tenants', label: 'Businesses', can: 'platform.tenants.view' },
   { to: '/platform/plans', label: 'Plans', can: 'platform.plans.view' },
 ]
 
@@ -42,8 +42,8 @@ export function PlatformShell() {
     <div className="platform-shell flex h-screen flex-col bg-[var(--ui-bg)] text-[var(--ui-text)]">
       <header className="platform-header flex items-center justify-between border-b border-[var(--ui-border)] bg-[var(--ui-accent-strong)] px-4 py-2 text-white">
         <div>
-          <div className="text-[10px] font-black tracking-[0.2em] text-[var(--ui-accent)]">PLATFORM ADMINISTRATION</div>
-          <div className="text-sm font-semibold">BluePOS Super Admin</div>
+          <div className="text-[10px] font-black tracking-[0.2em] text-[var(--ui-accent)]">AH-POS / CONTROL PLANE</div>
+          <div className="text-sm font-semibold">AH-POS Super Admin</div>
         </div>
         <div
           className="platform-account-dropdown relative text-[12px]"
@@ -130,7 +130,7 @@ export function PlatformShell() {
           <div className="platform-sidebar-panel">
             <div className="platform-sidebar-brand">
               <span className="platform-sidebar-brand-icon"><Layers3 size={18} aria-hidden="true" /></span>
-              <span className="platform-sidebar-brand-text">BluePOS Platform</span>
+              <span className="platform-sidebar-brand-text">AH-POS Platform</span>
             </div>
             <label className="platform-sidebar-search">
               <Search size={15} aria-hidden="true" />
