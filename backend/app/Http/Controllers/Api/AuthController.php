@@ -1,0 +1,291 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Actions\Auth\EstablishAuthSessionAction;
+use App\Actions\Auth\LoginUserAction;
+use App\Actions\Auth\LogoutUserAction;
+use App\Actions\Auth\RequestTenantPasswordResetAction;
+use App\Actions\Auth\ResendTenantMfaAction;
+use App\Actions\Auth\ResetTenantPasswordAction;
+use App\Enums\DeviceStatus;
+use App\Enums\MfaMethod;
+use App\Exceptions\ApiException;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Resources\AuthSessionResource;
+use App\Models\MfaChallenge;
+use App\Security\AuditLogger;
+use App\Security\DeviceNetworkTrust;
+use App\Security\SecurityOtp;
+use App\Security\SessionRevocationService;
+use App\Tenancy\TenantContext;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
+
+class AuthController extends Controller
+{
+    public function register(): JsonResponse
+    {
+        throw new ApiException('REGISTRATION_DISABLED', 'Public registration is disabled.', 403);
+    }
+
+    public function login(
+        LoginRequest $request,
+        LoginUserAction $loginUser,
+        EstablishAuthSessionAction $establishSession,
+    ): JsonResponse {
+        $session = $loginUser->execute(
+            $request,
+            $request->validated('tenant_code'),
+            $request->validated('username'),
+            $request->validated('password'),
+        );
+        app(\App\Security\LoginLocationService::class)->record($request, $session);
+        $establishSession->execute($request, $session, remember: $request->boolean('remember'));
+
+        return (new AuthSessionResource($session))->response();
+    }
+
+    public function logout(Request $request, LogoutUserAction $logoutUser, SessionRevocationService $revocation): JsonResponse
+    {
+        $ulid = $request->session()->get(EstablishAuthSessionAction::AUTH_SESSION_ULID);
+        if (is_string($ulid)) {
+            $record = \App\Models\AuthSessionRecord::query()->where('ulid', $ulid)->first();
+            if ($record) {
+                $revocation->revokeRecord($record);
+            }
+        }
+
+        $logoutUser->execute($request);
+
+        app(AuditLogger::class)->record('LOGOUT', [], $request);
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function me(TenantContext $tenantContext): AuthSessionResource
+    {
+        return AuthSessionResource::fromContext($tenantContext);
+    }
+
+    public function updateAppearance(Request $request, TenantContext $tenantContext): JsonResponse
+    {
+        $data = $request->validate([
+            'theme' => ['required', 'string', Rule::in(['system', 'light', 'dark'])],
+            'skin' => ['required', 'string', Rule::in(['classic', 'hybrid', 'advanced'])],
+            'font' => ['required', 'string', Rule::in(['skin-default', 'inter', 'roboto-condensed', 'segoe-ui', 'tahoma', 'arial'])],
+            'primaryTheme' => ['required', 'string', Rule::in(['indigo', 'blue', 'emerald', 'teal', 'purple', 'slate'])],
+            'density' => ['required', 'string', Rule::in(['compact', 'comfortable'])],
+            'radius' => ['required', 'string', Rule::in(['small', 'medium', 'large'])],
+            'shadow' => ['required', 'string', Rule::in(['none', 'soft', 'normal', '3d'])],
+            'animations' => ['required', 'boolean'],
+        ]);
+
+        $user = $tenantContext->user();
+        $user->appearance_theme = $data['theme'];
+        $user->appearance_skin = $data['skin'];
+        $user->appearance_font = $data['font'];
+        $user->appearance_primary_theme = $data['primaryTheme'];
+        $user->appearance_density = $data['density'];
+        $user->appearance_radius = $data['radius'];
+        $user->appearance_shadow = $data['shadow'];
+        $user->appearance_animations = $data['animations'];
+        $user->save();
+
+        return response()->json([
+            'appearance' => [
+                'theme' => $user->appearance_theme,
+                'skin' => $user->appearance_skin,
+                'font' => $user->appearance_font ?: 'skin-default',
+                'primaryTheme' => $user->appearance_primary_theme ?: 'blue',
+                'density' => $user->appearance_density ?: 'comfortable',
+                'radius' => $user->appearance_radius ?: 'medium',
+                'shadow' => $user->appearance_shadow ?: 'soft',
+                'animations' => (bool) $user->appearance_animations,
+            ],
+        ]);
+    }
+
+    public function changePassword(Request $request, TenantContext $tenantContext, SessionRevocationService $revocation): JsonResponse
+    {
+        $data = $request->validate([
+            'current_password' => ['required', 'string'],
+            'password' => ['required', 'string', 'confirmed', Password::min(8)],
+        ]);
+
+        $user = $tenantContext->user();
+        if (! Hash::check($data['current_password'], $user->password)) {
+            throw new ApiException('INVALID_CREDENTIALS', 'Invalid tenant code, username, or password.', 401);
+        }
+
+        $user->password = $data['password'];
+        $user->must_change_password = false;
+        $user->password_changed_at = now();
+        $user->save();
+        $tenantContext->membership()->bumpSecurityVersion();
+
+        $revocation->revokeMembership($tenantContext->membership()->fresh() ?? $tenantContext->membership(), false);
+
+        app(AuditLogger::class)->record('PASSWORD_CHANGED', [
+            'resource_type' => 'user',
+            'resource_ulid' => $user->ulid,
+        ], $request);
+
+        app(EstablishAuthSessionAction::class)->execute($request, new \App\Auth\AuthenticatedSession(
+            user: $user->fresh() ?? $user,
+            tenant: $tenantContext->tenant(),
+            membership: $tenantContext->membership()->fresh(['user']) ?? $tenantContext->membership(),
+            branch: $tenantContext->branch(),
+            warehouse: $tenantContext->warehouse(),
+            device: $tenantContext->hasDevice() ? $tenantContext->device() : null,
+        ), false);
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function forgotPassword(Request $request, RequestTenantPasswordResetAction $reset): JsonResponse
+    {
+        $data = $request->validate([
+            'tenant_code' => ['required', 'string'],
+            'username' => ['required', 'string'],
+        ]);
+
+        return $reset->execute($request, $data['tenant_code'], $data['username']);
+    }
+
+    public function resetPassword(Request $request, ResetTenantPasswordAction $reset): JsonResponse
+    {
+        $data = $request->validate([
+            'tenant_code' => ['required', 'string'],
+            'username' => ['required', 'string'],
+            'token' => ['required', 'string', 'max:12'],
+            'password' => ['required', 'string', 'confirmed', Password::min(8)],
+        ]);
+
+        return $reset->execute(
+            $request,
+            $data['tenant_code'],
+            $data['username'],
+            $data['token'],
+            $data['password'],
+        );
+    }
+
+    public function resendMfa(Request $request, ResendTenantMfaAction $resend): never
+    {
+        $data = $request->validate([
+            'challenge_ulid' => ['required', 'string', 'size:26'],
+        ]);
+
+        $resend->execute($request, $data['challenge_ulid']);
+    }
+
+    public function verifyMfa(
+        Request $request,
+        EstablishAuthSessionAction $establishSession,
+    ): JsonResponse {
+        $data = $request->validate([
+            'challenge_ulid' => ['required', 'string', 'size:26'],
+            'code' => ['required', 'string'],
+            'trust_device' => ['sometimes', 'boolean'],
+            'remember' => ['sometimes', 'boolean'],
+            'location_latitude' => [config('security.tenant_login_location_required') ? 'required' : 'sometimes', 'numeric', 'between:-90,90'],
+            'location_longitude' => [config('security.tenant_login_location_required') ? 'required' : 'sometimes', 'numeric', 'between:-180,180'],
+            'location_accuracy' => [config('security.tenant_login_location_required') ? 'required' : 'sometimes', 'numeric', 'min:0', 'max:20000000'],
+        ]);
+
+        $challenge = MfaChallenge::query()
+            ->with(['membership.user', 'membership.tenant', 'device'])
+            ->where('ulid', $data['challenge_ulid'])
+            ->first();
+
+        if (! $challenge || $challenge->consumed_at) {
+            throw new ApiException('MFA_INVALID', 'The verification code is invalid.', 403);
+        }
+
+        if ($challenge->expires_at->isPast()) {
+            throw new ApiException('MFA_EXPIRED', 'The verification code has expired.', 403);
+        }
+
+        if ($challenge->attempts >= SecurityOtp::maxVerifyAttempts()) {
+            throw new ApiException('TOO_MANY_ATTEMPTS', 'Too many attempts. Please wait and try again.', 429);
+        }
+
+        if (! Hash::check($data['code'], $challenge->code_hash)) {
+            MfaChallenge::query()->whereKey($challenge->id)->whereNull('consumed_at')
+                ->where('attempts', '<', SecurityOtp::maxVerifyAttempts())->increment('attempts');
+            app(AuditLogger::class)->record('MFA_FAILURE', [
+                'tenant_id' => $challenge->tenant_id,
+                'resource_ulid' => $challenge->ulid,
+                'resource_type' => 'mfa_challenge',
+            ], $request);
+            throw new ApiException('MFA_INVALID', 'The verification code is invalid.', 403);
+        }
+
+        $membership = $challenge->membership;
+        $device = $challenge->device;
+        if (! $membership || ! $membership->user || ! $membership->tenant || ! $device
+            || (int) $device->tenant_id !== (int) $membership->tenant_id
+            || $device->status === DeviceStatus::Revoked || $device->status === DeviceStatus::Disabled) {
+            throw new ApiException('MFA_INVALID', 'The verification request is no longer valid.', 403);
+        }
+
+        // Only the tenant owner may self-approve a new device through email OTP.
+        // Staff devices must first be approved through the tenant's Devices workflow.
+        if ($device->status === DeviceStatus::Pending && ! $membership->hasOwnerAuthority()) {
+            throw new ApiException('DEVICE_NOT_APPROVED', 'Your tenant administrator must approve this device.', 403);
+        }
+
+        // Atomically consume the challenge; concurrent replays lose before a session is established.
+        $claimed = MfaChallenge::query()->whereKey($challenge->id)
+            ->whereNull('consumed_at')->where('expires_at', '>', now())
+            ->where('attempts', '<', SecurityOtp::maxVerifyAttempts())
+            ->update(['consumed_at' => now()]);
+        if ($claimed !== 1) {
+            throw new ApiException('MFA_INVALID', 'The verification request is no longer valid.', 403);
+        }
+
+        if ($device) {
+            if ($device->status === DeviceStatus::Pending) {
+                $device->status = DeviceStatus::Active;
+                $device->approved_at = now();
+                $device->approved_by = $challenge->user_id;
+            }
+            if ($membership->hasOwnerAuthority() || $request->boolean('trust_device')) {
+                $device->trusted_until = now()->addDays(30);
+                $device->trusted_ip_hash = app(DeviceNetworkTrust::class)->fingerprint($request);
+            }
+            $device->save();
+        }
+
+        $membership = $challenge->membership;
+        $branch = app(\App\Authz\MembershipAccess::class)->resolveBranch($membership, $device?->branch_id ? (int) $device->branch_id : null);
+        $warehouse = \App\Models\Warehouse::query()->forTenant((int) $membership->tenant_id)->where('branch_id', $branch?->id)->orderByDesc('is_default')->first();
+        if (! $branch || ! $warehouse) {
+            throw new ApiException('NO_BRANCH', 'No branch is available for this tenant.', 403);
+        }
+
+        $session = new \App\Auth\AuthenticatedSession(
+            user: $membership->user,
+            tenant: $membership->tenant,
+            membership: $membership,
+            branch: $branch,
+            warehouse: $warehouse,
+            device: $device,
+        );
+        app(\App\Security\LoginLocationService::class)->record($request, $session);
+        $establishSession->execute($request, $session);
+
+        app(AuditLogger::class)->record('MFA_SUCCESS', [
+            'resource_type' => 'mfa_challenge',
+            'resource_ulid' => $challenge->ulid,
+            'method' => MfaMethod::EmailOtp->value,
+        ], $request);
+
+        return (new AuthSessionResource($session))->response();
+    }
+}

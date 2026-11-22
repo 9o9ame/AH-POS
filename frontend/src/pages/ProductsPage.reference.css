@@ -1,0 +1,170 @@
+/* Inline create/edit support for the single-screen Products workflow */
+.product-reference-screen .product-inline-error{
+  margin: 6px 9px 0;
+  padding: 5px 7px;
+  border: 1px solid #b45353;
+  background: #fff0f0;
+  color: #8a1515;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.product-reference-screen .pdf-barcode-input{
+  width: 100%;
+  height: 18px;
+  min-width: 0;
+  padding: 0 3px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.product-reference-screen .pdf-barcode-input:focus{
+  outline: 1px solid #4f8fc0;
+  background: #fff;
+}
+
+.product-reference-screen .pdf-barcode-input:read-only{
+  color: #626d77;
+}
+
+.product-reference-screen .pdf-barcode-table td:first-child{
+  padding: 1px 2px;
+}
+/* Products inline-editor polish — append to ProductsPage.reference.css */
+
+/* Keep search and New on one line,
+even when the global input rules are wide. */
+.product-reference-screen .product-def-grid-top{
+  display: block;
+  flex: 0 0 46px;
+  padding: 5px 8px;
+}
+
+.product-reference-screen .product-def-grid-search{
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  min-width: 0;
+}
+
+.product-reference-screen .product-def-grid-search .pdf-input{
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 32px;
+  margin: 0;
+}
+
+/* Give the group selector breathing room and a reference-like raised header. */
+.product-reference-screen .product-def-groupbar{
+  display: flex !important;
+  align-items: center;
+  gap: 8px !important;
+  min-width: 220px;
+  height: 32px;
+  margin: 7px 0 4px 7px;
+  padding: 0 8px 0 10px;
+  box-sizing: border-box;
+}
+
+.product-reference-screen .product-def-groupbar-label{
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* Barcode block spans the form column (full width). */
+.product-reference-screen .pdf-barcode-box{
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  align-self: stretch;
+}
+
+/* Keep the editable barcode cells compact. */
+.product-reference-screen .pdf-barcode-input{
+  width: 100%;
+  height: 18px;
+  min-width: 0;
+  padding: 0 3px;
+  border: 0;
+  background: transparent;
+  font: inherit;
+}
+
+.product-reference-screen .pdf-barcode-input:focus{
+  outline: 1px solid #4f8fc0;
+  background: #fff;
+}
+
+/* The form should remain stable when New mode clears the selection. */
+.product-reference-screen .product-def-form,
+.product-reference-screen .product-def-grid{
+  min-width: 0;
+}
+
+/* Slightly stronger selected row,
+closer to the reference application. */
+.product-reference-screen .product-def-grid .pos-grid tbody tr.is-selected td,
+.product-reference-screen .product-def-grid .pos-grid tbody tr[aria-selected='true'] td{
+  background: #6b91d4;
+}
+
+/* Smaller widths: keep toolbar usable instead of stacking. */
+@media (max-width: 1050px){
+  .product-reference-screen .product-def-grid-search {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+/* Products field + buttons for reference-style master-data popups */
+
+.product-reference-screen .pdf-field-plus{
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 25px;
+  align-items: stretch;
+  gap: 2px;
+  min-width: 0;
+}
+
+.product-reference-screen .pdf-field-plus > .pdf-input{
+  width: 100%;
+  min-width: 0;
+}
+
+.product-reference-screen .pdf-plus-button{
+  display: grid;
+  place-items: center;
+  width: 25px;
+  min-width: 25px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid #5487a8;
+  border-radius: 2px;
+  background: linear-gradient(#dff5ff, #8fd2f2 52%, #5aaed7);
+  color: #0f5782;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.9),
+    0 1px 1px rgba(0,0,0,.12);
+}
+
+.product-reference-screen .pdf-plus-button:hover:not(:disabled){
+  background: linear-gradient(#f0fbff, #9bdbf7 52%, #69b9de);
+}
+
+.product-reference-screen .pdf-plus-button:active:not(:disabled){
+  background: linear-gradient(#64b4db, #9bdcf8);
+}
+
+.product-reference-screen .pdf-plus-button:disabled{
+  opacity: .45;
+}
+
+
+/* ---------- PRODUCTS REFERENCE TOKEN BRIDGE ---------- */
+/* Shared components (UiSelect/UiButton/PosDataGrid) own their visual states. */
+.product-reference-screen{
+  color: var(--ui-text) !important;
+}

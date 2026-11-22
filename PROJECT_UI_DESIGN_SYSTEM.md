@@ -1,98 +1,523 @@
-# AH-POS Global UI Design System — initial approved direction needed
+# BluePOS Project UI Design System
 
-**Status:** Foundational standards / visual identity **not yet approved**. This is a contract for future design, not proof of coded components.
+This file is the single source of truth for BluePOS frontend visual language and reusable UI behavior.
 
-## Visual independence
-BluePOS is a business-flow reference, not a UI template. AH-POS must have original branding, color language, navigation, typography, icon usage and layout. Do not reuse proprietary BluePOS artwork, distinctive ribbon appearance or screenshots as code.
+It applies to the React + TypeScript + Vite frontend, including tenant application pages, authentication, platform administration, dialogs, nested dialogs, reports, POS screens, and future modules.
 
-## Single source of visual truth
-Before feature pages, define globally: `font-family`, 12/14/16/18/24/32 typography scale (proposed, tune after review), typography weights and line heights; neutral + semantic color tokens; light/dark theme; contrast; 4px spacing system; responsive breakpoints; density; radii/shadows; focus/hover/disabled/error/selected; overlays/z-index; animation reduction.
+## 1. Core rule
 
-## Shared components (planned)
-AppShell; Sidebar; Topbar; PageHeader; UiButton; UiInput; UiSelect; UiDatePicker; MoneyInput; QuantityInput; UiModal; ConfirmDialog; DataTable; PosEntryGrid; ProductPicker; PartyPicker; Toast; SearchPalette; ReceiptPreview; UploadDropzone; AiAssistantDock; VoiceRecorder; SyncStatusBadge.
+BluePOS uses one design system, not one visual implementation per page.
 
-## Enforced rules
-- Central tokens and component implementation own appearance and state.
-- Feature pages own business layout only; no duplicate font sizes and ad hoc colors.
-- Responsive, keyboard accessible and mobile-friendly from the start. Ensure POS keyboard entry and scanners don't lose focus.
-- Freeze visual geometry after explicit acceptance; subsequent functional fixes must preserve approved structure.
-- Design mobile alongside the web contract but begin mobile app coding at 70–80% **accepted** web milestone.
-- Require component gallery, screenshot regression and accessibility contrast checks before P2 acceptance.
+Page-specific code may control:
+- workflow,
+- information hierarchy,
+- geometry,
+- responsive composition,
+- business-specific layout.
 
-## Next
-Approve unique design direction (logo, palette, navigation, component style), build tokens/components and record signoff. Do not claim designs finalized yet.
+Page-specific code must not invent a separate visual language for:
+- colors,
+- fonts,
+- control appearance,
+- dropdowns,
+- dropdown arrows,
+- buttons,
+- tabs,
+- modals,
+- shadows,
+- radii,
+- focus,
+- hover,
+- disabled states,
+- validation,
+- loading,
+- selected states,
+- animation timing.
 
-## 2026-11-19 — Implemented provisional visual direction (NOT YET APPROVED)
-- New `frontend/src/styles.css` global tokens: navy sidebar, teal action/accent, soft gray workspace, white cards, Manrope/DM Sans typography with system fallback, responsive nav and accessible focus states.
-- Shared visual building blocks: `AppIcon`, `App` nav/tenant shell, `DashboardPanel`, metric cards and table/card styling. Existing product/party/inventory modules reuse this design without copied BluePOS branding.
-- User requested a recognizable full POS application appearance rather than a narrow engineering demo. This batch is **implemented_unverified** until browser screenshot/review; final logo, palette and component geometry still need explicit signoff. Do not mark P2 accepted on source-only evidence.
+If a shared BluePOS UI component already exists, reuse it. Do not create a local replacement unless the shared component cannot support the required behavior.
 
-## 2026-11-19 — Premium UX iteration (pending user visual approval)
-- 2026 researched direction: command-first navigation, calm-density business data, meaningful motion, restrained translucent control surfaces, strong keyboard accessibility. No verifiable universal visual style called "V7" or "V24"; use actual reference URLs/screenshots if the user specifies them.
-- Implementation: `CommandPalette.tsx`, Ctrl/Cmd+K search/arrow/Enter/Escape, top-bar search affordance; CSS tokens `--ease-expressive`, `--motion-short/medium`, translucent sticky header and modal backdrop; subtle cards, navigation, toast motion and `prefers-reduced-motion` fallbacks.
-- Favor cashier speed, 60fps transforms/opacity, measurable interaction responsiveness, readable dense stock/sales tables over broad glass/blur decoration. UI remains NOT approved or locally visually verified for this commit.
+Report viewers: use `frontend/src/components/reports/ReportViewerToolbar.tsx` and its shared stylesheet for Print/PDF, Copy, Text, HTML, CSV export, Search, Zoom, Refresh, Edit Options, and Close. The approved Trial Balance viewer is the visual reference. Individual reports own their data and callbacks; do not duplicate or locally restyle the toolbar. Frozen report layouts and specialized section navigation remain unchanged until separately approved.
 
-## 2026-11-19 — Expanded operational screen patterns (pending local visual verification)
-- Desktop purchasing: supplier and warehouse controls, searchable product tiles, multi-line editable quantity/unit cost, provisional draft total, document history.
-- Cashier POS: warehouse/customer pickers, barcode/SKU search, click-to-cart, editable quantities, running local estimate, cash tendered, change preview, call-to-action and recent sales; receipt modal/print CSS for narrow 80mm-class output.
-- Operations Reports: KPI cards and seven-day bar visualization; trend is tenant-scoped cash-sale volume, NOT GL, profit or tax accounting. Motion uses existing tokens and reduced-motion fallback.
-- These new screens are code-complete but **await Vite build/browser review**; not an approved frozen design geometry.
+## 2. Theme & Appearance is authoritative
 
-## 2026-11-19 — Dedicated returns workflow UI (implemented/unverified)
-- New `ReturnsPanel.tsx` uses existing cards, forms, table, warnings and success feedback for partial/full cash refunds, original receipt selection, item quantities and return history.
-- Sidebar and Ctrl+K destinations include Sales Returns. Reports now distinguish gross cash sales from refund-adjusted cash activity; all remain pilot data, not financial statements. No approval claim until browser evidence.
+Voucher identity is an approved fixed-color exception: Opening amber, Payment
+red, Receiving green and Journal indigo. The palette lives in `appearance.css`
+as `--ui-voucher-*` tokens. Selected workspace tabs retain that identity; form
+headers and table headings use soft versions with contrasting text. The heading
+row immediately under workspace tabs follows the selected Primary Theme.
+Entry controls keep accessible theme surfaces;
+Save/Post/Delete retain their semantic action colors. Ribbon menus use shared
+spaced, raised menu rows, with matching voucher badges where applicable. Ribbon
+dropdowns stay mounted for smooth hover opening/closing and retain the shared
+left-to-right color-fill effect. Keyboard/click navigation remains available.
+Workspace tab backgrounds and hover fills belong to the outer tab container.
+Report menu items declare a semantic Lucide `icon` and `iconTone` in the shared
+ribbon registry; colored icon plates use global semantic tokens. Disabled
+reports keep disabled actions and greyscale icons. Do not copy reference-app assets.
+Label and close buttons keep transparent faces so the entire tab reads as one
+continuous selected/hovered surface, with separate accessible click targets.
 
-## 2026-11-19 — Cash Register UI module (source committed, not yet visually verified)
-- Shared navigation gains Cash Register. Responsive open-shift form, live shift KPI cards, physical-counted cash close interaction, expected-vs-counted variance and immutable closure history reuses original AH POS tokens/cards.
-- Operational pilot excludes physical drawer driver and financial ledger; no P2 signoff based only on committed code.
+All migrated and new UI must respond to the user-selected Theme & Appearance settings:
 
-## 2026-11-19 — Desktop invoice workspace based on workflow, NOT BluePOS UI copy
-- User explicitly requested desktop-style AH-POS rather than static website screens, with multiple simultaneous customers/purchases, independent modal windows, and BluePOS-style On Hold/Get semantics mapped to AH-POS tenant PostgreSQL.
-- Created `TransactionWorkbench.tsx` task dock and maximized modal invoices, dense responsive product/cart layouts, keyboard new-sale/new-purchase, styled titlebars and minimize/close controls, server saved held bills. AH-POS navy/teal original visual system kept. No frozen BluePOS proprietary pixel layout copied.
-- Large new UX source is **not yet locally browser-approved or compiled**. Verify multi-window switching, barcode keyboard, modal focus, receipt overlay/print and mobile accessibility before visual signoff; avoid claiming true drag/resize/split view, cross-device workspaces or production-only functions not implemented.
+- Appearance: Light / Dark / System
+- Primary Theme: Indigo / Blue / Emerald / Teal / Purple / Slate
+- Density: Compact / Comfortable
+- Border Radius: Small / Medium / Large
+- Card Shadow: None / Soft / Normal / 3D
+- Font Family
+- UI Animations: On / Off
 
-## 2026-11-19 — User-requested full ERP information architecture
-- User explicitly requires AH-POS to present a mature professional ERP menu, with top-level Definitions, Daily Entries, Reports, Tools, Administration, Help and detailed business groups, while remaining visually distinct from BluePOS.
-- Implemented new canonical `ModuleCatalog`, original responsive AH-POS module ribbon, grouped contextual sidebar, searchable module family pages with available/planned counters, Ctrl+K taxonomy search and disabled planned screens. Existing desktop POS/Purchase multi-window workbench persists. Original AH-POS navy/teal theme retained.
-- Four-tab real Definitions master management added for Category/Subcategory/Brand/Unit; product form captures optional links. Unbuilt admin/accounting/lot/multiunit workflows remain labeled `Planned`, not fake finished UI.
-- Large shell/refactor **not yet locally built or browser approved**. User to inspect dense desktop hierarchy, mobile ribbon, context switching, contrast and speed. No geometry frozen or signoff implied.
+The runtime source of truth is the appearance provider and root data attributes. Visual code must use the global tokens derived from those settings.
 
-## 2026-11-19 — User-directed compact desktop Admin interaction contract
-- Initial tenant/Admin with exactly one active authorized membership enters dashboard via server-verified context after login; multiple memberships continue to show chooser.
-- The six-family ribbon becomes first/top chrome, with workspace/profile identity on right; redundant breadcrumb/search/development second bar removed (Ctrl+K still works).
-- Contextual sidebar closed by default; hover/focus left edge smoothly reveals, pin toggle keeps visible, switching family hides previous submenu, repeated family click closes module explorer. Responsive/keyboard/reduced-motion contract; browser verification pending.
-- Compact density and fixed application frame. Workspace or table has its own scroll, not a whole-page document scroll. No permanent master create forms: Product, Parties, Product Masters, Warehouse/Stock Inward are dialog-driven list pages. Transaction invoice windows remain custom POS/Purchase workspaces.
-- Dashboard live source chart types: seven-day gross cash sales **bars** and sale/purchase/refund **document count donut**, no unsourced profit or cash balances. New provisional color-coded Stock Watch is **not server-defined notifications**.
-- Added shared EntityModal and TableSkeleton; source is **unverified** until frontend TS build and browser keyboard/mobile review. Device-safe IndexedDB persistence is a later explicitly gated milestone as documented in ADR-0003; first-load can never be magically cached without a prior download.
+Do not hard-code a primary brand blue, purple, green, radius, shadow, or font in a component.
 
-## 2026-11-19 — Corrected top-ribbon hover / click navigation contract (user screenshot feedback)
-- **Supersedes** earlier "hover left edge" behavior. User marked **Home / Definitions / Daily Entries / Reports / Tools / Administration / Help** tabs in screenshot as the correct hover targets and crossed out the separate left-side hamburger.
-- On desktop: hover/focus **any main ribbon tab** previews that family's contextual left submenu while keeping the current business page unchanged; moving pointer into sidebar keeps it open; leaving preview hides it when unpinned. Click a family tab to **pin** its submenu and navigate to that family's module directory; click same pinned family again to **unpin and close** submenu. Clicking another family replaces the previously pinned submenu. Home hover shows Overview submenu; Home click navigates dashboard and closes submenu.
-- Remove detached left-edge trigger and ribbon hamburger completely. Sidebar animates from under top ribbon, never obscures the top navigation. Side menu chosen via top navbar not anonymous edge. Keyboard focus previews ribbon item; Escape closes; reduced-motion disables transition.
-- Opening a subpage inside the clicked family retains the pinned submenu, rather than resetting it. Switch across families clears/changes pin. Platform vs Admin staff/permissions, secure device approval and IndexedDB remain separate unimplemented security milestones.
-- **Committed source, NOT locally built/browser tested**. Verify hover-to-drawer traversal, pin/reclick/switch, mobile touch, keyboard and dashboard. Older paragraphs referencing hover-left-edge are historical and superseded by this explicit correction.
+Semantic colors are allowed only through global semantic tokens:
+- success
+- warning
+- danger
+- info
 
-## 2026-11-19 — Platform console distinct from business Admin shell
-- A platform-authorized user sees Platform entry in the main ribbon; Platform-only staff without a tenant enters Platform console directly. The Platform console has a separate premium AH-POS control-plane header and dense list/create-modal registers for Admin onboarding, Platform operators and audit.
-- Unauthorized users never see Platform link. Platform UI does not show business transactions or bypass tenant RBAC. Source is NOT yet browser/TypeScript verified.
-- Top family-hover sidebar correction remains source-of-truth: hover any top tab previews matching subnav; click pins, same click unpins, switch replaces. No edge hamburger.
+## 3. Canonical token source
 
-## 2026-11-19 — Real tenant Staff + Device Approval administration UI
-- Top ribbon Administration → Users & Staff, Roles & Permissions and Device Management now map to one compact `StaffSecurityPanel` with contextual tab, Create Staff modal, role-permission display and device approval/reject/revoke table. Each action is backed by tenant/RBAC server APIs; local old Ali tenant requires explicit Admin Owner grant.
-- On single-staff login without approved device, show dedicated `DevicePendingPanel` with device label form, pending status, refresh/check approval action and logout. No tenant data is rendered until server returns approved member context; HttpOnly cookie is not exposed to React/IndexedDB.
-- No browser acceptance yet. No fake GPS or notification claims. Continue original top-ribbon hover-preview, click-pin, toggle submenu and compact modal/table density without creating an extra left-edge hover button.
+Do not create a second token system.
 
-## 2026-11-19 — Eliminate user-facing ULID/authorization CLI friction
-- Legacy business Admin Owner setup now happens in the **Platform → Admin businesses** register: a visible **Assign Owner** action on active ownerless business rows, modal of existing active members by name/email, explicit Confirm. Tenant ULID remains a hidden internal routing detail; nobody must remember/copy 26 characters. Existing Super Admin authentication is checked by backend before any assignment.
-- No automatic owner/platform privilege escalation; vendor-authorized owner assignment uses separate Platform RBAC `platform.admins.create` and server membership validation. No password shown in this modal. Source/browsers unverified pending local focused test.
+Use the existing global variables exposed through `frontend/src/appearance.css`, especially:
 
-## 2026-11-19 — Two completely separate application shells (supersedes mixed Platform toolbar)
-- Tenant POS URL `http://localhost:5173/`: `App` business ribbon, dashboard, transaction modals and tenant navigation only. There must never be a Platform button, PlatformPanel, Platform tenant role query, or Platform auth data mixed into its UI.
-- Super Admin URL `http://platform.localhost:5173/platform/login` (fallback `localhost:5173/platform/login`): independent `PlatformApp` with distinct left vendor control sidebar, header, typography, dedicated login, Platform businesses/staff/audit and account-security workflow. Top-level Platform groupings mirror *functional taxonomy* from BluePOS: PLATFORM, ACCESS CONTROL, SECURITY, SYSTEM. Unimplemented Plans/roles-editor/device oversight/settings marked **Soon**, not fake CRUD.
-- Platform account and business account separate session realms. Current legacy Ali mixed login is transitional only; a one-time audited Platform Authority Transfer screen creates a dedicated Platform-only user then removes Ali's platform privileges, retaining his POS business membership.
-- App/Platform URLs and responsive CSS exist as source, **Vite build and browser UAT pending**. Production domains/subdomain cookie setup remain deployment tasks, not an achieved security certification.
+- `--ui-bg`
+- `--ui-surface`
+- `--ui-surface-subtle`
+- `--ui-surface-muted`
+- `--ui-text`
+- `--ui-text-muted`
+- `--ui-border`
+- `--ui-accent`
+- `--ui-accent-soft`
+- `--ui-accent-strong`
+- `--ui-success`
+- `--ui-warning`
+- `--ui-danger`
+- `--ui-info`
+- `--ui-focus-shadow`
+- `--ui-card-shadow`
+- `--ui-control-shadow`
+- `--control-radius`
+- `--panel-radius`
+- `--app-font-family`
+- `--ui-transition-fast`
+- `--ui-transition-normal`
 
-## 2026-11-19 — Global dialog layer authoritative fix
-- Modal source of truth `EntityModal.tsx` must **always portal to document.body**, NEVER render a fixed overlay inside animated `.workspace-main > *`, card, or Platform scroller. Global z-index layer, focus trapped, Escape and backdrop close, scroll confined to dialog body, focus restored to Add button. This fixes invisible Create/Add modals caused by parent `page-enter` transforms.
-- Platform business list compact search/status filter, Create modal, Assign Owner modal and audited Suspend/Reactivate modal; tenant Admin Staff and Device actions use elegant confirmation modals not `window.confirm`. API validation failures show within current open dialog.
-- Disable misleading Add buttons on permission-denied lists. Local pilot form password minimum three only under Vite DEV; production still stronger. Source pending browser/keyboard review and Vite build.
+The approved Definition visual baseline also exposes reusable state/face tokens for canonical controls and grids, including:
+- `--ui-control-face`
+- `--ui-control-border`
+- `--ui-control-hover-bg`
+- `--ui-control-hover-border`
+- `--ui-select-arrow-face`
+- `--ui-select-arrow-border`
+- `--ui-select-menu-bg`
+- `--ui-select-hover-bg`
+- `--ui-select-hover-text`
+- `--ui-select-selected-face`
+- `--ui-select-selected-text`
+- `--ui-button-primary-face`
+- `--ui-button-success-face`
+- `--ui-button-warning-face`
+- `--ui-button-danger-face`
+- `--ui-button-info-face`
+- `--ui-table-header`
+- `--ui-table-header-text`
+- `--ui-table-border`
+- `--ui-row-alt`
+- `--ui-row-hover`
+- `--ui-selected-row`
+- `--ui-selected-row-text`
+
+These tokens are the reusable implementation of the client-approved Definition look. Page CSS must consume them or canonical components rather than copying Definition hex colors, gradients, selected-row styles, dropdown arrow styles, or semantic button faces locally.
+
+Density-dependent font, spacing and control-height variables already exposed by the appearance/density CSS must be preferred over literal values when practical.
+
+## 4. Canonical components
+
+### BluePOS canonical UI vocabulary
+
+When discussing or implementing these patterns, use these exact names:
+
+- **Simple Dropdown** -> `UiSimpleDropdown` (implemented through `UiSelect`).
+  Use for ordinary single-value choices such as warehouse, unit, status, order type,
+  category, price type and payment method. When searchable, search happens in the
+  main trigger field; do not add a second search input inside the popup.
+- **Table Dropdown** -> `UiTableDropdown` (implemented through `UiSelect` with
+  headed columns). Use for entity lookups such as customer, supplier, salesman,
+  account, invoice or other multi-column choices. Search happens in the main trigger
+  field; the popup contains headings and result rows, not another search bar.
+- **Custom Table** -> `PosEntryGrid`. Use for editable/addable transaction-line
+  tables. Modules define their own columns, widths, cells and business behavior;
+  the shared component owns table header, borders, row density, numeric alignment,
+  entry-row surface and base editor geometry. The approved Sales Invoice table is
+  the visual baseline. Empty editable cells are blank unless the workflow explicitly
+  requires a placeholder.
+- **Simple Table** -> `PosDataGrid`. Use for read/search/report/history/tabular lists
+  where rows are displayed or selected rather than edited inline.
+
+Do not recreate these four patterns with page-specific table/dropdown chrome. Page CSS
+may control layout and business-specific cells, but not duplicate shared borders,
+header faces, row height, dropdown arrows, search placement or base editor geometry.
+
+**Approved exceptions:** Purchase Invoice has specialized approved table behavior and
+must not be migrated to `PosEntryGrid` unless explicitly requested. Sales Invoice is
+the approved visual reference and should not be rewritten merely to adopt the shared
+component.
+
+
+### Dropdowns / selects
+
+Canonical component: `UiSelect` in `frontend/src/components/ui/UiSelect.tsx`.
+
+Rules:
+- use `UiSelect` for user-facing application dropdowns,
+- standard `UiSelect` dropdowns are searchable by default; the search field must filter visible options without changing the selected value until the user explicitly chooses an option,
+- popup is rendered in a portal so it is not clipped by tables, panels, or dialogs,
+- selected, hover, disabled, focus, Light/Dark, radius, shadow, density and animation states come from global tokens,
+- nested dialogs must pass a suitable `menuZIndex`,
+- use text labels in the popup; never expose internal BIGINT IDs,
+- do not add native-select arrow CSS to imitate the canonical dropdown.
+
+Compatibility wrappers such as `BpFancySelect` and `AnimatedSelect` may remain temporarily, but they must delegate to `UiSelect`; they must not maintain independent visual behavior.
+
+Canonical multi-select component: `UiMultiSelect` in `frontend/src/components/ui/UiMultiSelect.tsx`.
+
+Rules:
+- use `UiMultiSelect` for user-facing multi-selection instead of native `select multiple`,
+- keep the same Theme & Appearance, portal, layering, focus, disabled, density, radius, shadow and animation contract as `UiSelect`.
+
+`UiSelect` supports controlled values and legacy form serialization through `name` + `defaultValue`; do not keep a native single-select only because a form currently uses `FormData`.
+
+Native `select` is permitted only where there is a concrete browser-semantic reason that the canonical component cannot safely provide. It must still use global tokens. Single-value controlled dropdowns should use `UiSelect`.
+
+### Buttons
+
+Canonical component: `UiButton` in `frontend/src/components/ui/UiButton.tsx`.
+
+Legacy wrappers such as `DesktopButton` must delegate to `UiButton` rather than maintaining a second visual system.
+
+Variants:
+- default,
+- primary,
+- success,
+- warning,
+- danger,
+- info,
+- icon-only.
+
+Primary follows `--ui-accent`. Semantic variants use semantic tokens.
+
+All buttons must implement consistent:
+- focus-visible,
+- hover,
+- active,
+- disabled,
+- radius,
+- shadow,
+- density,
+- animations.
+
+### Semantic action button colors
+
+Button background color must communicate the action consistently across pages and modals while remaining soft/subtle rather than saturated.
+
+Canonical action mapping:
+- Save / Activate / Post / Approve / Complete -> success tone (soft green).
+- Delete / Remove / Void / Deactivate / Reject -> danger tone (soft red).
+- Refresh / Close / Preview / Print / Search -> info tone (soft blue/info).
+- Hold / Retry / cautionary actions -> warning tone (soft amber).
+- New / Add / Create -> Primary Theme tone (soft accent).
+- Neutral navigation or non-semantic actions -> default neutral surface.
+
+Rules:
+- use `UiButton` semantic variants or shared `data-tone` / `data-action` semantics; do not hard-code action colors locally,
+- the same action must have the same semantic tone whether it appears in a page toolbar, modal footer, nested modal, or admin/platform screen,
+- semantic action colors must derive from `--ui-success`, `--ui-danger`, `--ui-info`, `--ui-warning`, or the Primary Theme tokens,
+- disabled buttons remain visibly disabled and must not look like an enabled semantic action,
+- Light/Dark, selected theme, radius, shadow and animations continue to apply.
+
+### Inputs and textareas
+
+Inputs inherit global surface/text/border/radius/shadow/focus/disabled tokens.
+
+Do not create page-specific focus-ring colors.
+
+### Tabs
+
+Tabs may have page-specific geometry but must use global:
+- text,
+- muted text,
+- border,
+- accent,
+- surface,
+- active/hover states,
+- radius,
+- animations.
+
+Workspace tabs follow the same token contract.
+
+### Tables / data grids
+
+Prefer `PosDataGrid` for standard application data grids.
+
+Custom tables may retain module-specific columns and geometry but must use global:
+- header surfaces,
+- borders,
+- text,
+- hover rows,
+- selected rows,
+- empty/loading states.
+
+### Toggles / checkboxes / radios
+
+Use existing shared controls where available.
+
+Toggle visual tones must use semantic/global tokens. Disabled and animations-off behavior must be respected.
+
+## 5. Modal contract
+
+Canonical standard modal: `UiModal` in `frontend/src/components/ui/UiModal.tsx`.
+
+Specialized draggable or complex nested dialogs may keep their workflow-specific structure, but their visual properties must use the same tokens and overlay-layer contract.
+
+All application dialogs must follow the same modal contract even when their internal layouts differ.
+
+Required behaviors:
+- token-based surface, border, text, radius and shadow,
+- visible title/header hierarchy,
+- keyboard-accessible close action,
+- predictable z-index layering,
+- nested dialog support,
+- no popup hidden behind a backdrop,
+- responsive max width/height,
+- scroll only inside the content region where practical,
+- animations disabled by global Animations Off.
+
+Overlay layers are defined in `frontend/src/components/ui/uiLayers.ts`. Do not invent local numeric z-index values for modals/dropdowns.
+
+Use the closest appropriate `UI_LAYER` constant so dropdown menus always sit above the modal that owns them.
+
+Do not solve modal layering with unrelated page-specific z-index values when a shared modal/dropdown prop can express the layer.
+
+## 6. Nested modal rule
+
+When a module is embedded in another modal:
+- keep the same component and workflow,
+- use a compact size variant instead of creating a second implementation,
+- preserve functionality,
+- keep dropdown/menu portals above the nested modal,
+- do not duplicate forms or business logic.
+
+## 7. Typography
+
+Font family comes from `--app-font-family`.
+
+Prefer density-aware shared font tokens. Page-specific typography is allowed for hierarchy, not for a separate brand style.
+
+Do not hard-code a different font stack inside module CSS unless required for printing/export.
+
+## 8. Radius and shadow
+
+Do not hard-code decorative border radii or card shadows in new/migrated UI.
+
+Use:
+- `--control-radius` for controls,
+- `--panel-radius` for cards/panels/dialogs,
+- `--ui-control-shadow` for controls,
+- `--ui-card-shadow` for panels/dialogs.
+
+The 3D shadow option must work through these same tokens, not through special per-page CSS.
+
+## 9. Animations
+
+Useful animations are allowed:
+- dropdown opening,
+- caret rotation,
+- modal entrance,
+- hover transitions,
+- expand/collapse.
+
+All such animations must stop when `data-animations='off'`.
+
+Use global transition timing tokens. Avoid new literal timings unless a component has a strong UX reason.
+
+## 10. Focus, hover, disabled and selected states
+
+Every interactive component must have all applicable states.
+
+Focus:
+- keyboard-visible,
+- uses `--ui-focus-shadow`,
+- uses the selected accent.
+
+Hover:
+- subtle accent-derived background/border.
+
+Disabled:
+- uses muted surface/text,
+- clear not-allowed affordance where appropriate,
+- no misleading active animation.
+
+Selected:
+- accent-derived selected state with readable contrast in both Light and Dark.
+
+## 11. Validation, alerts, feedback
+
+Validation and errors use `--ui-danger`.
+Success uses `--ui-success`.
+Warnings use `--ui-warning`.
+Informational states use `--ui-info`.
+
+Use the existing feedback/toast/confirm system. Do not introduce a second toast or confirm style.
+
+## 12. Responsive behavior
+
+Do not redesign a page merely to make it use shared components.
+
+Preserve intentional module layouts. Shared controls must fit existing responsive containers and must not force desktop-only widths.
+
+Dropdown portals should reposition to remain in viewport.
+
+Dialogs must use viewport-safe max width and max height.
+
+## 13. Frozen / sensitive screens
+
+UI system migration must not change business behavior or financial invariants.
+
+Sales Invoice:
+- preserve its approved geometry,
+- preserve Amounts layout,
+- token changes may affect visual styling only unless explicitly authorized.
+
+The same principle applies to accounting, inventory, posting, payment and stock workflows.
+
+## 14. CSS ownership
+
+Global visual behavior belongs in:
+- `frontend/src/appearance.css`
+- shared component CSS under `frontend/src/components/ui/`
+- existing shared component CSS when the component is domain-neutral.
+
+Page CSS may own:
+- layout,
+- grid-template geometry,
+- widths/heights required by workflow,
+- page-only responsive composition.
+
+Page CSS should not redefine the canonical dropdown, button, modal, focus ring, accent palette, shadow system, or theme behavior.
+
+## 15. No local component duplication
+
+Before creating a new UI component:
+1. search shared UI components,
+2. search shared desktop components,
+3. extend a shared component if the behavior is generally useful,
+4. create a domain-specific component only when the domain behavior is genuinely unique.
+
+Never create `AnotherSelect`, `SpecialModal`, or page-only arrow styles just to get a different look.
+
+## 16. Modification checklist
+
+Whenever a page or component is created or changed:
+
+1. Read this file.
+2. Reuse canonical shared components.
+3. Verify Light / Dark / System.
+4. Verify all six Primary Themes.
+5. Verify Compact / Comfortable.
+6. Verify Small / Medium / Large radius.
+7. Verify None / Soft / Normal / 3D shadow.
+8. Verify Font Family.
+9. Verify Animations On / Off.
+10. Verify hover, focus, disabled, selected, loading, empty and error states.
+11. Verify dropdown/menu z-index inside modals.
+12. Verify responsive behavior.
+13. Preserve business logic and page-specific workflow.
+14. Avoid introducing new hard-coded primary colors or decorative shadows/radii.
+
+## 17. Review rule
+
+A UI task is not complete merely because the requested screen looks correct.
+
+Before finishing, check whether the changed pattern also appears elsewhere. If it does, fix the shared component/token instead of only the current page.
+
+If a local exception is truly required, document why in the code near the exception.
+
+## 18. AI / coding-agent instruction
+
+Any AI or coding agent modifying BluePOS UI must read and follow this file first.
+
+The default decision should always be:
+
+reuse shared component -> extend shared component -> add token -> local exception only as last resort.
+
+Do not rely on conversation memory for UI rules. This repository file is authoritative.
+
+
+## 19. Repository enforcement
+
+Run the design-system guard before frontend typecheck/build:
+
+```bash
+cd frontend
+npm run ui:check
+npm run typecheck
+npm run build
+```
+
+`ui:check` currently enforces:
+- no raw date inputs outside `UiDatePicker`,
+- no raw single/multi `<select>` elements in React TSX; use `UiSelect` / `UiMultiSelect`,
+- no known hard-coded Primary Theme colors inside canonical `components/ui` CSS,
+- no large numeric overlay z-index values inside canonical `components/ui` CSS.
+
+If a real browser-semantic exception is required, update this document and the checker deliberately in the same reviewed change rather than bypassing the rule locally.
+
+
+## 2026-10-31 — Shared motion references (user-approved direction)
+
+The seven reference videos supplied on 2026-10-31 establish **animation behavior**, not permission to alter frozen geometry, control sizes, widths, spacing, border thickness, border radius, selected Theme & Appearance palette, data semantics, or workflows.
+
+Shared opt-in motion classes live in `frontend/src/motion.css`, imported once by `frontend/src/main.tsx`. Reuse these on the *existing* canonical components only:
+- Real dashboard KPI/chart entry: `bp-motion-enter`, `bp-motion-progress`, `bp-motion-ring`. Animate actual API values; never fabricate historical measurements.
+- Notifications and bell: `bp-motion-notice`, `bp-motion-bell` on existing accessible notification components, without replacing their notification/read logic.
+- CRUD buttons: `bp-motion-action`, preserving canonical semantic faces and current geometry. The user explicitly wants the reference's action semantics, but fixed hue values must continue coming from `--ui-button-*-face` and `--ui-{success|warning|danger|info}`, never from copied video hex.
+- Downloads: `bp-motion-download` with `data-busy` based on the **real export** lifecycle; never report success until the file is actually produced.
+- Skeleton loading: `bp-motion-skeleton` on existing-size placeholders, only when a genuine request is loading.
+- Single and from/to date controls: `bp-motion-date-cell` on the existing date-picker implementation. Preserve locale, bounds, valid range, keyboard behavior, filtering, and the format currently in use.
+- Copy control: `bp-motion-copy` with `data-copied` only after successful clipboard write and accessible status feedback.
+
+Motion must respect `[data-animations="off"]` and `prefers-reduced-motion: reduce`. Use appearance token colors, radius and shadow; animation does not create a second design system. Shared primitives are implemented, but **each workflow integration requires focused inspection and local verification**; these seven items are not all complete merely because classes exist.
+
+## Premium dates, notification stacks and skeletons
+
+- `UiDatePicker` owns single-date and From/To calendars. Keep the native input's
+  geometry, props, ISO value, form serialization, constraints and change handlers.
+  Use `UiDateRangePicker` for From/To filters: one visible trigger and two native
+  form values preserving the original change handlers. Independent dates stay
+  single. The user-approved calendar has raised 3D faces using theme colors.
+  Calendars render in a portal using the shared overlay layer contract.
+- `UiNotificationStack` layers actual notifications with a count and navigation
+  dots. Back cards are inert. Navigation never marks security alerts read;
+  acknowledging a device alert continues through its existing server action.
+  The notification bar shows unread alerts only. Its close cross acknowledges
+  through the existing read endpoint; failed acknowledgements leave alerts visible.
+- `UiSkeleton` owns the premium avatar, lines and banner shimmer. Its color comes
+  from `--ui-accent`, so Theme & Appearance changes update it immediately.
+  Use its compact variant for incremental loading; use the card for initial data.
+  Render it only while the corresponding request is pending, preserving errors
+  and empty states. Both animation preferences remain authoritative.
+  Save/post and other blocking mutations retain the original spinner overlay.
+  Data skeletons belong only inside the card/table/content region awaiting data.
+  Keep module headers, filters and controls visible; do not replace the entire
+  workspace with a module-mount skeleton. Persistent document instances retain drafts.
+  Register a requested workspace tab immediately, independently of route/data
+  rendering. `PosDataGrid` paints its header and local loading region before
+  mounting cached rows. Product lists use its existing virtualization so a large
+  cache cannot block the first module paint; fetched rows reveal with shared motion.
+  Run `npm run ui:navigation-check` to verify tab navigation with a deliberately
+  unresolved data request and a 10,000-row cache (requires Edge/Chrome/Chromium;
+  `BLUEPOS_TEST_BROWSER` can specify its executable).

@@ -1,0 +1,2855 @@
+/*
+ * BluePOS Appearance Foundation — Phase D1
+ * Theme (system|light|dark) and skin (classic|hybrid|advanced) are independent.
+ * Classic preserves traditional POS geometry; Hybrid/Advanced change visuals only.
+ */
+
+:root {
+  /* Shared surfaces (overridden by theme) */
+  --appearance-surface: #ffffff;
+  --appearance-surface-soft: #eef1f4;
+  --appearance-surface-muted: #d9dee6;
+  --appearance-text: #1d2430;
+  --appearance-text-muted: #5c6770;
+  --appearance-border: #8e97a3;
+  --appearance-accent: #1f4e79;
+
+  /* Skin tokens (defaults = Classic) */
+  --app-font-family: Tahoma, Arial, "Segoe UI", sans-serif;
+  --app-font-weight: 400;
+  --app-letter-spacing: 0;
+  --control-radius: 2px;
+  --panel-radius: 0px;
+  --control-border: #8e97a3;
+  --panel-border: #7e8894;
+  --button-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #bbb;
+  --panel-shadow: none;
+  --surface-1: #ffffff;
+  --surface-2: #eef1f4;
+  --surface-3: #d9dee6;
+  --appearance-control-radius: 2px;
+  --appearance-panel-radius: 0px;
+  --appearance-shadow-strength: 0.18;
+  --appearance-spacing-scale: 1;
+  --skin-gradient-strong: linear-gradient(#ffffff, #dadada);
+  --skin-gradient-soft: linear-gradient(#ffffff, #e8e8e8);
+  --skin-focus-ring: #2b6aa3;
+}
+
+/* ---------- THEME ---------- */
+
+:root[data-theme='light'] {
+  --appearance-surface: #ffffff;
+  --appearance-surface-soft: #eef1f4;
+  --appearance-surface-muted: #d9dee6;
+  --appearance-text: #1d2430;
+  --appearance-text-muted: #5c6770;
+  --appearance-border: #8e97a3;
+  --appearance-accent: #1f4e79;
+  --surface-1: #ffffff;
+  --surface-2: #eef1f4;
+  --surface-3: #d9dee6;
+  --control-border: #8e97a3;
+  --panel-border: #7e8894;
+}
+
+:root[data-theme='dark'] {
+  --appearance-surface: #1b1f24;
+  --appearance-surface-soft: #252b31;
+  --appearance-surface-muted: #303840;
+  --appearance-text: #edf1f5;
+  --appearance-text-muted: #aeb8c2;
+  --appearance-border: #56616c;
+  --appearance-accent: #6aa9e6;
+  --surface-1: #1b1f24;
+  --surface-2: #252b31;
+  --surface-3: #303840;
+  --control-border: #56616c;
+  --panel-border: #4d5862;
+  --button-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --skin-focus-ring: #6aa9e6;
+}
+
+/* ---------- SKIN: CLASSIC (dense Windows/POS) ---------- */
+
+:root[data-skin='classic'] {
+  --app-font-family: Tahoma, Arial, "Segoe UI", sans-serif;
+  --app-font-weight: 400;
+  --app-letter-spacing: -0.01em;
+  --control-radius: 2px;
+  --panel-radius: 0px;
+  --button-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #bbb;
+  --panel-shadow: none;
+  --appearance-control-radius: 2px;
+  --appearance-panel-radius: 0px;
+  --appearance-shadow-strength: 0.18;
+  --appearance-spacing-scale: 1;
+  --skin-gradient-strong: linear-gradient(#ffffff, #dadada);
+  --skin-gradient-soft: linear-gradient(#f7f7f7, #d8d8d8);
+}
+
+:root[data-theme='dark'][data-skin='classic'] {
+  --button-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.08), inset -1px -1px 0 rgba(0, 0, 0, 0.35);
+  --skin-gradient-strong: linear-gradient(#3a424a, #2a3036);
+  --skin-gradient-soft: linear-gradient(#343b43, #252b31);
+}
+
+/* ---------- SKIN: HYBRID (premium modern-classic) ---------- */
+
+:root[data-skin='hybrid'] {
+  --app-font-family: "Roboto Condensed", "Arial Narrow", "Segoe UI", Arial, sans-serif;
+  --app-font-weight: 400;
+  --app-letter-spacing: 0.005em;
+  --control-radius: 5px;
+  --panel-radius: 4px;
+  --button-shadow: 0 1px 2px rgba(20, 30, 40, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  --panel-shadow: 0 1px 3px rgba(20, 30, 40, 0.08);
+  --appearance-control-radius: 5px;
+  --appearance-panel-radius: 4px;
+  --appearance-shadow-strength: 0.14;
+  --appearance-spacing-scale: 1.02;
+  --skin-gradient-strong: linear-gradient(#ffffff, #e6ebf0);
+  --skin-gradient-soft: linear-gradient(#fafbfc, #e4e9ee);
+}
+
+:root[data-theme='light'][data-skin='hybrid'] {
+  --control-border: #9aa5b0;
+  --panel-border: #a0aab4;
+  --surface-1: #ffffff;
+  --surface-2: #f3f5f7;
+  --surface-3: #e2e7ec;
+}
+
+:root[data-theme='dark'][data-skin='hybrid'] {
+  --button-shadow: 0 1px 3px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --panel-shadow: 0 2px 6px rgba(0, 0, 0, 0.28);
+  --skin-gradient-strong: linear-gradient(#3a434c, #2c3339);
+  --skin-gradient-soft: linear-gradient(#333b43, #272d33);
+}
+
+/* ---------- SKIN: ADVANCED (modern enterprise / SaaS) ---------- */
+
+:root[data-skin='advanced'] {
+  --app-font-family: Inter, "Segoe UI", Arial, sans-serif;
+  --app-font-weight: 400;
+  --app-letter-spacing: 0.015em;
+  --control-radius: 8px;
+  --panel-radius: 8px;
+  --button-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  --panel-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  --appearance-control-radius: 8px;
+  --appearance-panel-radius: 8px;
+  --appearance-shadow-strength: 0.1;
+  --appearance-spacing-scale: 1.04;
+  --skin-gradient-strong: none;
+  --skin-gradient-soft: none;
+}
+
+:root[data-theme='light'][data-skin='advanced'] {
+  --control-border: #d0d7de;
+  --panel-border: #d0d7de;
+  --surface-1: #ffffff;
+  --surface-2: #f6f8fa;
+  --surface-3: #eef1f4;
+  --appearance-accent: #0969da;
+  --skin-focus-ring: #0969da;
+}
+
+:root[data-theme='dark'][data-skin='advanced'] {
+  --control-border: #444c56;
+  --panel-border: #444c56;
+  --button-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --panel-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  --appearance-accent: #58a6ff;
+  --skin-focus-ring: #58a6ff;
+  --skin-gradient-strong: none;
+  --skin-gradient-soft: none;
+}
+
+/* ---------- Apply font to shell (visible skin switch) ---------- */
+
+html,
+body,
+#root,
+.app-shell,
+.titlebar,
+.ribbon,
+.workspace-tabs,
+.workspace-host,
+.statusbar,
+.appearance-menu,
+.appearance-settings {
+  font-family: var(--app-font-family);
+  font-weight: var(--app-font-weight);
+  letter-spacing: var(--app-letter-spacing);
+}
+
+.app-shell button,
+.app-shell input,
+.app-shell select,
+.app-shell textarea {
+  font-family: var(--app-font-family);
+}
+
+/* ---------- Skin-driven shell chrome (no layout/DOM changes) ---------- */
+
+:root[data-skin='classic'] .desktop-btn,
+:root[data-skin='classic'] .account-menu-btn,
+:root[data-skin='classic'] .titlebar-select,
+:root[data-skin='classic'] .quick-command {
+  border-radius: var(--control-radius);
+  border-color: var(--control-border);
+  box-shadow: var(--button-shadow);
+}
+
+:root[data-skin='classic'] .desktop-panel,
+:root[data-skin='classic'] .form-group,
+:root[data-skin='classic'] .pos-grid-wrap {
+  border-radius: var(--panel-radius);
+  border-color: var(--panel-border);
+  box-shadow: var(--panel-shadow);
+}
+
+/* Hybrid: softer radii, refined chrome */
+:root[data-skin='hybrid'] .titlebar,
+:root[data-skin='hybrid'] .ribbon-tabs,
+:root[data-skin='hybrid'] .ribbon-body,
+:root[data-skin='hybrid'] .statusbar {
+  font-family: var(--app-font-family);
+}
+
+:root[data-skin='hybrid'] .ribbon-tab,
+:root[data-skin='hybrid'] .workspace-tab,
+:root[data-skin='hybrid'] .desktop-btn,
+:root[data-skin='hybrid'] .account-menu-btn,
+:root[data-skin='hybrid'] .titlebar-select,
+:root[data-skin='hybrid'] .quick-command,
+:root[data-skin='hybrid'] .desktop-input,
+:root[data-skin='hybrid'] .desktop-select,
+:root[data-skin='hybrid'] .desktop-textarea {
+  border-radius: var(--control-radius);
+  border-color: var(--control-border);
+  font-family: var(--app-font-family);
+}
+
+:root[data-skin='hybrid'] .ribbon-tab.is-active,
+:root[data-skin='hybrid'] .workspace-tab {
+  border-radius: 5px 5px 0 0;
+}
+
+:root[data-skin='hybrid'] .desktop-panel,
+:root[data-skin='hybrid'] .form-group,
+:root[data-skin='hybrid'] .pos-grid-wrap,
+:root[data-skin='hybrid'] .account-menu-panel,
+:root[data-skin='hybrid'] .calc-card,
+:root[data-skin='hybrid'] .ribbon-menu {
+  border-radius: var(--panel-radius);
+  border-color: var(--panel-border);
+  box-shadow: var(--panel-shadow);
+}
+
+:root[data-skin='hybrid'] .desktop-btn,
+:root[data-skin='hybrid'] .quick-command,
+:root[data-skin='hybrid'] .account-menu-btn {
+  background: var(--skin-gradient-strong);
+  box-shadow: var(--button-shadow);
+}
+
+:root[data-theme='light'][data-skin='hybrid'] .ribbon-tabs {
+  background: linear-gradient(#c5ccd4, #aeb6c0);
+}
+
+:root[data-theme='light'][data-skin='hybrid'] .ribbon-body {
+  background: linear-gradient(#ffffff 0%, #f2f4f6 50%, #dde3e9 100%);
+}
+
+:root[data-theme='dark'][data-skin='hybrid'] .ribbon-tabs {
+  background: linear-gradient(#353d45, #2a3036);
+}
+
+:root[data-theme='dark'][data-skin='hybrid'] .ribbon-body {
+  background: linear-gradient(#333b43 0%, #2c3339 50%, #242a30 100%);
+}
+
+/* Advanced: flat surfaces, modern focus, more radius */
+:root[data-skin='advanced'] .titlebar,
+:root[data-skin='advanced'] .ribbon-tabs,
+:root[data-skin='advanced'] .ribbon-body,
+:root[data-skin='advanced'] .statusbar,
+:root[data-skin='advanced'] .ribbon-tab,
+:root[data-skin='advanced'] .workspace-tab,
+:root[data-skin='advanced'] .desktop-btn,
+:root[data-skin='advanced'] .desktop-input,
+:root[data-skin='advanced'] .desktop-select {
+  font-family: var(--app-font-family);
+}
+
+:root[data-skin='advanced'] .ribbon-tab,
+:root[data-skin='advanced'] .workspace-tab,
+:root[data-skin='advanced'] .desktop-btn,
+:root[data-skin='advanced'] .account-menu-btn,
+:root[data-skin='advanced'] .titlebar-select,
+:root[data-skin='advanced'] .quick-command,
+:root[data-skin='advanced'] .desktop-input,
+:root[data-skin='advanced'] .desktop-select,
+:root[data-skin='advanced'] .desktop-textarea {
+  border-radius: var(--control-radius);
+  border-color: var(--control-border);
+  box-shadow: none;
+}
+
+:root[data-skin='advanced'] .ribbon-tab.is-active,
+:root[data-skin='advanced'] .workspace-tab {
+  border-radius: 8px 8px 0 0;
+}
+
+:root[data-skin='advanced'] .desktop-panel,
+:root[data-skin='advanced'] .form-group,
+:root[data-skin='advanced'] .pos-grid-wrap,
+:root[data-skin='advanced'] .account-menu-panel,
+:root[data-skin='advanced'] .calc-card,
+:root[data-skin='advanced'] .ribbon-menu {
+  border-radius: var(--panel-radius);
+  border-color: var(--panel-border);
+  box-shadow: var(--panel-shadow);
+  background: var(--surface-1);
+}
+
+:root[data-theme='light'][data-skin='advanced'] .titlebar,
+:root[data-theme='light'][data-skin='advanced'] .ribbon-tabs,
+:root[data-theme='light'][data-skin='advanced'] .ribbon-body,
+:root[data-theme='light'][data-skin='advanced'] .statusbar {
+  background: var(--surface-2);
+  background-image: none;
+}
+
+:root[data-theme='light'][data-skin='advanced'] .ribbon-body {
+  background: var(--surface-1);
+  border-top: 1px solid var(--panel-border);
+}
+
+:root[data-theme='dark'][data-skin='advanced'] .titlebar,
+:root[data-theme='dark'][data-skin='advanced'] .ribbon-tabs,
+:root[data-theme='dark'][data-skin='advanced'] .ribbon-body,
+:root[data-theme='dark'][data-skin='advanced'] .statusbar {
+  background: var(--surface-2);
+  background-image: none;
+}
+
+:root[data-theme='dark'][data-skin='advanced'] .ribbon-body {
+  background: var(--surface-1);
+}
+
+:root[data-skin='advanced'] .desktop-btn,
+:root[data-skin='advanced'] .quick-command,
+:root[data-skin='advanced'] .account-menu-btn {
+  background: var(--surface-1);
+  box-shadow: var(--button-shadow);
+}
+
+:root[data-skin='advanced'] .desktop-btn:focus-visible,
+:root[data-skin='advanced'] .desktop-input:focus-visible,
+:root[data-skin='advanced'] .desktop-select:focus-visible,
+:root[data-skin='advanced'] .ribbon-tab:focus-visible,
+:root[data-skin='advanced'] .ribbon-command:focus-visible {
+  outline: 2px solid var(--skin-focus-ring);
+  outline-offset: 1px;
+}
+
+:root[data-skin='advanced'] .ribbon-icon-tile {
+  border-radius: 8px;
+  box-shadow: var(--button-shadow);
+}
+
+:root[data-skin='hybrid'] .ribbon-icon-tile {
+  border-radius: 5px;
+  box-shadow: var(--button-shadow);
+}
+
+:root[data-skin='classic'] .ribbon-icon-tile {
+  border-radius: 3px;
+}
+
+/* Appearance settings component */
+.appearance-settings {
+  display: grid;
+  gap: 14px;
+  padding: 12px;
+  color: var(--appearance-text);
+  font-family: var(--app-font-family);
+}
+
+.appearance-settings-group {
+  display: grid;
+  gap: 7px;
+}
+
+.appearance-settings-heading {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.appearance-option-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+}
+
+.appearance-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.appearance-skin-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.appearance-skin-card {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 3px 7px;
+  min-height: 78px;
+  padding: 9px;
+  border: 1px solid var(--appearance-border);
+  border-radius: var(--panel-radius);
+  background: var(--appearance-surface-soft);
+  cursor: pointer;
+  font-family: var(--app-font-family);
+}
+
+.appearance-skin-card.is-selected {
+  border-color: var(--appearance-accent);
+  box-shadow: inset 0 0 0 1px var(--appearance-accent);
+}
+
+.appearance-skin-card input {
+  grid-row: 1 / span 2;
+  align-self: start;
+  margin-top: 2px;
+}
+
+.appearance-skin-title {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.appearance-skin-description {
+  color: var(--appearance-text-muted);
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.appearance-settings-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 760px) {
+  .appearance-skin-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Appearance quick menu in the application title bar */
+.appearance-menu {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.appearance-menu-trigger {
+  display: inline-grid;
+  place-items: center;
+  width: 23px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid var(--control-border);
+  border-radius: var(--control-radius);
+  background: var(--skin-gradient-strong, linear-gradient(#ffffff, #e3e3e3));
+  color: var(--appearance-accent);
+  cursor: pointer;
+}
+
+:root[data-skin='advanced'] .appearance-menu-trigger {
+  background: var(--surface-1);
+  box-shadow: var(--button-shadow);
+}
+
+.appearance-menu-trigger:hover {
+  background: linear-gradient(#ffffff, #d7e8f7);
+}
+
+:root[data-theme='dark'] .appearance-menu-trigger:hover {
+  background: linear-gradient(#3a434c, #2c3339);
+}
+
+.appearance-menu-panel {
+  position: absolute;
+  top: calc(100% + 3px);
+  right: 0;
+  z-index: 500;
+  width: min(520px, calc(100vw - 24px));
+  border: 1px solid var(--appearance-border);
+  border-radius: var(--panel-radius);
+  background: var(--appearance-surface);
+  color: var(--appearance-text);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, var(--appearance-shadow-strength));
+  font-family: var(--app-font-family);
+}
+
+.appearance-menu-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 27px;
+  padding: 0 5px 0 9px;
+  border-bottom: 1px solid var(--appearance-border);
+  background: var(--skin-gradient-soft, linear-gradient(#e8e8e8, #c8c8c8));
+  color: var(--appearance-text);
+  border-radius: var(--panel-radius) var(--panel-radius) 0 0;
+}
+
+:root[data-skin='advanced'] .appearance-menu-titlebar {
+  background: var(--surface-2);
+}
+
+.appearance-menu-titlebar > button {
+  display: grid;
+  place-items: center;
+  width: 19px;
+  height: 19px;
+  padding: 0;
+  border: 1px solid #a44;
+  border-radius: 999px;
+  background: linear-gradient(#ff8585, #bd2020);
+  color: #fff;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.appearance-settings-actions {
+  align-items: center;
+  gap: 8px;
+}
+
+.appearance-save-state {
+  min-width: 48px;
+  margin-right: auto;
+  color: var(--appearance-text-muted);
+  font-size: 10px;
+}
+
+.appearance-save-error {
+  padding: 6px 8px;
+  border: 1px solid #b84b4b;
+  background: #ffe8e8;
+  color: #8b0000;
+  font-size: 10px;
+}
+
+:root[data-theme='dark'] .appearance-menu-panel {
+  background: #1b1f24;
+}
+
+:root[data-theme='dark'] .appearance-menu-titlebar {
+  background: linear-gradient(#323941, #252b31);
+  color: #edf1f5;
+}
+
+:root[data-theme='dark'][data-skin='advanced'] .appearance-menu-titlebar {
+  background: var(--surface-2);
+}
+
+:root[data-theme='dark'] .appearance-menu-trigger {
+  border-color: #56616c;
+  background: linear-gradient(#343b43, #242a30);
+  color: #8fc7ff;
+}
+
+:root[data-theme='dark'] .appearance-skin-card {
+  background: #252b31;
+}
+
+
+/* ---------- PHASE D4: DISTINCT TYPOGRAPHY OVERRIDES ---------- */
+/*
+ * Some reference screens declare their own Tahoma/MS Sans font family.
+ * These selectors intentionally override only typography, never layout/functionality.
+ */
+:root[data-skin] .app-shell,
+:root[data-skin] .app-shell button,
+:root[data-skin] .app-shell input,
+:root[data-skin] .app-shell select,
+:root[data-skin] .app-shell textarea,
+:root[data-skin] .titlebar,
+:root[data-skin] .ribbon,
+:root[data-skin] .ribbon button,
+:root[data-skin] .workspace-tabs,
+:root[data-skin] .workspace-tab,
+:root[data-skin] .workspace-host,
+:root[data-skin] .statusbar,
+:root[data-skin] .product-reference-screen,
+:root[data-skin] .product-reference-screen button,
+:root[data-skin] .product-reference-screen input,
+:root[data-skin] .product-reference-screen select,
+:root[data-skin] .product-reference-screen textarea,
+:root[data-skin] .product-reference-screen label,
+:root[data-skin] .product-reference-screen table {
+  font-family: var(--app-font-family) !important;
+  letter-spacing: var(--app-letter-spacing);
+}
+
+/* Classic: compact, traditional Windows/POS typography */
+:root[data-skin='classic'] .ribbon-tab-text,
+:root[data-skin='classic'] .ribbon-command-label,
+:root[data-skin='classic'] .product-def-title,
+:root[data-skin='classic'] .product-reference-screen label {
+  font-weight: 700;
+}
+
+/* Hybrid: narrower, cleaner modern-classic typography */
+:root[data-skin='hybrid'] .ribbon-tab-text,
+:root[data-skin='hybrid'] .ribbon-command-label {
+  font-weight: 600;
+}
+
+:root[data-skin='hybrid'] .product-def-title {
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+/* Advanced: modern enterprise typography */
+:root[data-skin='advanced'] .ribbon-tab-text,
+:root[data-skin='advanced'] .ribbon-command-label,
+:root[data-skin='advanced'] .product-def-title {
+  font-weight: 600;
+  letter-spacing: 0.015em;
+}
+
+:root[data-skin='advanced'] .product-reference-screen label,
+:root[data-skin='advanced'] .product-reference-screen input,
+:root[data-skin='advanced'] .product-reference-screen select,
+:root[data-skin='advanced'] .product-reference-screen table {
+  font-weight: 500;
+}
+
+
+/* ---------- PHASE D5: MODERN ADVANCED ICON PRESENTATION ---------- */
+/*
+ * Advanced icons are intentionally flat/outline and must not inherit the
+ * Classic/Hybrid icon-tile chrome.
+ */
+:root[data-skin='advanced'] .ribbon-icon-tile,
+:root[data-skin='advanced'] .ribbon-tab-icon {
+  background: transparent !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+:root[data-skin='advanced'] .ribbon-icon-tile.has-custom-icon img,
+:root[data-skin='advanced'] .ribbon-tab-icon.has-custom-icon img {
+  filter: none !important;
+}
+
+:root[data-skin='advanced'] .ribbon-command:hover:not(:disabled) .ribbon-icon-tile,
+:root[data-skin='advanced'] .ribbon-tab:hover .ribbon-tab-icon {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Classic keeps the visible desktop-app icon framing. */
+:root[data-skin='classic'] .ribbon-icon-tile.has-custom-icon,
+:root[data-skin='classic'] .ribbon-tab-icon.has-custom-icon {
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.85),
+    0 1px 2px rgba(0,0,0,.18);
+}
+
+
+/* ---------- USER APPEARANCE PREFERENCES ---------- */
+:root[data-density='compact'] { --appearance-spacing-scale: .88; }
+:root[data-density='comfortable'] { --appearance-spacing-scale: 1.04; }
+:root[data-density='compact'] .appearance-settings { gap: 8px; }
+:root[data-density='comfortable'] .appearance-settings { gap: 12px; }
+
+:root[data-radius='small'] { --control-radius: 2px; --panel-radius: 2px; --appearance-control-radius: 2px; --appearance-panel-radius: 2px; }
+:root[data-radius='medium'] { --control-radius: 5px; --panel-radius: 5px; --appearance-control-radius: 5px; --appearance-panel-radius: 5px; }
+:root[data-radius='large'] { --control-radius: 9px; --panel-radius: 9px; --appearance-control-radius: 9px; --appearance-panel-radius: 9px; }
+
+:root[data-shadow='none'] { --button-shadow: none; --panel-shadow: none; }
+:root[data-shadow='soft'] { --button-shadow: 0 1px 2px rgba(15,23,42,.08); --panel-shadow: 0 1px 4px rgba(15,23,42,.08); }
+:root[data-shadow='normal'] { --button-shadow: 0 2px 4px rgba(15,23,42,.14); --panel-shadow: 0 4px 12px rgba(15,23,42,.14); }
+:root[data-shadow='3d'] {
+  --button-shadow:
+    0 1px 1px rgba(15,23,42,.10),
+    0 3px 6px rgba(15,23,42,.12),
+    inset 0 1px 0 rgba(255,255,255,.50);
+  --panel-shadow:
+    0 1px 1px rgba(15,23,42,.08),
+    0 5px 10px rgba(15,23,42,.12),
+    0 14px 28px rgba(15,23,42,.10);
+}
+:root[data-theme='dark'][data-shadow='3d'] {
+  --button-shadow:
+    0 1px 1px rgba(0,0,0,.28),
+    0 4px 8px rgba(0,0,0,.30),
+    inset 0 1px 0 rgba(255,255,255,.06);
+  --panel-shadow:
+    0 1px 1px rgba(0,0,0,.30),
+    0 6px 12px rgba(0,0,0,.34),
+    0 16px 32px rgba(0,0,0,.28);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+
+/* Draggable appearance modal + reference-style choice buttons */
+.appearance-menu-panel-draggable {
+  position: fixed;
+  top: 72px;
+  right: 24px;
+  z-index: 1200;
+  width: min(620px, calc(100vw - 32px));
+  max-height: calc(100vh - 96px);
+  overflow: auto;
+}
+.appearance-drag-handle {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  cursor: move;
+  user-select: none;
+  touch-action: none;
+}
+.appearance-choice {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 11px;
+  border: 1px solid var(--appearance-border);
+  border-radius: var(--control-radius);
+  background: var(--surface-1);
+  color: var(--appearance-text);
+  box-shadow: var(--button-shadow);
+  cursor: pointer;
+  font-family: var(--app-font-family);
+  font-size: 11px;
+  font-weight: 600;
+}
+.appearance-choice:hover {
+  border-color: var(--appearance-accent);
+}
+.appearance-choice.is-selected {
+  border-color: var(--appearance-accent);
+  background: color-mix(in srgb, var(--appearance-accent) 12%, var(--surface-1));
+  color: var(--appearance-accent);
+  box-shadow: inset 0 0 0 1px var(--appearance-accent), var(--button-shadow);
+}
+.appearance-choice-input {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.appearance-skin-card input {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  opacity: 0;
+}
+.appearance-skin-card.is-selected {
+  background: color-mix(in srgb, var(--appearance-accent) 10%, var(--appearance-surface-soft));
+  color: var(--appearance-accent);
+}
+
+/* User-selected typography is application-wide, including controls and page-specific screens. */
+:root[data-font] body,
+:root[data-font] body *,
+:root[data-font] button,
+:root[data-font] input,
+:root[data-font] select,
+:root[data-font] textarea,
+:root[data-font] table {
+  font-family: var(--app-font-family) !important;
+}
+
+
+/* ---------- GLOBAL USER APPEARANCE OVERRIDES ---------- */
+/*
+ * Loaded after density-shell.css. These selectors intentionally make the
+ * authenticated user's appearance preferences the final visual layer while
+ * leaving page geometry and business UI structure unchanged.
+ */
+
+/* Primary theme also drives BluePOS's legacy/shared brand tokens. */
+:root[data-primary-theme='indigo'] { --appearance-accent:#4f46e5; --skin-focus-ring:#4f46e5; --brand-blue:#4f46e5; --brand-blue-hot:#6366f1; --focus-ring:#4f46e5; --selected-row:color-mix(in srgb,#4f46e5 24%,white); --hover-row:color-mix(in srgb,#4f46e5 10%,white); }
+:root[data-primary-theme='blue'] { --appearance-accent:#2563eb; --skin-focus-ring:#2563eb; --brand-blue:#2563eb; --brand-blue-hot:#3b82f6; --focus-ring:#2563eb; --selected-row:color-mix(in srgb,#2563eb 24%,white); --hover-row:color-mix(in srgb,#2563eb 10%,white); }
+:root[data-primary-theme='emerald'] { --appearance-accent:#059669; --skin-focus-ring:#059669; --brand-blue:#059669; --brand-blue-hot:#10b981; --focus-ring:#059669; --selected-row:color-mix(in srgb,#059669 24%,white); --hover-row:color-mix(in srgb,#059669 10%,white); }
+:root[data-primary-theme='teal'] { --appearance-accent:#0d9488; --skin-focus-ring:#0d9488; --brand-blue:#0d9488; --brand-blue-hot:#14b8a6; --focus-ring:#0d9488; --selected-row:color-mix(in srgb,#0d9488 24%,white); --hover-row:color-mix(in srgb,#0d9488 10%,white); }
+:root[data-primary-theme='purple'] { --appearance-accent:#7c3aed; --skin-focus-ring:#7c3aed; --brand-blue:#7c3aed; --brand-blue-hot:#8b5cf6; --focus-ring:#7c3aed; --selected-row:color-mix(in srgb,#7c3aed 24%,white); --hover-row:color-mix(in srgb,#7c3aed 10%,white); }
+:root[data-primary-theme='slate'] { --appearance-accent:#475569; --skin-focus-ring:#475569; --brand-blue:#475569; --brand-blue-hot:#64748b; --focus-ring:#475569; --selected-row:color-mix(in srgb,#475569 24%,white); --hover-row:color-mix(in srgb,#475569 10%,white); }
+
+/* Dark theme uses brighter accent variants for contrast while preserving the selected hue family. */
+:root[data-theme='dark'][data-primary-theme='indigo'] { --appearance-accent:#818cf8; --skin-focus-ring:#818cf8; --brand-blue:#818cf8; --brand-blue-hot:#a5b4fc; --focus-ring:#818cf8; }
+:root[data-theme='dark'][data-primary-theme='blue'] { --appearance-accent:#60a5fa; --skin-focus-ring:#60a5fa; --brand-blue:#60a5fa; --brand-blue-hot:#93c5fd; --focus-ring:#60a5fa; }
+:root[data-theme='dark'][data-primary-theme='emerald'] { --appearance-accent:#34d399; --skin-focus-ring:#34d399; --brand-blue:#34d399; --brand-blue-hot:#6ee7b7; --focus-ring:#34d399; }
+:root[data-theme='dark'][data-primary-theme='teal'] { --appearance-accent:#2dd4bf; --skin-focus-ring:#2dd4bf; --brand-blue:#2dd4bf; --brand-blue-hot:#5eead4; --focus-ring:#2dd4bf; }
+:root[data-theme='dark'][data-primary-theme='purple'] { --appearance-accent:#a78bfa; --skin-focus-ring:#a78bfa; --brand-blue:#a78bfa; --brand-blue-hot:#c4b5fd; --focus-ring:#a78bfa; }
+:root[data-theme='dark'][data-primary-theme='slate'] { --appearance-accent:#94a3b8; --skin-focus-ring:#94a3b8; --brand-blue:#94a3b8; --brand-blue-hot:#cbd5e1; --focus-ring:#94a3b8; }
+
+/* Font preference must win over page-specific font declarations, including !important. */
+html[data-font] #root,
+html[data-font] #root .app-shell,
+html[data-font] #root .app-shell * {
+  font-family: var(--app-font-family) !important;
+}
+
+/* Explicit density selection overrides viewport-derived density tokens globally. */
+:root[data-density='compact'] {
+  --ui-density: compact;
+  --ui-font-xs:10.5px; --ui-font-sm:11.5px; --ui-font-md:12.5px; --ui-font-lg:13.5px; --ui-font-xl:14.5px; --ui-font-title:15.5px;
+  --ui-line-tight:1.28; --ui-line-normal:1.42; --ui-line-relaxed:1.52;
+  --ui-weight-normal:400; --ui-weight-medium:500; --ui-weight-strong:700;
+  --ui-control-h-sm:20px; --ui-control-h-md:22px; --ui-control-h-lg:26px;
+  --ui-icon-sm:11px; --ui-icon-md:13px; --ui-icon-lg:16px;
+  --ui-gap-xs:2px; --ui-gap-sm:4px; --ui-gap-md:6px; --ui-gap-lg:8px;
+  --ui-pad-xs:3px; --ui-pad-sm:4px; --ui-pad-md:6px;
+  --ui-header-h:22px; --ui-ribbon-tab-h:38px; --ui-ribbon-body-h:50px; --ui-ribbon-command-h:36px;
+  --ui-ribbon-command-min-w:110px; --ui-ribbon-command-max-w:160px;
+  --ui-ribbon-icon-tile:24px; --ui-ribbon-icon:20px; --ui-nav-icon:22px;
+  --ui-nav-font:12px; --ui-command-font:11px; --ui-workspace-tab-h:22px; --ui-statusbar-h:20px;
+}
+:root[data-density='comfortable'] {
+  --ui-density: comfortable;
+  --ui-font-xs:11.5px; --ui-font-sm:12.5px; --ui-font-md:13.5px; --ui-font-lg:14.5px; --ui-font-xl:15.5px; --ui-font-title:17px;
+  --ui-line-tight:1.3; --ui-line-normal:1.45; --ui-line-relaxed:1.55;
+  --ui-weight-normal:400; --ui-weight-medium:500; --ui-weight-strong:700;
+  --ui-control-h-sm:23px; --ui-control-h-md:26px; --ui-control-h-lg:30px;
+  --ui-icon-sm:13px; --ui-icon-md:15px; --ui-icon-lg:19px;
+  --ui-gap-xs:4px; --ui-gap-sm:7px; --ui-gap-md:9px; --ui-gap-lg:13px;
+  --ui-pad-xs:5px; --ui-pad-sm:7px; --ui-pad-md:9px;
+  --ui-header-h:28px; --ui-ribbon-tab-h:48px; --ui-ribbon-body-h:62px; --ui-ribbon-command-h:42px;
+  --ui-ribbon-command-min-w:124px; --ui-ribbon-command-max-w:180px;
+  --ui-ribbon-icon-tile:30px; --ui-ribbon-icon:24px; --ui-nav-icon:28px;
+  --ui-nav-font:14px; --ui-command-font:13px; --ui-workspace-tab-h:28px; --ui-statusbar-h:24px;
+}
+
+/* Radius preference applies to shared controls and visual containers only. */
+html[data-radius] #root .app-shell :where(
+  button, input, select, textarea,
+  .desktop-btn, .desktop-input, .desktop-select, .desktop-textarea,
+  .desktop-panel, .form-group, .pos-grid-wrap, .calc-card,
+  .account-menu-panel, .ribbon-menu, .appearance-menu-panel,
+  .appearance-skin-card, .appearance-choice
+) {
+  border-radius: var(--control-radius) !important;
+}
+html[data-radius] #root .app-shell :where(
+  .desktop-panel, .form-group, .pos-grid-wrap, .calc-card,
+  .account-menu-panel, .ribbon-menu, .appearance-menu-panel
+) {
+  border-radius: var(--panel-radius) !important;
+}
+
+/* Card shadow preference applies across shared cards/panels; controls use button shadow. */
+html[data-shadow] #root .app-shell :where(
+  .desktop-panel, .form-group, .pos-grid-wrap, .calc-card,
+  .account-menu-panel, .ribbon-menu, .appearance-menu-panel,
+  .appearance-skin-card
+) {
+  box-shadow: var(--panel-shadow) !important;
+}
+html[data-shadow] #root .app-shell :where(
+  .desktop-btn, .account-menu-btn, .titlebar-select, .quick-command,
+  .desktop-input, .desktop-select, .appearance-choice
+) {
+  box-shadow: var(--button-shadow) !important;
+}
+
+/* Accent visible across common interactive chrome, without altering semantic danger/success colors. */
+html[data-primary-theme] #root .app-shell :where(
+  .titlebar-logo, .appearance-menu-trigger,
+  .appearance-choice.is-selected, .appearance-skin-card.is-selected
+) {
+  color: var(--appearance-accent) !important;
+}
+html[data-primary-theme] #root .app-shell :where(
+  .appearance-choice.is-selected, .appearance-skin-card.is-selected
+) {
+  border-color: var(--appearance-accent) !important;
+}
+html[data-primary-theme] #root .app-shell :where(
+  button, input, select, textarea
+):focus-visible {
+  outline-color: var(--appearance-accent) !important;
+}
+
+/* Animation preference is global; OS reduced-motion still always wins. */
+html[data-animations='off'] #root *,
+html[data-animations='off'] #root *::before,
+html[data-animations='off'] #root *::after {
+  animation-duration:0.001ms !important;
+  animation-iteration-count:1 !important;
+  transition-duration:0.001ms !important;
+  transition-delay:0ms !important;
+  scroll-behavior:auto !important;
+}
+
+
+/* ---------- UNIFIED BLUEPOS DESIGN TOKENS ---------- */
+/*
+ * Cross-module visual contract. Page CSS may own geometry, but shared
+ * typography, surfaces, borders, focus, state colors, radii and shadows
+ * resolve through these tokens.
+ */
+:root {
+  /*
+   * Client-approved Definition baseline.
+   * Keep the neutral desktop/POS palette stable while Primary Theme controls
+   * active, focus and selected states.
+   */
+  --ui-bg: #e2e8ef;
+  --ui-surface: #ffffff;
+  --ui-surface-subtle: #e9eff5;
+  --ui-surface-muted: #d3dee9;
+  --ui-text: #172331;
+  --ui-text-muted: #465665;
+  --ui-border: #8797a7;
+  --ui-border-soft: #c4d0db;
+  --ui-accent: var(--appearance-accent);
+  --ui-accent-soft: color-mix(in srgb, var(--appearance-accent) 12%, var(--ui-surface));
+  --ui-accent-strong: color-mix(in srgb, var(--appearance-accent) 82%, black);
+  --ui-success: #16834a;
+  --ui-warning: #b56a00;
+  --ui-danger: #c53b36;
+  --ui-info: #2879ad;
+  --ui-success-soft: color-mix(in srgb, var(--ui-success) 13%, var(--ui-surface));
+  --ui-warning-soft: color-mix(in srgb, var(--ui-warning) 13%, var(--ui-surface));
+  --ui-danger-soft: color-mix(in srgb, var(--ui-danger) 11%, var(--ui-surface));
+  --ui-info-soft: color-mix(in srgb, var(--ui-info) 11%, var(--ui-surface));
+  /* Approved Definition visual primitives. */
+  --ui-control-face: linear-gradient(
+    180deg,
+    var(--ui-surface) 0%,
+    color-mix(in srgb, var(--ui-accent) 7%, var(--ui-surface-subtle)) 100%
+  );
+  --ui-control-border: color-mix(in srgb, var(--ui-accent) 34%, var(--ui-border));
+  --ui-control-hover-bg: color-mix(in srgb, var(--ui-accent) 10%, var(--ui-surface));
+  --ui-control-hover-border: color-mix(in srgb, var(--ui-accent) 66%, var(--ui-border));
+
+  --ui-select-arrow-face: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ui-accent) 55%, white),
+    var(--ui-accent)
+  );
+  --ui-select-arrow-border: color-mix(in srgb, var(--ui-accent) 72%, var(--ui-border));
+  --ui-select-menu-bg: var(--ui-surface);
+  --ui-select-hover-bg: color-mix(in srgb, var(--ui-accent) 12%, var(--ui-surface));
+  --ui-select-hover-text: var(--ui-accent-strong);
+  --ui-select-selected-face: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--ui-accent) 84%, black),
+    var(--ui-accent)
+  );
+  --ui-select-selected-text: #fff;
+
+  --ui-button-primary-face: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ui-accent) 6%, var(--ui-surface)),
+    color-mix(in srgb, var(--ui-accent) 15%, var(--ui-surface-subtle))
+  );
+  --ui-button-success-face: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ui-success) 5%, var(--ui-surface)),
+    var(--ui-success-soft)
+  );
+  --ui-button-warning-face: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ui-warning) 5%, var(--ui-surface)),
+    var(--ui-warning-soft)
+  );
+  --ui-button-danger-face: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ui-danger) 4%, var(--ui-surface)),
+    var(--ui-danger-soft)
+  );
+  --ui-button-info-face: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ui-info) 4%, var(--ui-surface)),
+    var(--ui-info-soft)
+  );
+
+  --ui-panel-face: linear-gradient(180deg, var(--ui-surface) 0%, var(--ui-surface-subtle) 100%);
+  --ui-table-header: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ui-accent) 11%, var(--ui-surface)),
+    color-mix(in srgb, var(--ui-accent) 21%, var(--ui-surface-subtle))
+  );
+  --ui-table-header-text: var(--ui-text);
+  --ui-table-border: var(--ui-border);
+  --ui-row-alt: #f1f5f9;
+  --ui-row-hover: color-mix(in srgb, var(--ui-accent) 12%, var(--ui-surface));
+  --ui-selected-row: var(--selected-row, color-mix(in srgb, var(--ui-accent) 28%, var(--ui-surface)));
+  --ui-selected-row-text: var(--ui-text);
+
+  /* Operational column emphasis: shared POS/table/dropdown semantics. */
+  --ui-col-identity: color-mix(in srgb, var(--ui-warning) 9%, var(--ui-surface));
+  --ui-col-stock: color-mix(in srgb, var(--ui-success) 12%, var(--ui-surface));
+  --ui-col-quantity: color-mix(in srgb, var(--ui-info) 10%, var(--ui-surface));
+  --ui-col-price: color-mix(in srgb, var(--ui-warning) 14%, var(--ui-surface));
+  --ui-col-cost: color-mix(in srgb, var(--ui-warning) 8%, var(--ui-surface-muted));
+  --ui-col-amount: color-mix(in srgb, var(--ui-info) 12%, var(--ui-surface));
+  --ui-focus-shadow: 0 0 0 2px color-mix(in srgb, var(--appearance-accent) 34%, transparent);
+  --ui-card-shadow: var(--panel-shadow);
+  --ui-control-shadow: var(--button-shadow);
+  --ui-transition-fast: 120ms ease;
+  --ui-transition-normal: 180ms ease;
+}
+
+:root[data-theme='dark'] {
+  --ui-bg: #181d22;
+  --ui-surface: #20262c;
+  --ui-surface-subtle: #282f36;
+  --ui-surface-muted: #343c44;
+  --ui-text: #edf1f5;
+  --ui-text-muted: #aeb8c2;
+  --ui-border: #697681;
+  --ui-border-soft: #4a5660;
+  --ui-success: #50c878;
+  --ui-warning: #f0ad4e;
+  --ui-danger: #ff7670;
+  --ui-info: #6bb9e8;
+  --ui-success-soft: color-mix(in srgb, var(--ui-success) 14%, var(--ui-surface));
+  --ui-warning-soft: color-mix(in srgb, var(--ui-warning) 14%, var(--ui-surface));
+  --ui-danger-soft: color-mix(in srgb, var(--ui-danger) 12%, var(--ui-surface));
+  --ui-info-soft: color-mix(in srgb, var(--ui-info) 12%, var(--ui-surface));
+  --ui-control-face: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ui-accent) 10%, #353c43) 0%,
+    #282e34 100%
+  );
+  --ui-control-border: color-mix(in srgb, var(--ui-accent) 34%, var(--ui-border));
+  --ui-control-hover-bg: color-mix(in srgb, var(--ui-accent) 12%, var(--ui-surface));
+  --ui-control-hover-border: color-mix(in srgb, var(--ui-accent) 66%, var(--ui-border));
+
+  --ui-select-arrow-face: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ui-accent) 42%, white),
+    var(--ui-accent)
+  );
+  --ui-select-arrow-border: color-mix(in srgb, var(--ui-accent) 68%, var(--ui-border));
+  --ui-select-menu-bg: var(--ui-surface);
+  --ui-select-hover-bg: color-mix(in srgb, var(--ui-accent) 16%, var(--ui-surface));
+  --ui-select-hover-text: color-mix(in srgb, var(--ui-accent) 72%, white);
+  --ui-select-selected-face: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--ui-accent) 68%, black),
+    var(--ui-accent)
+  );
+  --ui-select-selected-text: #fff;
+
+  --ui-panel-face: linear-gradient(180deg, #2f363d 0%, #242a30 100%);
+  --ui-table-header: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ui-accent) 10%, #343c44),
+    #292f35
+  );
+  --ui-table-header-text: var(--ui-text);
+  --ui-table-border: var(--ui-border);
+  --ui-row-alt: #242c33;
+  --ui-row-hover: color-mix(in srgb, var(--ui-accent) 16%, var(--ui-surface));
+  --ui-selected-row: color-mix(in srgb, var(--ui-accent) 36%, var(--ui-surface));
+  --ui-selected-row-text: #fff;
+  --ui-col-identity: color-mix(in srgb, var(--ui-warning) 10%, var(--ui-surface));
+  --ui-col-stock: color-mix(in srgb, var(--ui-success) 13%, var(--ui-surface));
+  --ui-col-quantity: color-mix(in srgb, var(--ui-info) 12%, var(--ui-surface));
+  --ui-col-price: color-mix(in srgb, var(--ui-warning) 15%, var(--ui-surface));
+  --ui-col-cost: color-mix(in srgb, var(--ui-warning) 9%, var(--ui-surface-muted));
+  --ui-col-amount: color-mix(in srgb, var(--ui-info) 14%, var(--ui-surface));
+  --ui-accent-strong: color-mix(in srgb, var(--appearance-accent) 78%, white);
+}
+
+/* Shared panels/cards. */
+html #root :where(
+  .desktop-panel,
+  .form-group,
+  .pos-grid-wrap,
+  .calc-card,
+  .appearance-menu-panel,
+  .account-menu-panel,
+  .ribbon-menu
+) {
+  border-color: var(--ui-border);
+  background-color: var(--ui-surface);
+  color: var(--ui-text);
+  box-shadow: var(--ui-card-shadow);
+}
+
+/* Shared controls. Geometry remains page-owned. */
+html #root :where(
+  .desktop-input,
+  .desktop-select,
+  .desktop-textarea,
+  .classic-workspace input:not([type='checkbox']):not([type='radio']):not([type='file']),
+  .classic-workspace select,
+  .classic-workspace textarea,
+  .admin-page input:not([type='checkbox']):not([type='radio']):not([type='file']),
+  .admin-page select,
+  .admin-page textarea
+) {
+  border-color: var(--ui-border);
+  background-color: var(--ui-surface);
+  color: var(--ui-text);
+  border-radius: var(--control-radius);
+  box-shadow: var(--ui-control-shadow);
+  transition:
+    border-color var(--ui-transition-fast),
+    box-shadow var(--ui-transition-fast),
+    background-color var(--ui-transition-fast);
+}
+
+html #root :where(
+  .desktop-input,
+  .desktop-select,
+  .desktop-textarea,
+  .classic-workspace input,
+  .classic-workspace select,
+  .classic-workspace textarea,
+  .admin-page input,
+  .admin-page select,
+  .admin-page textarea
+):focus-visible {
+  outline: none;
+  border-color: var(--ui-accent);
+  box-shadow: var(--ui-focus-shadow);
+}
+
+html #root :where(
+  .desktop-input,
+  .desktop-select,
+  .desktop-textarea,
+  .classic-workspace input,
+  .classic-workspace select,
+  .classic-workspace textarea,
+  .admin-page input,
+  .admin-page select,
+  .admin-page textarea
+):disabled {
+  background-color: var(--ui-surface-muted);
+  color: var(--ui-text-muted);
+  cursor: not-allowed;
+  opacity: .76;
+}
+
+/* Shared buttons. Semantic variants keep their meaning; primary follows theme. */
+html #root .desktop-btn {
+  border-color: var(--ui-border);
+  border-radius: var(--control-radius);
+  box-shadow: var(--ui-control-shadow);
+  transition:
+    border-color var(--ui-transition-fast),
+    background-color var(--ui-transition-fast),
+    color var(--ui-transition-fast),
+    box-shadow var(--ui-transition-fast),
+    transform var(--ui-transition-fast);
+}
+
+html #root .desktop-btn:not(.is-primary):not(.is-danger) {
+  background-color: var(--ui-surface);
+  color: var(--ui-text);
+}
+
+html #root .desktop-btn.is-primary {
+  border-color: var(--ui-accent-strong);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ui-accent) 82%, white),
+    var(--ui-accent)
+  );
+  color: white;
+}
+
+html #root .desktop-btn.is-danger {
+  border-color: color-mix(in srgb, var(--ui-danger) 78%, black);
+}
+
+html #root .desktop-btn:hover:not(:disabled) {
+  border-color: var(--ui-accent);
+}
+
+html #root .desktop-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+html #root .desktop-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--ui-focus-shadow), var(--ui-control-shadow);
+}
+
+/* Shared data grids. */
+html #root .pos-grid-wrap {
+  border-radius: var(--panel-radius);
+}
+
+html #root .pos-grid {
+  color: var(--ui-text);
+}
+
+html #root .pos-grid thead th {
+  border-color: var(--ui-border);
+  color: var(--ui-text);
+}
+
+html #root .pos-grid tbody td {
+  border-color: color-mix(in srgb, var(--ui-border) 62%, transparent);
+}
+
+html #root .pos-grid tbody tr:hover {
+  background: color-mix(in srgb, var(--ui-accent) 8%, var(--ui-surface));
+}
+
+html #root .pos-grid tbody tr.is-selected {
+  background: color-mix(in srgb, var(--ui-accent) 18%, var(--ui-surface));
+  color: var(--ui-text);
+}
+
+html #root .pos-grid-empty {
+  color: var(--ui-text-muted);
+}
+
+/* Shared labels/headings and validation tone. */
+html #root :where(.desktop-field > span, .form-group-title, .desktop-panel-header) {
+  color: var(--ui-text);
+}
+
+html #root :where(.field-error, .validation-error, .form-error, .sales-return-error) {
+  color: var(--ui-danger);
+}
+
+/* User animation setting also suppresses shared press/hover movement. */
+html[data-animations='off'] #root .desktop-btn:active:not(:disabled) {
+  transform: none;
+}
+
+
+/* ---------- AUTH + PLATFORM SHELL UNIFICATION ---------- */
+.auth-layout {
+  background:
+    radial-gradient(circle at top, color-mix(in srgb, var(--ui-accent) 86%, white), var(--ui-accent-strong)) !important;
+  color: var(--ui-text);
+  font-family: var(--app-font-family);
+}
+
+.auth-card {
+  border-color: var(--ui-border) !important;
+  border-radius: var(--panel-radius) !important;
+  background: var(--ui-surface) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-card-shadow) !important;
+}
+
+.auth-card-header {
+  border-color: var(--ui-border) !important;
+  background: var(--ui-surface-subtle) !important;
+}
+
+.auth-brand {
+  color: var(--ui-accent) !important;
+}
+
+.auth-title,
+.auth-card-body {
+  color: var(--ui-text) !important;
+}
+
+.auth-card :where(input, select, textarea, button) {
+  font-family: var(--app-font-family);
+  border-radius: var(--control-radius);
+}
+
+.auth-card :where(input, select, textarea):focus-visible,
+.platform-shell :where(input, select, textarea, button, a):focus-visible {
+  outline: none;
+  box-shadow: var(--ui-focus-shadow);
+}
+
+.platform-shell {
+  background: var(--ui-bg) !important;
+  color: var(--ui-text) !important;
+  font-family: var(--app-font-family);
+}
+
+.platform-header {
+  border-color: var(--ui-border) !important;
+  background: color-mix(in srgb, var(--ui-accent-strong) 78%, #101820) !important;
+  color: white !important;
+  box-shadow: var(--ui-card-shadow);
+}
+
+.platform-header .text-amber-400 {
+  color: color-mix(in srgb, var(--ui-accent) 34%, #ffd166) !important;
+}
+
+.platform-nav {
+  border-color: var(--ui-border) !important;
+  background: var(--ui-surface-subtle) !important;
+  color: var(--ui-text) !important;
+}
+
+.platform-main {
+  background: var(--ui-bg) !important;
+  color: var(--ui-text) !important;
+}
+
+.platform-account-trigger,
+.platform-access-toggle,
+.platform-nav-item {
+  border-radius: var(--control-radius) !important;
+  transition:
+    background-color var(--ui-transition-fast),
+    color var(--ui-transition-fast),
+    border-color var(--ui-transition-fast),
+    box-shadow var(--ui-transition-fast);
+}
+
+.platform-account-trigger {
+  border-color: color-mix(in srgb, white 28%, var(--ui-accent)) !important;
+  color: white !important;
+  box-shadow: var(--ui-control-shadow);
+}
+
+.platform-account-menu {
+  border-color: var(--ui-border) !important;
+  border-radius: var(--panel-radius) !important;
+  background: var(--ui-surface) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-card-shadow) !important;
+}
+
+.platform-account-menu-item {
+  color: var(--ui-text) !important;
+}
+
+.platform-account-menu-item:hover,
+.platform-access-toggle:hover,
+.platform-nav-item:hover {
+  background: var(--ui-accent-soft) !important;
+  color: var(--ui-text) !important;
+}
+
+.platform-account-menu-signout {
+  border-color: var(--ui-border) !important;
+  color: var(--ui-danger) !important;
+}
+
+.platform-nav-item.bg-slate-950 {
+  background: var(--ui-accent) !important;
+  color: white !important;
+}
+
+.platform-access-toggle {
+  color: var(--ui-text) !important;
+}
+
+html[data-radius] :where(.auth-card, .platform-account-menu) {
+  border-radius: var(--panel-radius) !important;
+}
+
+html[data-shadow] :where(.auth-card, .platform-account-menu) {
+  box-shadow: var(--ui-card-shadow) !important;
+}
+
+html[data-animations='off'] :where(.auth-layout, .auth-card, .platform-shell, .platform-shell *) {
+  transition: none !important;
+  animation: none !important;
+}
+
+
+/* ---------- SHARED DESKTOP COMPONENT VISUAL CONTRACT ---------- */
+html #root .desktop-panel-header,
+html #root .form-group-title {
+  border-color: var(--ui-border);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ui-accent) 8%, var(--ui-surface)),
+    color-mix(in srgb, var(--ui-accent) 13%, var(--ui-surface-subtle))
+  );
+  color: var(--ui-accent-strong);
+}
+
+html #root .desktop-toolbar,
+html #root .desktop-panel-footer,
+html #root .grid-pane-toolbar,
+html #root .grid-pane-footer {
+  border-color: var(--ui-border);
+  background: linear-gradient(180deg, var(--ui-surface), var(--ui-surface-subtle));
+  color: var(--ui-text);
+}
+
+html #root .form-group {
+  background: var(--ui-surface);
+}
+
+html #root .form-group-title {
+  font-weight: 700;
+}
+
+html #root .desktop-field {
+  color: var(--ui-text-muted);
+}
+
+html #root .desktop-btn .shortcut {
+  color: var(--ui-text-muted);
+}
+
+html #root .desktop-btn.is-primary .shortcut {
+  color: color-mix(in srgb, white 78%, var(--ui-accent));
+}
+
+html #root .pos-grid th {
+  background: var(--ui-table-header);
+  color: var(--ui-table-header-text);
+  border-color: var(--ui-table-border);
+}
+
+html #root .pos-grid td {
+  background-color: var(--ui-surface);
+  color: var(--ui-text);
+  border-color: var(--ui-border-soft);
+}
+
+html #root .pos-grid tbody tr:nth-child(even) td {
+  background: var(--ui-row-alt);
+}
+
+html #root .pos-grid tbody tr:hover td {
+  background: var(--ui-row-hover);
+}
+
+html #root .pos-grid tbody tr.is-selected td {
+  background: var(--ui-selected-row);
+  color: var(--ui-selected-row-text);
+}
+
+html #root :where(.report-list button, .quick-command) {
+  border-color: var(--ui-border);
+  border-radius: var(--control-radius);
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  box-shadow: var(--ui-control-shadow);
+  transition:
+    background-color var(--ui-transition-fast),
+    border-color var(--ui-transition-fast),
+    color var(--ui-transition-fast),
+    box-shadow var(--ui-transition-fast);
+}
+
+html #root :where(.report-list button, .quick-command):hover:not(:disabled) {
+  border-color: var(--ui-accent);
+  background: var(--ui-accent-soft);
+}
+
+html #root .report-list button.is-active {
+  border-color: var(--ui-accent);
+  background: var(--ui-accent);
+  color: white;
+}
+
+html[data-density='compact'] #root :where(.form-group-body, .desktop-panel-body) {
+  padding: var(--ui-pad-sm);
+}
+
+html[data-density='comfortable'] #root :where(.form-group-body, .desktop-panel-body) {
+  padding: var(--ui-pad-md);
+}
+
+
+/* ---------- MIGRATED MODULE DENSITY + LEGACY SHELL BRIDGE ---------- */
+/*
+ * Keep page-specific geometry intact while ensuring every migrated module
+ * visibly responds to the global appearance preferences.
+ */
+:root[data-density='compact'] {
+  --module-font-control: var(--ui-font-md);
+  --module-font-label: var(--ui-font-sm);
+  --module-font-body: var(--ui-font-sm);
+  --module-gap: var(--ui-gap-sm);
+  --module-pad: var(--ui-pad-sm);
+}
+
+:root[data-density='comfortable'] {
+  --module-font-control: var(--ui-font-md);
+  --module-font-label: var(--ui-font-sm);
+  --module-font-body: var(--ui-font-md);
+  --module-gap: var(--ui-gap-md);
+  --module-pad: var(--ui-pad-md);
+}
+
+html[data-density] #root :where(
+  .product-reference-screen,
+  .parties-vca,
+  .purchase-reference-screen,
+  .purchase-entry-screen,
+  .sales-reference-screen,
+  .sales-return-screen,
+  .bp-workspace,
+  .catalog-popup,
+  .coa-modal,
+  .bp-style-modal,
+  .product-barcode-print-modal,
+  .bp-col-customization,
+  .sales-party-modal-window
+) {
+  font-size: var(--module-font-body);
+}
+
+html[data-density] #root :where(
+  .product-reference-screen,
+  .parties-vca,
+  .purchase-reference-screen,
+  .purchase-entry-screen,
+  .sales-reference-screen,
+  .sales-return-screen,
+  .bp-workspace,
+  .catalog-popup,
+  .coa-modal,
+  .bp-style-modal,
+  .product-barcode-print-modal,
+  .bp-col-customization,
+  .sales-party-modal-window
+) :where(button, input, select, textarea) {
+  font-size: var(--module-font-control) !important;
+}
+
+html[data-density] #root :where(
+  .product-reference-screen,
+  .parties-vca,
+  .purchase-reference-screen,
+  .purchase-entry-screen,
+  .sales-reference-screen,
+  .sales-return-screen,
+  .bp-workspace,
+  .catalog-popup,
+  .coa-modal,
+  .bp-style-modal,
+  .product-barcode-print-modal,
+  .bp-col-customization,
+  .sales-party-modal-window
+) :where(label, legend, .field-label, .desktop-field > span) {
+  font-size: var(--module-font-label) !important;
+}
+
+/* Shared shell/workspace surfaces that still originate in legacy index.css. */
+html #root :where(
+  .app-shell,
+  .workspace-host,
+  .workspace-host-inner,
+  .desktop-page,
+  .admin-page,
+  .report-workspace,
+  .split-workspace,
+  .invoice-workspace
+) {
+  color: var(--ui-text);
+}
+
+html #root :where(
+  .workspace-host,
+  .workspace-host-inner,
+  .desktop-page,
+  .admin-page,
+  .report-workspace
+) {
+  background-color: var(--ui-bg);
+}
+
+html #root :where(
+  .titlebar,
+  .ribbon-tabs,
+  .ribbon-body,
+  .workspace-tabs,
+  .statusbar,
+  .grid-pane,
+  .grid-pane-toolbar,
+  .grid-pane-footer,
+  .desktop-card,
+  .report-filters,
+  .calc-card
+) {
+  border-color: var(--ui-border);
+  color: var(--ui-text);
+}
+
+html #root :where(
+  .grid-pane,
+  .desktop-card,
+  .report-filters,
+  .calc-card
+) {
+  background-color: var(--ui-surface);
+  box-shadow: var(--ui-card-shadow);
+  border-radius: var(--panel-radius);
+}
+
+html #root :where(
+  .grid-pane-toolbar,
+  .grid-pane-footer,
+  .workspace-tabs
+) {
+  background: linear-gradient(180deg, var(--ui-surface), var(--ui-surface-subtle));
+}
+
+html #root :where(
+  .ribbon-tab,
+  .ribbon-command,
+  .workspace-tab,
+  .quick-command,
+  .account-menu-btn,
+  .titlebar-select,
+  .appearance-menu-trigger
+) {
+  border-color: var(--ui-border);
+  border-radius: var(--control-radius);
+  color: var(--ui-text);
+  box-shadow: var(--ui-control-shadow);
+  transition:
+    border-color var(--ui-transition-fast),
+    background-color var(--ui-transition-fast),
+    color var(--ui-transition-fast),
+    box-shadow var(--ui-transition-fast);
+}
+
+html #root :where(
+  .ribbon-tab,
+  .ribbon-command,
+  .workspace-tab,
+  .quick-command
+):hover:not(:disabled) {
+  border-color: var(--ui-accent);
+  background: var(--ui-accent-soft);
+}
+
+html #root :where(
+  .ribbon-tab.is-active,
+  .workspace-tab.is-active,
+  .quick-command.is-active
+) {
+  border-color: var(--ui-accent);
+  color: var(--ui-accent-strong);
+}
+
+/* Generic tables not already covered by PosDataGrid. */
+html #root :where(
+  .desktop-panel,
+  .grid-pane,
+  .admin-page,
+  .desktop-card,
+  .platform-main
+) table thead th {
+  border-color: var(--ui-border);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ui-accent) 7%, var(--ui-surface)),
+    color-mix(in srgb, var(--ui-accent) 14%, var(--ui-surface-subtle))
+  );
+  color: var(--ui-text);
+}
+
+html #root :where(
+  .desktop-panel,
+  .grid-pane,
+  .admin-page,
+  .desktop-card,
+  .platform-main
+) table tbody td {
+  border-color: color-mix(in srgb, var(--ui-border) 58%, transparent);
+  color: var(--ui-text);
+}
+
+html #root :where(
+  .desktop-panel,
+  .grid-pane,
+  .admin-page,
+  .desktop-card,
+  .platform-main
+) table tbody tr:hover td {
+  background: color-mix(in srgb, var(--ui-accent) 8%, var(--ui-surface));
+}
+
+html #root :where(
+  .desktop-panel,
+  .grid-pane,
+  .admin-page,
+  .desktop-card,
+  .platform-main
+) table tbody tr.is-selected td {
+  background: color-mix(in srgb, var(--ui-accent) 18%, var(--ui-surface));
+}
+
+/* Generic modal/dialog compatibility layer. */
+html #root :where(
+  [role='dialog'],
+  .modal,
+  .dialog,
+  .desktop-dialog
+) {
+  color: var(--ui-text);
+}
+
+html[data-animations='off'] #root :where(
+  .ribbon-tab,
+  .ribbon-command,
+  .workspace-tab,
+  .quick-command,
+  .account-menu-btn,
+  .titlebar-select,
+  .appearance-menu-trigger
+) {
+  transition: none !important;
+}
+
+
+/* ---------- PLATFORM PAGE TOKEN BRIDGE ---------- */
+.platform-auth-page {
+  background:
+    radial-gradient(circle at top, color-mix(in srgb, var(--ui-accent) 42%, #101820), #0f1720) !important;
+  color: var(--ui-text) !important;
+  font-family: var(--app-font-family);
+}
+
+.platform-auth-card {
+  border-color: var(--ui-border) !important;
+  border-radius: var(--panel-radius) !important;
+  background: var(--ui-surface) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-card-shadow) !important;
+}
+
+.platform-auth-card :where(input, select, textarea) {
+  border-color: var(--ui-border) !important;
+  border-radius: var(--control-radius) !important;
+  background: var(--ui-surface-subtle) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-control-shadow) !important;
+}
+
+.platform-auth-card :where(input, select, textarea):focus-visible {
+  outline: none !important;
+  border-color: var(--ui-accent) !important;
+  box-shadow: var(--ui-focus-shadow) !important;
+}
+
+.platform-auth-card :where(input, select, textarea):disabled {
+  background: var(--ui-surface-muted) !important;
+  color: var(--ui-text-muted) !important;
+}
+
+.platform-auth-card button[type='submit'] {
+  border-radius: var(--control-radius) !important;
+  background: var(--ui-accent) !important;
+  color: #fff !important;
+  box-shadow: var(--ui-control-shadow) !important;
+}
+
+.platform-auth-card button:not([type='submit']) {
+  border-color: var(--ui-border) !important;
+  border-radius: var(--control-radius) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-control-shadow) !important;
+}
+
+.platform-auth-card .text-amber-400,
+.platform-auth-card .text-amber-300,
+.platform-auth-page.text-amber-300 {
+  color: var(--ui-accent) !important;
+}
+
+.platform-auth-card .text-red-300 { color: var(--ui-danger) !important; }
+.platform-auth-card :where(.text-slate-300, .text-slate-400) { color: var(--ui-text-muted) !important; }
+
+/* Platform pages use Tailwind utility classes heavily; scope a compatibility
+ * layer to platform only so Theme & Appearance wins without changing markup/layout.
+ */
+.platform-main :where(.bg-white, .bg-slate-50, .bg-slate-100) {
+  background-color: var(--ui-surface) !important;
+}
+
+.platform-main :where(.bg-slate-200) {
+  background-color: var(--ui-surface-subtle) !important;
+}
+
+.platform-main :where(.bg-slate-800, .bg-slate-900, .bg-slate-950) {
+  background-color: color-mix(in srgb, var(--ui-accent-strong) 72%, #101820) !important;
+}
+
+.platform-main :where(
+  .border-slate-100,
+  .border-slate-200,
+  .border-slate-300,
+  .border-slate-600,
+  .border-slate-700,
+  .border-slate-900
+) {
+  border-color: var(--ui-border) !important;
+}
+
+.platform-main :where(
+  .text-slate-400,
+  .text-slate-500,
+  .text-slate-600
+) {
+  color: var(--ui-text-muted) !important;
+}
+
+.platform-main :where(
+  .text-slate-800,
+  .text-slate-900,
+  .text-slate-950
+) {
+  color: var(--ui-text) !important;
+}
+
+.platform-main .text-red-700,
+.platform-main .text-red-300 { color: var(--ui-danger) !important; }
+
+.platform-main .text-emerald-800 { color: var(--ui-success) !important; }
+
+.platform-main :where(.text-amber-300, .text-amber-400) { color: var(--ui-warning) !important; }
+
+.platform-main .bg-red-700 {
+  background-color: var(--ui-danger) !important;
+  color: #fff !important;
+}
+
+.platform-main .border-red-700 {
+  border-color: var(--ui-danger) !important;
+}
+
+.platform-main .bg-emerald-700 {
+  background-color: var(--ui-success) !important;
+  color: #fff !important;
+}
+
+.platform-main .bg-slate-950\/40 {
+  background-color: color-mix(in srgb, var(--ui-text) 40%, transparent) !important;
+}
+
+.platform-main .bg-amber-500 {
+  background-color: var(--ui-warning) !important;
+  color: #fff !important;
+}
+
+.platform-main :where(
+  input:not([type='checkbox']):not([type='radio']),
+  select,
+  textarea
+) {
+  border-color: var(--ui-border) !important;
+  border-radius: var(--control-radius) !important;
+  background-color: var(--ui-surface) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-control-shadow) !important;
+}
+
+.platform-main :where(
+  input:not([type='checkbox']):not([type='radio']),
+  select,
+  textarea
+):focus-visible {
+  outline: none !important;
+  border-color: var(--ui-accent) !important;
+  box-shadow: var(--ui-focus-shadow) !important;
+}
+
+.platform-main :where(button, a.rounded) {
+  border-radius: var(--control-radius) !important;
+}
+
+.platform-main :where(.rounded, .rounded-md, .rounded-lg) {
+  border-radius: var(--panel-radius) !important;
+}
+
+.platform-main :where(.shadow, .shadow-md, .shadow-lg, .shadow-xl) {
+  box-shadow: var(--ui-card-shadow) !important;
+}
+
+html[data-animations='off'] :where(.platform-auth-page, .platform-main) * {
+  transition: none !important;
+  animation: none !important;
+}
+
+
+/* ---------- LEGACY VARIABLE TOKEN BRIDGE ---------- */
+/*
+ * index.css still contains legacy desktop variables. Rebind them here so
+ * existing page layouts inherit the current Theme & Appearance settings
+ * without rewriting their structure.
+ */
+:root {
+  --app-chrome: var(--ui-surface-subtle);
+  --titlebar-bg: var(--ui-surface);
+  --titlebar-bg-2: var(--ui-surface-subtle);
+  --titlebar-text: var(--ui-text);
+  --ribbon-bg: var(--ui-surface-subtle);
+  --ribbon-bg-2: var(--ui-surface-muted);
+  --ribbon-selected: var(--ui-surface);
+  --ribbon-tab-idle: var(--ui-surface-subtle);
+  --ribbon-border: var(--ui-border);
+  --workspace-bg: var(--ui-bg);
+  --workspace-tab-bg: var(--ui-surface-muted);
+  --panel-border: var(--ui-border);
+  --panel-header-1: var(--ui-surface);
+  --panel-header-2: var(--ui-surface-subtle);
+  --grid-header: color-mix(in srgb, var(--ui-accent) 11%, var(--ui-surface));
+  --grid-header-2: color-mix(in srgb, var(--ui-accent) 21%, var(--ui-surface-subtle));
+  --grid-border: var(--ui-border);
+  --statusbar-bg: var(--ui-surface-subtle);
+  --statusbar-bg-2: var(--ui-surface-muted);
+  --text-main: var(--ui-text);
+  --text-muted: var(--ui-text-muted);
+  --danger: var(--ui-danger);
+  --focus-ring: var(--ui-accent);
+  --input-bg: var(--ui-surface);
+  --input-border: var(--ui-border);
+  --disabled-fg: var(--ui-text-muted);
+  --pay-panel: var(--ui-surface-subtle);
+  --selected-row: color-mix(in srgb, var(--ui-accent) 28%, var(--ui-surface));
+  --hover-row: color-mix(in srgb, var(--ui-accent) 12%, var(--ui-surface));
+}
+
+
+/* ---------- TENANT AUTH FORM TOKEN BRIDGE ---------- */
+.auth-card :where(input:not([type='checkbox']):not([type='radio']), select, textarea) {
+  border-color: var(--ui-border) !important;
+  border-radius: var(--control-radius) !important;
+  background: var(--ui-surface) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-control-shadow) !important;
+}
+
+.auth-card :where(input:not([type='checkbox']):not([type='radio']), select, textarea):focus-visible {
+  outline: none !important;
+  border-color: var(--ui-accent) !important;
+  box-shadow: var(--ui-focus-shadow) !important;
+}
+
+.auth-card :where(input, select, textarea, button):disabled {
+  color: var(--ui-text-muted) !important;
+  opacity: .72;
+}
+
+.auth-card button {
+  border-radius: var(--control-radius) !important;
+  box-shadow: var(--ui-control-shadow) !important;
+  transition:
+    border-color var(--ui-transition-fast),
+    background-color var(--ui-transition-fast),
+    color var(--ui-transition-fast),
+    box-shadow var(--ui-transition-fast) !important;
+}
+
+.auth-card button[type='submit'] {
+  border-color: var(--ui-accent-strong) !important;
+  background: var(--ui-accent) !important;
+  color: #fff !important;
+}
+
+.auth-card button[type='button']:not(.appearance-menu-trigger) {
+  border-color: var(--ui-border) !important;
+  background: var(--ui-surface) !important;
+  color: var(--ui-text) !important;
+}
+
+.auth-card button:hover:not(:disabled) {
+  border-color: var(--ui-accent) !important;
+}
+
+.auth-card a {
+  color: var(--ui-accent) !important;
+}
+
+.auth-card :where(.text-slate-500, .text-slate-600) {
+  color: var(--ui-text-muted) !important;
+}
+
+.auth-card .text-red-700 { color: var(--ui-danger) !important; }
+.auth-card .text-amber-800 { color: var(--ui-warning) !important; }
+
+html[data-animations='off'] .auth-card * {
+  transition: none !important;
+  animation: none !important;
+}
+
+
+/* ---------- FINAL APPEARANCE VERIFICATION CLEANUP ---------- */
+/* Preserve tab geometry while still honoring the selected radius. */
+html[data-radius] #root :where(.ribbon-tab, .workspace-tab) {
+  border-radius: var(--control-radius) var(--control-radius) 0 0 !important;
+}
+
+/* Shared shell text/menu surfaces must not leak legacy light-only colors into dark mode. */
+html #root :where(
+  .titlebar-center,
+  .titlebar-meta,
+  .ribbon-group-caption,
+  .workspace-tab,
+  .statusbar
+) {
+  color: var(--ui-text-muted);
+}
+
+html #root .ribbon-menu button {
+  background: var(--ui-surface);
+  color: var(--ui-text);
+}
+
+html #root .ribbon-menu button:hover:not(:disabled) {
+  background: var(--ui-accent);
+  color: #fff;
+}
+
+html #root .ribbon-menu button:disabled {
+  color: var(--ui-text-muted);
+  background: var(--ui-surface-muted);
+}
+
+/* User density preference must remain visible on auth and platform surfaces too. */
+html[data-density] #root :where(.auth-card, .platform-auth-card, .platform-main) {
+  font-size: var(--ui-font-md);
+}
+
+html[data-density] #root :where(.auth-card, .platform-auth-card) :where(
+  input:not([type='checkbox']):not([type='radio']),
+  select,
+  button
+) {
+  min-height: var(--ui-control-h-lg) !important;
+  height: var(--ui-control-h-lg) !important;
+  font-size: var(--ui-font-md) !important;
+}
+
+html[data-density] #root .platform-main :where(
+  input:not([type='checkbox']):not([type='radio']),
+  select,
+  textarea
+) {
+  font-size: var(--ui-font-md) !important;
+}
+
+html[data-density='compact'] #root .platform-main {
+  padding: var(--ui-pad-sm) !important;
+}
+
+html[data-density='comfortable'] #root .platform-main {
+  padding: var(--ui-pad-md) !important;
+}
+
+/* All shared disabled controls use the same visual language. */
+html #root :where(
+  .desktop-btn,
+  .ribbon-command,
+  .quick-command,
+  .auth-card button,
+  .platform-auth-card button,
+  .platform-main button
+):disabled {
+  color: var(--ui-text-muted);
+  cursor: not-allowed;
+  opacity: .66;
+}
+
+
+/* ---------- WORKSPACE TAB THEME SYNC ---------- */
+/* Visual-only override for legacy index.css workspace-tab colors. */
+html #root .workspace-tabs {
+  border-bottom-color: var(--ui-border) !important;
+  background: linear-gradient(
+    180deg,
+    var(--ui-surface-subtle),
+    var(--ui-surface-muted)
+  ) !important;
+  color: var(--ui-text) !important;
+}
+
+html #root .workspace-tab {
+  border-color: var(--ui-border) !important;
+  border-bottom-color: transparent !important;
+  background: linear-gradient(
+    180deg,
+    var(--ui-surface),
+    var(--ui-surface-subtle)
+  ) !important;
+  color: var(--ui-text-muted) !important;
+  box-shadow: var(--ui-control-shadow) !important;
+  transition:
+    background-color var(--ui-transition-normal),
+    color var(--ui-transition-normal),
+    border-color var(--ui-transition-normal),
+    box-shadow var(--ui-transition-normal) !important;
+}
+
+html #root .workspace-tab:hover:not(.is-active) {
+  border-color: color-mix(in srgb, var(--ui-accent) 45%, var(--ui-border)) !important;
+  background: var(--ui-accent-soft) !important;
+  color: var(--ui-accent-strong) !important;
+}
+
+html #root .workspace-tab.is-active {
+  border-color: var(--ui-accent) !important;
+  border-bottom-color: var(--ui-surface) !important;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ui-accent) 12%, var(--ui-surface)),
+    var(--ui-surface)
+  ) !important;
+  color: var(--ui-accent-strong) !important;
+  box-shadow:
+    inset 0 2px 0 var(--ui-accent),
+    var(--ui-control-shadow) !important;
+}
+
+html #root .workspace-tab-label {
+  color: inherit !important;
+}
+
+html #root .workspace-tab-close {
+  background: transparent !important;
+  color: var(--ui-text-muted) !important;
+  box-shadow: none !important;
+}
+
+html #root .workspace-tab-close:hover {
+  background: color-mix(in srgb, var(--ui-danger) 14%, var(--ui-surface)) !important;
+  color: var(--ui-danger) !important;
+}
+
+html[data-animations='off'] #root .workspace-tab,
+html[data-animations='off'] #root .workspace-tab-close {
+  transition: none !important;
+}
+
+
+/* ---------- CANONICAL UI PRIMITIVE ENFORCEMENT ---------- */
+/*
+ * Safety net for legacy controls that still require native browser semantics
+ * (multi-select, HTML form serialization, frozen layouts). New controlled
+ * dropdowns should use UiSelect.
+ */
+html #root select {
+  font-family: var(--app-font-family);
+  border-color: var(--ui-border);
+  color: var(--ui-text);
+  background-color: var(--ui-surface);
+}
+
+html #root select:not([multiple]) {
+  min-height: var(--ui-control-h-md, 26px);
+  border-radius: var(--control-radius);
+  box-shadow: var(--ui-control-shadow);
+}
+
+html #root select:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--ui-accent) 58%, var(--ui-border));
+}
+
+html #root select:focus,
+html #root select:focus-visible {
+  outline: none;
+  border-color: var(--ui-accent);
+  box-shadow: var(--ui-focus-shadow);
+}
+
+html #root select:disabled {
+  background-color: var(--ui-surface-muted);
+  color: var(--ui-text-muted);
+  cursor: not-allowed;
+  opacity: .76;
+}
+
+html #root :where(input[type='checkbox'], input[type='radio']) {
+  accent-color: var(--ui-accent);
+}
+
+html #root :where(button, input, select, textarea) {
+  font-family: var(--app-font-family);
+}
+
+html #root :where(button, a, input, select, textarea):focus-visible {
+  outline-color: var(--ui-accent);
+}
+
+/* Canonical visual contract for legacy modal implementations.
+ * Geometry and workflow remain owned by each module.
+ */
+html #root :where(
+  .catalog-popup,
+  .coa-modal,
+  .product-barcode-print-modal,
+  .bp-style-modal,
+  .sales-party-modal-window,
+  .bp-col-customization,
+  .calc-card,
+  [role='dialog'].platform-dialog
+) {
+  border-color: var(--ui-border) !important;
+  border-radius: var(--panel-radius) !important;
+  background-color: var(--ui-surface) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-card-shadow) !important;
+}
+
+html #root :where(
+  .catalog-popup-windowbar,
+  .coa-modal-bar,
+  .product-barcode-print-titlebar,
+  .bp-style-modal-title,
+  .sales-party-modal-titlebar,
+  .bp-col-customization-titlebar
+) {
+  border-color: var(--ui-border) !important;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ui-accent) 8%, var(--ui-surface)),
+    color-mix(in srgb, var(--ui-accent) 15%, var(--ui-surface-subtle))
+  ) !important;
+  color: var(--ui-accent-strong) !important;
+}
+
+html #root :where(
+  .catalog-popup-backdrop,
+  .coa-modal-backdrop,
+  .sales-party-modal-layer
+) {
+  background-color: color-mix(in srgb, #000 42%, transparent);
+}
+
+html[data-animations='off'] #root :where(
+  .catalog-popup,
+  .coa-modal,
+  .product-barcode-print-modal,
+  .bp-style-modal,
+  .sales-party-modal-window,
+  .bp-col-customization,
+  .calc-card
+) {
+  animation: none !important;
+  transition: none !important;
+}
+
+
+/* ---------- GLOBAL SEMANTIC ACTION BUTTON CONTRACT ---------- */
+/* Shared action meaning: color communicates the operation, not the page/module. */
+html #root button[data-tone='save'],
+html #root button[data-tone='success'],
+html #root button[data-action='save'],
+html #root button[data-action='activate'],
+html #root button[data-action='post'],
+html #root button[data-action='approve'] {
+  border-color: color-mix(in srgb, var(--ui-success) 58%, var(--ui-border)) !important;
+  background: color-mix(in srgb, var(--ui-success) 14%, var(--ui-surface)) !important;
+  color: color-mix(in srgb, var(--ui-success) 82%, var(--ui-text)) !important;
+}
+
+html #root button[data-tone='delete'],
+html #root button[data-tone='danger'],
+html #root button[data-action='delete'],
+html #root button[data-action='remove'],
+html #root button[data-action='void'],
+html #root button[data-action='deactivate'],
+html #root button[data-action='reject'] {
+  border-color: color-mix(in srgb, var(--ui-danger) 58%, var(--ui-border)) !important;
+  background: color-mix(in srgb, var(--ui-danger) 12%, var(--ui-surface)) !important;
+  color: var(--ui-danger) !important;
+}
+
+html #root button[data-tone='refresh'],
+html #root button[data-tone='close'],
+html #root button[data-tone='info'],
+html #root button[data-action='refresh'],
+html #root button[data-action='close'],
+html #root button[data-action='preview'],
+html #root button[data-action='print'],
+html #root button[data-action='search'] {
+  border-color: color-mix(in srgb, var(--ui-info) 52%, var(--ui-border)) !important;
+  background: color-mix(in srgb, var(--ui-info) 11%, var(--ui-surface)) !important;
+  color: color-mix(in srgb, var(--ui-info) 78%, var(--ui-text)) !important;
+}
+
+html #root button[data-tone='warning'],
+html #root button[data-action='hold'],
+html #root button[data-action='retry'] {
+  border-color: color-mix(in srgb, var(--ui-warning) 56%, var(--ui-border)) !important;
+  background: color-mix(in srgb, var(--ui-warning) 13%, var(--ui-surface)) !important;
+  color: color-mix(in srgb, var(--ui-warning) 82%, var(--ui-text)) !important;
+}
+
+html #root button[data-tone='primary'],
+html #root button[data-action='new'],
+html #root button[data-action='add'],
+html #root button[data-action='create'] {
+  border-color: color-mix(in srgb, var(--ui-accent) 58%, var(--ui-border)) !important;
+  background: color-mix(in srgb, var(--ui-accent) 12%, var(--ui-surface)) !important;
+  color: var(--ui-accent-strong) !important;
+}
+
+
+/* ---------- DAILY ENTRIES — APPROVED DEFINITION BASELINE ---------- */
+/*
+ * Shared visual contract for Daily Entries modules.
+ * Page CSS keeps workflow geometry; visual language comes from global tokens.
+ */
+html #root :where(
+  .sales-reference-screen,
+  .sales-return-screen,
+  .purchase-reference-screen,
+  .purchase-return-screen
+) {
+  color: var(--ui-text);
+  background: var(--ui-bg);
+  font-family: var(--app-font-family);
+}
+
+html #root :where(
+  .sales-reference-screen,
+  .sales-return-screen,
+  .purchase-reference-screen,
+  .purchase-return-screen
+) :where(
+  fieldset,
+  .pie-panel,
+  .purchase-header,
+  .invoice-bottom
+) {
+  border-color: var(--ui-border) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-card-shadow) !important;
+}
+
+html #root :where(
+  .sales-reference-screen,
+  .sales-return-screen,
+  .purchase-reference-screen,
+  .purchase-return-screen
+) :where(
+  input:not([type='checkbox']):not([type='radio']),
+  textarea,
+  .desktop-input
+) {
+  border-color: var(--ui-control-border) !important;
+  background: var(--ui-control-face) !important;
+  color: var(--ui-text) !important;
+  border-radius: var(--control-radius) !important;
+  box-shadow: var(--ui-control-shadow) !important;
+}
+
+html #root :where(
+  .sales-reference-screen,
+  .sales-return-screen,
+  .purchase-reference-screen,
+  .purchase-return-screen
+) :where(
+  input:not([type='checkbox']):not([type='radio']),
+  textarea,
+  .desktop-input
+):hover:not(:disabled) {
+  border-color: var(--ui-control-hover-border) !important;
+  background: var(--ui-control-hover-bg) !important;
+}
+
+html #root :where(
+  .sales-reference-screen,
+  .sales-return-screen,
+  .purchase-reference-screen,
+  .purchase-return-screen
+) :where(
+  input:not([type='checkbox']):not([type='radio']),
+  textarea,
+  .desktop-input
+):focus-visible {
+  outline: none !important;
+  border-color: var(--ui-accent) !important;
+  box-shadow: var(--ui-focus-shadow) !important;
+}
+
+html #root :where(
+  .sales-reference-screen,
+  .sales-return-screen,
+  .purchase-reference-screen,
+  .purchase-return-screen
+) :where(
+  input:not([type='checkbox']):not([type='radio']):disabled,
+  textarea:disabled,
+  input[readonly]
+) {
+  border-color: var(--ui-border) !important;
+  background: var(--ui-surface-muted) !important;
+  color: var(--ui-text-muted) !important;
+  box-shadow: none !important;
+}
+
+html #root :where(
+  .sales-reference-screen,
+  .sales-return-screen,
+  .purchase-reference-screen,
+  .purchase-return-screen
+) :where(label, legend, .pie-field > span) {
+  color: var(--ui-text) !important;
+}
+
+html #root :where(
+  .sales-reference-screen,
+  .sales-return-screen,
+  .purchase-reference-screen,
+  .purchase-return-screen
+) :where(
+  .inner-tabs,
+  .sales-reference-subtabs,
+  .sales-return-tabs
+) {
+  border-color: var(--ui-border) !important;
+  background: var(--ui-panel-face) !important;
+  color: var(--ui-text) !important;
+}
+
+html #root :where(
+  .sales-reference-screen,
+  .sales-return-screen,
+  .purchase-reference-screen,
+  .purchase-return-screen
+) :where(
+  .inner-tab,
+  .sales-reference-subtab,
+  .sales-return-tabs > button
+) {
+  border-color: var(--ui-control-border) !important;
+  background: var(--ui-control-face) !important;
+  color: var(--ui-text) !important;
+  border-radius: var(--control-radius) !important;
+  box-shadow: var(--ui-control-shadow) !important;
+}
+
+html #root :where(
+  .sales-reference-screen,
+  .sales-return-screen,
+  .purchase-reference-screen,
+  .purchase-return-screen
+) :where(
+  .inner-tab,
+  .sales-reference-subtab,
+  .sales-return-tabs > button
+):hover:not(:disabled) {
+  border-color: var(--ui-control-hover-border) !important;
+  background: var(--ui-control-hover-bg) !important;
+  color: var(--ui-accent-strong) !important;
+}
+
+html #root :where(
+  .sales-reference-screen,
+  .sales-return-screen,
+  .purchase-reference-screen,
+  .purchase-return-screen
+) :where(
+  .inner-tab.is-active,
+  .sales-reference-subtab.is-active,
+  .sales-return-tabs > button.is-active
+) {
+  border-color: var(--ui-accent) !important;
+  background: var(--ui-accent-soft) !important;
+  color: var(--ui-accent-strong) !important;
+}
+
+html #root :where(
+  .sales-reference-screen,
+  .sales-return-screen,
+  .purchase-reference-screen,
+  .purchase-return-screen
+) :where(table, .pos-grid) th {
+  border-color: var(--ui-table-border) !important;
+  background: var(--ui-table-header) !important;
+  color: var(--ui-table-header-text) !important;
+}
+
+html #root :where(
+  .sales-reference-screen,
+  .sales-return-screen,
+  .purchase-reference-screen,
+  .purchase-return-screen
+) :where(table, .pos-grid) td {
+  border-color: var(--ui-border-soft) !important;
+  color: var(--ui-text) !important;
+}
+
+html #root :where(
+  .sales-reference-screen,
+  .sales-return-screen,
+  .purchase-reference-screen,
+  .purchase-return-screen
+) :where(table, .pos-grid) tbody tr:hover td {
+  background: var(--ui-row-hover) !important;
+}
+
+html #root :where(
+  .sales-reference-screen,
+  .sales-return-screen,
+  .purchase-reference-screen,
+  .purchase-return-screen
+) :where(table, .pos-grid) tbody tr.is-selected td {
+  background: var(--ui-selected-row) !important;
+  color: var(--ui-selected-row-text) !important;
+}
+
+html #root :where(
+  .sales-reference-screen,
+  .sales-return-screen,
+  .purchase-reference-screen,
+  .purchase-return-screen
+) :where(
+  input[type='checkbox'],
+  input[type='radio']
+) {
+  accent-color: var(--ui-accent) !important;
+}
+
+
+/* ---------- GLOBAL READABILITY BASELINE ---------- */
+/*
+ * Client review: compact typography must remain dense without becoming
+ * visually cramped. Keep geometry page-owned, but text metrics are global.
+ */
+html[data-density] #root :where(
+  .product-reference-screen,
+  .parties-vca,
+  .purchase-reference-screen,
+  .purchase-entry-screen,
+  .purchase-return-screen,
+  .sales-reference-screen,
+  .sales-return-screen,
+  .bp-workspace
+) {
+  line-height: var(--ui-line-normal);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+html[data-density] #root :where(
+  .product-reference-screen,
+  .parties-vca,
+  .purchase-reference-screen,
+  .purchase-entry-screen,
+  .purchase-return-screen,
+  .sales-reference-screen,
+  .sales-return-screen,
+  .bp-workspace
+) :where(
+  input:not([type='checkbox']):not([type='radio']),
+  textarea,
+  button,
+  .ui-select-trigger
+) {
+  /*
+   * Global fallback only. Do not force these metrics with !important:
+   * page-owned hierarchy may legitimately use a larger lookup/editor font.
+   */
+  font-size: var(--module-font-control) !important;
+  font-weight: var(--ui-weight-medium) !important;
+  line-height: var(--ui-line-tight) !important;
+  letter-spacing: .005em;
+}
+
+html[data-density] #root :where(
+  .product-reference-screen,
+  .parties-vca,
+  .purchase-reference-screen,
+  .purchase-entry-screen,
+  .purchase-return-screen,
+  .sales-reference-screen,
+  .sales-return-screen,
+  .bp-workspace
+) :where(
+  label,
+  legend,
+  th,
+  .desktop-field > span,
+  .pie-field > span
+) {
+  font-weight: var(--ui-weight-medium) !important;
+  line-height: var(--ui-line-tight) !important;
+  letter-spacing: .005em;
+}
+
+html[data-density] #root :where(
+  .product-reference-screen,
+  .parties-vca,
+  .purchase-reference-screen,
+  .purchase-entry-screen,
+  .purchase-return-screen,
+  .sales-reference-screen,
+  .sales-return-screen,
+  .bp-workspace
+) :where(td, .pos-grid td) {
+  font-size: var(--module-font-body) !important;
+  font-weight: var(--ui-weight-normal) !important;
+  line-height: var(--ui-line-normal) !important;
+}
+
+
+/* ---------- ROBOTO CONDENSED READABILITY CALIBRATION ---------- */
+/*
+ * Roboto Condensed is bundled through @fontsource and can run slightly
+ * optically smaller than Segoe/Tahoma at the same CSS size. Keep the user's
+ * selected density, but calibrate its shared type scale so dense POS screens
+ * remain clear without resorting to heavy 800/900 weights.
+ */
+:root[data-font='roboto-condensed'][data-density='compact'] {
+  --ui-font-xs: 11px;
+  --ui-font-sm: 12px;
+  --ui-font-md: 13px;
+  --ui-font-lg: 14px;
+  --ui-font-xl: 15.5px;
+  --ui-font-title: 17px;
+  --ui-line-tight: 1.3;
+  --ui-line-normal: 1.45;
+  --ui-line-relaxed: 1.55;
+  --ui-weight-normal: 400;
+  --ui-weight-medium: 500;
+  --ui-weight-strong: 700;
+  --app-letter-spacing: 0.008em;
+}
+
+:root[data-font='roboto-condensed'][data-density='comfortable'] {
+  --ui-font-xs: 12px;
+  --ui-font-sm: 13px;
+  --ui-font-md: 14px;
+  --ui-font-lg: 15px;
+  --ui-font-xl: 16.5px;
+  --ui-font-title: 18px;
+  --ui-line-tight: 1.32;
+  --ui-line-normal: 1.48;
+  --ui-line-relaxed: 1.58;
+  --ui-weight-normal: 400;
+  --ui-weight-medium: 500;
+  --ui-weight-strong: 700;
+  --app-letter-spacing: 0.008em;
+}
+
+
+/* ---------- GLOBAL THEMED SCROLLBARS ---------- */
+/* Match application scrollbars to the selected Primary Theme. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color:
+    color-mix(in srgb, var(--ui-accent) 72%, var(--ui-border))
+    var(--ui-surface-subtle);
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--ui-surface-subtle);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--ui-accent) 72%, var(--ui-border));
+  border: 2px solid var(--ui-surface-subtle);
+  border-radius: var(--control-radius);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--ui-accent);
+}
+
+*::-webkit-scrollbar-corner {
+  background: var(--ui-surface-subtle);
+}
+
+/* Approved fixed voucher identities: the same hues across menu, tab and form. */
+:root {
+  --ui-voucher-opening: #b56a00;
+  --ui-voucher-payment: #c53b36;
+  --ui-voucher-receiving: #16834a;
+  --ui-voucher-journal: #4f46e5;
+}
+[data-voucher-type='opening'] { --voucher-accent: var(--ui-voucher-opening); }
+[data-voucher-type='payment'] { --voucher-accent: var(--ui-voucher-payment); }
+[data-voucher-type='receiving'] { --voucher-accent: var(--ui-voucher-receiving); }
+[data-voucher-type='journal'] { --voucher-accent: var(--ui-voucher-journal); }
+
+/* Shared ribbon popup: separated targets with a restrained raised face. */
+html #root .ribbon-menu {
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid var(--ui-control-border);
+  border-radius: var(--panel-radius);
+  background: linear-gradient(145deg, var(--ui-surface), var(--ui-surface-subtle));
+  box-shadow: 0 6px 14px color-mix(in srgb, var(--ui-text) 16%, transparent);
+}
+html #root .ribbon-menu button[role='menuitem'] {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 36px;
+  padding: 8px 10px;
+  border: 1px solid var(--ui-control-border);
+  border-radius: var(--control-radius);
+  background: linear-gradient(145deg, var(--ui-surface), var(--ui-surface-muted));
+  color: var(--ui-text);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ui-surface) 85%, transparent), 0 2px 3px color-mix(in srgb, var(--ui-text) 13%, transparent);
+  line-height: 1.35;
+}
+html #root .ribbon-menu button[role='menuitem']:not(:disabled):is(:hover, :focus-visible) {
+  border-color: var(--voucher-accent, var(--ui-accent));
+  background: linear-gradient(145deg, var(--ui-surface), var(--ui-surface-muted));
+  color: var(--ui-text);
+}
+html #root .ribbon-menu button[role='menuitem']::before { content: ''; background: color-mix(in srgb, var(--voucher-accent, var(--ui-accent)) 30%, var(--ui-surface)); }
+html #root .ribbon-menu button[role='menuitem']:disabled { background: var(--ui-surface-muted); color: var(--ui-text-muted); opacity: .55; box-shadow: none; cursor: not-allowed; }
+.ribbon-voucher-mark { display: inline-grid; place-items: center; min-width: 28px; padding: 3px; border-radius: var(--control-radius); background: color-mix(in srgb, var(--voucher-accent) 72%, black); color: white; font-size: var(--ui-font-xs, 10px); font-weight: 800; }
+
+/* Soft fixed voucher identity; the workspace heading follows the app theme. */
+html #root .voucher-workspace {
+  --voucher-dark: color-mix(in srgb, var(--voucher-accent) 68%, black);
+  --voucher-face: linear-gradient(180deg, color-mix(in srgb, var(--voucher-accent) 18%, var(--ui-surface)), color-mix(in srgb, var(--voucher-accent) 28%, var(--ui-surface-subtle)));
+  --voucher-ink: color-mix(in srgb, var(--voucher-accent) 35%, var(--ui-text));
+  --ui-table-header: var(--voucher-face);
+  --ui-table-header-text: var(--ui-text);
+  border-color: var(--voucher-dark) !important;
+}
+html #root .voucher-workspace > .desktop-panel-header {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--ui-accent) 8%, var(--ui-surface)), color-mix(in srgb, var(--ui-accent) 13%, var(--ui-surface-subtle))) !important;
+  color: var(--ui-accent-strong) !important;
+  border-color: var(--ui-border) !important;
+}
+html #root .voucher-workspace .voucher-title-badge { background: color-mix(in srgb, var(--voucher-accent) 48%, black); border-color: color-mix(in srgb, var(--voucher-accent) 50%, white); color: white; }
+html #root .voucher-workspace > .desktop-toolbar,
+html #root .voucher-workspace .voucher-filters { background: color-mix(in srgb, var(--voucher-accent) 8%, var(--ui-surface)) !important; border-color: var(--voucher-dark) !important; }
+html #root .voucher-workspace .voucher-tabs { background: color-mix(in srgb, var(--voucher-accent) 11%, var(--ui-surface)); border-color: var(--voucher-dark); }
+html #root .voucher-workspace .voucher-tabs .ui-button.is-primary { background: var(--voucher-face) !important; border-color: var(--voucher-dark) !important; color: var(--voucher-ink) !important; --bp-button-tone: var(--voucher-dark); }
+html #root .voucher-workspace .voucher-entry-meta { background: var(--voucher-face) !important; border-color: color-mix(in srgb, var(--voucher-accent) 50%, var(--ui-border)) !important; color: var(--voucher-ink); }
+html #root .voucher-workspace .voucher-entry-meta label > span { color: var(--voucher-ink) !important; }
+html #root .voucher-workspace .voucher-line-grid th { background: var(--voucher-face) !important; color: var(--voucher-ink) !important; border-color: color-mix(in srgb, var(--voucher-accent) 55%, white) !important; }
+html #root .voucher-workspace .voucher-line-grid-wrap { border-color: var(--voucher-dark); }
+html #root .voucher-workspace .voucher-totals { color: var(--voucher-dark); }
+html #root .voucher-workspace .voucher-totals strong { color: color-mix(in srgb, var(--voucher-accent) 85%, var(--ui-text)); }
+html #root .workspace-tab[data-voucher-type] { border-color: color-mix(in srgb, var(--voucher-accent) 65%, var(--ui-border)) !important; }
+html #root .workspace-tab[data-voucher-type].is-active {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--voucher-accent) 82%, black), color-mix(in srgb, var(--voucher-accent) 68%, black)) !important;
+  color: white !important;
+  box-shadow: var(--ui-control-shadow) !important;
+}
+/* Preserve readable identity text during the shared button hover wipe. */
+html #root .voucher-workspace .voucher-tabs .ui-button.is-primary::before { background: var(--voucher-face); }
+html #root .workspace-tab[data-voucher-type].is-active button::before { content: none; }
+:root[data-theme='dark'] #root .voucher-workspace .voucher-totals { color: var(--ui-text); }
+
+/* Match the platform account dropdown's mounted 3D reveal in both directions. */
+html #root .ribbon-menu {
+  animation: none;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-8px) scaleY(.97);
+  transform-origin: top center;
+  clip-path: inset(0 0 100% 0 round var(--panel-radius));
+  transition: clip-path 760ms cubic-bezier(.22,1,.36,1), opacity 650ms cubic-bezier(.22,1,.36,1), transform 760ms cubic-bezier(.22,1,.36,1), visibility 0s linear 760ms;
+  box-shadow: 5px 6px 14px color-mix(in srgb, var(--ui-text) 18%, transparent), -3px -3px 9px color-mix(in srgb, var(--ui-surface) 85%, transparent), inset 0 1px 0 var(--ui-surface);
+}
+html #root .ribbon-menu[data-open='true'] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0) scaleY(1);
+  clip-path: inset(0 0 0 0 round var(--panel-radius));
+  transition: clip-path 760ms cubic-bezier(.22,1,.36,1), opacity 650ms cubic-bezier(.22,1,.36,1), transform 760ms cubic-bezier(.22,1,.36,1), visibility 0s;
+}
+html #root .ribbon-menu button[role='menuitem'] { position: relative; isolation: isolate; overflow: hidden; }
+html #root .ribbon-menu button[role='menuitem'] > span { position: relative; z-index: 1; }
+html #root .ribbon-menu button[role='menuitem']::before {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  transform: scaleX(0); transform-origin: left center;
+  transition: transform var(--bp-motion-slow) cubic-bezier(.4,0,.2,1);
+}
+html #root .ribbon-menu button[role='menuitem']:not(:disabled):is(:hover, :focus-visible)::before { transform: scaleX(1); }
+html[data-animations='off'] #root .ribbon-menu,
+html[data-animations='off'] #root .ribbon-menu button::before { transition: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  html #root .ribbon-menu, html #root .ribbon-menu button::before { transition: none !important; }
+}
+
+/* A workspace tab is ONE painted surface; label and close stay separate hit areas. */
+html #root .workspace-tabs .workspace-tab {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+html #root .workspace-tabs .workspace-tab > button {
+  position: relative;
+  z-index: 1;
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: inherit !important;
+  filter: none !important;
+}
+html #root .workspace-tabs .workspace-tab > button::before,
+html #root .workspace-tabs .workspace-tab > button::after { content: none !important; }
+html #root .workspace-tabs .workspace-tab::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--voucher-accent, var(--ui-accent)) 30%, var(--ui-surface));
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--bp-motion-slow) cubic-bezier(.4,0,.2,1);
+}
+html #root .workspace-tabs .workspace-tab:not(.is-active):hover {
+  background: linear-gradient(180deg, var(--ui-surface), var(--ui-surface-subtle)) !important;
+}
+html #root .workspace-tabs .workspace-tab:not(.is-active):is(:hover, :focus-within)::before { transform: scaleX(1); }
+html #root .workspace-tabs .workspace-tab.is-active::before { content: none; }
+html #root .workspace-tabs .workspace-tab:focus-within { outline: 1px solid var(--voucher-accent, var(--ui-accent)); outline-offset: -2px; }
+html[data-animations='off'] #root .workspace-tab::before { transition: none !important; }
+@media (prefers-reduced-motion: reduce) { html #root .workspace-tab::before { transition: none !important; } }
+
+/* Report menu icon plates: existing Lucide vocabulary, semantic theme colors. */
+.ribbon-menu-icon {
+  --report-icon-tone: var(--ui-accent);
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--control-radius);
+  border: 1px solid color-mix(in srgb, var(--report-icon-tone) 22%, var(--ui-border));
+  color: color-mix(in srgb, var(--report-icon-tone) 80%, var(--ui-text));
+  background: linear-gradient(145deg, var(--ui-surface), color-mix(in srgb, var(--report-icon-tone) 16%, var(--ui-surface-subtle)));
+  box-shadow: inset 0 1px 0 var(--ui-surface), 0 1px 2px color-mix(in srgb, var(--report-icon-tone) 14%, transparent);
+}
+.ribbon-menu-icon[data-tone='success'] { --report-icon-tone: var(--ui-success); }
+.ribbon-menu-icon[data-tone='warning'] { --report-icon-tone: var(--ui-warning); }
+.ribbon-menu-icon[data-tone='danger'] { --report-icon-tone: var(--ui-danger); }
+.ribbon-menu-icon[data-tone='info'] { --report-icon-tone: var(--ui-info); }
+html #root .ribbon-menu button:disabled .ribbon-menu-icon { filter: grayscale(1); }
+html #root .ribbon-menu.has-icons { min-width: min(320px, calc(100vw - 24px)); max-width: calc(100vw - 24px); }

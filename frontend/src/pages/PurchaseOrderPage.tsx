@@ -1,0 +1,1886 @@
+import { UiDateRangePicker } from '../components/ui/UiDateRangePicker'
+import { UiSkeleton } from '../components/ui/UiSkeleton'
+import { UiDatePicker } from '../components/ui/UiDatePicker'
+import { AlertTriangle, FileSearch, LoaderCircle, Play, Plus, Printer, ReceiptText, RefreshCw, Save, XCircle } from 'lucide-react'
+import { useMemo, useRef, useState } from 'react'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import {
+  fetchBrands,
+  fetchCategories,
+  fetchProduct,
+  fetchProductStock,
+  fetchSuppliers,
+} from '../api/catalog'
+import {
+  cancelPurchaseOrder,
+  createPurchaseOrder,
+  fetchNextPurchaseOrderDocumentNumber,
+  fetchPurchaseOrder,
+  fetchPurchaseOrders,
+  fetchPurchaseOrderStatus,
+  generatePurchaseOrder,
+  updatePurchaseOrder,
+} from '../api/purchases'
+import { DesktopButton, DesktopPanel } from '../components/desktop/DesktopPanel'
+import { PosDataGrid } from '../components/desktop/PosDataGrid'
+import { PosEntryGrid } from '../components/desktop/PosEntryGrid'
+import { UiButton } from '../components/ui/UiButton'
+import { UiModal } from '../components/ui/UiModal'
+import { UiSelect, UiSimpleDropdown, UiTableDropdown } from '../components/ui/UiSelect'
+import { ProductLookupGrid } from '../features/sales/ProductLookupGrid'
+import { useAuth } from '../features/auth/AuthProvider'
+import { useCan } from '../features/auth/useCan'
+import { useLocalProducts } from '../features/catalog/useLocalCatalog'
+import { useWorkspace } from '../features/workspace/WorkspaceProvider'
+import { askConfirm, useFeedback } from '../feedback/FeedbackProvider'
+import type { Product } from '../types/catalog'
+import type {
+  PurchaseOrder,
+  PurchaseOrderGenerateMode,
+  PurchaseOrderGeneratePayload,
+  PurchaseOrderGenerateRow,
+} from '../types/purchases'
+import { formatDecimal } from '../utils/formatDecimal'
+import './PurchaseOrderPage.css'
+
+type UnitOption = {
+  ulid: string
+  code: string
+  factor: string
+}
+
+type DraftLine = {
+  key: string
+  product_ulid: string
+  product_number: string
+  product_name: string
+  unit_ulid: string
+  unit_code: string
+  unit_options: UnitOption[]
+  in_stock: string
+  stock_value: string
+  consumption: string
+  difference: string
+  quantity: string
+  unit_price: string
+  discount_percent: string
+  discount_amount: string
+}
+
+const ORDER_TYPE_OPTIONS: Array<{
+  value: PurchaseOrderGenerateMode
+  label: string
+  disabled?: boolean
+  title?: string
+}> = [
+  { value: 'last_n_days', label: 'Last N Days Sale' },
+  { value: 'between_dates', label: 'Between Dates Sale' },
+  { value: 'reorder_level', label: 'Reorder Level' },
+  { value: 'min_level', label: 'Min Level' },
+  { value: 'max_level', label: 'Max Level' },
+  {
+    value: 'optimum_level',
+    label: 'Optimum Level',
+    disabled: true,
+    title: 'Current BluePOS product master has no Optimum Level field.',
+  },
+  { value: 'get_all', label: 'Get All Products' },
+]
+
+function todayIso() {
+  return new Date().toISOString().slice(0, 10)
+}
+
+function daysAgoIso(days: number) {
+  const date = new Date()
+  date.setDate(date.getDate() - Math.max(days - 1, 0))
+  return date.toISOString().slice(0, 10)
+}
+
+function num(value: string | number | null | undefined): number {
+  const parsed = Number(value ?? 0)
+  return Number.isFinite(parsed) ? parsed : 0
+}
+
+function fixedMoney(value: number): string {
+  return formatDecimal(Math.max(value, 0))
+}
+
+function escapePrintHtml(value: string | null | undefined): string {
+  return String(value ?? '—')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+}
+
+
+function buildUnitOptions(product: Product): UnitOption[] {
+  const map = new Map<string, UnitOption>()
+
+  const push = (ulid: string | undefined, code: string | undefined, factor: string) => {
+    if (!ulid || !code || map.has(ulid)) return
+    map.set(ulid, { ulid, code, factor })
+  }
+
+  push(product.base_unit?.ulid, product.base_unit?.code, '1.00000000')
+  push(
+    product.secondary_unit?.ulid,
+    product.secondary_unit?.code,
+    product.secondary_conversion_factor ?? '1.00000000',
+  )
+
+  for (const barcode of product.barcodes ?? []) {
+    if (!barcode.is_active || !barcode.unit?.ulid) continue
+    push(
+      barcode.unit.ulid,
+      barcode.unit.code,
+      barcode.conversion_factor || '1.00000000',
+    )
+  }
+
+  return [...map.values()]
+}
+
+function linePreview(line: DraftLine) {
+  const gross = num(line.quantity) * num(line.unit_price)
+  const pct = num(line.discount_percent)
+  const explicit = num(line.discount_amount)
+  const discount = pct > 0 ? (gross * pct) / 100 : explicit
+  const safeDiscount = Math.min(Math.max(discount, 0), Math.max(gross, 0))
+
+  return {
+    gross: fixedMoney(gross),
+    discount: fixedMoney(safeDiscount),
+    total: fixedMoney(gross - safeDiscount),
+  }
+}
+
+function generatedLine(row: PurchaseOrderGenerateRow): DraftLine | null {
+  if (!row.unit) return null
+
+  return {
+    key: crypto.randomUUID(),
+    product_ulid: row.product.ulid,
+    product_number: row.product.product_number,
+    product_name: row.product.name,
+    unit_ulid: row.unit.ulid,
+    unit_code: row.unit.code,
+    unit_options: [
+      {
+        ulid: row.unit.ulid,
+        code: row.unit.code,
+        factor: '1.00000000',
+      },
+    ],
+    in_stock: row.in_stock,
+    stock_value: row.stock_value,
+    consumption: row.consumption,
+    difference: row.difference,
+    quantity: row.suggested_quantity,
+    unit_price: row.unit_price,
+    discount_percent: '0',
+    discount_amount: '0.0000',
+  }
+}
+
+export function PurchaseOrderPage() {
+  const { closeActiveTab, openModule } = useWorkspace()
+  const { session } = useAuth()
+  const feedback = useFeedback()
+  const canCreate = useCan('purchases.create')
+  const canEdit = useCan('purchases.edit')
+  const canEditOrder = useCan('purchase_orders.edit')
+
+  const [tab, setTab] = useState<'entry' | 'search' | 'status'>('entry')
+  const [supplierUlid, setSupplierUlid] = useState('')
+  const [orderDate, setOrderDate] = useState(todayIso())
+  const [notes, setNotes] = useState('')
+  const [productQuery, setProductQuery] = useState('')
+  const [editingProductKey, setEditingProductKey] = useState<string | null>(null)
+  const [activeLineKey, setActiveLineKey] = useState<string | null>(null)
+  const [productPickerOpen, setProductPickerOpen] = useState(false)
+  const [searchText, setSearchText] = useState('')
+  const [searchFrom, setSearchFrom] = useState(daysAgoIso(30))
+  const [searchTo, setSearchTo] = useState(todayIso())
+  const [statusFrom, setStatusFrom] = useState(daysAgoIso(30))
+  const [statusTo, setStatusTo] = useState(todayIso())
+  const [statusShowAll, setStatusShowAll] = useState(false)
+  const [statusPrintLoading, setStatusPrintLoading] = useState(false)
+  const [lines, setLines] = useState<DraftLine[]>([])
+  const [savedOrder, setSavedOrder] = useState<PurchaseOrder | null>(null)
+  const [openedOrder, setOpenedOrder] = useState<PurchaseOrder | null>(null)
+  const [orderNumberValue, setOrderNumberValue] = useState<string | null>(null)
+  const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false)
+
+  const [orderType, setOrderType] = useState<PurchaseOrderGenerateMode>('get_all')
+  const [lastDays, setLastDays] = useState('10')
+  const [dateFrom, setDateFrom] = useState(daysAgoIso(10))
+  const [dateTo, setDateTo] = useState(todayIso())
+  const [includeNonSold, setIncludeNonSold] = useState(false)
+  const [categoryUlid, setCategoryUlid] = useState('')
+  const [brandUlid, setBrandUlid] = useState('')
+  const [generationPayload, setGenerationPayload] =
+    useState<PurchaseOrderGeneratePayload | null>(null)
+  const [generationPage, setGenerationPage] = useState(0)
+  const [generationLastPage, setGenerationLastPage] = useState(0)
+
+  const productSearchRef = useRef<HTMLInputElement | null>(null)
+  const entryProductAnchorRef = useRef<HTMLDivElement | null>(null)
+  const editingProductAnchorRef = useRef<HTMLDivElement | null>(null)
+  const requestedGenerationPageRef = useRef(0)
+
+  const activeOrder = openedOrder ?? savedOrder
+  const editingOpenedOrder = Boolean(
+    openedOrder && openedOrder.status === 'open' && canEditOrder,
+  )
+  const readOnly = Boolean(activeOrder) && !editingOpenedOrder
+
+  const nextOrderNumberQuery = useQuery({
+    queryKey: ['purchase-order', 'next-document-number', session?.branch.ulid, session?.warehouse.ulid],
+    queryFn: fetchNextPurchaseOrderDocumentNumber,
+    enabled: tab === 'entry' && (canCreate || canEditOrder),
+    retry: false,
+  })
+
+  const displayedOrderNumber =
+    orderNumberValue ??
+    activeOrder?.document_number ??
+    nextOrderNumberQuery.data?.document_number ??
+    'Auto'
+
+  const suppliersQuery = useQuery({
+    queryKey: ['suppliers', 'purchase-order'],
+    queryFn: fetchSuppliers,
+    retry: false,
+  })
+
+  const categoriesQuery = useQuery({
+    queryKey: ['categories', 'purchase-order'],
+    queryFn: fetchCategories,
+    retry: false,
+  })
+
+  const brandsQuery = useQuery({
+    queryKey: ['brands', 'purchase-order'],
+    queryFn: fetchBrands,
+    retry: false,
+  })
+
+  const localProductLookup = useLocalProducts(
+    session,
+    productQuery,
+    tab === 'entry' && !readOnly,
+  )
+  const productLookupRows = localProductLookup.rows.filter(
+    (product) => product.is_active && product.status === 'active',
+  )
+
+  const ordersQuery = useQuery({
+    queryKey: ['purchase-orders', searchText, searchFrom, searchTo],
+    queryFn: () =>
+      fetchPurchaseOrders({
+        q: searchText.trim() || undefined,
+        date_from: searchFrom || undefined,
+        date_to: searchTo || undefined,
+        per_page: 50,
+      }),
+    enabled: tab === 'search',
+    retry: false,
+  })
+
+  const statusQuery = useQuery({
+    queryKey: [
+      'purchase-order-status',
+      statusFrom,
+      statusTo,
+      statusShowAll,
+    ],
+    queryFn: () =>
+      fetchPurchaseOrderStatus({
+        date_from: statusFrom || undefined,
+        date_to: statusTo || undefined,
+        status: statusShowAll ? undefined : 'open',
+        per_page: 100,
+      }),
+    enabled: tab === 'status',
+    retry: false,
+  })
+
+
+  const supplierOptions = useMemo(
+    () =>
+      (suppliersQuery.data ?? [])
+        .filter((supplier) => supplier.is_active)
+        .map((supplier) => ({
+          value: supplier.ulid,
+          label: `${supplier.code} — ${supplier.name}`,
+          columns: [
+            supplier.code,
+            supplier.name,
+            supplier.address ?? '',
+            supplier.mobile ?? supplier.phone ?? '',
+          ],
+        })),
+    [suppliersQuery.data],
+  )
+
+  const categoryOptions = useMemo(
+    () => [
+      { value: '', label: 'All Categories' },
+      ...(categoriesQuery.data ?? [])
+        .filter((category) => category.is_active)
+        .map((category) => ({
+          value: category.ulid,
+          label: category.name,
+          columns: [category.code, category.name],
+        })),
+    ],
+    [categoriesQuery.data],
+  )
+
+  const brandOptions = useMemo(
+    () => [
+      { value: '', label: 'All Companies / Brands' },
+      ...(brandsQuery.data ?? [])
+        .filter((brand) => brand.is_active)
+        .map((brand) => ({
+          value: brand.ulid,
+          label: brand.name,
+          columns: [brand.code, brand.name],
+        })),
+    ],
+    [brandsQuery.data],
+  )
+
+  const totals = useMemo(() => {
+    return lines.reduce(
+      (acc, line) => {
+        const preview = linePreview(line)
+        acc.subtotal += num(preview.gross)
+        acc.discount += num(preview.discount)
+        acc.total += num(preview.total)
+        return acc
+      },
+      { subtotal: 0, discount: 0, total: 0 },
+    )
+  }, [lines])
+
+  const netAmount = activeOrder?.grand_total ?? fixedMoney(totals.total)
+
+  async function printStatusReport() {
+    if (statusPrintLoading) return
+
+    setStatusPrintLoading(true)
+
+    try {
+      const first =
+        statusQuery.data ??
+        (await fetchPurchaseOrderStatus({
+          date_from: statusFrom || undefined,
+          date_to: statusTo || undefined,
+          status: statusShowAll ? undefined : 'open',
+          page: 1,
+          per_page: 100,
+        }))
+
+      const rows = [...first.data]
+
+      for (let page = 2; page <= first.meta.last_page; page += 1) {
+        const response = await fetchPurchaseOrderStatus({
+          date_from: statusFrom || undefined,
+          date_to: statusTo || undefined,
+          status: statusShowAll ? undefined : 'open',
+          page,
+          per_page: 100,
+        })
+        rows.push(...response.data)
+      }
+
+      if (rows.length === 0) {
+        feedback.error('There are no Purchase Order Status rows to print.', 'Purchase Order')
+        return
+      }
+
+      const iframe = document.createElement('iframe')
+      iframe.setAttribute('aria-hidden', 'true')
+      iframe.style.position = 'fixed'
+      iframe.style.width = '0'
+      iframe.style.height = '0'
+      iframe.style.border = '0'
+      iframe.style.right = '0'
+      iframe.style.bottom = '0'
+      document.body.appendChild(iframe)
+
+      const printDocument = iframe.contentDocument
+      const printWindow = iframe.contentWindow
+
+      if (!printDocument || !printWindow) {
+        iframe.remove()
+        throw new Error('Unable to open the Purchase Order Status print document.')
+      }
+
+      const bodyRows = rows
+        .map(
+          (row) => `
+            <tr>
+              <td>${escapePrintHtml(row.order.ulid)}</td>
+              <td>${escapePrintHtml(row.order.document_number)}</td>
+              <td>${escapePrintHtml(row.order.order_date)}</td>
+              <td>${escapePrintHtml(row.supplier?.name)}</td>
+              <td>${escapePrintHtml(
+                row.product
+                  ? `${row.product.product_number} — ${row.product.name}`
+                  : '—',
+              )}</td>
+              <td class="number">${escapePrintHtml(formatDecimal(row.order_quantity))}</td>
+              <td class="number">${escapePrintHtml(formatDecimal(row.received_quantity))}</td>
+              <td class="number">${escapePrintHtml(formatDecimal(row.remaining_quantity))}</td>
+              <td class="number">${escapePrintHtml(formatDecimal(row.order_amount))}</td>
+              <td class="number">${escapePrintHtml(formatDecimal(row.received_amount))}</td>
+              <td class="number">${escapePrintHtml(formatDecimal(row.balance_amount))}</td>
+            </tr>`,
+        )
+        .join('')
+
+      printDocument.open()
+      printDocument.write(`<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Purchase Order Status</title>
+  <style>
+    @page { size: landscape; margin: 10mm; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; color: #000; background: #fff; font-family: Arial, sans-serif; font-size: 9pt; }
+    header { display: grid; gap: 5px; margin-bottom: 8px; }
+    h1 { margin: 0; font-size: 16pt; }
+    .filters { display: flex; flex-wrap: wrap; gap: 16px; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    th, td { border: 1px solid #000; padding: 3px 4px; vertical-align: top; overflow-wrap: anywhere; }
+    th { font-weight: 700; text-align: left; }
+    .number { text-align: right; font-variant-numeric: tabular-nums; }
+    th:nth-child(1) { width: 15%; }
+    th:nth-child(2) { width: 8%; }
+    th:nth-child(3) { width: 8%; }
+    th:nth-child(4) { width: 13%; }
+    th:nth-child(5) { width: 20%; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Purchase Order Status</h1>
+    <div class="filters">
+      <span>From: ${escapePrintHtml(statusFrom || '—')}</span>
+      <span>To: ${escapePrintHtml(statusTo || '—')}</span>
+      <span>${statusShowAll ? 'All statuses' : 'Open orders only'}</span>
+    </div>
+  </header>
+  <table>
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>OrderNo</th>
+        <th>Order Date</th>
+        <th>Party</th>
+        <th>DESCRIPTION</th>
+        <th>Order Qty</th>
+        <th>Receive Qty</th>
+        <th>Rem Qty</th>
+        <th>Order Amt</th>
+        <th>Rec Amt</th>
+        <th>Bal Amt</th>
+      </tr>
+    </thead>
+    <tbody>${bodyRows}</tbody>
+  </table>
+</body>
+</html>`)
+      printDocument.close()
+
+      const cleanup = () => {
+        window.setTimeout(() => iframe.remove(), 0)
+      }
+
+      printWindow.addEventListener('afterprint', cleanup, { once: true })
+      printWindow.focus()
+      printWindow.print()
+    } catch (error) {
+      feedback.error(
+        error instanceof Error ? error.message : 'Unable to prepare Purchase Order Status print.',
+        'Purchase Order',
+      )
+    } finally {
+      setStatusPrintLoading(false)
+    }
+  }
+
+  function startNew() {
+    setSupplierUlid('')
+    setOrderDate(todayIso())
+    setNotes('')
+    setProductQuery('')
+    setEditingProductKey(null)
+    setActiveLineKey(null)
+    setProductPickerOpen(false)
+    setLines([])
+    setSavedOrder(null)
+    setOpenedOrder(null)
+    setOrderNumberValue(null)
+    setTab('entry')
+    setOrderType('get_all')
+    setLastDays('10')
+    setDateFrom(daysAgoIso(10))
+    setDateTo(todayIso())
+    setIncludeNonSold(false)
+    setCategoryUlid('')
+    setBrandUlid('')
+    setGenerationPayload(null)
+    setGenerationPage(0)
+    setGenerationLastPage(0)
+    requestedGenerationPageRef.current = 0
+    void nextOrderNumberQuery.refetch()
+  }
+
+  function patchLine(key: string, patch: Partial<DraftLine>) {
+    setLines((current) =>
+      current.map((line) => (line.key === key ? { ...line, ...patch } : line)),
+    )
+  }
+
+  async function addProduct(productRow: Product) {
+    try {
+      let product = productRow
+      let unitOptions = buildUnitOptions(product)
+
+      if (unitOptions.length === 0) {
+        product = await fetchProduct(productRow.ulid)
+        unitOptions = buildUnitOptions(product)
+      }
+
+      const unit = unitOptions[0]
+
+      if (!unit) {
+        feedback.error('This product has no configured purchase unit.', 'Purchase Order')
+        return
+      }
+
+      const productPatch = {
+        product_ulid: product.ulid,
+        product_number: product.product_number,
+        product_name: product.name,
+        unit_ulid: unit.ulid,
+        unit_code: unit.code,
+        unit_options: unitOptions,
+        in_stock: productRow.sales_lookup?.in_stock ?? '0.000000',
+        stock_value: '0.0000',
+        consumption: '0.000000',
+        difference: '0.000000',
+        unit_price: productRow.sales_lookup?.average_cost ?? '0.0000',
+      }
+
+      const existing = !editingProductKey
+        ? lines.find((line) => line.product_ulid === product.ulid)
+        : null
+      const focusKey = editingProductKey ?? existing?.key ?? crypto.randomUUID()
+
+      setLines((current) => {
+        if (editingProductKey) {
+          return current.map((line) =>
+            line.key === editingProductKey
+              ? {
+                  ...line,
+                  ...productPatch,
+                }
+              : line,
+          )
+        }
+
+        if (existing) {
+          return current.map((line) =>
+            line.key === existing.key
+              ? {
+                  ...line,
+                  quantity: formatDecimal(num(line.quantity) + 1),
+                }
+              : line,
+          )
+        }
+
+        return [
+          ...current,
+          {
+            key: focusKey,
+            ...productPatch,
+            quantity: '1.000000',
+            discount_percent: '0',
+            discount_amount: '0.0000',
+          },
+        ]
+      })
+
+      setProductQuery('')
+      setEditingProductKey(null)
+      setActiveLineKey(focusKey)
+      setProductPickerOpen(false)
+
+      window.setTimeout(() => {
+        if (!focusKey) return
+        document
+          .querySelector<HTMLInputElement>(`[data-po-line="${focusKey}"][data-po-field="quantity"]`)
+          ?.focus()
+      }, 0)
+    } catch (error) {
+      feedback.error(
+        error instanceof Error ? error.message : 'Unable to add product.',
+        'Purchase Order',
+      )
+    }
+  }
+
+  function finishActiveLine(lineKey: string) {
+    if (activeLineKey !== lineKey) return
+    setActiveLineKey(null)
+    window.setTimeout(() => {
+      productSearchRef.current?.focus()
+      productSearchRef.current?.select()
+    }, 0)
+  }
+
+  function moveLineFocus(
+    current: HTMLElement,
+    field: 'price' | 'discount_percent' | 'discount_amount',
+  ) {
+    const row = current.closest('tr')
+    row?.querySelector<HTMLElement>(`[data-po-field="${field}"]`)?.focus()
+  }
+
+  function currentGenerationPayload(): PurchaseOrderGeneratePayload {
+    return {
+      mode: orderType,
+      days: orderType === 'last_n_days' ? Number(lastDays) : undefined,
+      date_from: orderType === 'between_dates' ? dateFrom : undefined,
+      date_to: orderType === 'between_dates' ? dateTo : undefined,
+      supplier_ulid: supplierUlid || undefined,
+      category_ulid: categoryUlid || undefined,
+      brand_ulid: brandUlid || undefined,
+      include_non_sold: includeNonSold,
+      page: 1,
+      per_page: 20,
+    }
+  }
+
+  const generateMutation = useMutation({
+    mutationFn: (payload: PurchaseOrderGeneratePayload) =>
+      generatePurchaseOrder(payload),
+    onSuccess: (payload, variables) => {
+      const next = payload.data
+        .map(generatedLine)
+        .filter((line): line is DraftLine => line !== null)
+
+      setLines(next)
+      setGenerationPayload({ ...variables, page: undefined })
+      setGenerationPage(payload.meta.current_page)
+      setGenerationLastPage(payload.meta.last_page)
+      requestedGenerationPageRef.current = payload.meta.current_page
+
+      feedback.success(
+        `Loaded ${next.length} product${next.length === 1 ? '' : 's'}. More products will load as you scroll.`,
+        'Purchase Order',
+      )
+    },
+    onError: (error) => {
+      feedback.error(
+        error instanceof Error ? error.message : 'Unable to generate purchase order.',
+        'Purchase Order',
+      )
+    },
+  })
+
+  const loadMoreMutation = useMutation({
+    mutationFn: ({
+      payload,
+      page,
+    }: {
+      payload: PurchaseOrderGeneratePayload
+      page: number
+    }) =>
+      generatePurchaseOrder({
+        ...payload,
+        page,
+        per_page: 20,
+      }),
+    onSuccess: (payload) => {
+      const incoming = payload.data
+        .map(generatedLine)
+        .filter((line): line is DraftLine => line !== null)
+
+      setLines((current) => {
+        const existing = new Set(current.map((line) => line.product_ulid))
+        return [
+          ...current,
+          ...incoming.filter((line) => !existing.has(line.product_ulid)),
+        ]
+      })
+      setGenerationPage(payload.meta.current_page)
+      setGenerationLastPage(payload.meta.last_page)
+      requestedGenerationPageRef.current = payload.meta.current_page
+    },
+    onError: (error) => {
+      requestedGenerationPageRef.current = generationPage
+      feedback.error(
+        error instanceof Error ? error.message : 'Unable to load more products.',
+        'Purchase Order',
+      )
+    },
+  })
+
+  const saveMutation = useMutation({
+    mutationFn: () => {
+      if (!supplierUlid) {
+        throw new Error('Select a supplier before saving the purchase order.')
+      }
+      if (lines.length === 0) {
+        throw new Error('Add or generate at least one product before saving the purchase order.')
+      }
+
+      const orderable = lines.filter((line) => num(line.quantity) > 0)
+      if (orderable.length === 0) {
+        throw new Error('At least one line must have an order quantity greater than zero.')
+      }
+
+      const payload = {
+        supplier_ulid: supplierUlid,
+        order_date: orderDate,
+        notes: notes.trim() || null,
+        items: orderable.map((line) => ({
+          product_ulid: line.product_ulid,
+          unit_ulid: line.unit_ulid,
+          quantity: line.quantity,
+          unit_price: line.unit_price,
+          discount_percent: num(line.discount_percent) > 0
+            ? line.discount_percent
+            : '0',
+          discount_amount: num(line.discount_percent) > 0
+            ? '0'
+            : line.discount_amount,
+        })),
+      }
+
+      if (openedOrder) {
+        if (!canEditOrder) {
+          throw new Error('You do not have permission to edit Purchase Orders.')
+        }
+
+        return updatePurchaseOrder(openedOrder.ulid, {
+          ...payload,
+          revision_reason: 'Purchase Order updated from entry screen',
+        })
+      }
+
+      return createPurchaseOrder(payload)
+    },
+    onSuccess: (order) => {
+      if (openedOrder) {
+        setOpenedOrder(order)
+        setSavedOrder(null)
+        feedback.success(
+          `Purchase Order ${order.document_number} updated. Revision history was recorded.`,
+          'Purchase Order',
+        )
+        return
+      }
+
+      setSavedOrder(order)
+      setOpenedOrder(null)
+      feedback.success(
+        `Purchase Order ${order.document_number} saved. No stock or accounting entry was posted.`,
+        'Purchase Order',
+      )
+    },
+    onError: (error) => {
+      feedback.error(
+        error instanceof Error ? error.message : 'Unable to save purchase order.',
+        'Purchase Order',
+      )
+    },
+  })
+
+  const openMutation = useMutation({
+    mutationFn: fetchPurchaseOrder,
+    onSuccess: async (order) => {
+      setOpenedOrder(order)
+      setSavedOrder(null)
+      setOrderNumberValue(order.document_number)
+      setSupplierUlid(order.supplier?.ulid ?? '')
+      setOrderDate(order.order_date)
+      setNotes(order.notes ?? '')
+      setProductQuery('')
+      setTab('entry')
+
+      if (order.status !== 'open' || !canEditOrder) {
+        setLines([])
+        return
+      }
+
+      const hydrated = await Promise.all(
+        (order.items ?? []).map(async (item): Promise<DraftLine | null> => {
+          if (!item.product || !item.unit) return null
+
+          const [product, stock] = await Promise.all([
+            fetchProduct(item.product.ulid),
+            fetchProductStock(item.product.ulid),
+          ])
+          const unitOptions = buildUnitOptions(product)
+          const unit = unitOptions.find((row) => row.ulid === item.unit?.ulid)
+
+          return {
+            key: item.ulid,
+            product_ulid: product.ulid,
+            product_number: product.product_number,
+            product_name: product.name,
+            unit_ulid: item.unit.ulid,
+            unit_code: unit?.code ?? item.unit.code,
+            unit_options: unitOptions,
+            in_stock: formatDecimal(stock.active_warehouse.quantity),
+            stock_value: '0.0',
+            consumption: '0.0',
+            difference: '0.0',
+            quantity: formatDecimal(item.quantity),
+            unit_price: formatDecimal(item.unit_price),
+            discount_percent: formatDecimal(item.discount_percent),
+            discount_amount: formatDecimal(item.discount_amount),
+          }
+        }),
+      )
+
+      setLines(hydrated.filter((line): line is DraftLine => line !== null))
+    },
+    onError: (error) => {
+      feedback.error(
+        error instanceof Error ? error.message : 'Unable to open purchase order.',
+        'Purchase Order',
+      )
+    },
+  })
+
+  function hasCurrentOrderData(): boolean {
+    return Boolean(
+      activeOrder?.ulid ||
+      supplierUlid ||
+      lines.length > 0 ||
+      notes.trim(),
+    )
+  }
+
+  async function requestOrderLookup(requestedOverride?: string) {
+    const requestedNumber = (requestedOverride ?? orderNumberValue ?? '').trim()
+    if (!requestedNumber || openMutation.isPending) return
+
+    const currentNumber = activeOrder?.document_number.trim().toLocaleLowerCase() ?? null
+    const requestedKey = requestedNumber.toLocaleLowerCase()
+
+    if (hasCurrentOrderData() && currentNumber !== requestedKey) {
+      const confirmed = await askConfirm(
+        `The current Purchase Order contains data. If you fetch ${requestedNumber}, the current data will be lost.`,
+      )
+      if (!confirmed) {
+        setOrderNumberValue(activeOrder?.document_number ?? null)
+        return
+      }
+    }
+
+    try {
+      const result = await fetchPurchaseOrders({
+        q: requestedNumber,
+        page: 1,
+        per_page: 20,
+      })
+      const exact = result.data.find(
+        (row) => row.document_number.trim().toLocaleLowerCase() === requestedKey,
+      )
+      if (!exact) {
+        throw new Error('No Purchase Order with that exact number was found in this branch and warehouse.')
+      }
+      openMutation.mutate(exact.ulid)
+    } catch (error) {
+      feedback.error(
+        error instanceof Error ? error.message : 'Unable to find Purchase Order.',
+        'Purchase Order',
+      )
+    }
+  }
+
+  async function requestOpenOrder(order: PurchaseOrder) {
+    const currentNumber = activeOrder?.document_number.trim().toLocaleLowerCase() ?? null
+    const requestedKey = order.document_number.trim().toLocaleLowerCase()
+
+    if (hasCurrentOrderData() && currentNumber !== requestedKey) {
+      const confirmed = await askConfirm(
+        `The current Purchase Order contains data. If you fetch ${order.document_number}, the current data will be lost.`,
+      )
+      if (!confirmed) return
+    }
+
+    openMutation.mutate(order.ulid)
+  }
+
+  const cancelMutation = useMutation({
+    mutationFn: (orderUlid: string) => cancelPurchaseOrder(orderUlid),
+    onSuccess: (order) => {
+      setCancelConfirmOpen(false)
+      setOpenedOrder(order)
+      setSavedOrder(null)
+      void ordersQuery.refetch()
+      void statusQuery.refetch()
+      feedback.success(
+        `Purchase Order ${order.document_number} cancelled.`,
+        'Purchase Order',
+      )
+    },
+    onError: (error) => {
+      feedback.error(
+        error instanceof Error ? error.message : 'Unable to cancel purchase order.',
+        'Purchase Order',
+      )
+    },
+  })
+
+  const displayedLines = activeOrder?.items ?? []
+
+  return (
+    <DesktopPanel
+      className="purchase-order-page"
+      title="Purchase Order"
+      toolbar={
+        <>
+          <DesktopButton icon={<Plus size={15} />} label="New" onClick={startNew} />
+          <DesktopButton
+            icon={<Save size={15} />}
+            label="Save Order"
+            variant="success"
+            disabled={
+              !(openedOrder ? canEditOrder : canCreate) ||
+              readOnly ||
+              saveMutation.isPending
+            }
+            onClick={() => saveMutation.mutate()}
+          />
+          <DesktopButton
+            icon={<ReceiptText size={15} />}
+            label="To Purchase Invoice"
+            variant="primary"
+            disabled={!activeOrder || activeOrder.status !== 'open'}
+            onClick={() => {
+              if (!activeOrder || activeOrder.status !== 'open') return
+              openModule(
+                `/daily/purchases?purchase_order=${encodeURIComponent(activeOrder.ulid)}`,
+              )
+            }}
+          />
+          <DesktopButton
+            icon={<XCircle size={15} />}
+            label="Cancel Order"
+            variant="danger"
+            disabled={
+              !canEdit ||
+              !activeOrder ||
+              activeOrder.status !== 'open' ||
+              cancelMutation.isPending
+            }
+            onClick={() => {
+              if (!activeOrder || activeOrder.status !== 'open') return
+              setCancelConfirmOpen(true)
+            }}
+          />
+          <DesktopButton
+            icon={<RefreshCw size={15} />}
+            label="Refresh"
+            variant="info"
+            onClick={() => {
+              if (tab === 'search') void ordersQuery.refetch()
+              else if (tab === 'status') void statusQuery.refetch()
+              else startNew()
+            }}
+          />
+          <DesktopButton
+            icon={<FileSearch size={15} />}
+            label="Search"
+            variant="info"
+            onClick={() => setTab('search')}
+          />
+          <DesktopButton
+            icon={<XCircle size={15} />}
+            label="Close"
+            variant="info"
+            onClick={closeActiveTab}
+          />
+        </>
+      }
+      flush
+    >
+      <div className="purchase-order-tabs" aria-label="Purchase order views">
+        <button
+          type="button"
+          className={tab === 'entry' ? 'is-active' : ''}
+          onClick={() => setTab('entry')}
+        >
+          Orders Entry
+        </button>
+        <button
+          type="button"
+          className={tab === 'search' ? 'is-active' : ''}
+          onClick={() => setTab('search')}
+        >
+          Search
+        </button>
+        <button
+          type="button"
+          className={tab === 'status' ? 'is-active' : ''}
+          onClick={() => setTab('status')}
+        >
+          Order Status
+        </button>
+      </div>
+
+      {tab === 'entry' ? (
+        <div className="purchase-order-entry">
+          <div className="purchase-order-top">
+            <section className="purchase-order-options">
+              <div className="purchase-order-section-title purchase-order-options-title">
+                <span>Purchase Order Options</span>
+                <label className="purchase-order-title-pack">
+                  <input type="checkbox" disabled checked={false} readOnly />
+                  <span title="Reference behavior is not mapped to the current BluePOS unit model.">
+                    Apply to Pack
+                  </span>
+                </label>
+                <label className="purchase-order-title-pack">
+                  <input
+                    type="checkbox"
+                    checked={includeNonSold}
+                    disabled={readOnly || !['last_n_days', 'between_dates'].includes(orderType)}
+                    onChange={(event) => setIncludeNonSold(event.target.checked)}
+                  />
+                  <span>Non Sold Product Also</span>
+                </label>
+              </div>
+
+              <div className="purchase-order-option-grid">
+                <label className="po-option-po">
+                  <span>PO #</span>
+                  <input
+                    value={displayedOrderNumber}
+                    readOnly={!canCreate && !canEditOrder}
+                    disabled={openMutation.isPending || saveMutation.isPending}
+                    aria-label="Purchase order number"
+                    title="Type an exact Purchase Order number and press Enter to load it"
+                    onChange={(event) => setOrderNumberValue(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key !== 'Enter') return
+                      event.preventDefault()
+                      void requestOrderLookup()
+                    }}
+                  />
+                </label>
+
+                <label className="po-option-date">
+                  <span>Order Date</span>
+                  <UiDatePicker
+                    type="date"
+                    value={activeOrder?.order_date ?? orderDate}
+                    disabled={readOnly}
+                    onChange={(event) => setOrderDate(event.target.value)}
+                  />
+                </label>
+
+                <label className="is-order-type po-option-type">
+                  <span>Order Type</span>
+                  <UiSimpleDropdown
+                    value={orderType}
+                    disabled={readOnly}
+                    options={ORDER_TYPE_OPTIONS}
+                    searchPlaceholder="Search order type"
+                    onChange={(value) => setOrderType(value as PurchaseOrderGenerateMode)}
+                    aria-label="Order type"
+                  />
+                </label>
+
+                <label className="po-option-days">
+                  <span>Days</span>
+                  <input
+                    type="number"
+                    min="1"
+                    value={lastDays}
+                    disabled={readOnly || orderType !== 'last_n_days'}
+                    onChange={(event) => setLastDays(event.target.value)}
+                  />
+                </label>
+
+                <label className="po-option-from"><span>Date range</span><UiDateRangePicker fromInputProps={{type:"date",value:dateFrom,disabled:readOnly || orderType !== 'between_dates',onChange:(event) => setDateFrom(event.target.value)}} toInputProps={{type:"date",value:dateTo,disabled:readOnly || orderType !== 'between_dates',onChange:(event) => setDateTo(event.target.value)}}/></label>
+
+
+
+                <label className="is-wide po-option-supplier">
+                  <span>From / Supplier</span>
+                  <UiTableDropdown
+                    value={activeOrder?.supplier?.ulid ?? supplierUlid}
+                    options={supplierOptions}
+                    disabled={readOnly}
+                    placeholder="Select supplier / distributor"
+                    searchPlaceholder="Search supplier"
+                    menuColumns={[
+                      { header: 'Code', width: '100px' },
+                      { header: 'Name', width: '220px' },
+                      { header: 'Address', width: '240px' },
+                      { header: 'Mobile', width: '130px' },
+                    ]}
+                    menuMinWidth={720}
+                    onChange={setSupplierUlid}
+                    aria-label="Supplier"
+                  />
+                </label>
+
+                <label className="po-option-category">
+                  <span>Category</span>
+                  <UiSimpleDropdown
+                    value={categoryUlid}
+                    options={categoryOptions}
+                    disabled={readOnly}
+                    searchPlaceholder="Search category"
+                    onChange={setCategoryUlid}
+                    aria-label="Category filter"
+                  />
+                </label>
+
+                <label className="po-option-company">
+                  <span>Company</span>
+                  <UiSimpleDropdown
+                    value={brandUlid}
+                    options={brandOptions}
+                    disabled={readOnly}
+                    searchPlaceholder="Search company"
+                    onChange={setBrandUlid}
+                    aria-label="Company or brand filter"
+                  />
+                </label>
+
+                <label className="po-option-expiry" title="Expiry behavior is not yet mapped to the current Purchase Order domain.">
+                  <span>Expiry</span>
+                  <UiDatePicker
+                    type="date"
+                    value=""
+                    disabled
+                    aria-label="Expiry"
+                  />
+                </label>
+
+              </div>
+            </section>
+
+            <div className="purchase-order-generate">
+              <UiButton
+                variant="success"
+                disabled={readOnly || generateMutation.isPending}
+                onClick={() => generateMutation.mutate(currentGenerationPayload())}
+              >
+                <Play size={16} />
+                Generate
+              </UiButton>
+            </div>
+
+            <aside className="purchase-order-amount-options">
+              <div className="purchase-order-section-title">Amount Options</div>
+              <div>
+                <span>Net</span>
+                <strong>{formatDecimal(netAmount)}</strong>
+              </div>
+              <div>
+                <span>Paid</span>
+                <strong>0.0</strong>
+              </div>
+              <div>
+                <span>Diff</span>
+                <strong>{formatDecimal(netAmount)}</strong>
+              </div>
+            </aside>
+          </div>
+
+          <div
+            className="purchase-order-lines-wrap"
+            onScroll={(event) => {
+              if (
+                readOnly ||
+                !generationPayload ||
+                generationPage >= generationLastPage ||
+                loadMoreMutation.isPending
+              ) {
+                return
+              }
+
+              const target = event.currentTarget
+              const remaining =
+                target.scrollHeight - target.scrollTop - target.clientHeight
+
+              if (remaining > 180) return
+
+              const nextPage = generationPage + 1
+              if (requestedGenerationPageRef.current >= nextPage) return
+
+              requestedGenerationPageRef.current = nextPage
+              loadMoreMutation.mutate({
+                payload: generationPayload,
+                page: nextPage,
+              })
+            }}
+          >
+            <PosEntryGrid
+              className="purchase-order-custom-table"
+              tableClassName="purchase-order-lines"
+              ariaLabel="Purchase order lines"
+              columns={[
+                { key: 'selector', header: '', width: '2.5%', align: 'center', className: 'purchase-order-row-selector' },
+                { key: 'product', header: 'Item / Product Description', width: '35%', className: 'purchase-order-product-heading' },
+                { key: 'unit', header: 'Unit', width: '5%', align: 'center' },
+                { key: 'stock', header: 'In Stock', width: '6%', align: 'right' },
+                { key: 'stock-value', header: 'Stock Val', width: '6%', align: 'right' },
+                { key: 'consumption', header: 'Consumption', width: '6.5%', align: 'right' },
+                { key: 'difference', header: 'Difference', width: '6.5%', align: 'right' },
+                { key: 'quantity', header: 'Quantity', width: '6%', align: 'right' },
+                { key: 'price', header: 'Price', width: '6%', align: 'right' },
+                { key: 'amt', header: 'Amt', width: '6%', align: 'right' },
+                { key: 'disc-pct', header: 'Dis %', width: '5.5%', align: 'right' },
+                { key: 'disc-rs', header: 'Dis-Rs', width: '6%', align: 'right' },
+                { key: 'amount', header: 'Amount', width: '7%', align: 'right' },
+                { key: 'actions', header: '', width: '3%' },
+              ]}
+            >
+                {readOnly
+                  ? displayedLines.map((line) => (
+                      <tr key={line.ulid}>
+                        <td className="purchase-order-row-selector">›</td>
+                        <td>
+                          {line.product
+                            ? `${line.product.product_number} — ${line.product.name}`
+                            : ''}
+                        </td>
+                        <td className="is-center">{line.unit?.code ?? '—'}</td>
+                        <td className="is-num" />
+                        <td className="is-num" />
+                        <td className="is-num" />
+                        <td className="is-num" />
+                        <td className="is-num">{formatDecimal(line.quantity)}</td>
+                        <td className="is-num">{formatDecimal(line.unit_price)}</td>
+                        <td className="is-num">{formatDecimal(line.gross_amount)}</td>
+                        <td className="is-num">{formatDecimal(line.discount_percent)}</td>
+                        <td className="is-num">{formatDecimal(line.discount_amount)}</td>
+                        <td className="is-num">{formatDecimal(line.line_total)}</td>
+                        <td />
+                      </tr>
+                    ))
+                  : lines.map((line) => {
+                      const preview = linePreview(line)
+                      return (
+                        <tr
+                          key={line.key}
+                          className={activeLineKey === line.key ? 'is-selected' : ''}
+                          onBlur={(event) => {
+                            if (activeLineKey !== line.key) return
+                            const next = event.relatedTarget
+                            if (next instanceof Node && event.currentTarget.contains(next)) return
+                            finishActiveLine(line.key)
+                          }}
+                        >
+                          <td className="purchase-order-row-selector">›</td>
+                          <td className="purchase-order-product-cell">
+                            <div className="purchase-order-row-product">
+                              {editingProductKey === line.key ? (
+                                <>
+                                  <div
+                                    ref={editingProductAnchorRef}
+                                    className="purchase-order-product-combo"
+                                  >
+                                    <input
+                                      ref={productSearchRef}
+                                      className="purchase-order-product-input"
+                                      autoFocus
+                                      value={productQuery}
+                                      placeholder="Search product name / barcode / ID"
+                                      autoComplete="off"
+                                      aria-label={`Change product for ${line.product_name}`}
+                                      onFocus={() => setProductPickerOpen(true)}
+                                      onChange={(event) => {
+                                        setProductQuery(event.target.value)
+                                        setProductPickerOpen(true)
+                                      }}
+                                      onKeyDown={(event) => {
+                                        if (event.key === 'Escape') {
+                                          setEditingProductKey(null)
+                                          setProductQuery('')
+                                          setProductPickerOpen(false)
+                                          setActiveLineKey(line.key)
+                                          return
+                                        }
+                                        if (event.key !== 'Enter') return
+                                        const first = productLookupRows[0]
+                                        if (!first) return
+                                        event.preventDefault()
+                                        void addProduct(first)
+                                      }}
+                                    />
+                                    <button
+                                      type="button"
+                                      className="purchase-order-product-toggle"
+                                      aria-label="Open product dropdown"
+                                      aria-expanded={productPickerOpen}
+                                      onMouseDown={(event) => {
+                                        event.preventDefault()
+                                        event.stopPropagation()
+                                      }}
+                                      onClick={() => setProductPickerOpen((open) => !open)}
+                                    >
+                                      <span aria-hidden>
+                                        <svg viewBox="0 0 12 8" width="10" height="7" focusable="false">
+                                          <path d="M1.1 1.2 6 6l4.9-4.8 1 1.1L6 8.2.1 2.3z" fill="currentColor" />
+                                        </svg>
+                                      </span>
+                                    </button>
+                                    </div>
+                                    {productPickerOpen ? (
+                                      <ProductLookupGrid
+                                        rows={productLookupRows}
+                                        total={productLookupRows.length}
+                                        priceType="retail"
+                                        mode="purchase"
+                                        themed
+                                        portalAnchorRef={editingProductAnchorRef}
+                                        onRequestClose={() => setProductPickerOpen(false)}
+                                        onSelect={(product) => void addProduct(product)}
+                                      />
+                                    ) : null}
+                                  </>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    className="purchase-order-row-product-button"
+                                    onClick={() => {
+                                      setEditingProductKey(line.key)
+                                      setActiveLineKey(line.key)
+                                      setProductQuery('')
+                                      setProductPickerOpen(true)
+                                    }}
+                                  >
+                                    <strong>{line.product_number}</strong> — {line.product_name}
+                                  </button>
+                                )}
+                              </div>
+                          </td>
+                          <td className="is-center">
+                            <UiSelect
+                              className="purchase-order-unit"
+                              value={line.unit_ulid}
+                              searchable={false}
+                              options={line.unit_options.map((unit) => ({
+                                value: unit.ulid,
+                                label: unit.code,
+                              }))}
+                              onChange={(value) => {
+                                const unit = line.unit_options.find((row) => row.ulid === value)
+                                patchLine(line.key, {
+                                  unit_ulid: value,
+                                  unit_code: unit?.code ?? line.unit_code,
+                                })
+                              }}
+                              aria-label={`Unit for ${line.product_name}`}
+                            />
+                          </td>
+                          <td className="is-num">{formatDecimal(line.in_stock)}</td>
+                          <td className="is-num">{formatDecimal(line.stock_value)}</td>
+                          <td className="is-num">{formatDecimal(line.consumption)}</td>
+                          <td className="is-num">{formatDecimal(line.difference)}</td>
+                          <td className="is-num">
+                            <input
+                              data-po-line={line.key}
+                              data-po-field="quantity"
+                              value={line.quantity === '' ? '' : formatDecimal(line.quantity)}
+                              aria-label={`Quantity for ${line.product_name}`}
+                              onFocus={() => setActiveLineKey(line.key)}
+                              onChange={(event) =>
+                                patchLine(line.key, { quantity: event.target.value })
+                              }
+                              onKeyDown={(event) => {
+                                if (event.key !== 'Enter') return
+                                event.preventDefault()
+                                moveLineFocus(event.currentTarget, 'price')
+                              }}
+                            />
+                          </td>
+                          <td className="is-num">
+                            <input
+                              data-po-field="price"
+                              value={line.unit_price === '' ? '' : formatDecimal(line.unit_price)}
+                              aria-label={`Price for ${line.product_name}`}
+                              onFocus={() => setActiveLineKey(line.key)}
+                              onChange={(event) =>
+                                patchLine(line.key, { unit_price: event.target.value })
+                              }
+                              onKeyDown={(event) => {
+                                if (event.key !== 'Enter') return
+                                event.preventDefault()
+                                moveLineFocus(event.currentTarget, 'discount_percent')
+                              }}
+                            />
+                          </td>
+                          <td className="is-num">{preview.gross}</td>
+                          <td className="is-num">
+                            <input
+                              data-po-field="discount_percent"
+                              value={line.discount_percent === '' ? '' : formatDecimal(line.discount_percent)}
+                              aria-label={`Discount percent for ${line.product_name}`}
+                              onFocus={() => setActiveLineKey(line.key)}
+                              onChange={(event) =>
+                                patchLine(line.key, {
+                                  discount_percent: event.target.value,
+                                  discount_amount: num(event.target.value) > 0
+                                    ? '0.0000'
+                                    : line.discount_amount,
+                                })
+                              }
+                              onKeyDown={(event) => {
+                                if (event.key !== 'Enter') return
+                                event.preventDefault()
+                                moveLineFocus(event.currentTarget, 'discount_amount')
+                              }}
+                            />
+                          </td>
+                          <td className="is-num">
+                            <input
+                              data-po-field="discount_amount"
+                              value={line.discount_amount === '' ? '' : formatDecimal(line.discount_amount)}
+                              aria-label={`Discount amount for ${line.product_name}`}
+                              onFocus={() => setActiveLineKey(line.key)}
+                              onChange={(event) =>
+                                patchLine(line.key, {
+                                  discount_amount: event.target.value,
+                                  discount_percent: num(event.target.value) > 0
+                                    ? '0'
+                                    : line.discount_percent,
+                                })
+                              }
+                              onKeyDown={(event) => {
+                                if (event.key !== 'Enter') return
+                                event.preventDefault()
+                                finishActiveLine(line.key)
+                              }}
+                            />
+                          </td>
+                          <td className="is-num">{preview.total}</td>
+                          <td>
+                            <UiButton
+                              variant="danger"
+                              aria-label={`Remove ${line.product_name}`}
+                              onClick={() =>
+                                setLines((current) =>
+                                  current.filter((row) => row.key !== line.key),
+                                )
+                              }
+                            >
+                              <XCircle size={14} />
+                            </UiButton>
+                          </td>
+                        </tr>
+                      )
+                    })}
+
+                {!readOnly && !activeLineKey ? (
+                  <tr className="purchase-order-entry-row is-entry-row">
+                    <td className="purchase-order-row-selector">›</td>
+                    <td className="purchase-order-product-cell">
+                      <div
+                        ref={entryProductAnchorRef}
+                        className="purchase-order-product-combo"
+                      >
+                        <input
+                          ref={productSearchRef}
+                          className="purchase-order-product-input"
+                        value={productQuery}
+                        placeholder="Search / select product"
+                        autoComplete="off"
+                        onFocus={() => {
+                          setEditingProductKey(null)
+                          if (!productQuery.trim()) setProductQuery('')
+                          setProductPickerOpen(true)
+                        }}
+                        onChange={(event) => {
+                          setEditingProductKey(null)
+                          setProductQuery(event.target.value)
+                          setProductPickerOpen(true)
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.key !== 'Enter') return
+                          const first = productLookupRows[0]
+                          if (!first) return
+                          event.preventDefault()
+                          void addProduct(first)
+                        }}
+                      />
+
+                      <button
+                        type="button"
+                        className="purchase-order-product-toggle"
+                        aria-label="Open product dropdown"
+                        aria-expanded={productPickerOpen}
+                        onMouseDown={(event) => {
+                          event.preventDefault()
+                          event.stopPropagation()
+                        }}
+                        onClick={() => {
+                          setEditingProductKey(null)
+                          if (!productPickerOpen) setProductQuery('')
+                          setProductPickerOpen((open) => !open)
+                        }}
+                      >
+                        <span aria-hidden>
+                          <svg viewBox="0 0 12 8" width="10" height="7" focusable="false">
+                            <path d="M1.1 1.2 6 6l4.9-4.8 1 1.1L6 8.2.1 2.3z" fill="currentColor" />
+                          </svg>
+                        </span>
+                        </button>
+                      </div>
+
+                      {productPickerOpen ? (
+                        <ProductLookupGrid
+                          rows={productLookupRows}
+                          total={productLookupRows.length}
+                          priceType="retail"
+                          mode="purchase"
+                          themed
+                          portalAnchorRef={entryProductAnchorRef}
+                          onRequestClose={() => setProductPickerOpen(false)}
+                          onSelect={(product) => void addProduct(product)}
+                        />
+                      ) : null}
+                    </td>
+                    <td className="is-center" />
+                          <td className="is-num" />
+                    <td className="is-num" />
+                    <td className="is-num" />
+                    <td className="is-num" />
+                    <td className="is-num" />
+                    <td className="is-num" />
+                    <td className="is-num" />
+                    <td className="is-num" />
+                    <td className="is-num" />
+                    <td className="is-num" />
+                    <td />
+                  </tr>
+                ) : null}
+
+                {readOnly && displayedLines.length === 0 ? (
+                  <tr>
+                    <td colSpan={13} className="purchase-order-empty">
+                      No purchase order lines found.
+                    </td>
+                  </tr>
+                ) : null}
+            </PosEntryGrid>
+
+            {loadMoreMutation.isPending ? (
+              <div className="purchase-order-load-more" role="status" aria-live="polite">
+                <LoaderCircle size={17} aria-hidden />
+                <UiSkeleton label="Loading more products…"/>
+              </div>
+            ) : null}
+          </div>
+
+          <div className="purchase-order-footer">
+            <label className="purchase-order-remarks purchase-order-footer-remarks">
+              <span>Remarks</span>
+              <textarea
+                value={activeOrder?.notes ?? notes}
+                disabled={readOnly}
+                rows={2}
+                onChange={(event) => setNotes(event.target.value)}
+              />
+            </label>
+            <div className="purchase-order-totals">
+              <div>
+                <span>Subtotal</span>
+                <strong>{activeOrder?.subtotal ?? fixedMoney(totals.subtotal)}</strong>
+              </div>
+              <div>
+                <span>Discount</span>
+                <strong>{activeOrder?.discount_amount ?? fixedMoney(totals.discount)}</strong>
+              </div>
+              <div className="is-grand">
+                <span>Net Order</span>
+                <strong>{formatDecimal(netAmount)}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : tab === 'search' ? (
+        <div className="purchase-order-search">
+          <div className="purchase-order-search-bar">
+            <input
+              className="desktop-input"
+              placeholder="PO # or distributor"
+              value={searchText}
+              onChange={(event) => setSearchText(event.target.value)}
+            />
+            <label><span>Date range</span><UiDateRangePicker fromInputProps={{type:"date",value:searchFrom,onChange:(event) => setSearchFrom(event.target.value)}} toInputProps={{type:"date",value:searchTo,onChange:(event) => setSearchTo(event.target.value)}}/></label>
+
+            <UiButton variant="info" onClick={() => void ordersQuery.refetch()}>
+              View
+            </UiButton>
+          </div>
+
+          <PosDataGrid
+            columns={[
+              {
+                key: 'number',
+                header: 'PO #',
+                width: 160,
+                render: (row) => row.document_number,
+              },
+              {
+                key: 'date',
+                header: 'Order Date',
+                width: 120,
+                render: (row) => row.order_date,
+              },
+              {
+                key: 'supplier',
+                header: 'Distributor',
+                render: (row) => row.supplier?.name ?? '—',
+              },
+              {
+                key: 'status',
+                header: 'Status',
+                width: 110,
+                render: (row) => row.status,
+              },
+              {
+                key: 'net',
+                header: 'Net',
+                width: 150,
+                align: 'right',
+                render: (row) => formatDecimal(row.grand_total),
+              },
+            ]}
+            rows={ordersQuery.data?.data ?? []}
+            rowKey={(row) => row.ulid}
+            onActivate={(row) => void requestOpenOrder(row)}
+            emptyMessage="No purchase orders found."
+          />
+        </div>
+      ) : (
+        <div className="purchase-order-status-view">
+          <section className="purchase-order-status-selections">
+            <div className="purchase-order-status-selections-title">Selections:</div>
+            <div className="purchase-order-status-selections-body">
+              <div className="purchase-order-status-dates">
+                <label><span>Date range</span><UiDateRangePicker fromInputProps={{type:"date",value:statusFrom,onChange:(event) => setStatusFrom(event.target.value)}} toInputProps={{type:"date",value:statusTo,onChange:(event) => setStatusTo(event.target.value)}}/></label>
+
+              </div>
+
+              <div className="purchase-order-status-actions">
+                <UiButton variant="primary" onClick={() => void statusQuery.refetch()}>
+                  View
+                </UiButton>
+                <UiButton
+                  variant="primary"
+                  disabled={statusPrintLoading || statusQuery.isLoading}
+                  onClick={() => void printStatusReport()}
+                >
+                  <Printer size={14} />
+                  {statusPrintLoading ? 'Preparing…' : 'Print'}
+                </UiButton>
+              </div>
+
+              <div className="purchase-order-status-options">
+                <label
+                  title="The reference option exists, but BluePOS has no defined semantics for products outside a Purchase Order."
+                >
+                  <input type="checkbox" disabled checked={false} readOnly />
+                  <span>Show Products That are Not in [PO]</span>
+                </label>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={statusShowAll}
+                    onChange={(event) => setStatusShowAll(event.target.checked)}
+                  />
+                  <span>Show All</span>
+                </label>
+              </div>
+            </div>
+          </section>
+
+          <PosDataGrid loading={statusQuery.isLoading}
+            columns={[
+              {
+                key: 'order_id',
+                header: 'Order ID',
+                width: 165,
+                render: (row) => row.order.ulid,
+              },
+              {
+                key: 'order_no',
+                header: 'OrderNo',
+                width: 120,
+                render: (row) => row.order.document_number,
+              },
+              {
+                key: 'order_date',
+                header: 'Order Date',
+                width: 110,
+                render: (row) => row.order.order_date,
+              },
+              {
+                key: 'party',
+                header: 'Party',
+                width: 180,
+                render: (row) => row.supplier?.name ?? '—',
+              },
+              {
+                key: 'description',
+                header: 'DESCRIPTION',
+                render: (row) =>
+                  row.product
+                    ? `${row.product.product_number} — ${row.product.name}`
+                    : '—',
+              },
+              {
+                key: 'order_qty',
+                header: 'Order Qty',
+                width: 95,
+                align: 'right',
+                render: (row) => formatDecimal(row.order_quantity),
+              },
+              {
+                key: 'receive_qty',
+                header: 'Receive Qty',
+                width: 95,
+                align: 'right',
+                render: (row) => formatDecimal(row.received_quantity),
+              },
+              {
+                key: 'remaining_qty',
+                header: 'Rem Qty',
+                width: 90,
+                align: 'right',
+                render: (row) => formatDecimal(row.remaining_quantity),
+              },
+              {
+                key: 'order_amount',
+                header: 'Order Amt',
+                width: 110,
+                align: 'right',
+                render: (row) => formatDecimal(row.order_amount),
+              },
+              {
+                key: 'received_amount',
+                header: 'Rec Amt',
+                width: 105,
+                align: 'right',
+                render: (row) => formatDecimal(row.received_amount),
+              },
+              {
+                key: 'balance_amount',
+                header: 'Bal Amt',
+                width: 110,
+                align: 'right',
+                render: (row) => formatDecimal(row.balance_amount),
+              },
+            ]}
+            rows={statusQuery.data?.data ?? []}
+            rowKey={(row) => row.line_ulid}
+            emptyMessage={statusQuery.isLoading ? 'Loading…' : 'No purchase order status rows found.'}
+          />
+
+        </div>
+      )}
+      <UiModal
+        open={cancelConfirmOpen && Boolean(activeOrder)}
+        title={
+          <span className="purchase-order-cancel-modal-title">
+            <AlertTriangle size={16} aria-hidden="true" />
+            Cancel Purchase Order
+          </span>
+        }
+        ariaLabel="Cancel Purchase Order"
+        size="sm"
+        className="purchase-order-cancel-modal"
+        bodyClassName="purchase-order-cancel-modal-body"
+        closeOnEscape={!cancelMutation.isPending}
+        onClose={() => {
+          if (!cancelMutation.isPending) setCancelConfirmOpen(false)
+        }}
+        footer={
+          <>
+            <UiButton
+              variant="default"
+              disabled={cancelMutation.isPending}
+              onClick={() => setCancelConfirmOpen(false)}
+            >
+              Keep Order
+            </UiButton>
+            <UiButton
+              variant="danger"
+              disabled={
+                cancelMutation.isPending ||
+                !activeOrder ||
+                activeOrder.status !== 'open'
+              }
+              onClick={() => {
+                if (!activeOrder || activeOrder.status !== 'open') return
+                cancelMutation.mutate(activeOrder.ulid)
+              }}
+            >
+              {cancelMutation.isPending ? 'Cancelling…' : 'Yes, Cancel Order'}
+            </UiButton>
+          </>
+        }
+      >
+        <div className="purchase-order-cancel-confirm">
+          <div className="purchase-order-cancel-warning">
+            <AlertTriangle size={24} aria-hidden="true" />
+            <div>
+              <strong>This Purchase Order will be cancelled permanently.</strong>
+              <p>
+                Any linked draft Purchase Invoice will no longer be allowed to post
+                against this order.
+              </p>
+            </div>
+          </div>
+
+          <dl className="purchase-order-cancel-summary">
+            <div>
+              <dt>Purchase Order</dt>
+              <dd>{activeOrder?.document_number ?? '—'}</dd>
+            </div>
+            <div>
+              <dt>Supplier</dt>
+              <dd>{activeOrder?.supplier?.name ?? '—'}</dd>
+            </div>
+            <div>
+              <dt>Order Date</dt>
+              <dd>{activeOrder?.order_date ?? '—'}</dd>
+            </div>
+            <div>
+              <dt>Net Order</dt>
+              <dd>{formatDecimal(activeOrder?.grand_total ?? '0')}</dd>
+            </div>
+          </dl>
+
+          <p className="purchase-order-cancel-note">
+            This action cannot be undone. Orders with posted receipts are protected
+            and cannot be cancelled.
+          </p>
+        </div>
+      </UiModal>
+    </DesktopPanel>
+  )
+}

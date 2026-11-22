@@ -1,0 +1,1046 @@
+.quotation-estimate-page {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.quotation-estimate-page .desktop-panel-body {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: row;
+  overflow: hidden;
+}
+
+.quotation-tabs {
+  display: flex;
+  width: 38px;
+  min-width: 38px;
+  flex: 0 0 38px;
+  flex-direction: column;
+  gap: 4px;
+  border-right: 1px solid var(--ui-border);
+  background: var(--ui-surface-subtle);
+  padding: 6px 4px;
+}
+
+.quotation-tabs button {
+  display: flex;
+  min-height: 86px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: var(--control-radius);
+  background: transparent;
+  color: var(--ui-text-muted);
+  padding: 8px 4px;
+  font: inherit;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  cursor: pointer;
+}
+
+.quotation-tabs button:hover {
+  background: var(--ui-control-hover-bg);
+  color: var(--ui-text);
+}
+
+.quotation-tabs button.is-active {
+  border-color: var(--ui-border);
+  background: var(--ui-surface);
+  color: var(--ui-text);
+}
+
+.quotation-entry,
+.quotation-search {
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  padding: 8px 10px 10px;
+}
+
+.quotation-entry {
+  display: grid;
+  grid-template-rows: auto minmax(340px, 1fr) 82px auto;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.quotation-search {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.quotation-header-grid {
+  display: grid;
+  grid-template-columns: 170px 205px minmax(300px, 1.2fr) minmax(280px, 1fr) 230px;
+  gap: 8px;
+  align-items: center;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--panel-radius);
+  background: var(--ui-surface-subtle);
+  box-shadow: var(--ui-card-shadow);
+  padding: 6px 8px;
+}
+
+.quotation-header-grid label {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 6px;
+  align-items: center;
+  color: var(--ui-text-muted);
+  font-size: 12px;
+}
+
+.quotation-header-grid label > span {
+  white-space: nowrap;
+}
+
+.quotation-footer-grid label {
+  display: grid;
+  gap: 5px;
+  color: var(--ui-text-muted);
+  font-size: 12px;
+}
+
+.quotation-header-grid input:not(.ui-select-trigger-search),
+.quotation-footer-grid textarea {
+  border: 1px solid var(--ui-control-border);
+  border-radius: var(--control-radius);
+  background: var(--ui-control-face);
+  color: var(--ui-text);
+  box-shadow: var(--ui-control-shadow);
+  font: inherit;
+}
+
+.quotation-header-grid input:not(.ui-select-trigger-search):focus,
+.quotation-footer-grid textarea:focus {
+  outline: none;
+  box-shadow: var(--ui-focus-shadow);
+}
+
+.quotation-line-unit-select {
+  width: 100%;
+  min-width: 0;
+}
+
+/* Quotation owns workflow/cell behavior only.
+   Header, borders, row density and base editor geometry come from PosEntryGrid. */
+
+.quotation-lines-wrap {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.quotation-product-search-cell {
+  overflow: visible !important;
+}
+
+
+.quotation-product-search-input {
+  width: 100% !important;
+  min-width: 340px;
+  height: var(--ui-control-h-md, 24px);
+  box-sizing: border-box;
+  border: 1px solid var(--ui-control-border);
+  border-radius: var(--control-radius);
+  background: var(--ui-control-face);
+  color: var(--ui-text);
+  box-shadow: var(--ui-control-shadow);
+  padding: 0 7px;
+  font: inherit;
+  font-size: var(--ui-font-md, 12px);
+  font-weight: var(--ui-weight-medium, 600);
+  text-align: left !important;
+  transition:
+    border-color var(--ui-transition-normal),
+    background-color var(--ui-transition-normal),
+    box-shadow var(--ui-transition-normal);
+}
+
+.quotation-product-search-input:hover {
+  border-color: var(--ui-control-hover-border, var(--ui-accent));
+  background: var(--ui-control-hover-bg, var(--ui-accent-soft));
+}
+
+.quotation-product-search-input:focus {
+  outline: none;
+  border-color: var(--ui-accent);
+  background: var(--ui-surface);
+  box-shadow: var(--ui-focus-shadow);
+}
+
+.quotation-empty {
+  padding: 28px !important;
+  text-align: center !important;
+  color: var(--ui-text-muted);
+}
+
+.quotation-footer-grid {
+  display: grid;
+  min-height: 0;
+  grid-template-columns: minmax(320px, 1fr) 460px;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.quotation-footer-grid > label {
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr);
+  border: 1px solid var(--ui-border);
+  border-radius: var(--panel-radius);
+  background: var(--ui-surface-subtle);
+  box-shadow: var(--ui-card-shadow);
+  padding: 7px 9px;
+}
+
+.quotation-footer-grid textarea {
+  width: 100%;
+  height: 100%;
+  min-height: 42px;
+  resize: none;
+  box-sizing: border-box;
+  padding: 10px;
+}
+
+.quotation-totals {
+  align-self: end;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--panel-radius);
+  background: var(--ui-surface-subtle);
+  box-shadow: var(--ui-card-shadow);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: center;
+  gap: 0 18px;
+  padding: 7px 12px;
+}
+
+.quotation-totals div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+  min-width: 0;
+}
+
+.quotation-totals .is-grand {
+  margin-top: 0;
+  border-top: 0;
+  color: var(--ui-text);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.quotation-note {
+  border-top: 1px solid var(--ui-border);
+  padding-top: 8px;
+  color: var(--ui-text-muted);
+  font-size: 12px;
+}
+
+.quotation-search-bar {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.quotation-search-bar input {
+  min-width: 320px;
+}
+
+@media (max-width: 1200px) {
+  .quotation-entry {
+    overflow: auto;
+    grid-template-rows: auto minmax(300px, 1fr) auto auto;
+  }
+
+  .quotation-header-grid {
+    grid-template-columns: repeat(2, minmax(260px, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .quotation-estimate-page,
+  .quotation-estimate-page .desktop-panel-body {
+    overflow: auto;
+  }
+
+  .quotation-estimate-page .desktop-panel-body {
+    flex-direction: column;
+  }
+
+  .quotation-tabs {
+    width: auto;
+    min-width: 0;
+    flex: 0 0 auto;
+    flex-direction: row;
+    border-right: 0;
+    border-bottom: 1px solid var(--ui-border);
+    padding: 4px 6px;
+  }
+
+  .quotation-tabs button {
+    min-height: 0;
+    writing-mode: horizontal-tb;
+    transform: none;
+    padding: 6px 10px;
+  }
+
+  .quotation-entry,
+  .quotation-search {
+    overflow: visible;
+  }
+
+  .quotation-header-grid,
+  .quotation-footer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .quotation-header-grid label {
+    grid-template-columns: 88px minmax(0, 1fr);
+  }
+
+  .quotation-search-bar {
+    flex-direction: column;
+  }
+
+  .quotation-search-bar input {
+    min-width: 0;
+  }
+}
+
+@media print {
+  .desktop-toolbar,
+  .quotation-tabs,
+  .quotation-lines th:last-child,
+  .quotation-lines td:last-child,
+  .quotation-note {
+    display: none !important;
+  }
+
+  .quotation-estimate-page {
+    box-shadow: none !important;
+  }
+}
+
+
+html[data-animations='off'] .quotation-product-search-input {
+  transition: none !important;
+}
+
+
+/* Sales-aligned quotation entry flow. */
+.quotation-product-combo {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  height: var(--ui-control-h-md);
+}
+
+.quotation-product-combo .quotation-product-search-input {
+  height: 100%;
+  min-height: 0;
+  padding-right: calc(var(--ui-control-h-md) + 3px);
+}
+
+.quotation-product-combo-toggle {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  bottom: 2px;
+  display: grid;
+  place-items: center;
+  width: auto;
+  min-width: 0;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 1 / 1;
+  padding: 0;
+  border: 1px solid var(--ui-select-arrow-border);
+  border-radius: var(--control-radius);
+  background: var(--ui-select-arrow-face);
+  color: var(--ui-select-selected-text);
+  box-shadow: var(--ui-control-shadow);
+  font: inherit;
+  cursor: pointer;
+}
+
+.quotation-product-combo-toggle:focus-visible {
+  outline: none;
+  box-shadow: var(--ui-focus-shadow);
+}
+
+.quotation-completed-product-trigger {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--ui-control-h-md, 24px);
+  box-sizing: border-box;
+  overflow: hidden;
+  padding: 3px 28px 3px 7px;
+  border: 1px solid var(--ui-control-border);
+  border-radius: var(--control-radius);
+  background: var(--ui-control-face);
+  color: var(--ui-text);
+  box-shadow: var(--ui-control-shadow);
+  font: inherit;
+  font-size: var(--ui-font-md, 12px);
+  font-weight: var(--ui-weight-medium, 600);
+  text-align: left;
+  cursor: text;
+}
+
+.quotation-completed-product-trigger > span:first-child {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quotation-completed-product-trigger > .quotation-product-combo-toggle {
+  pointer-events: none;
+}
+
+.quotation-completed-product-trigger:focus-visible {
+  outline: none;
+  border-color: var(--ui-accent);
+  box-shadow: var(--ui-focus-shadow);
+}
+
+.quotation-active-row td {
+  background: var(--ui-surface-subtle);
+}
+
+.quotation-active-row .quotation-product-search-cell,
+.quotation-entry-row .quotation-product-search-cell {
+  overflow: visible;
+}
+
+.quotation-header-grid .ui-select-combobox-trigger {
+  width: 100%;
+  min-width: 0;
+}
+
+.quotation-header-grid .ui-select-trigger-search {
+  min-width: 0;
+}
+
+
+/* Reference-inspired Quotation geometry: compact options block + strong amount summary. */
+.quotation-entry {
+  grid-template-rows: auto minmax(340px, 1fr) 82px auto;
+  gap: 6px;
+  padding: 5px 7px 8px;
+}
+
+.quotation-entry-head {
+  display: grid;
+  grid-template-columns: minmax(680px, 1fr) 220px;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.quotation-header-grid {
+  grid-template-columns: 160px 210px minmax(250px, 1fr);
+  grid-template-areas:
+    "number date price"
+    "customer customer salesman";
+  gap: 5px 8px;
+  align-content: center;
+  padding: 5px 7px;
+}
+
+.quotation-header-grid .is-number { grid-area: number; }
+.quotation-header-grid .is-date { grid-area: date; }
+.quotation-header-grid .is-customer { grid-area: customer; }
+.quotation-header-grid .is-salesman { grid-area: salesman; }
+.quotation-header-grid .is-price-type { grid-area: price; }
+
+.quotation-header-grid label {
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 5px;
+  min-width: 0;
+  font-size: var(--ui-font-sm);
+}
+
+.quotation-header-grid input:not(.ui-select-trigger-search),
+.quotation-header-grid .ui-select-combobox-trigger,
+.quotation-header-grid .ui-select-trigger {
+  min-height: 25px;
+  height: 25px;
+}
+
+.quotation-header-grid .ui-select-trigger-search {
+  min-width: 0;
+  font-weight: var(--ui-weight-medium);
+}
+
+.quotation-amount-options {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--panel-radius);
+  background: var(--ui-surface-subtle);
+  box-shadow: var(--ui-card-shadow);
+  padding: 6px 8px;
+}
+
+.quotation-amount-options-title {
+  color: var(--ui-text);
+  font-size: var(--ui-font-sm);
+  font-weight: var(--ui-weight-strong);
+}
+
+.quotation-net-box {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  min-height: 35px;
+  padding: 4px 7px;
+  border: 1px solid var(--ui-control-border);
+  border-radius: var(--control-radius);
+  background: var(--ui-control-face);
+  box-shadow: var(--ui-control-shadow);
+}
+
+.quotation-net-box span {
+  color: var(--ui-text-muted);
+  font-weight: var(--ui-weight-strong);
+}
+
+.quotation-net-box strong {
+  min-width: 0;
+  overflow: hidden;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ui-text);
+  font-size: 22px;
+  line-height: 1;
+  font-weight: 800;
+}
+
+.quotation-product-search-input {
+  min-width: 0;
+  min-height: 0;
+}
+
+.quotation-product-combo-toggle > span {
+  display: grid;
+  place-items: center;
+  height: 100%;
+}
+
+.quotation-completed-product-trigger {
+  min-height: 25px;
+  height: 25px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.quotation-footer-grid {
+  grid-template-columns: minmax(320px, 1fr) 390px;
+  gap: 8px;
+}
+
+.quotation-footer-grid > label,
+.quotation-totals {
+  padding: 5px 7px;
+}
+
+.quotation-totals {
+  gap: 0 14px;
+}
+
+.quotation-totals div {
+  padding: 2px 0;
+  font-size: var(--ui-font-sm);
+}
+
+.quotation-note {
+  padding-top: 5px;
+}
+
+@media (max-width: 1200px) {
+  .quotation-entry-head {
+    grid-template-columns: 1fr;
+  }
+
+  .quotation-header-grid {
+    grid-template-columns: repeat(2, minmax(240px, 1fr));
+    grid-template-areas:
+      "number date"
+      "customer salesman"
+      "price price";
+  }
+
+  .quotation-amount-options {
+    grid-template-columns: auto minmax(200px, 320px);
+    align-items: center;
+  }
+}
+
+@media (max-width: 760px) {
+  .quotation-header-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "number"
+      "date"
+      "customer"
+      "salesman"
+      "price";
+  }
+
+  .quotation-amount-options {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* Final quotation header geometry: compact left entry card, reference title, right amount card. */
+.quotation-entry-head {
+  grid-template-columns: 650px minmax(180px, 1fr) 220px;
+  gap: 10px;
+  align-items: start;
+}
+
+.quotation-header-grid {
+  width: 650px;
+  max-width: 650px;
+  grid-template-columns: 150px 190px 278px;
+  grid-template-areas:
+    "number date price"
+    "customer customer salesman";
+  gap: 5px 8px;
+}
+
+.quotation-header-grid .is-customer,
+.quotation-header-grid .is-salesman,
+.quotation-header-grid .is-price-type {
+  min-width: 0;
+}
+
+.quotation-header-grid .is-customer .ui-select,
+.quotation-header-grid .is-salesman .ui-select,
+.quotation-header-grid .is-price-type .ui-select {
+  width: 100%;
+  min-width: 0;
+}
+
+.quotation-entry-title {
+  align-self: start;
+  justify-self: end;
+  padding: 4px 8px 0 0;
+  color: var(--ui-text);
+  font-size: 26px;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: .01em;
+  white-space: nowrap;
+}
+
+.quotation-amount-options {
+  width: 220px;
+  min-width: 220px;
+  box-sizing: border-box;
+}
+
+.quotation-net-box {
+  min-height: 38px;
+}
+
+.quotation-net-box strong {
+  font-size: 24px;
+}
+
+@media (max-width: 1180px) {
+  .quotation-entry-head {
+    grid-template-columns: minmax(0, 1fr) 220px;
+  }
+
+  .quotation-header-grid {
+    width: 100%;
+    max-width: none;
+    grid-template-columns: 150px 190px minmax(240px, 1fr);
+  }
+
+  .quotation-entry-title {
+    display: none;
+  }
+}
+
+@media (max-width: 860px) {
+  .quotation-entry-head {
+    grid-template-columns: 1fr;
+  }
+
+  .quotation-header-grid {
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+    grid-template-areas:
+      "number date"
+      "customer customer"
+      "salesman price";
+  }
+
+  .quotation-amount-options {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+
+/* Match Sales Return's proven single-surface searchable select treatment. */
+.quotation-header-grid .is-customer .quotation-canonical-select .ui-select-combobox-trigger,
+.quotation-header-grid .is-salesman .quotation-canonical-select .ui-select-combobox-trigger {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  height: 25px;
+  min-height: 25px;
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid var(--ui-control-border);
+  border-radius: var(--control-radius);
+  background: var(--ui-control-face);
+  box-shadow: var(--ui-control-shadow);
+}
+
+.quotation-header-grid .is-customer .quotation-canonical-select .ui-select-trigger-search,
+.quotation-header-grid .is-salesman .quotation-canonical-select .ui-select-trigger-search {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 0 23px 0 7px;
+  border: 0;
+  border-radius: inherit;
+  outline: none;
+  background: transparent;
+  color: var(--ui-text);
+  box-shadow: none;
+  font: inherit;
+  font-weight: var(--ui-weight-medium);
+}
+
+.quotation-header-grid .is-customer .quotation-canonical-select .ui-select-trigger-search:focus,
+.quotation-header-grid .is-salesman .quotation-canonical-select .ui-select-trigger-search:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.quotation-header-grid .is-customer .quotation-canonical-select .ui-select-combobox-toggle,
+.quotation-header-grid .is-salesman .quotation-canonical-select .ui-select-combobox-toggle {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  bottom: 2px;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  min-width: 18px;
+  height: auto;
+  min-height: 0;
+  padding: 0;
+  border: 1px solid var(--ui-select-arrow-border);
+  border-radius: calc(var(--control-radius) - 1px);
+  background: var(--ui-select-arrow-face);
+  color: var(--ui-select-selected-text);
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.quotation-header-grid .is-customer .quotation-canonical-select .ui-select-combobox-toggle .ui-select-arrow,
+.quotation-header-grid .is-salesman .quotation-canonical-select .ui-select-combobox-toggle .ui-select-arrow {
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  box-shadow: none;
+}
+
+.quotation-header-grid .is-customer .quotation-canonical-select .ui-select-combobox-trigger:focus-within,
+.quotation-header-grid .is-salesman .quotation-canonical-select .ui-select-combobox-trigger:focus-within {
+  border-color: var(--ui-accent);
+  box-shadow: var(--ui-focus-shadow);
+}
+
+
+/* Quotation header: keep all supported entry fields on one compact line. */
+.quotation-header-grid {
+  width: 900px;
+  max-width: 900px;
+  grid-template-columns:
+    145px
+    185px
+    minmax(250px, 1fr)
+    minmax(220px, 1fr)
+    185px;
+  grid-template-areas: "number date customer salesman price";
+  gap: 6px 8px;
+  align-items: center;
+}
+
+.quotation-header-grid .is-number { grid-area: number; }
+.quotation-header-grid .is-date { grid-area: date; }
+.quotation-header-grid .is-customer { grid-area: customer; }
+.quotation-header-grid .is-salesman { grid-area: salesman; }
+.quotation-header-grid .is-price-type { grid-area: price; }
+
+.quotation-entry-head {
+  grid-template-columns: 900px minmax(120px, 1fr) 220px;
+}
+
+@media (max-width: 1380px) {
+  .quotation-entry-head {
+    grid-template-columns: minmax(0, 1fr) 220px;
+  }
+
+  .quotation-header-grid {
+    width: 100%;
+    max-width: none;
+    grid-template-columns:
+      130px
+      170px
+      minmax(220px, 1fr)
+      minmax(200px, 1fr)
+      170px;
+  }
+
+  .quotation-entry-title {
+    display: none;
+  }
+}
+
+@media (max-width: 980px) {
+  .quotation-header-grid {
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+    grid-template-areas:
+      "number date"
+      "customer salesman"
+      "price price";
+  }
+}
+
+
+/* Final quotation composition: one-line header, compact notes, bottom amount options. */
+.quotation-entry {
+  grid-template-rows: auto minmax(340px, 1fr) auto auto;
+}
+
+.quotation-entry-head {
+  display: block;
+}
+
+.quotation-header-grid {
+  width: 100%;
+  max-width: none;
+  grid-template-columns:
+    minmax(135px, .7fr)
+    minmax(165px, .85fr)
+    minmax(260px, 1.5fr)
+    minmax(230px, 1.25fr)
+    minmax(180px, .9fr);
+  grid-template-areas: "number date customer salesman price";
+  gap: 6px 8px;
+  align-items: center;
+}
+
+.quotation-entry-title {
+  display: none !important;
+}
+
+.quotation-footer-grid {
+  grid-template-columns: minmax(260px, 1fr) 220px 340px;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.quotation-footer-grid > label {
+  min-width: 0;
+  padding: 4px 6px;
+}
+
+.quotation-footer-grid > label textarea {
+  min-height: 38px;
+  height: 38px;
+  resize: vertical;
+}
+
+.quotation-amount-options-footer {
+  width: 220px;
+  min-width: 220px;
+  align-self: stretch;
+  padding: 5px 7px;
+}
+
+.quotation-amount-options-footer .quotation-net-box {
+  min-height: 31px;
+  padding: 3px 6px;
+}
+
+.quotation-amount-options-footer .quotation-net-box strong {
+  font-size: 20px;
+}
+
+.quotation-totals {
+  align-self: stretch;
+  min-width: 0;
+}
+
+@media (max-width: 1180px) {
+  .quotation-header-grid {
+    grid-template-columns:
+      minmax(120px, .65fr)
+      minmax(150px, .8fr)
+      minmax(220px, 1.4fr)
+      minmax(190px, 1.15fr)
+      minmax(160px, .85fr);
+    grid-template-areas: "number date customer salesman price";
+  }
+
+  .quotation-footer-grid {
+    grid-template-columns: minmax(240px, 1fr) 200px 300px;
+  }
+
+  .quotation-amount-options-footer {
+    width: 200px;
+    min-width: 200px;
+  }
+}
+
+@media (max-width: 900px) {
+  .quotation-header-grid {
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+    grid-template-areas:
+      "number date"
+      "customer salesman"
+      "price price";
+  }
+
+  .quotation-footer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .quotation-amount-options-footer {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+
+/* ==========================================================================
+   Quotation laptop cleanup: amount options, grid fit, price type
+   Keep the canonical controls; fix only page-owned geometry/composition.
+   ========================================================================== */
+@media (min-width: 901px) and (max-width: 1200px) {
+  .quotation-entry {
+    overflow: hidden;
+  }
+
+  .quotation-lines-wrap {
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  .quotation-lines {
+    width: 100%;
+    min-width: 820px !important;
+  }
+
+  .quotation-header-grid {
+    grid-template-columns:
+      minmax(115px, .62fr)
+      minmax(145px, .78fr)
+      minmax(205px, 1.35fr)
+      minmax(175px, 1.1fr)
+      minmax(150px, .82fr);
+    gap: 5px 6px;
+  }
+
+  .quotation-header-grid label {
+    gap: 4px;
+    font-size: var(--ui-font-sm);
+  }
+
+  .quotation-price-type-select {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .quotation-price-type-select .ui-select-trigger {
+    width: 100%;
+    min-width: 0;
+    height: 25px;
+    min-height: 25px;
+    padding-left: 6px;
+    padding-right: 24px;
+  }
+
+  .quotation-price-type-select .ui-select-value {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .quotation-price-type-select .ui-select-arrow {
+    flex: 0 0 auto;
+  }
+
+  .quotation-footer-grid {
+    grid-template-columns: minmax(250px, 1fr) 185px 290px;
+    gap: 6px;
+  }
+
+  .quotation-amount-options-footer {
+    width: 185px;
+    min-width: 185px;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto 1fr;
+    align-content: stretch;
+    align-items: stretch;
+    gap: 4px;
+    padding: 4px 6px;
+  }
+
+  .quotation-amount-options-footer .quotation-amount-options-title {
+    line-height: 1.1;
+  }
+
+  .quotation-amount-options-footer .quotation-net-box {
+    width: 100%;
+    min-width: 0;
+    min-height: 30px;
+    padding: 3px 5px;
+    gap: 5px;
+  }
+
+  .quotation-amount-options-footer .quotation-net-box strong {
+    font-size: 18px;
+  }
+
+  .quotation-totals {
+    padding: 5px 8px;
+    gap: 0 10px;
+  }
+
+  .quotation-totals div {
+    gap: 6px;
+  }
+}

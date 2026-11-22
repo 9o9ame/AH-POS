@@ -1,18 +1,34 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { App } from './App';
-import { PlatformApp } from './PlatformApp';
-import './styles.css';
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
+import App from './App.tsx'
+import '@fontsource/inter/400.css'
+import '@fontsource/inter/500.css'
+import '@fontsource/inter/600.css'
+import '@fontsource/inter/700.css'
+import '@fontsource/roboto-condensed/400.css'
+import '@fontsource/roboto-condensed/500.css'
+import '@fontsource/roboto-condensed/600.css'
+import '@fontsource/roboto-condensed/700.css'
+import { AppearanceProvider } from './features/appearance/AppearanceProvider'
+import { FeedbackProvider } from './feedback/FeedbackProvider'
+import { applyAppDisplayMode } from './features/desktop/appDisplayMode'
+import './index.css'
+import './appearance.css'
+import './motion.css'
+import './density.css'
+import './density-shell.css'
 
-// BluePOS reference structure: /platform/* and business root are separate
-// application trees; never show a mixed shell or route to a Platform panel
-// from business navigation. Separate local hostname is also supported.
-const host = window.location.hostname.toLowerCase();
-const isPlatform = host === 'platform.localhost'
-  || host.startsWith('platform.')
-  || window.location.pathname === '/platform'
-  || window.location.pathname.startsWith('/platform/');
+applyAppDisplayMode()
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>{isPlatform ? <PlatformApp/> : <App/>}</React.StrictMode>
-);
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <AppearanceProvider>
+      <FeedbackProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </FeedbackProvider>
+    </AppearanceProvider>
+  </StrictMode>,
+)

@@ -1,0 +1,50 @@
+import { FormEvent, useState } from 'react'
+import { Navigate, useNavigate } from 'react-router-dom'
+import { changePassword } from '../api/auth'
+import { ApiClientError } from '../api/client'
+import { useAuth } from '../features/auth/AuthProvider'
+import { AuthLayout } from '../layouts/AuthLayout'
+
+export function ChangePasswordPage() {
+  const { session, isLoading, refreshSession } = useAuth()
+  const navigate = useNavigate()
+  const [current, setCurrent] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
+  const [error, setError] = useState<string | null>(null)
+
+  if (isLoading) {
+    return null
+  }
+  if (!session) {
+    return <Navigate to="/login" replace />
+  }
+
+  async function onSubmit(event: FormEvent) {
+    event.preventDefault()
+    setError(null)
+    try {
+      await changePassword({
+        current_password: current,
+        password,
+        password_confirmation: confirm,
+      })
+      await refreshSession()
+      navigate('/', { replace: true })
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : 'Unable to change password.')
+    }
+  }
+
+  return (
+    <AuthLayout title="Change password" notice={error}>
+      <form className="auth-showcase-password-form space-y-3" onSubmit={onSubmit}>
+        <p className="text-[12px] text-[var(--ui-text-muted)]">You must set a new password before using BluePOS.</p>
+        <input className="h-9 w-full rounded border px-2 text-[12px]" type="password" placeholder="Current password" value={current} onChange={(e) => setCurrent(e.target.value)} required />
+        <input className="h-9 w-full rounded border px-2 text-[12px]" type="password" placeholder="New password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} />
+        <input className="h-9 w-full rounded border px-2 text-[12px]" type="password" placeholder="Confirm password" value={confirm} onChange={(e) => setConfirm(e.target.value)} required minLength={8} />
+        <button type="submit" className="h-9 w-full rounded bg-[var(--ui-accent)] text-sm font-semibold text-white">Update password</button>
+      </form>
+    </AuthLayout>
+  )
+}

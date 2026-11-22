@@ -1,0 +1,90 @@
+/* Tenant-monitoring panels only: keep platform chrome fixed and scroll inside the active table. */
+.platform-tenant-monitor-panel {
+  height: max(240px, calc(100dvh - 245px));
+  max-height: calc(100dvh - 245px);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.platform-tenant-monitor-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 8px;
+  flex: 0 0 auto;
+}
+.platform-tenant-monitor-tabs button {
+  border: 1px solid var(--ui-border);
+  border-radius: var(--control-radius);
+  background: var(--ui-surface);
+  color: var(--ui-text-muted);
+  padding: 4px 10px;
+}
+.platform-tenant-monitor-tabs button:hover {
+  background: var(--ui-surface-subtle);
+}
+.platform-tenant-monitor-tabs button.is-active {
+  background: var(--ui-accent-soft);
+  border-color: var(--ui-accent);
+  color: var(--ui-text);
+  font-weight: 600;
+}
+.platform-tenant-monitor-section {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+.platform-tenant-monitor-grid {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--panel-radius);
+}
+.platform-tenant-monitor-grid table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.platform-tenant-monitor-grid thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--ui-table-header);
+  color: var(--ui-table-header-text);
+  box-shadow: 0 1px 0 var(--ui-table-border);
+}
+.platform-tenant-monitor-grid td, .platform-tenant-monitor-grid th {
+  padding: 4px 6px;
+}
+
+/* Smooth navigation between Platform Tenant tabs; panels remain independent and preserve scroll. */
+.platform-tenant-primary-tabs { flex-wrap: wrap; }
+.platform-tenant-primary-tabs [role="tab"] {
+  transition: background-color var(--ui-transition-normal), color var(--ui-transition-normal),
+    border-color var(--ui-transition-normal), transform var(--ui-transition-normal);
+}
+.platform-tenant-primary-tabs [role="tab"]:hover { transform: translateY(-1px); }
+.platform-tenant-tab-transition {
+  min-width: 0;
+  animation: platform-tenant-tab-enter 480ms cubic-bezier(.22,1,.36,1) both;
+}
+.platform-tenant-monitor-section[role="tabpanel"],
+.platform-tenant-monitor-grid[role="tabpanel"] {
+  animation: platform-tenant-tab-enter 480ms cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes platform-tenant-tab-enter {
+  from { opacity: 0; transform: translateY(9px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+[data-animations="off"] .platform-tenant-tab-transition,
+[data-animations="off"] .platform-tenant-monitor-section[role="tabpanel"],
+[data-animations="off"] .platform-tenant-monitor-grid[role="tabpanel"] { animation: none; }
+[data-animations="off"] .platform-tenant-primary-tabs [role="tab"] { transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  .platform-tenant-tab-transition, .platform-tenant-monitor-section[role="tabpanel"],
+  .platform-tenant-monitor-grid[role="tabpanel"] { animation: none; }
+  .platform-tenant-primary-tabs [role="tab"] { transition: none; }
+}

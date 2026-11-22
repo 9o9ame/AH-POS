@@ -1,0 +1,1037 @@
+import { UiDateRangePicker } from '../components/ui/UiDateRangePicker'
+import { Fragment, useMemo, useState } from 'react'
+import { BookOpen, Eye, Plus, Printer, XCircle } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
+import {
+  fetchParties,
+  fetchPartyLedger,
+  fetchPartyLedgerAll,
+  fetchPartyLedgerBalances,
+  fetchPartyProfiles,
+  type Party,
+  type PartyLedger,
+  type PartyTypeApi,
+} from '../api/parties'
+import { fetchAccountTypes } from '../api/coa'
+import { DesktopPanel } from '../components/desktop/DesktopPanel'
+import { PosDataGrid, type PosGridColumn } from '../components/desktop/PosDataGrid'
+import { UiButton } from '../components/ui/UiButton'
+import { UiModal } from '../components/ui/UiModal'
+import { UiSelect } from '../components/ui/UiSelect'
+import { useWorkspace } from '../features/workspace/WorkspaceProvider'
+import { useFeedback } from '../feedback/FeedbackProvider'
+import './VendorCustomerLedgerPage.css'
+
+const LEDGER_GROUP_FIELDS = [
+  { value: '', label: 'No Grouping' },
+  { value: 'document', label: 'Document' },
+  { value: 'entry_date', label: 'Date' },
+  { value: 'user_name', label: 'User Name' },
+  { value: 'area_name', label: 'Area Name' },
+  { value: 'sales_person', label: 'Sales Person Name' },
+]
+
+const LEDGER_FILTER_FIELDS = [
+  { value: '', label: 'No Filter' },
+  { value: 'document', label: 'Document' },
+  { value: 'entry_date', label: 'Date' },
+  { value: 'user_name', label: 'User Name' },
+  { value: 'area_name', label: 'Area Name' },
+  { value: 'sales_person', label: 'Sales Person Name' },
+]
+
+const LEDGER_DOCUMENT_OPTIONS = [
+  { value: 'purchase_invoice', label: 'PURCHASES', enabled: true },
+  { value: 'purchase_return', label: 'PURCHASE RETURN', enabled: true },
+  { value: 'payment_voucher', label: 'PAYMENT VOUCHER', enabled: true },
+  { value: 'receiving_voucher', label: 'RECEIVING VOUCHER', enabled: true },
+  { value: 'opening_balance', label: 'OPENING VOUCHER', enabled: true },
+  { value: 'journal_voucher', label: 'JOURNAL VOUCHER', enabled: true },
+  { value: 'sale_payment', label: 'SALE PAYMENT', enabled: true },
+  { value: 'sales_invoice', label: 'SALES INVOICE', enabled: false },
+  { value: 'sales_return', label: 'SALES RETURN', enabled: false },
+] as const
+
+type LedgerPreviewEntry = {
+  key: string
+  ledger: PartyLedger
+}
+
+function escapeReportHtml(value: string | null | undefined) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+}
+
+type LedgerPartyRow = {
+  rowNo: number
+  key: string
+  ulid: string
+  partyType: Exclude<PartyTypeApi, 'salesman'>
+  code: string
+  name: string
+  contact: string
+  accountType: string
+  typeLabel: string
+}
+
+function todayIso() {
+  return new Date().toISOString().slice(0, 10)
+}
+
+function firstDayOfYearIso() {
+  const now = new Date()
+  return `${now.getFullYear()}-01-01`
+}
+
+function roleAccountTypeUlid(party: Party, type: LedgerPartyRow['partyType']): string | null {
+  if (type === 'vendor') return party.vendor_account_type_ulid ?? party.account_type_ulid
+  if (type === 'customer') return party.customer_account_type_ulid ?? party.account_type_ulid
+  return party.account_account_type_ulid ?? party.account_type_ulid
+}
+
+function buildLedgerRows(
+  profiles: Party[],
+  manualAccounts: Party[],
+  accountTypes: Array<{ ulid: string; name: string }>,
+): LedgerPartyRow[] {
+  const accountTypeNames = new Map(accountTypes.map((item) => [item.ulid, item.name]))
+  const rows = new Map<string, LedgerPartyRow>()
+
+  const push = (party: Party, type: LedgerPartyRow['partyType'], ulid: string | null | undefined) => {
+    if (!ulid) return
+    const key = `${type}:${ulid}`
+    if (rows.has(key)) return
+    const accountTypeUlid = roleAccountTypeUlid(party, type)
+    rows.set(key, {
+      rowNo: 0,
+      key,
+      ulid,
+      partyType: type,
+      code: party.code,
+      name: party.name,
+      contact: party.mobile ?? party.phone ?? party.contact_person ?? '',
+      accountType: accountTypeUlid ? accountTypeNames.get(accountTypeUlid) ?? party.account_type?.name ?? '' : '',
+      typeLabel: type === 'vendor' ? 'VENDORS' : type === 'customer' ? 'CUSTOMERS' : 'ACCOUNTS',
+    })
+  }
+
+  for (const party of profiles) {
+    const roles = party.party_types ?? [party.party_type]
+    if (roles.includes('vendor')) push(party, 'vendor', party.vendor_ulid ?? (party.party_type === 'vendor' ? party.ulid : null))
+    if (roles.includes('customer')) push(party, 'customer', party.customer_ulid ?? (party.party_type === 'customer' ? party.ulid : null))
+    if (roles.includes('account')) push(party, 'account', party.account_ulid ?? (party.party_type === 'account' ? party.ulid : null))
+  }
+
+  for (const account of manualAccounts) {
+    push(account, 'account', account.ulid)
+  }
+
+  return [...rows.values()]
+    .sort((a, b) =>
+      a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }) ||
+      a.code.localeCompare(b.code, undefined, { sensitivity: 'base' }),
+    )
+    .map((row, index) => ({ ...row, rowNo: index + 1 }))
+}
+
+export function VendorCustomerLedgerPage() {
+  const { closeActiveTab } = useWorkspace()
+  const feedback = useFeedback()
+
+  const [selectedKey, setSelectedKey] = useState<string | null>(null)
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([])
+  const [showBalances, setShowBalances] = useState(false)
+  const [allDates, setAllDates] = useState(true)
+  const [dateFrom, setDateFrom] = useState(firstDayOfYearIso())
+  const [dateTo, setDateTo] = useState(todayIso())
+  const [includeOpeningBalance, setIncludeOpeningBalance] = useState(true)
+  const [reverseOrder, setReverseOrder] = useState(false)
+  const [withoutHeading, setWithoutHeading] = useState(false)
+  const [showBookNumber, setShowBookNumber] = useState(false)
+  const [eachLedgerSeparatePage, setEachLedgerSeparatePage] = useState(true)
+  const [hideSubgroupTotals, setHideSubgroupTotals] = useState(false)
+  const [resetSubgroupTotal, setResetSubgroupTotal] = useState(false)
+  const [narrationColumn, setNarrationColumn] = useState('remarks')
+  const [saleMode, setSaleMode] = useState('')
+  const [selectedDocumentTypes, setSelectedDocumentTypes] = useState<string[]>([])
+  const [groupBy, setGroupBy] = useState('')
+  const [filterBy, setFilterBy] = useState('')
+  const [onlyFor, setOnlyFor] = useState('')
+  const [reportTypeOptionsOpen, setReportTypeOptionsOpen] = useState(false)
+  const [groupFieldsOpen, setGroupFieldsOpen] = useState(false)
+  const [remarksFontSize, setRemarksFontSize] = useState(9)
+  const [previewLedgers, setPreviewLedgers] = useState<LedgerPreviewEntry[]>([])
+  const [previewLoading, setPreviewLoading] = useState(false)
+
+
+  const profilesQuery = useQuery({
+    queryKey: ['ledger-party-profiles'],
+    queryFn: () => fetchPartyProfiles('all'),
+  })
+  const manualAccountsQuery = useQuery({
+    queryKey: ['ledger-manual-accounts'],
+    queryFn: () => fetchParties('account'),
+  })
+  const accountTypesQuery = useQuery({
+    queryKey: ['ledger-account-types'],
+    queryFn: fetchAccountTypes,
+  })
+
+  const rows = useMemo(
+    () => buildLedgerRows(
+      profilesQuery.data ?? [],
+      manualAccountsQuery.data ?? [],
+      accountTypesQuery.data ?? [],
+    ),
+    [profilesQuery.data, manualAccountsQuery.data, accountTypesQuery.data],
+  )
+
+  const selected = rows.find((row) => row.key === selectedKey) ?? null
+
+  const balancesQuery = useQuery({
+    queryKey: ['ledger-balances', rows.map((row) => row.key).join('|')],
+    enabled: showBalances && rows.length > 0,
+    queryFn: () => fetchPartyLedgerBalances(
+      rows.map((row) => ({ type: row.partyType, ulid: row.ulid })),
+    ),
+    staleTime: 30_000,
+  })
+
+  const filterOptionsQuery = useQuery({
+    queryKey: [
+      'ledger-filter-options',
+      selected?.key ?? '',
+      allDates,
+      dateFrom,
+      dateTo,
+      includeOpeningBalance,
+      selectedDocumentTypes.join(','),
+      saleMode,
+      filterBy,
+    ],
+    enabled: Boolean(selected && filterBy),
+    queryFn: () => fetchPartyLedger(selected!.ulid, selected!.partyType, 1, {
+      date_from: allDates ? undefined : dateFrom,
+      date_to: allDates ? undefined : dateTo,
+      include_opening_balance: includeOpeningBalance,
+      document_types: selectedDocumentTypes.length > 0 ? selectedDocumentTypes : undefined,
+      sale_mode: saleMode ? (saleMode as 'wholesale' | 'non_wholesale') : undefined,
+      per_page: 1,
+    }),
+  })
+
+  const onlyForOptions = filterBy
+    ? filterOptionsQuery.data?.filter_options?.[filterBy] ?? []
+    : []
+
+  const loading = profilesQuery.isLoading || manualAccountsQuery.isLoading || accountTypesQuery.isLoading
+  const loadError = profilesQuery.error || manualAccountsQuery.error || accountTypesQuery.error
+
+  const columns = useMemo<PosGridColumn<LedgerPartyRow>[]>(() => {
+    const allSelected = rows.length > 0 && selectedKeys.length === rows.length
+    const base: PosGridColumn<LedgerPartyRow>[] = [
+      {
+        key: 'select',
+        header: (
+          <input
+            type="checkbox"
+            checked={allSelected}
+            aria-label="Select all ledger accounts"
+            onChange={(event) => setSelectedKeys(event.target.checked ? rows.map((row) => row.key) : [])}
+          />
+        ),
+        width: 34,
+        align: 'center',
+        render: (row) => (
+          <input
+            type="checkbox"
+            checked={selectedKeys.includes(row.key)}
+            aria-label={`Select ${row.name}`}
+            onClick={(event) => event.stopPropagation()}
+            onChange={(event) => {
+              setSelectedKeys((current) =>
+                event.target.checked
+                  ? current.includes(row.key) ? current : [...current, row.key]
+                  : current.filter((key) => key !== row.key),
+              )
+            }}
+          />
+        ),
+      },
+      { key: 'rowNo', header: '#', width: 44, align: 'center', render: (row) => row.rowNo },
+      { key: 'code', header: 'CODE', width: 150, render: (row) => row.code },
+      { key: 'name', header: 'Vendor / Customer / Accounts', render: (row) => row.name },
+      { key: 'contact', header: 'Contacts', width: 210, render: (row) => row.contact || '—' },
+      { key: 'accountType', header: 'Account Type', width: 210, render: (row) => row.accountType || '—' },
+      { key: 'type', header: 'TYPE', width: 160, render: (row) => row.typeLabel },
+    ]
+
+    if (showBalances) {
+      base.push({
+        key: 'balance',
+        header: 'BALANCE',
+        width: 140,
+        align: 'right',
+        render: (row) =>
+          balancesQuery.isFetching
+            ? '…'
+            : balancesQuery.data?.[row.key] ?? '0.0000',
+      })
+    }
+
+    return base
+  }, [rows, selectedKeys, showBalances, balancesQuery.data, balancesQuery.isFetching])
+
+  async function openPreview(target: LedgerPartyRow | null = null) {
+    const targets = target
+      ? [target]
+      : selectedKeys.length > 0
+        ? rows.filter((row) => selectedKeys.includes(row.key))
+        : selected
+          ? [selected]
+          : []
+
+    if (targets.length === 0) {
+      feedback.error('Select a Vendor, Customer, or Account first.', 'Ledger')
+      return
+    }
+    if (!allDates && dateFrom > dateTo) {
+      feedback.error('From date cannot be after To date.', 'Ledger')
+      return
+    }
+
+    setPreviewLoading(true)
+    try {
+      const ledgers = await Promise.all(
+        targets.map(async (item): Promise<LedgerPreviewEntry> => ({
+          key: item.key,
+          ledger: await fetchPartyLedgerAll(item.ulid, item.partyType, {
+            date_from: allDates ? undefined : dateFrom,
+            date_to: allDates ? undefined : dateTo,
+            include_opening_balance: includeOpeningBalance,
+            document_types: selectedDocumentTypes.length > 0 ? selectedDocumentTypes : undefined,
+            group_by: groupBy || undefined,
+            filter_by: filterBy || undefined,
+            only_for: filterBy && onlyFor ? onlyFor : undefined,
+            sale_mode: saleMode ? (saleMode as 'wholesale' | 'non_wholesale') : undefined,
+          }),
+        })),
+      )
+      setPreviewLedgers(ledgers)
+    } catch (error) {
+      feedback.error(error instanceof Error ? error.message : 'Unable to load ledger.', 'Ledger')
+    } finally {
+      setPreviewLoading(false)
+    }
+  }
+
+  function rowsForPreview(ledger: PartyLedger) {
+    return reverseOrder ? [...ledger.rows].reverse() : ledger.rows
+  }
+
+  function narrationForRow(row: PartyLedger['rows'][number]) {
+    return narrationColumn === 'onlydesc'
+      ? row.entry_description ?? '—'
+      : row.remarks ?? '—'
+  }
+
+  function printPreview() {
+    if (previewLedgers.length === 0) return
+
+    const separatePages = previewLedgers.length > 1 && eachLedgerSeparatePage
+
+    const reportWindow = window.open('', '_blank', 'width=1100,height=800')
+    if (!reportWindow) {
+      feedback.error('Allow pop-ups to print the ledger report.', 'Ledger')
+      return
+    }
+
+    const sections = previewLedgers.map(({ ledger }, ledgerIndex) => {
+      const reportRows = rowsForPreview(ledger)
+      const bodyRows = reportRows.map((row, index) => `
+        <tr>
+          <td class="center">${index + 1}</td>
+          <td>${escapeReportHtml(row.date)}</td>
+          <td>${escapeReportHtml(row.trans_no)}</td>
+          <td>${escapeReportHtml(row.doc)}</td>
+          ${showBookNumber ? `<td>${escapeReportHtml(row.book_number || '—')}</td>` : ''}
+          <td>${escapeReportHtml(narrationForRow(row))}</td>
+          <td class="num">${escapeReportHtml(row.debit)}</td>
+          <td class="num">${escapeReportHtml(row.credit)}</td>
+          <td class="num">${escapeReportHtml(
+            resetSubgroupTotal && groupBy ? row.subgroup_balance ?? row.balance : row.balance,
+          )}</td>
+        </tr>`).join('')
+
+      const subgroupRows = groupBy && !hideSubgroupTotals && ledger.group_totals.length > 0
+        ? `<div class="subgroups">
+            <strong>Subgroup Totals</strong>
+            <table>
+              <thead><tr><th>Group</th><th>Debit</th><th>Credit</th></tr></thead>
+              <tbody>${ledger.group_totals.map((group) => `
+                <tr>
+                  <td>${escapeReportHtml(group.label)}</td>
+                  <td class="num">${escapeReportHtml(group.debit)}</td>
+                  <td class="num">${escapeReportHtml(group.credit)}</td>
+                </tr>`).join('')}</tbody>
+            </table>
+          </div>`
+        : ''
+
+      const pageBreak = separatePages && ledgerIndex > 0
+        ? '<div class="print-page-break" aria-hidden="true"></div>'
+        : ''
+
+      return `
+        ${pageBreak}
+        <section class="ledger-section">
+          ${withoutHeading ? '' : `
+            <header>
+              <h1>ACCOUNT STATEMENT</h1>
+              <div class="period">${allDates ? 'ALL DATES' : `${escapeReportHtml(dateFrom)} TO ${escapeReportHtml(dateTo)}`}</div>
+              <h2>${escapeReportHtml(ledger.account.name)}</h2>
+              <div><strong>Code:</strong> ${escapeReportHtml(ledger.account.code)} &nbsp;&nbsp; <strong>Address:</strong> ${escapeReportHtml(ledger.account.address || '—')}</div>
+            </header>`}
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Date</th><th>Trans#</th><th>DOC</th>
+                ${showBookNumber ? '<th>Book No</th>' : ''}
+                <th>Narration</th><th>Debit</th><th>Credit</th><th>Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="opening"><td colspan="${showBookNumber ? 8 : 7}">Opening Balance:</td><td class="num">${escapeReportHtml(ledger.carry_forward)}</td></tr>
+              ${bodyRows || `<tr><td colspan="${showBookNumber ? 9 : 8}" class="center empty">No posted ledger transactions in this period.</td></tr>`}
+            </tbody>
+            <tfoot>
+              <tr><td colspan="${showBookNumber ? 6 : 5}">Totals</td><td class="num">${escapeReportHtml(ledger.totals.debit)}</td><td class="num">${escapeReportHtml(ledger.totals.credit)}</td><td class="num">${escapeReportHtml(ledger.totals.closing_balance)}</td></tr>
+            </tfoot>
+          </table>
+          ${subgroupRows}
+        </section>`
+    }).join('')
+
+    reportWindow.document.write(`<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Vendor Customer Ledger</title>
+  <style>
+    @page { size: A4 landscape; margin: 10mm; }
+    body { font-family: Arial, sans-serif; color: #111; margin: 0; font-size: 11px; }
+    .ledger-section { margin: 0 0 18px; }
+    .print-page-break { display: block; height: 0; margin: 0; padding: 0; }
+    @media print {
+      .print-page-break {
+        display: block !important;
+        break-before: page !important;
+        page-break-before: always !important;
+      }
+    }
+    header { margin-bottom: 10px; }
+    h1 { text-align: center; font-size: 20px; margin: 0 0 4px; }
+    h2 { font-size: 15px; margin: 3px 0; }
+    .period { text-align: right; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    th, td { border: 1px solid #777; padding: 4px 5px; overflow-wrap: anywhere; }
+    th { background: #eee; }
+    tfoot td, .opening td { font-weight: 700; background: #f5f5f5; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .center { text-align: center; }
+    .empty { padding: 18px 5px; }
+    .subgroups { margin-top: 8px; }
+    .subgroups > strong { display: block; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  ${sections}
+  <script>window.addEventListener('load', () => { window.print(); });</script>
+</body>
+</html>`)
+    reportWindow.document.close()
+  }
+
+  return (
+    <DesktopPanel
+      className="party-ledger-page"
+      title={
+        <div className="party-ledger-panel-title">
+          <span>Vendor / Customer Ledger Options</span>
+          <label>
+            <input
+              type="checkbox"
+              checked={showBalances}
+              onChange={(event) => setShowBalances(event.target.checked)}
+            />
+            <span>Show Balances</span>
+          </label>
+        </div>
+      }
+      flush
+    >
+      <div className="party-ledger-layout">
+        <section className="party-ledger-accounts" aria-label="Vendor Customer Accounts">
+          <div className="party-ledger-grid-shell">
+            <PosDataGrid loading={loading}
+              columns={columns}
+              rows={rows}
+              rowKey={(row) => row.key}
+              selectedKey={selectedKey}
+              onSelect={(row) => setSelectedKey(row.key)}
+              onActivate={(row) => {
+                setSelectedKey(row.key)
+                void openPreview(row)
+              }}
+              emptyMessage={loading ? 'Loading accounts…' : loadError ? 'Unable to load accounts' : 'No Vendor / Customer / Accounts'}
+            />
+          </div>
+
+          <div className="party-ledger-count">
+            Count of Vendors / Customer / Account: <strong>{rows.length}</strong>
+            {selectedKeys.length > 0 ? (
+              <span className="party-ledger-selected-count">Selected: <strong>{selectedKeys.length}</strong></span>
+            ) : null}
+          </div>
+        </section>
+
+        <section className="party-ledger-options" aria-label="Additional Selection and Actions">
+          <div className="party-ledger-options-title">
+            <span>Additional Selection and Actions</span>
+            <div className="party-ledger-reference-options">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={withoutHeading}
+                  onChange={(event) => setWithoutHeading(event.target.checked)}
+                />
+                <span>Without Heading</span>
+              </label>
+              <label title="BluePOS does not store a separate user-defined ledger narration field. Use Narration Col: Remarks or OnlyDesc.">
+                <input type="checkbox" disabled />
+                <span>User Defined Narration</span>
+              </label>
+              <label title="No separate Sales Officer role/link is stored on posted ledger journals. Sales Person grouping/filtering is available for sale-linked rows instead.">
+                <input type="checkbox" disabled />
+                <span>Treat as Sales Officer</span>
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={reverseOrder}
+                  onChange={(event) => setReverseOrder(event.target.checked)}
+                />
+                <span>In Reverse Order</span>
+              </label>
+            </div>
+          </div>
+
+          <div className="party-ledger-options-body">
+            <div className="party-ledger-options-columns">
+              <div className="party-ledger-left-options">
+                <label className="party-ledger-check disabled-option" title="No automatic salesman-selection rule is stored for ledger accounts. Use Group by / Filter By: Sales Person Name for sale-linked rows.">
+                  <input type="checkbox" disabled />
+                  <span>Auto Sale Man</span>
+                </label>
+
+                <div className="party-ledger-inline-options">
+                  <div className="party-ledger-field-row">
+                    <span>Narration Col:</span>
+                    <UiSelect
+                      value={narrationColumn}
+                      searchable={false}
+                      options={[
+                        { value: 'remarks', label: 'Remarks' },
+                        { value: 'onlydesc', label: 'OnlyDesc' },
+                        { value: 'detail1', label: 'Detail1', disabled: true, title: 'No separate Detail1 field exists in the current journal model.' },
+                        { value: 'detail2', label: 'Detail2', disabled: true, title: 'No separate Detail2 field exists in the current journal model.' },
+                        { value: 'detail3', label: 'Detail3', disabled: true, title: 'No separate Detail3 field exists in the current journal model.' },
+                        { value: 'detailall', label: 'DetailALL', disabled: true, title: 'Separate detail fields do not exist in the current journal model.' },
+                      ]}
+                      onChange={setNarrationColumn}
+                      aria-label="Narration column"
+                    />
+                  </div>
+
+                  <div className="party-ledger-field-row party-ledger-show-only">
+                    <span>Show Only:</span>
+                    <UiSelect
+                      value={saleMode}
+                      searchable={false}
+                      options={[
+                        { value: '', label: 'All' },
+                        { value: 'non_wholesale', label: 'Non-Whole Sale', title: 'Applies to sale-linked ledger rows using the posted sale price type.' },
+                        { value: 'wholesale', label: 'Whole Sale', title: 'Applies to sale-linked ledger rows using the posted sale price type.' },
+                      ]}
+                      onChange={setSaleMode}
+                      aria-label="Show only"
+                    />
+                  </div>
+
+                  <label className="party-ledger-remarks-size">
+                    <span>Remarks Font Size:</span>
+                    <input
+                      type="number"
+                      min={7}
+                      max={16}
+                      value={remarksFontSize}
+                      onChange={(event) => setRemarksFontSize(Math.max(7, Math.min(16, Number(event.target.value) || 9)))}
+                    />
+                  </label>
+                </div>
+
+                <div className="party-ledger-left-lower">
+                  <div className="party-ledger-zm-stack">
+                    <div className="party-ledger-zm-row">
+                      <span>ZM:</span>
+                      <input
+                        type="text"
+                        value="Not available"
+                        disabled
+                        aria-label="ZM"
+                        title="No ZM entity or mapping exists in the current BluePOS data model."
+                      />
+                    </div>
+
+                    <fieldset
+                      className="party-ledger-zm-card"
+                      disabled
+                      title="The reference ZM list has no matching BluePOS entity or persisted relationship."
+                    >
+                      <legend>ZM Selection</legend>
+                      <label><input type="checkbox" /><span>No matching BluePOS data source</span></label>
+                    </fieldset>
+                  </div>
+
+                  <fieldset className="party-ledger-documents">
+                    <legend>Select a Document</legend>
+                    {LEDGER_DOCUMENT_OPTIONS.map((option) => (
+                      <label
+                        key={option.value}
+                        title={
+                          option.enabled
+                            ? 'Filter the ledger to this posted journal source.'
+                            : 'This source has no posted ledger journal in BluePOS yet.'
+                        }
+                      >
+                        <input
+                          type="checkbox"
+                          disabled={!option.enabled}
+                          checked={option.enabled && selectedDocumentTypes.includes(option.value)}
+                          onChange={(event) => {
+                            setSelectedDocumentTypes((current) =>
+                              event.target.checked
+                                ? [...current, option.value]
+                                : current.filter((value) => value !== option.value),
+                            )
+                          }}
+                        />
+                        <span>{option.label}</span>
+                      </label>
+                    ))}
+                  </fieldset>
+                </div>
+              </div>
+
+              <div className="party-ledger-right-options">
+                <label className="party-ledger-check">
+                  <input
+                    type="checkbox"
+                    checked={allDates}
+                    onChange={(event) => setAllDates(event.target.checked)}
+                  />
+                  <span>Ledger for All Dates</span>
+                </label>
+
+                <div className="party-ledger-dates">
+                  <label><span>Date range</span><UiDateRangePicker fromInputProps={{type:"date",value:dateFrom,disabled:allDates,onChange:(event) => setDateFrom(event.target.value)}} toInputProps={{type:"date",value:dateTo,disabled:allDates,onChange:(event) => setDateTo(event.target.value)}}/></label>
+
+                </div>
+
+                <div className="party-ledger-report-fields">
+                  <div className="party-ledger-field-row">
+                    <span>Select a Ledger Type:</span>
+                    <div className="party-ledger-select-plus">
+                      <UiSelect
+                        value="summary"
+                        searchable={false}
+                        options={[
+                          { value: 'summary', label: 'Summary Ledger' },
+                          { value: 'above', label: 'Above List View', disabled: true, title: 'Reference layout semantics not yet mapped.' },
+                          { value: 'pos', label: 'POS Ledger', disabled: true, title: 'Reference layout semantics not yet mapped.' },
+                        ]}
+                        onChange={() => undefined}
+                        aria-label="Ledger type"
+                      />
+                      <UiButton
+                        variant="primary"
+                        className="party-ledger-plus-button"
+                        title="Report Type On / Off Options"
+                        aria-label="Report Type On / Off Options"
+                        onClick={() => setReportTypeOptionsOpen(true)}
+                      >
+                        <Plus size={14} />
+                      </UiButton>
+                    </div>
+                  </div>
+
+                  <div className="party-ledger-field-row">
+                    <span>Group by:</span>
+                    <div className="party-ledger-select-plus">
+                      <UiSelect
+                        value={groupBy}
+                        searchable={false}
+                        options={LEDGER_GROUP_FIELDS}
+                        onChange={setGroupBy}
+                        aria-label="Group by"
+                      />
+                      <UiButton
+                        variant="primary"
+                        className="party-ledger-plus-button"
+                        title="Ledger Group Fields"
+                        aria-label="Ledger Group Fields"
+                        onClick={() => setGroupFieldsOpen(true)}
+                      >
+                        <Plus size={14} />
+                      </UiButton>
+                    </div>
+                  </div>
+
+                  <div className="party-ledger-field-row">
+                    <span>Filter By:</span>
+                    <UiSelect
+                      value={filterBy}
+                      searchable={false}
+                      options={LEDGER_FILTER_FIELDS}
+                      onChange={(value) => {
+                        setFilterBy(value)
+                        setOnlyFor('')
+                      }}
+                      aria-label="Filter By"
+                    />
+                  </div>
+
+                  <div className="party-ledger-field-row">
+                    <span>Only For:</span>
+                    <UiSelect
+                      value={onlyFor}
+                      disabled={!filterBy || filterOptionsQuery.isFetching}
+                      searchable
+                      options={[
+                        { value: '', label: filterBy ? 'All Values' : 'Select Filter By first' },
+                        ...onlyForOptions,
+                      ]}
+                      onChange={setOnlyFor}
+                      aria-label="Only For"
+                    />
+                  </div>
+                </div>
+
+                <div className="party-ledger-bottom-checks">
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={!includeOpeningBalance}
+                      onChange={(event) => setIncludeOpeningBalance(!event.target.checked)}
+                    />
+                    <span>Don't Include Opening Bal</span>
+                  </label>
+                  <label title={groupBy ? undefined : 'Select Group by first.'}>
+                    <input
+                      type="checkbox"
+                      disabled={!groupBy}
+                      checked={hideSubgroupTotals}
+                      onChange={(event) => setHideSubgroupTotals(event.target.checked)}
+                    />
+                    <span>Don't Show Total (Subgroup)</span>
+                  </label>
+                  <label title={groupBy ? 'Reset the displayed running balance at each subgroup boundary.' : 'Select Group by first.'}>
+                    <input
+                      type="checkbox"
+                      disabled={!groupBy}
+                      checked={resetSubgroupTotal}
+                      onChange={(event) => setResetSubgroupTotal(event.target.checked)}
+                    />
+                    <span>Reset Total (Subgroup)</span>
+                  </label>
+                  <label title={selectedKeys.length > 1 ? 'Start each selected ledger on a new printed page.' : 'Select two or more ledger accounts first.'}>
+                    <input
+                      type="checkbox"
+                      disabled={selectedKeys.length < 2}
+                      checked={selectedKeys.length > 1 && eachLedgerSeparatePage}
+                      onChange={(event) => setEachLedgerSeparatePage(event.target.checked)}
+                    />
+                    <span>Each Ledger on Separate Page</span>
+                  </label>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={showBookNumber}
+                      onChange={(event) => setShowBookNumber(event.target.checked)}
+                    />
+                    <span>Book No Also</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="party-ledger-actions">
+            <UiButton
+              variant="info"
+              disabled={previewLoading || (!selected && selectedKeys.length === 0)}
+              onClick={() => void openPreview()}
+            >
+              <Eye size={16} />
+              {previewLoading ? 'Loading…' : 'Preview'}
+            </UiButton>
+            <UiButton variant="info" onClick={closeActiveTab}>
+              <XCircle size={16} />
+              Close
+            </UiButton>
+          </div>
+        </section>
+      </div>
+
+      <UiModal
+        open={reportTypeOptionsOpen}
+        title="Report Type On / Off Options"
+        size="md"
+        onClose={() => setReportTypeOptionsOpen(false)}
+        footer={
+          <UiButton variant="info" onClick={() => setReportTypeOptionsOpen(false)}>Close</UiButton>
+        }
+      >
+        <div className="party-ledger-config-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Index</th>
+                <th>Report Name</th>
+                <th>Used For</th>
+                <th>Active</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                ['0', 'Summary Ledger', true],
+                ['1', 'Detailed Ledger (Short Form)', false],
+                ['2', 'Invoice - Receipt Ledger', false],
+                ['3', 'Category Wise VC Ledger', false],
+                ['4', 'Detailed Ledger (Landscape)', false],
+                ['5', 'Vochers Seperate Ledger', false],
+                ['6', 'Above List View', false],
+                ['7', 'Ledger With Product Grouping', false],
+                ['8', 'POS Ledger', false],
+              ].map(([index, name, active]) => (
+                <tr key={String(index)}>
+                  <td>{index}</td>
+                  <td>{name}</td>
+                  <td>Ledger</td>
+                  <td className="is-center">
+                    <input type="checkbox" checked={Boolean(active)} disabled readOnly />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p className="party-ledger-config-note">
+            Summary Ledger is implemented. Other report layouts remain disabled until their report semantics are mapped.
+          </p>
+        </div>
+      </UiModal>
+
+      <UiModal
+        open={groupFieldsOpen}
+        title="Ledger Group Fields"
+        size="md"
+        onClose={() => setGroupFieldsOpen(false)}
+        footer={
+          <UiButton variant="info" onClick={() => setGroupFieldsOpen(false)}>Close</UiButton>
+        }
+      >
+        <div className="party-ledger-config-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Field of Database</th>
+                <th>Field Display to User</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                ['AreaName', 'Area Name'],
+                ['CategoryName', 'Category Name'],
+                ['DOC', 'Document'],
+                ['EntryDate', 'Date'],
+                ['MAreaName', 'Main Area Name'],
+                ['SaleMan', 'Sales Person Name (functional for sale-linked ledger rows)'],
+                ['UserName', 'User Name'],
+              ].map(([field, label]) => (
+                <tr key={field}>
+                  <td>{field}</td>
+                  <td>{label}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p className="party-ledger-config-note">
+            Document, Date, User Name, Area Name, and Sales Person are functional. Sales Person and Show Only use sale-linked posted ledger rows. Main Area and Category remain reference-only until matching source data exists.
+          </p>
+        </div>
+      </UiModal>
+
+      <UiModal
+        open={previewLedgers.length > 0}
+        title={
+          <span className="party-ledger-preview-title">
+            <BookOpen size={16} />
+            {previewLedgers.length === 1
+              ? previewLedgers[0].ledger.account.name
+              : `${previewLedgers.length} Ledger Statements${eachLedgerSeparatePage ? ' • Separate Pages' : ''}`}
+          </span>
+        }
+        size="xl"
+        onClose={() => setPreviewLedgers([])}
+        footer={
+          <>
+            <UiButton variant="info" onClick={printPreview}>
+              <Printer size={16} />
+              Print
+            </UiButton>
+            <UiButton variant="info" onClick={() => setPreviewLedgers([])}>Close</UiButton>
+          </>
+        }
+      >
+        {previewLedgers.length > 0 ? (
+          <div className="party-ledger-preview party-ledger-preview-print-root">
+            {previewLedgers.map(({ key, ledger }, ledgerIndex) => {
+              const previewRows = rowsForPreview(ledger)
+
+              return (
+                <section
+                  key={key}
+                  className={`party-ledger-statement-section${eachLedgerSeparatePage && ledgerIndex < previewLedgers.length - 1 ? ' is-page-separated' : ''}`}
+                >
+                  {!withoutHeading ? (
+                    <div className="party-ledger-statement-head">
+                      <div className="party-ledger-statement-title">ACCOUNT STATEMENT</div>
+                      <div className="party-ledger-statement-period">
+                        {allDates ? 'ALL DATES' : `${dateFrom} TO ${dateTo}`}
+                      </div>
+                      <div className="party-ledger-statement-name">{ledger.account.name}</div>
+                      <div className="party-ledger-statement-info">
+                        <span><strong>Code:</strong> {ledger.account.code}</span>
+                        <span><strong>Address:</strong> {ledger.account.address || '—'}</span>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  <div className="party-ledger-preview-grid">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th className="is-center">#</th>
+                          <th>Date</th>
+                          <th>Trans#</th>
+                          <th>DOC</th>
+                          {showBookNumber ? <th>Book No</th> : null}
+                          <th>Narration</th>
+                          <th className="is-num">Debit</th>
+                          <th className="is-num">Credit</th>
+                          <th className="is-num">Balance</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="party-ledger-opening-row">
+                          <td colSpan={showBookNumber ? 8 : 7}>Opening Balance:</td>
+                          <td className="is-num">{ledger.carry_forward}</td>
+                        </tr>
+                        {previewRows.map((row, index) => {
+                          const previous = index > 0 ? previewRows[index - 1] : null
+                          const showGroupHeader = Boolean(
+                            groupBy &&
+                            row.group_label &&
+                            (!previous || previous.group_key !== row.group_key),
+                          )
+
+                          return (
+                            <Fragment key={row.line_ulid}>
+                              {showGroupHeader ? (
+                                <tr className="party-ledger-group-row">
+                                  <td colSpan={showBookNumber ? 9 : 8}>{row.group_label}</td>
+                                </tr>
+                              ) : null}
+                              <tr>
+                                <td className="is-center">{index + 1}</td>
+                                <td>{row.date}</td>
+                                <td>{row.trans_no}</td>
+                                <td>{row.doc}</td>
+                                {showBookNumber ? <td>{row.book_number ?? '—'}</td> : null}
+                                <td style={{ fontSize: `${remarksFontSize}px` }}>{narrationForRow(row)}</td>
+                                <td className="is-num">{row.debit}</td>
+                                <td className="is-num">{row.credit}</td>
+                                <td className="is-num">
+                                  {resetSubgroupTotal && groupBy
+                                    ? row.subgroup_balance ?? row.balance
+                                    : row.balance}
+                                </td>
+                              </tr>
+                            </Fragment>
+                          )
+                        })}
+                        {previewRows.length === 0 ? (
+                          <tr>
+                            <td colSpan={showBookNumber ? 9 : 8} className="party-ledger-preview-empty">
+                              No posted ledger transactions in this period.
+                            </td>
+                          </tr>
+                        ) : null}
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <td colSpan={showBookNumber ? 6 : 5}>Totals</td>
+                          <td className="is-num">{ledger.totals.debit}</td>
+                          <td className="is-num">{ledger.totals.credit}</td>
+                          <td className="is-num">{ledger.totals.closing_balance}</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+
+                  {groupBy && !hideSubgroupTotals && ledger.group_totals.length > 0 ? (
+                    <div className="party-ledger-subgroup-summary">
+                      <div className="party-ledger-subgroup-title">Subgroup Totals</div>
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Group</th>
+                            <th className="is-num">Debit</th>
+                            <th className="is-num">Credit</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {ledger.group_totals.map((group) => (
+                            <tr key={group.key}>
+                              <td>{group.label}</td>
+                              <td className="is-num">{group.debit}</td>
+                              <td className="is-num">{group.credit}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : null}
+                </section>
+              )
+            })}
+          </div>
+        ) : null}
+      </UiModal>
+    </DesktopPanel>
+  )
+}

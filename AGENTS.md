@@ -1,20 +1,102 @@
-# AH-POS — Mandatory Agent/Developer Rules
+# Agent rules — BluePOS
 
-1. **Begin every new session:** read `README.md`, `docs/MASTER_ARCHITECTURE.md`, `PROJECT_CURRENT_STATE.md`, `PROJECT_PROGRESS.md`, `docs/CHAT_HANDOFF_PROTOCOL.md`, and the current task's minimal relevant code. For UI work, always read `PROJECT_UI_DESIGN_SYSTEM.md`; for migration work, read the actual verified legacy schema and mapping if available. Never rely on chat memory over repository evidence.
-2. **Source-of-truth precedence:** real current code + DB evidence > verified tests/artifacts > approved ADRs / master plan > current state / progress > chat recollection. If inconsistent, flag conflict and stop before risky edits.
-3. **Legacy data timing (updated 2026-11-18):** historical SQL Server backup is a sample reference. Generic application scaffolding may begin immediately. Full source restore/mapping is a go-live migration gate for a fresh backup, not a blocker to scaffolding; no speculative domain mappings or production imports. Do not fabricate table names, FKs, counts, balances, or restore success. Do not run destructive restore against an existing database.
-4. **Tenancy:** default-deny, server-derived authenticated tenant/branch/warehouse context; tenant keys on all owned tables; composite scoped FKs; tenant-aware queues/search/cache/files/events; PostgreSQL RLS as defense in depth, verified by tests. Never trust client tenant, IDs, permissions or claimed ownership.
-5. **Financial integrity:** calculate money/taxes/totals server-side with decimal-safe arithmetic; immutable posted journals, double-entry balance, append-only stock movements; never fake stock by batch/expiry or backdate without approved accounting semantics. No parallel stock or journal ledger.
-6. **Offline:** only approved offline features; browser IndexedDB + transactional outbox; mobile local SQLite candidate + compatible sync API; idempotency, anti-duplication, retry/concurrency/conflict rules. Offline data is stale and not authoritative. No sensitive admin or irreversible financial posting offline.
-7. **AI assistant:** backend-only API keys; allowlisted typed tools; every tool checks RBAC + tenant + branch; financial actions via preview, explicit confirmation and server-side recalculation; protect against prompt injection in uploaded documents/messages.
-8. **UI:** original style and identity distinct from BluePOS. Global design tokens/shared accessible components; no page-specific duplicated component chrome/font sizes. Maintain same UI behavior across modules.
-9. **Evidence:** statuses are `not_started`, `in_progress`, `blocked`, `implemented_unverified`, `verified`, `accepted`. Count only accepted work toward progress and link evidence. Do not claim passing tests you did not run.
-10. **No silent scope changes:** one scoped milestone at a time, minimal code/files, focused tests. Never force-push, discard local edits, reset a persistent DB, or deploy without explicit approval.
-11. **Continuity is a deliverable:** on EVERY substantial milestone or before handing off, update `PROJECT_CURRENT_STATE.md`, `PROJECT_PROGRESS.md`, `PROJECT_CHANGELOG.md`, milestone tracker, and any relevant ADR. Commit these with code when safe. Include: branch/SHA, work done, verified/unverified, blockers, next exact action, commands and test results. A task is not accepted if its documentation is stale.
-12. **No secrets or real data in Git:** keep `.bak` files, dumps, invoices, customer records, env secrets, keys and sensitive logs outside this public repository.
-13. **Response style:** concise Roman Urdu for discussion unless requested otherwise; code, identifiers, comments and durable documentation in English. Distinguish proposed from implemented, verified from pending.
-14. **Session exit:** produce a short handoff with updated files and latest commit SHA. When starting a new chat, compare documentation with current git status and latest commits before working.
+These rules bind Cursor and any AI agent working in this repository.
 
-Before any code implementation, summarize current confirmed state, scope, risks and the very next milestone. Never claim that ChatGPT memory is a substitute for committed project docs.
+BluePOS is a **commercial multi-tenant POS** with money, stock, PII, and offline terminals. Careless database or authorization shortcuts are unacceptable.
 
-15. **Environment decision:** one PostgreSQL AH-POS test database while developing (test multiple logical tenants within it); when live, separate staging/production domains, databases, secrets and object storage. Promote tested builds staging -> production, never shared staging/production DB. Keep sample legacy .bak private.
+For any frontend/UI work, read and follow `PROJECT_UI_DESIGN_SYSTEM.md` before editing UI code.
+
+Read `docs/ROADMAP.md` and the relevant domain doc before changing a phase. **Do not implement a later phase without approval.** Phase 1 foundation exists; do not start Phase 2 until a human explicitly asks.
+
+---
+
+## NEVER
+
+- Drop databases (`DROP DATABASE`).
+- Wipe databases (`db:wipe`, `migrate:fresh`, `migrate:refresh` on persistent/dev-shared/prod data).
+- `TRUNCATE` business tables as a “fix”.
+- Unstructured `DROP TABLE` outside a reversible migration `down()` that the human requested to run.
+- Bypass authorization (`Gate::before` that allows everything, `withoutGlobalScopes()` in HTTP, trusting request `tenant_id` / `branch_id` / `warehouse_id`).
+- Disable, skip, or delete tests to make a build pass.
+- Trust client money, COGS, profit, tax, discounts, or stock quantities.
+- Use `float` / `double` / JS `number` as persisted money.
+- Expose secrets (`.env`, keys, tokens) in git, logs, API errors, or frontend.
+- Log passwords, tokens, full card PAN (we do not store PAN), or unnecessary national IDs.
+- Hard-delete posted financial documents, `journal_lines`, or `stock_movements`.
+- Silently change accounting history (edits to posted journals/sales). Use VOID / REVERSAL / RETURN / DEBIT NOTE / CREDIT NOTE / ADJUSTMENT.
+- Weaken tenant scoping or return another tenant’s row with 200.
+- Fake service-worker success for POST (offline success is Dexie + outbox only).
+- Store transactional business data in `localStorage`.
+- Offer Drop Database as a product feature.
+- Copy proprietary POS PLUS assets or source.
+- Start Phase 2+ (products, sales, stock, accounting, reports, offline, super admin) without explicit approval.
+- `Model::findOrFail($request->id)` (or ULID) then only a generic permission check.
+- Trust IndexedDB/outbox payloads without full server revalidation.
+- Store PAN, CVV, or track data.
+- Allow unlimited offline credit.
+- Use `admin.all` as a substitute for real keys.
+
+---
+
+## ALWAYS
+
+- Use Laravel migrations for schema changes.
+- Provide `down()` when the change is safely reversible.
+- Use policies + Form Requests on mutating endpoints.
+- Validate on the server. Zod is UX only.
+- Scope tenant queries via membership/session context and global scopes.
+- Resolve branch/warehouse from authorized session/device, then persist those IDs.
+- Use `DB::transaction()` for financial and stock writes.
+- Use `lockForUpdate()` for stock balances, document sequences, idempotency rows, and cash session close.
+- Require `Idempotency-Key` on retryable financial POSTs; persist and replay.
+- Recalculate money server-side with BCMath (or equivalent exact decimal). Persist `NUMERIC(20,4)` money, `NUMERIC(20,6)` quantity, `NUMERIC(12,8)` percentages/factors.
+- Keep `stock_movements` as inventory truth; update `stock_balances` only in the same transaction.
+- Keep party/account balances as ledger derivatives.
+- Add or update PHPUnit feature tests for the behavior you change (PostgreSQL, not SQLite, for locking/money).
+- Identifiers: `id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY` (internal joins/FKs only) + `ulid CHAR(26) UNIQUE NOT NULL` (public/API/offline). Never expose `id` in JSON. Never name the ULID column `uuid`. Do not use ULID as the primary key.
+- Resolve resources by `ulid` **inside** tenant (and branch) scoped queries. Nested rows must belong to the parent (`sale_item` → `sale` → tenant/branch).
+- Treat `stock_balances` as a locked projection; repair from `stock_movements`, never delete movement history.
+- Production errors: stable `{ "error": { "key", "message" } }` — no stack traces, SQL, paths, or env.
+- After work: report **modified files**, **commands run**, and **test results**.
+- Stop at phase boundaries and wait for approval.
+- Prefer the smallest coherent change that meets the current phase exit criteria.
+
+---
+
+## Tenant and IDOR
+
+- Cross-tenant lookup by ULID must 404.
+- Cross-branch lookup outside membership scope must 404.
+- Super Admin does not casually read tenant journals. Impersonation needs permission, reason, audit, start/end, UI banner.
+
+---
+
+## Offline
+
+- Follow `docs/OFFLINE_SYNC.md`.
+- Same idempotency key must not duplicate sale, payment, movements, or journals.
+- Label snapshot stock/balances with last synchronized at. Never present them as live while offline.
+
+---
+
+## Database safety checklist
+
+Before running any Artisan DB command, ask: does this destroy persistent data? If yes, **do not run it**.
+
+Allowed: `migrate` (forward), `migrate:rollback` when the developer asked to reverse the last migration, `db:seed` on empty/local disposable DBs that the human confirmed.
+
+Not allowed as a habit: `migrate:fresh`, `migrate:refresh`, `db:wipe`.
+
+---
+
+## Phase discipline
+
+1. Inspect existing code.
+2. Explain what will change.
+3. Implement.
+4. Migrate.
+5. Test.
+6. Report files, commands, results.
+7. Stop.
+
+Do not mark a phase complete because a screen rendered.

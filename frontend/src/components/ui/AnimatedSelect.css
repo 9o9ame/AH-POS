@@ -1,0 +1,7 @@
+/*
+ * AnimatedSelect is a backwards-compatible adapter over UiSelect.
+ * Visual styling is centralized in UiSelect.css.
+ *
+ * The legacy vca-select-shell class is still emitted so page-specific layout
+ * selectors can size the control without creating another visual system.
+ */

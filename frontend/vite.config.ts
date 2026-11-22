@@ -1,12 +1,20 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import { blueposPwa } from './vite.pwa'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), blueposPwa()],
   server: {
-    // Dedicated local control-plane URL; POS remains on localhost.
-    // Explicitly allow only our development hostnames.
-    allowedHosts: ['platform.localhost', 'app.localhost'],
-    proxy: { '/api': { target: 'http://127.0.0.1:8000', changeOrigin: true } },
+    port: 5173,
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+      '/sanctum': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+    },
   },
-});
+})

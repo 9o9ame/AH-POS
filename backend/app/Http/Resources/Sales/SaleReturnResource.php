@@ -1,0 +1,91 @@
+<?php
+
+namespace App\Http\Resources\Sales;
+
+use App\Actions\Sales\RefundSaleReturnAction;
+use App\Models\SaleReturn;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+/** @mixin SaleReturn */
+class SaleReturnResource extends JsonResource
+{
+    /** @return array<string,mixed> */
+    public function toArray(Request $request): array
+    {
+        $refundedAmount = '0.0000';
+
+        if ($this->relationLoaded('refunds')) {
+            foreach ($this->refunds as $refund) {
+                $refundedAmount = bcadd($refundedAmount, (string) $refund->amount, 4);
+            }
+        } elseif ($this->getAttribute('refunded_amount') !== null) {
+            $refundedAmount = bcadd((string) $this->getAttribute('refunded_amount'), '0', 4);
+        }
+
+        $revisionSnapshot = null;
+        if ($this->relationLoaded('latestRevision') && $this->latestRevision) {
+            $candidate = $this->latestRevision->after_snapshot;
+            if (is_array($candidate)) {
+                $revisionSnapshot = $candidate;
+            }
+        }
+
+        $refundBalance = app(RefundSaleReturnAction::class)
+            ->refundableAmount($this->resource);
+
+        return [
+            'ulid' => $this->ulid,
+            'document_number' => $this->document_number,
+            'return_date' => $revisionSnapshot['return_date'] ?? $this->return_date?->toDateString(),
+            'status' => $this->status->value,
+            'subtotal' => $revisionSnapshot['subtotal'] ?? $this->subtotal,
+            'discount_amount' => $revisionSnapshot['discount_amount'] ?? $this->discount_amount,
+            'tax_amount' => $revisionSnapshot['tax_amount'] ?? $this->tax_amount,
+            'grand_total' => $revisionSnapshot['grand_total'] ?? $this->grand_total,
+            'refund_amount' => $refundedAmount,
+            'balance_due' => $refundBalance,
+            'reason' => $revisionSnapshot['reason'] ?? $this->reason,
+            'notes' => $revisionSnapshot['notes'] ?? $this->notes,
+            'revision_number' => (int) ($revisionSnapshot['_meta']['revision_number'] ?? 0),
+            'is_amended' => (int) ($revisionSnapshot['_meta']['revision_number'] ?? 0) > 0,
+            'posted_at' => $this->posted_at?->toIso8601String(),
+            'original_sale' => $this->whenLoaded('sale', fn () => $this->sale ? [
+                'ulid' => $this->sale->ulid,
+                'document_number' => $this->sale->document_number,
+                'sale_date' => $this->sale->sale_date?->toDateString(),
+                'grand_total' => $this->sale->grand_total,
+            ] : null),
+            'return_mode' => $this->sale_id === null ? 'general' : 'invoice',
+            'customer' => $this->whenLoaded('customer', fn () => $this->customer ? [
+                'ulid' => $this->customer->ulid,
+                'code' => $this->customer->code,
+                'name' => $this->customer->name,
+            ] : null),
+            'settlement_account' => $this->whenLoaded('settlementAccount', fn () => $this->settlementAccount ? [
+                'ulid' => $this->settlementAccount->ulid,
+                'code' => $this->settlementAccount->code,
+                'name' => $this->settlementAccount->name,
+            ] : null),
+            'salesman' => $this->whenLoaded('salesmanParty', fn () => $this->salesmanParty ? [
+                'ulid' => $this->salesmanParty->ulid,
+                'code' => $this->salesmanParty->code,
+                'name' => $this->salesmanParty->name,
+            ] : null),
+            'branch' => $this->whenLoaded('branch', fn () => [
+                'ulid' => $this->branch->ulid,
+                'code' => $this->branch->code,
+                'name' => $this->branch->name,
+            ]),
+            'warehouse' => $this->whenLoaded('warehouse', fn () => [
+                'ulid' => $this->warehouse->ulid,
+                'code' => $this->warehouse->code,
+                'name' => $this->warehouse->name,
+            ]),
+            'lines' => $revisionSnapshot !== null
+                ? ($revisionSnapshot['lines'] ?? [])
+                : SaleReturnLineResource::collection($this->whenLoaded('lines')),
+            'refunds' => SaleReturnRefundResource::collection($this->whenLoaded('refunds')),
+        ];
+    }
+}

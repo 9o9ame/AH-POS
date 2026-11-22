@@ -1,0 +1,724 @@
+import { FormEvent, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react'
+import { RefreshCw, Save, UserRoundCog, X } from 'lucide-react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { fetchBranches } from '../api/branches'
+import {
+  activateMembership,
+  createMembership,
+  deactivateMembership,
+  fetchMembershipSalesmen,
+  fetchMemberships,
+  forceLogoutMembership,
+  resetMembershipPassword,
+  saveMembershipBranches,
+  saveMembershipRoles,
+  saveMembershipSalesman,
+  saveMembershipFingerprint,
+} from '../api/memberships'
+import { fetchRoles } from '../api/roles'
+import { ApiClientError } from '../api/client'
+import { DesktopButton, DesktopPanel } from '../components/desktop/DesktopPanel'
+import { PosDataGrid } from '../components/desktop/PosDataGrid'
+import { UiSelect } from '../components/ui/UiSelect'
+import { useCan } from '../features/auth/useCan'
+import { useWorkspace, useWorkspaceHandlers } from '../features/workspace/WorkspaceProvider'
+import type { Membership } from '../types/auth'
+import './UsersPage.css'
+
+type ConfigureUsersTab = 'administration' | 'users' | 'others' | 'salesman' | 'fp2'
+
+type SalesmanDraft = {
+  salesmanUlid: string
+  startTime: string
+  endTime: string
+}
+
+export function UsersPage() {
+  const queryClient = useQueryClient()
+  const { closeActiveTab } = useWorkspace()
+  const canCreate = useCan('users.create')
+  const canEdit = useCan('users.edit')
+  const canRoles = useCan('users.manage_roles')
+  const canBranches = useCan('users.manage_branches')
+  const canDeactivate = useCan('users.deactivate')
+  const canReset = useCan('users.reset_password')
+  const canForceLogout = useCan('users.force_logout')
+  const canActivate = useCan('users.activate')
+
+  const membershipsQuery = useQuery({ queryKey: ['memberships'], queryFn: fetchMemberships })
+  const rolesQuery = useQuery({ queryKey: ['roles'], queryFn: fetchRoles, enabled: canRoles || canCreate })
+  const branchesQuery = useQuery({ queryKey: ['branches'], queryFn: fetchBranches })
+  const salesmenQuery = useQuery({
+    queryKey: ['memberships', 'salesmen'],
+    queryFn: fetchMembershipSalesmen,
+    retry: false,
+  })
+
+  const [tab, setTab] = useState<ConfigureUsersTab>('administration')
+  const [selectedMembershipUlid, setSelectedMembershipUlid] = useState('')
+  const [name, setName] = useState('')
+  const [username, setUsername] = useState('')
+  const [recoveryEmail, setRecoveryEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [passwordConfirmation, setPasswordConfirmation] = useState('')
+  const [roleUlid, setRoleUlid] = useState('')
+  const [branchUlids, setBranchUlids] = useState<string[]>([])
+  const [selectedRowUlid, setSelectedRowUlid] = useState<string | null>(null)
+  const [selectedSalesmanRowUlid, setSelectedSalesmanRowUlid] = useState<string | null>(null)
+  const [salesmanDrafts, setSalesmanDrafts] = useState<Record<string, SalesmanDraft>>({})
+  const [selectedFingerprintRowUlid, setSelectedFingerprintRowUlid] = useState<string | null>(null)
+  const [fingerprintDrafts, setFingerprintDrafts] = useState<Record<string, string>>({})
+  const [saving, setSaving] = useState(false)
+  const [savingSalesman, setSavingSalesman] = useState(false)
+  const [savingFingerprint, setSavingFingerprint] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const roles = rolesQuery.data ?? []
+  const branches = branchesQuery.data ?? []
+  const rows = membershipsQuery.data ?? []
+  const salesmen = salesmenQuery.data ?? []
+  const defaultRole = useMemo(() => roles.find((role) => role.code === 'cashier') ?? roles[0], [roles])
+  const selectedMembership = useMemo(
+    () => rows.find((row) => row.ulid === selectedMembershipUlid) ?? null,
+    [rows, selectedMembershipUlid],
+  )
+  const selectedRow = useMemo(
+    () => rows.find((row) => row.ulid === selectedRowUlid) ?? null,
+    [rows, selectedRowUlid],
+  )
+
+  useEffect(() => {
+    if (!selectedMembership) {
+      setName('')
+      setUsername('')
+      setRecoveryEmail('')
+      setPassword('')
+      setPasswordConfirmation('')
+      setRoleUlid(defaultRole?.ulid ?? '')
+      setBranchUlids([])
+      return
+    }
+
+    setName(selectedMembership.user?.name ?? '')
+    setUsername(selectedMembership.username)
+    setRecoveryEmail(selectedMembership.user?.email ?? '')
+    setPassword('')
+    setPasswordConfirmation('')
+    setRoleUlid(selectedMembership.roles?.[0]?.ulid ?? '')
+    setBranchUlids((selectedMembership.branches ?? []).map((branch) => branch.ulid))
+  }, [defaultRole?.ulid, selectedMembership])
+
+  useEffect(() => {
+    setSalesmanDrafts((current) => {
+      const next = { ...current }
+      for (const membership of rows) {
+        if (!next[membership.ulid]) {
+          next[membership.ulid] = {
+            salesmanUlid: membership.salesman?.ulid ?? '',
+            startTime: normalizeTime(membership.salesman_start_time),
+            endTime: normalizeTime(membership.salesman_end_time),
+          }
+        }
+      }
+      return next
+    })
+  }, [rows])
+
+  useEffect(() => {
+    setFingerprintDrafts((current) => {
+      const next = { ...current }
+      for (const membership of rows) {
+        if (next[membership.ulid] === undefined) {
+          next[membership.ulid] = membership.fingerprint_ref ?? ''
+        }
+      }
+      return next
+    })
+  }, [rows])
+
+  async function refreshMemberships() {
+    await membershipsQuery.refetch()
+  }
+
+  async function onSave(event?: FormEvent) {
+    event?.preventDefault()
+    setError(null)
+
+    if (password !== passwordConfirmation) {
+      setError('Password and confirmation do not match.')
+      return
+    }
+
+    if (!selectedMembership && (!name.trim() || !username.trim() || password.length < 8)) {
+      setError('Name, username, and a password of at least 8 characters are required.')
+      return
+    }
+
+    if (selectedMembership && password && password.length < 8) {
+      setError('Password must be at least 8 characters.')
+      return
+    }
+
+    setSaving(true)
+    try {
+      if (!selectedMembership) {
+        if (!canCreate) {
+          throw new Error('You do not have permission to create users.')
+        }
+
+        await createMembership({
+          name: name.trim(),
+          username: username.trim(),
+          recovery_email: recoveryEmail.trim() || undefined,
+          password,
+          must_change_password: true,
+          roles: [roleUlid || defaultRole?.ulid || ''],
+          branches: branchUlids,
+        })
+      } else {
+        if (canRoles && roleUlid) {
+          await saveMembershipRoles(selectedMembership.ulid, [roleUlid])
+        }
+        if (canBranches) {
+          await saveMembershipBranches(selectedMembership.ulid, branchUlids)
+        }
+        if (password) {
+          if (!canReset) {
+            throw new Error('You do not have permission to reset this password.')
+          }
+          await resetMembershipPassword(selectedMembership.ulid, password)
+        }
+      }
+
+      await queryClient.invalidateQueries({ queryKey: ['memberships'] })
+      setPassword('')
+      setPasswordConfirmation('')
+
+      if (!selectedMembership) {
+        setName('')
+        setUsername('')
+        setRecoveryEmail('')
+        setBranchUlids([])
+        setRoleUlid(defaultRole?.ulid ?? '')
+      }
+    } catch (err) {
+      setError(err instanceof ApiClientError || err instanceof Error ? err.message : 'Unable to save user.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function saveSelectedSalesman() {
+    if (!selectedSalesmanRowUlid || !canEdit) return
+    const draft = salesmanDrafts[selectedSalesmanRowUlid]
+    if (!draft) return
+
+    setSavingSalesman(true)
+    setError(null)
+    try {
+      await saveMembershipSalesman(selectedSalesmanRowUlid, {
+        salesman_ulid: draft.salesmanUlid || null,
+        start_time: draft.startTime || null,
+        end_time: draft.endTime || null,
+      })
+      await queryClient.invalidateQueries({ queryKey: ['memberships'] })
+    } catch (err) {
+      setError(err instanceof ApiClientError || err instanceof Error ? err.message : 'Unable to save salesman assignment.')
+    } finally {
+      setSavingSalesman(false)
+    }
+  }
+
+  async function saveSelectedFingerprint() {
+    if (!selectedFingerprintRowUlid || !canEdit) return
+
+    const fingerprintRef = (fingerprintDrafts[selectedFingerprintRowUlid] ?? '').trim()
+
+    setSavingFingerprint(true)
+    setError(null)
+    try {
+      await saveMembershipFingerprint(
+        selectedFingerprintRowUlid,
+        fingerprintRef === '' ? null : fingerprintRef,
+      )
+      await queryClient.invalidateQueries({ queryKey: ['memberships'] })
+    } catch (err) {
+      setError(err instanceof ApiClientError || err instanceof Error ? err.message : 'Unable to save fingerprint mapping.')
+    } finally {
+      setSavingFingerprint(false)
+    }
+  }
+
+  async function runSelectedAction(action: 'activate' | 'deactivate' | 'logout') {
+    if (!selectedRow) return
+    setError(null)
+
+    try {
+      if (action === 'activate') {
+        await activateMembership(selectedRow.ulid)
+      } else if (action === 'deactivate') {
+        await deactivateMembership(selectedRow.ulid)
+      } else {
+        await forceLogoutMembership(selectedRow.ulid)
+      }
+      await queryClient.invalidateQueries({ queryKey: ['memberships'] })
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : 'Unable to update user.')
+    }
+  }
+
+  useWorkspaceHandlers({
+    save: () => {
+      if (tab === 'administration') {
+        const form = document.getElementById('configure-user-form') as HTMLFormElement | null
+        form?.requestSubmit()
+      } else if (tab === 'salesman') {
+        void saveSelectedSalesman()
+      } else if (tab === 'fp2') {
+        void saveSelectedFingerprint()
+      }
+    },
+    refresh: () => {
+      void refreshMemberships()
+    },
+  })
+
+  const membershipOptions = [
+    { value: '', label: '— Type / create a new user —' },
+    ...rows.map((membership) => ({
+      value: membership.ulid,
+      label: membership.username,
+    })),
+  ]
+
+  return (
+    <DesktopPanel
+      title="Configure Users"
+      className="configure-users-page"
+      flush
+      toolbar={
+        <>
+          <DesktopButton
+            icon={<RefreshCw size={13} />}
+            label="Refresh"
+            shortcut="F8"
+            onClick={() => void refreshMemberships()}
+          />
+          <DesktopButton icon={<X size={13} />} label="Close" shortcut="Esc" onClick={closeActiveTab} />
+        </>
+      }
+    >
+      <div className="configure-users-window">
+        <div className="configure-users-title">
+          <UserRoundCog size={22} aria-hidden />
+          <strong>User Administration</strong>
+        </div>
+
+        <div className="configure-users-tabs" role="tablist" aria-label="Configure users sections">
+          <TabButton tab="administration" current={tab} onChange={setTab}>User Administration</TabButton>
+          <TabButton tab="users" current={tab} onChange={setTab}>View Users</TabButton>
+          <TabButton tab="others" current={tab} onChange={setTab}>Others</TabButton>
+          <TabButton tab="salesman" current={tab} onChange={setTab}>User To SO</TabButton>
+          <TabButton tab="fp2" current={tab} onChange={setTab}>FP 2 User</TabButton>
+        </div>
+
+        {error ? <div className="configure-users-error">{error}</div> : null}
+
+        {tab === 'administration' ? (
+          <form id="configure-user-form" className="configure-users-form" onSubmit={onSave}>
+            <div className="configure-users-form-grid">
+              <label className="configure-users-field configure-users-field-wide">
+                <span>Type Existing User Name or Type a New User Name</span>
+                <UiSelect
+                  value={selectedMembershipUlid}
+                  disabled={membershipsQuery.isLoading}
+                  options={membershipOptions}
+                  onChange={setSelectedMembershipUlid}
+                />
+              </label>
+
+              <label className="configure-users-field">
+                <span>Name</span>
+                <input
+                  value={name}
+                  disabled={Boolean(selectedMembership)}
+                  onChange={(event) => setName(event.target.value)}
+                  required={!selectedMembership}
+                />
+              </label>
+
+              <label className="configure-users-field">
+                <span>User Name</span>
+                <input
+                  value={username}
+                  disabled={Boolean(selectedMembership)}
+                  onChange={(event) => setUsername(event.target.value)}
+                  required={!selectedMembership}
+                />
+              </label>
+
+              <label className="configure-users-field">
+                <span>Password</span>
+                <input
+                  type="password"
+                  minLength={8}
+                  value={password}
+                  placeholder={selectedMembership ? 'Leave blank to keep current password' : ''}
+                  onChange={(event) => setPassword(event.target.value)}
+                  required={!selectedMembership}
+                />
+              </label>
+
+              <label className="configure-users-field">
+                <span>Confirm</span>
+                <input
+                  type="password"
+                  minLength={8}
+                  value={passwordConfirmation}
+                  onChange={(event) => setPasswordConfirmation(event.target.value)}
+                  required={!selectedMembership || Boolean(password)}
+                />
+              </label>
+
+              <label className="configure-users-field configure-users-field-wide">
+                <span>Group</span>
+                <UiSelect
+                  value={roleUlid || defaultRole?.ulid || ''}
+                  disabled={rolesQuery.isLoading || (Boolean(selectedMembership) && !canRoles)}
+                  options={roles.filter((role) => role.is_active).map((role) => ({ value: role.ulid, label: role.name }))}
+                  onChange={setRoleUlid}
+                />
+              </label>
+
+              <div className="configure-users-field configure-users-field-wide">
+                <span>Branch Access</span>
+                <div className="configure-users-branches">
+                  {branches.map((branch) => (
+                    <label key={branch.ulid}>
+                      <input
+                        type="checkbox"
+                        checked={branchUlids.includes(branch.ulid)}
+                        disabled={Boolean(selectedMembership) && !canBranches}
+                        onChange={(event) => {
+                          setBranchUlids((current) =>
+                            event.target.checked
+                              ? [...current, branch.ulid]
+                              : current.filter((ulid) => ulid !== branch.ulid),
+                          )
+                        }}
+                      />
+                      <span>{branch.code} — {branch.name}</span>
+                    </label>
+                  ))}
+                  {!branchesQuery.isLoading && branches.length === 0 ? <span>No branches available.</span> : null}
+                </div>
+              </div>
+            </div>
+
+            <div className="configure-users-form-actions">
+              <DesktopButton
+                icon={<Save size={13} />}
+                label={selectedMembership ? 'Save Changes' : 'Create'}
+                shortcut="F9"
+                type="submit"
+                disabled={saving || (!selectedMembership && !canCreate)}
+              />
+            </div>
+          </form>
+        ) : null}
+
+        {tab === 'users' ? (
+          <UsersList
+            rows={rows}
+            loading={membershipsQuery.isLoading}
+            selectedRowUlid={selectedRowUlid}
+            onSelect={setSelectedRowUlid}
+            selectedRow={selectedRow}
+            canDeactivate={canDeactivate}
+            canActivate={canActivate}
+            canForceLogout={canForceLogout}
+            onAction={runSelectedAction}
+            onRefresh={refreshMemberships}
+          />
+        ) : null}
+
+        {tab === 'others' ? (
+          <div className="configure-users-list">
+            <div className="configure-users-grid">
+              <PosDataGrid loading={membershipsQuery.isLoading}
+                columns={[
+                  { key: 'username', header: 'User Name', width: 145, render: (row) => row.username },
+                  { key: 'group', header: 'Group', width: 170, render: (row) => (row.roles ?? []).map((role) => role.name).join(', ') || '—' },
+                  { key: 'status', header: 'Status', width: 110, render: (row) => row.status },
+                  { key: 'owner', header: 'Owner', width: 80, render: (row) => row.is_owner ? 'Yes' : 'No' },
+                  { key: 'must_change', header: 'Must Change Password', width: 150, render: (row) => row.user?.must_change_password ? 'Yes' : 'No' },
+                  { key: 'last_login', header: 'Last Login', width: 160, render: (row) => formatDateTime(row.user?.last_login_at) },
+                  { key: 'branches', header: 'Branch Access', width: 190, render: (row) => (row.branches ?? []).map((branch) => branch.code).join(', ') || 'All' },
+                ]}
+                rows={rows}
+                rowKey={(row) => row.ulid}
+                emptyMessage={membershipsQuery.isLoading ? 'Loading users…' : 'No users found.'}
+              />
+            </div>
+            <div className="configure-users-note">
+              Legacy database/watermark fields from the reference application are not copied because BluePOS uses tenant, role, branch and session security instead.
+            </div>
+          </div>
+        ) : null}
+
+        {tab === 'salesman' ? (
+          <div className="configure-users-list">
+            <div className="configure-users-grid configure-users-salesman-grid">
+              <PosDataGrid loading={membershipsQuery.isLoading}
+                columns={[
+                  { key: 'user', header: 'User', width: 160, render: (row) => row.username },
+                  {
+                    key: 'salesman',
+                    header: 'Sale Man',
+                    width: 250,
+                    render: (row) => {
+                      const draft = salesmanDrafts[row.ulid] ?? emptyDraft(row)
+                      return (
+                        <UiSelect
+                          value={draft.salesmanUlid}
+                          disabled={!canEdit || salesmenQuery.isLoading}
+                          options={[
+                            { value: '', label: '— Not assigned —' },
+                            ...salesmen.map((salesman) => ({
+                              value: salesman.ulid,
+                              label: `${salesman.code} — ${salesman.name}`,
+                            })),
+                          ]}
+                          onChange={(value) => patchSalesmanDraft(row, { salesmanUlid: value }, setSalesmanDrafts)}
+                        />
+                      )
+                    },
+                  },
+                  {
+                    key: 'start',
+                    header: 'Start Time',
+                    width: 130,
+                    render: (row) => {
+                      const draft = salesmanDrafts[row.ulid] ?? emptyDraft(row)
+                      return (
+                        <input
+                          className="configure-users-time"
+                          type="time"
+                          value={draft.startTime}
+                          disabled={!canEdit}
+                          onChange={(event) => patchSalesmanDraft(row, { startTime: event.target.value }, setSalesmanDrafts)}
+                        />
+                      )
+                    },
+                  },
+                  {
+                    key: 'end',
+                    header: 'End Time',
+                    width: 130,
+                    render: (row) => {
+                      const draft = salesmanDrafts[row.ulid] ?? emptyDraft(row)
+                      return (
+                        <input
+                          className="configure-users-time"
+                          type="time"
+                          value={draft.endTime}
+                          disabled={!canEdit}
+                          onChange={(event) => patchSalesmanDraft(row, { endTime: event.target.value }, setSalesmanDrafts)}
+                        />
+                      )
+                    },
+                  },
+                ]}
+                rows={rows}
+                rowKey={(row) => row.ulid}
+                selectedKey={selectedSalesmanRowUlid}
+                onSelect={(row) => setSelectedSalesmanRowUlid(row.ulid)}
+                emptyMessage={membershipsQuery.isLoading ? 'Loading users…' : 'No users found.'}
+              />
+            </div>
+            <div className="configure-users-list-footer">
+              <span>Select a user row, assign a salesman and optional working time.</span>
+              <DesktopButton
+                icon={<Save size={13} />}
+                label="Save"
+                shortcut="F9"
+                disabled={!canEdit || !selectedSalesmanRowUlid || savingSalesman}
+                onClick={() => void saveSelectedSalesman()}
+              />
+            </div>
+          </div>
+        ) : null}
+        {tab === 'fp2' ? (
+          <div className="configure-users-list">
+            <div className="configure-users-grid configure-users-fingerprint-grid">
+              <PosDataGrid loading={membershipsQuery.isLoading}
+                columns={[
+                  {
+                    key: 'row',
+                    header: 'ID',
+                    width: 70,
+                    render: (row) => String(rows.findIndex((item) => item.ulid === row.ulid) + 1),
+                  },
+                  { key: 'user', header: 'User', width: 220, render: (row) => row.username },
+                  {
+                    key: 'fp',
+                    header: 'FP',
+                    width: 320,
+                    render: (row) => (
+                      <input
+                        className="configure-users-fingerprint"
+                        value={fingerprintDrafts[row.ulid] ?? row.fingerprint_ref ?? ''}
+                        maxLength={64}
+                        disabled={!canEdit}
+                        onChange={(event) => {
+                          const value = event.target.value
+                          setFingerprintDrafts((current) => ({
+                            ...current,
+                            [row.ulid]: value,
+                          }))
+                        }}
+                      />
+                    ),
+                  },
+                ]}
+                rows={rows}
+                rowKey={(row) => row.ulid}
+                selectedKey={selectedFingerprintRowUlid}
+                onSelect={(row) => setSelectedFingerprintRowUlid(row.ulid)}
+                emptyMessage={membershipsQuery.isLoading ? 'Loading users…' : 'No users found.'}
+              />
+            </div>
+            <div className="configure-users-list-footer">
+              <span>Select a user row and enter the fingerprint reference.</span>
+              <DesktopButton
+                icon={<Save size={13} />}
+                label="Save"
+                shortcut="F9"
+                disabled={!canEdit || !selectedFingerprintRowUlid || savingFingerprint}
+                onClick={() => void saveSelectedFingerprint()}
+              />
+            </div>
+          </div>
+        ) : null}
+      </div>
+    </DesktopPanel>
+  )
+}
+
+function TabButton({
+  tab,
+  current,
+  onChange,
+  children,
+}: {
+  tab: ConfigureUsersTab
+  current: ConfigureUsersTab
+  onChange: (tab: ConfigureUsersTab) => void
+  children: string
+}) {
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={current === tab}
+      className={current === tab ? 'is-active' : undefined}
+      onClick={() => onChange(tab)}
+    >
+      {children}
+    </button>
+  )
+}
+
+function UsersList({
+  rows,
+  loading,
+  selectedRowUlid,
+  onSelect,
+  selectedRow,
+  canDeactivate,
+  canActivate,
+  canForceLogout,
+  onAction,
+  onRefresh,
+}: {
+  rows: Membership[]
+  loading: boolean
+  selectedRowUlid: string | null
+  onSelect: (ulid: string) => void
+  selectedRow: Membership | null
+  canDeactivate: boolean
+  canActivate: boolean
+  canForceLogout: boolean
+  onAction: (action: 'activate' | 'deactivate' | 'logout') => Promise<void>
+  onRefresh: () => Promise<void>
+}) {
+  return (
+    <div className="configure-users-list">
+      <div className="configure-users-grid">
+        <PosDataGrid loading={loading}
+          columns={[
+            { key: 'username', header: 'User Name', width: 160, render: (row) => row.username },
+            { key: 'name', header: 'Name', width: 190, render: (row) => row.user?.name ?? '—' },
+            { key: 'group', header: 'Group', width: 180, render: (row) => (row.roles ?? []).map((role) => role.name).join(', ') || '—' },
+            { key: 'branches', header: 'Branches', width: 220, render: (row) => (row.branches ?? []).map((branch) => branch.code).join(', ') || 'All' },
+            { key: 'status', header: 'Status', width: 120, render: (row) => `${row.status}${row.is_owner ? ' / owner' : ''}` },
+          ]}
+          rows={rows}
+          rowKey={(row) => row.ulid}
+          selectedKey={selectedRowUlid}
+          onSelect={(row) => onSelect(row.ulid)}
+          emptyMessage={loading ? 'Loading users…' : 'No users found.'}
+        />
+      </div>
+
+      <div className="configure-users-list-footer">
+        <span>{rows.length} user{rows.length === 1 ? '' : 's'}</span>
+        <div>
+          {selectedRow?.status === 'active' && canDeactivate ? (
+            <DesktopButton label="Deactivate" onClick={() => void onAction('deactivate')} />
+          ) : null}
+          {selectedRow?.status !== 'active' && selectedRow && canActivate ? (
+            <DesktopButton label="Activate" onClick={() => void onAction('activate')} />
+          ) : null}
+          {selectedRow && canForceLogout ? (
+            <DesktopButton label="Force logout" onClick={() => void onAction('logout')} />
+          ) : null}
+          <DesktopButton icon={<RefreshCw size={13} />} label="Refresh" onClick={() => void onRefresh()} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function emptyDraft(row: Membership): SalesmanDraft {
+  return {
+    salesmanUlid: row.salesman?.ulid ?? '',
+    startTime: normalizeTime(row.salesman_start_time),
+    endTime: normalizeTime(row.salesman_end_time),
+  }
+}
+
+function patchSalesmanDraft(
+  row: Membership,
+  patch: Partial<SalesmanDraft>,
+  setDrafts: Dispatch<SetStateAction<Record<string, SalesmanDraft>>>,
+) {
+  setDrafts((current) => ({
+    ...current,
+    [row.ulid]: {
+      ...(current[row.ulid] ?? emptyDraft(row)),
+      ...patch,
+    },
+  }))
+}
+
+function normalizeTime(value: string | null | undefined): string {
+  if (!value) return ''
+  return value.slice(0, 5)
+}
+
+function formatDateTime(value: string | null | undefined): string {
+  if (!value) return '—'
+  const parsed = new Date(value)
+  return Number.isNaN(parsed.getTime()) ? value : parsed.toLocaleString()
+}

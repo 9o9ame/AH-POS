@@ -1,0 +1,201 @@
+/* Platform-only sidebar: reference-inspired capsule, BluePOS appearance tokens. */
+.platform-sidebar-frame { width: 244px; flex: 0 0 244px; min-width: 0; padding: 10px 8px; transition: width 420ms cubic-bezier(.22,1,.36,1), flex-basis 420ms cubic-bezier(.22,1,.36,1); }
+.platform-sidebar-panel { display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden; padding: 12px 9px; background: var(--ui-surface); border: 1px solid var(--ui-border); border-radius: var(--panel-radius); box-shadow: var(--ui-card-shadow); }
+.platform-sidebar-brand { display: flex; align-items: center; gap: 10px; min-height: 42px; padding: 2px 1px 14px; }
+.platform-sidebar-brand-icon { flex: 0 0 34px; width: 34px; height: 34px; display: grid; place-items: center; color: var(--ui-accent-strong); background: var(--ui-accent-soft); border-radius: var(--control-radius); }
+.platform-sidebar-brand-text { font-size: 12px; font-weight: 750; white-space: nowrap; flex: 1; overflow: hidden; }
+.platform-sidebar-search { display: flex; align-items: center; gap: 9px; flex: 0 0 auto; min-height: 34px; padding: 0 10px; margin: 7px 1px 16px; background: var(--ui-surface-subtle); border: 1px solid var(--ui-border); border-radius: var(--control-radius); color: var(--ui-text-muted); }
+.platform-sidebar-search input { width: 100%; min-width: 0; background: transparent; outline: none; color: var(--ui-text); font-size: 12px; }
+.platform-sidebar-search:focus-within { box-shadow: var(--ui-focus-shadow); }
+.platform-sidebar-label { padding: 0 10px 8px; color: var(--ui-text-muted); font-size: 10px; letter-spacing: .1em; }
+.platform-sidebar-links { overflow-y: auto; min-height: 0; flex: 1; scrollbar-width: thin; }
+.platform-sidebar-link, .platform-sidebar-group-trigger, .platform-sidebar-footer-item { position: relative; width: 100%; min-height: 37px; display: flex; gap: 12px; align-items: center; text-align: left; padding: 8px 11px; margin-bottom: 4px; border: 0; border-radius: var(--control-radius); color: var(--ui-text-muted); font-size: 12px; font-weight: 550; white-space: nowrap; transition: background var(--ui-transition-normal), color var(--ui-transition-normal), transform var(--ui-transition-normal); }
+.platform-sidebar-link svg, .platform-sidebar-group-trigger svg, .platform-sidebar-footer-item svg { flex: 0 0 16px; }
+.platform-sidebar-link:hover, .platform-sidebar-group-trigger:hover, .platform-sidebar-footer-item:hover { color: var(--ui-text); background: var(--ui-accent-soft); }
+.platform-sidebar-link.is-active { color: var(--ui-accent-strong); background: var(--ui-accent-soft); font-weight: 700; }
+.platform-sidebar-link.is-active:before { content: ''; position: absolute; width: 3px; top: 7px; bottom: 7px; left: 0; border-radius: 6px; background: var(--ui-accent); box-shadow: 0 0 8px var(--ui-accent); }
+.platform-sidebar-link.is-indent { padding-left: 21px; }
+.platform-sidebar-group-chevron { margin-left: auto; }
+.platform-sidebar-item-label { overflow: hidden; text-overflow: ellipsis; }
+.platform-sidebar-footer { flex: 0 0 auto; padding-top: 4px; }
+.platform-sidebar-footer-rule { margin: 0 8px 10px; border-top: 1px solid var(--ui-border); }
+.platform-sidebar-frame[data-collapsed="true"] { width: 76px; flex-basis: 76px; }
+.platform-sidebar-frame[data-collapsed="true"] .platform-sidebar-panel { padding-left: 9px; padding-right: 9px; }
+.platform-sidebar-frame[data-collapsed="true"] .platform-sidebar-brand { flex-direction: column; gap: 5px; padding-bottom: 8px; }
+.platform-sidebar-frame[data-collapsed="true"] .platform-sidebar-brand-text,
+.platform-sidebar-frame[data-collapsed="true"] .platform-sidebar-item-label,
+.platform-sidebar-frame[data-collapsed="true"] .platform-sidebar-group-chevron { display: none; }
+.platform-sidebar-frame[data-collapsed="true"] .platform-sidebar-search { justify-content: center; padding: 0; }
+.platform-sidebar-frame[data-collapsed="true"] .platform-sidebar-label { text-align: center; padding-left: 0; padding-right: 0; }
+.platform-sidebar-frame[data-collapsed="true"] .platform-sidebar-link,
+.platform-sidebar-frame[data-collapsed="true"] .platform-sidebar-group-trigger,
+.platform-sidebar-frame[data-collapsed="true"] .platform-sidebar-footer-item { justify-content: center; padding: 8px 0; }
+.platform-sidebar-frame[data-collapsed="true"] .platform-sidebar-link.is-indent { padding-left: 0; }
+@media (max-width: 640px) { .platform-sidebar-frame { width: 76px; flex-basis: 76px; } .platform-sidebar-frame .platform-sidebar-brand-text, .platform-sidebar-frame .platform-sidebar-item-label, .platform-sidebar-frame .platform-sidebar-group-chevron { display: none; } .platform-sidebar-frame .platform-sidebar-link, .platform-sidebar-frame .platform-sidebar-footer-item { justify-content: center; } }
+[data-animations="off"] .platform-sidebar-frame, [data-animations="off"] .platform-sidebar-link, [data-animations="off"] .platform-sidebar-group-trigger, [data-animations="off"] .platform-sidebar-footer-item { transition: none; }
+@media (prefers-reduced-motion: reduce) { .platform-sidebar-frame, .platform-sidebar-link, .platform-sidebar-group-trigger, .platform-sidebar-footer-item { transition: none; } }
+
+/* Platform Access submenu: keep the content mounted for a visible exit transition. */
+.platform-sidebar-submenu {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transform: translateY(-7px);
+  pointer-events: none;
+  transition:
+    grid-template-rows 560ms cubic-bezier(.22,1,.36,1),
+    opacity 480ms ease,
+    transform 560ms cubic-bezier(.22,1,.36,1);
+}
+.platform-sidebar-submenu[data-open="true"] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.platform-sidebar-submenu-inner { min-height: 0; overflow: hidden; }
+.platform-sidebar-group-chevron { transition: transform 480ms cubic-bezier(.22,1,.36,1); }
+[data-animations="off"] .platform-sidebar-submenu,
+[data-animations="off"] .platform-sidebar-group-chevron { transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  .platform-sidebar-submenu, .platform-sidebar-group-chevron { transition: none; }
+}
+
+/* Video-inspired soft raised shell; colors remain BluePOS theme tokens. */
+.platform-sidebar-frame { perspective: 900px; }
+.platform-sidebar-panel {
+  background: linear-gradient(145deg, var(--ui-surface), var(--ui-surface-subtle));
+  border: 1px solid var(--ui-border);
+  box-shadow: var(--ui-card-shadow), 8px 10px 20px color-mix(in srgb, var(--ui-text) 11%, transparent),
+    -5px -5px 13px color-mix(in srgb, var(--ui-surface) 88%, transparent),
+    inset 1px 1px 0 color-mix(in srgb, var(--ui-surface) 95%, transparent);
+  transition: box-shadow var(--ui-transition-normal), transform var(--ui-transition-normal);
+}
+.platform-sidebar-frame:not([data-collapsed="true"]) .platform-sidebar-panel {
+  box-shadow: var(--ui-card-shadow), 12px 14px 25px color-mix(in srgb, var(--ui-text) 13%, transparent),
+    -6px -6px 16px color-mix(in srgb, var(--ui-surface) 94%, transparent),
+    inset 1px 1px 0 var(--ui-surface);
+}
+.platform-sidebar-brand-icon, .platform-sidebar-search, .platform-sidebar-link,
+.platform-sidebar-group-trigger, .platform-sidebar-footer-item {
+  box-shadow: inset 1px 1px 0 color-mix(in srgb, var(--ui-surface) 85%, transparent),
+    2px 3px 6px color-mix(in srgb, var(--ui-text) 5%, transparent);
+}
+.platform-sidebar-link:hover, .platform-sidebar-footer-item:hover,
+.platform-sidebar-group-trigger:hover {
+  transform: translateY(-1px);
+  box-shadow: 2px 4px 8px color-mix(in srgb, var(--ui-text) 11%, transparent),
+    inset 1px 1px 0 var(--ui-surface);
+}
+.platform-sidebar-link.is-active {
+  box-shadow: inset 2px 2px 6px color-mix(in srgb, var(--ui-text) 9%, transparent),
+    1px 2px 4px color-mix(in srgb, var(--ui-accent) 13%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .platform-sidebar-panel { transition: none; }
+}
+[data-animations="off"] .platform-sidebar-panel { transition: none; }
+
+/* Sculpted 3D rail: distinct raised outer shell and inset navigation, without changing colors. */
+.platform-sidebar-frame { padding: 14px 12px; }
+.platform-sidebar-panel {
+  border: 1px solid color-mix(in srgb, var(--ui-border) 65%, transparent);
+  border-radius: max(18px, var(--panel-radius));
+  background: linear-gradient(135deg, var(--ui-surface), var(--ui-surface-subtle));
+  box-shadow:
+    -10px -10px 18px color-mix(in srgb, var(--ui-surface) 92%, transparent),
+    12px 15px 25px color-mix(in srgb, var(--ui-text) 23%, transparent),
+    inset 3px 3px 5px color-mix(in srgb, var(--ui-surface) 92%, transparent),
+    inset -5px -5px 10px color-mix(in srgb, var(--ui-text) 11%, transparent);
+}
+.platform-sidebar-frame:not([data-collapsed="true"]) .platform-sidebar-panel {
+  box-shadow:
+    -12px -12px 22px color-mix(in srgb, var(--ui-surface) 94%, transparent),
+    16px 19px 32px color-mix(in srgb, var(--ui-text) 24%, transparent),
+    inset 3px 3px 7px color-mix(in srgb, var(--ui-surface) 90%, transparent),
+    inset -6px -6px 12px color-mix(in srgb, var(--ui-text) 12%, transparent);
+}
+.platform-sidebar-link, .platform-sidebar-group-trigger, .platform-sidebar-footer-item {
+  border-radius: max(8px, var(--control-radius));
+  box-shadow: -2px -2px 5px color-mix(in srgb,var(--ui-surface) 83%,transparent),
+    3px 4px 7px color-mix(in srgb,var(--ui-text) 11%,transparent);
+}
+.platform-sidebar-link.is-active {
+  box-shadow: inset 3px 3px 7px color-mix(in srgb,var(--ui-text) 18%,transparent),
+    inset -2px -2px 5px color-mix(in srgb,var(--ui-surface) 82%,transparent),
+    0 0 11px color-mix(in srgb,var(--ui-accent) 23%,transparent);
+}
+.platform-sidebar-brand-icon {
+  border-radius: max(9px, var(--control-radius));
+  box-shadow: -3px -3px 6px color-mix(in srgb,var(--ui-surface) 90%,transparent),
+    4px 5px 9px color-mix(in srgb,var(--ui-text) 17%,transparent);
+}
+
+/* Adapted from user-supplied Neumorphic-Sidebar-UI:
+   solid active accent, pressed inset hover, raised outer shell.
+   No reference red/gray is imported: only existing BluePOS theme tokens. */
+.platform-sidebar-panel {
+  background: var(--ui-surface-subtle);
+  border-radius: max(20px, var(--panel-radius));
+  box-shadow:
+    -13px -13px 25px color-mix(in srgb,var(--ui-surface) 97%,transparent),
+    15px 17px 27px color-mix(in srgb,var(--ui-text) 25%,transparent),
+    inset 1px 1px 1px color-mix(in srgb,var(--ui-surface) 80%,transparent);
+}
+.platform-sidebar-link:not(.is-active),
+.platform-sidebar-group-trigger,
+.platform-sidebar-footer-item {
+  box-shadow: none;
+  background: transparent;
+  transition: box-shadow 350ms cubic-bezier(.22,1,.36,1),
+    color 300ms ease, transform 300ms ease, background 300ms ease;
+}
+.platform-sidebar-link:not(.is-active):hover,
+.platform-sidebar-group-trigger:hover,
+.platform-sidebar-footer-item:hover {
+  background: var(--ui-surface-subtle);
+  color: var(--ui-text);
+  transform: translateY(0);
+  box-shadow:
+    inset 4px 4px 7px color-mix(in srgb,var(--ui-text) 15%,transparent),
+    inset -4px -4px 8px color-mix(in srgb,var(--ui-surface) 98%,transparent);
+}
+.platform-sidebar-link.is-active,
+.platform-sidebar-link.is-active:hover {
+  color: var(--ui-surface);
+  background: linear-gradient(145deg,var(--ui-accent),var(--ui-accent-strong));
+  border-radius: max(12px,var(--control-radius));
+  box-shadow:
+    4px 6px 12px color-mix(in srgb,var(--ui-text) 25%,transparent),
+    inset 1px 1px 2px color-mix(in srgb,var(--ui-surface) 22%,transparent),
+    inset -2px -2px 5px color-mix(in srgb,var(--ui-text) 20%,transparent);
+}
+.platform-sidebar-link.is-active svg { color: inherit; }
+.platform-sidebar-link.is-active:before { display: none; }
+.platform-sidebar-link.is-active:hover {
+  box-shadow: inset 3px 3px 7px color-mix(in srgb,var(--ui-text) 27%,transparent),
+    inset -2px -2px 5px color-mix(in srgb,var(--ui-surface) 17%,transparent),
+    5px 7px 13px color-mix(in srgb,var(--ui-text) 19%,transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .platform-sidebar-link, .platform-sidebar-group-trigger, .platform-sidebar-footer-item { transition: none; }
+}
+[data-animations="off"] .platform-sidebar-link,
+[data-animations="off"] .platform-sidebar-group-trigger,
+[data-animations="off"] .platform-sidebar-footer-item { transition: none; }
+
+/* Match Manage Account's soft accent-blue option hover, retaining inset 3D depth. */
+.platform-sidebar-link:not(.is-active):is(:hover, :focus-visible),
+.platform-sidebar-group-trigger:is(:hover, :focus-visible),
+.platform-sidebar-footer-item:is(:hover, :focus-visible) {
+  background: var(--ui-accent-soft);
+  color: var(--ui-accent-strong);
+  box-shadow:
+    inset 4px 4px 7px color-mix(in srgb, var(--ui-text) 12%, transparent),
+    inset -4px -4px 8px color-mix(in srgb, var(--ui-surface) 98%, transparent);
+}
+.platform-sidebar-link:not(.is-active):is(:hover, :focus-visible) svg,
+.platform-sidebar-group-trigger:is(:hover, :focus-visible) svg,
+.platform-sidebar-footer-item:is(:hover, :focus-visible) svg {
+  color: var(--ui-accent-strong);
+}

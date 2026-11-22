@@ -1,0 +1,347 @@
+import { UiDateRangePicker } from '../components/ui/UiDateRangePicker'
+import { FormEvent, useEffect, useMemo, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Gift, Plus, RefreshCw, Save, Trash2, X } from 'lucide-react'
+import { ApiClientError } from '../api/client'
+import { fetchProducts } from '../api/catalog'
+import {
+  createSaleScheme,
+  deactivateSaleScheme,
+  fetchSaleSchemes,
+  updateSaleScheme,
+} from '../api/saleSchemes'
+import { DesktopButton, DesktopPanel, Field, FormGroup } from '../components/desktop/DesktopPanel'
+import { PosDataGrid } from '../components/desktop/PosDataGrid'
+import { UiSimpleDropdown, UiTableDropdown } from '../components/ui/UiSelect'
+import { useCan } from '../features/auth/useCan'
+import { askConfirm } from '../feedback/FeedbackProvider'
+import { useWorkspace, useWorkspaceHandlers } from '../features/workspace/WorkspaceProvider'
+import type { SaleSchemeApplyMode } from '../types/saleSchemes'
+import './SaleSchemesPage.css'
+
+export function SaleSchemesPage() {
+  const queryClient = useQueryClient()
+  const { closeActiveTab } = useWorkspace()
+  const canCreateDirect = useCan('sale_schemes.create')
+  const canEditDirect = useCan('sale_schemes.edit')
+  const canDeleteDirect = useCan('sale_schemes.delete')
+  const canManage = useCan('sale_schemes.manage')
+  const canCreate = canCreateDirect || canManage
+  const canEdit = canEditDirect || canManage
+  const canDelete = canDeleteDirect || canManage
+
+  const [selectedKey, setSelectedKey] = useState<string | null>(null)
+  const [creating, setCreating] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [name, setName] = useState('')
+  const [applyMode, setApplyMode] = useState<SaleSchemeApplyMode>('salesman')
+  const [minSaleAmount, setMinSaleAmount] = useState('5000.0000')
+  const [rewardProductUlid, setRewardProductUlid] = useState('')
+  const [maxRewardQty, setMaxRewardQty] = useState('1.000000')
+  const [startsOn, setStartsOn] = useState('')
+  const [endsOn, setEndsOn] = useState('')
+  const [isStackable, setIsStackable] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const schemesQuery = useQuery({
+    queryKey: ['sale-schemes'],
+    queryFn: fetchSaleSchemes,
+  })
+  const productsQuery = useQuery({
+    queryKey: ['products', 'scheme-rewards'],
+    queryFn: () => fetchProducts({ per_page: 100, page: 1 }),
+  })
+
+  const rows = schemesQuery.data ?? []
+  const selected = useMemo(
+    () => rows.find((row) => row.ulid === selectedKey) ?? null,
+    [rows, selectedKey],
+  )
+  const products = productsQuery.data?.data ?? []
+  const filteredRows = useMemo(() => {
+    const query = searchQuery.trim().toLocaleLowerCase()
+    if (!query) return rows
+
+    return rows.filter((row) => {
+      const mode = row.apply_mode === 'auto' ? 'auto' : 'salesman'
+      const status = row.is_active ? 'active' : 'inactive'
+      const rewardProduct = row.reward_product?.name ?? ''
+
+      return [
+        row.name,
+        mode,
+        row.min_sale_amount,
+        rewardProduct,
+        row.max_reward_qty,
+        status,
+      ].some((value) => value.toLocaleLowerCase().includes(query))
+    })
+  }, [rows, searchQuery])
+
+  useEffect(() => {
+    if (creating) return
+    if (!selected) {
+      setName('')
+      setApplyMode('salesman')
+      setMinSaleAmount('5000.0000')
+      setRewardProductUlid('')
+      setMaxRewardQty('1.000000')
+      setStartsOn('')
+      setEndsOn('')
+      setIsStackable(false)
+      return
+    }
+    setName(selected.name)
+    setApplyMode(selected.apply_mode)
+    setMinSaleAmount(selected.min_sale_amount)
+    setRewardProductUlid(selected.reward_product?.ulid ?? '')
+    setMaxRewardQty(selected.max_reward_qty)
+    setStartsOn(selected.starts_on ?? '')
+    setEndsOn(selected.ends_on ?? '')
+    setIsStackable(selected.is_stackable)
+  }, [creating, selected])
+
+  function startNew() {
+    if (!canCreate) return
+    setCreating(true)
+    setSelectedKey(null)
+    setName('')
+    setApplyMode('salesman')
+    setMinSaleAmount('5000.0000')
+    setRewardProductUlid('')
+    setMaxRewardQty('1.000000')
+    setStartsOn('')
+    setEndsOn('')
+    setIsStackable(false)
+    setError(null)
+  }
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      const payload = {
+        name: name.trim(),
+        apply_mode: applyMode,
+        min_sale_amount: minSaleAmount,
+        reward_product_ulid: rewardProductUlid,
+        max_reward_qty: maxRewardQty,
+        starts_on: startsOn || null,
+        ends_on: endsOn || null,
+        is_stackable: isStackable,
+        is_active: true,
+      }
+      if (creating || !selectedKey) {
+        return createSaleScheme(payload)
+      }
+      return updateSaleScheme(selectedKey, payload)
+    },
+    onSuccess: async (saved) => {
+      setCreating(false)
+      setSelectedKey(saved.ulid)
+      setError(null)
+      await queryClient.invalidateQueries({ queryKey: ['sale-schemes'] })
+    },
+  })
+
+  async function onSubmit(event: FormEvent) {
+    event.preventDefault()
+    setError(null)
+    if (!name.trim()) {
+      setError('Scheme name is required.')
+      return
+    }
+    if (!rewardProductUlid) {
+      setError('Select a free reward product.')
+      return
+    }
+    try {
+      await saveMutation.mutateAsync()
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : 'Unable to save scheme.')
+    }
+  }
+
+  useWorkspaceHandlers({
+    save: () => (document.getElementById('sale-scheme-form') as HTMLFormElement | null)?.requestSubmit(),
+    refresh: () => void schemesQuery.refetch(),
+  })
+
+  return (
+    <DesktopPanel
+      className="sale-schemes-page"
+      title="Customer Sale Schemes"
+      toolbar={
+        <>
+          <DesktopButton icon={<Plus size={13} />} label="New" disabled={!canCreate} onClick={startNew} />
+          <DesktopButton
+            icon={<Save size={13} />}
+            label="Save"
+            shortcut="F9"
+            disabled={(!canCreate && !canEdit) || saveMutation.isPending}
+            onClick={() =>
+              (document.getElementById('sale-scheme-form') as HTMLFormElement | null)?.requestSubmit()
+            }
+          />
+          <DesktopButton
+            icon={<Trash2 size={13} />}
+            label="Delete"
+            disabled={!canDelete || !selected?.is_active}
+            onClick={() => {
+              void (async () => {
+                if (!selected || !(await askConfirm(`Deactivate ${selected.name}?`))) return
+                try {
+                  await deactivateSaleScheme(selected.ulid)
+                  await queryClient.invalidateQueries({ queryKey: ['sale-schemes'] })
+                } catch (err) {
+                  setError(err instanceof ApiClientError ? err.message : 'Unable to deactivate scheme.')
+                }
+              })()
+            }}
+          />
+          <DesktopButton
+            icon={<RefreshCw size={13} />}
+            label="Refresh"
+            shortcut="F8"
+            onClick={() => void schemesQuery.refetch()}
+          />
+          <DesktopButton icon={<X size={13} />} label="Close" shortcut="Esc" onClick={closeActiveTab} />
+        </>
+      }
+    >
+      {error ? <p className="mb-2 text-[12px] text-[var(--danger)]">{error}</p> : null}
+      <div className="sale-schemes-search">
+        <input
+          className="desktop-input"
+          type="search"
+          value={searchQuery}
+          placeholder="Search sale schemes"
+          aria-label="Search sale schemes"
+          onChange={(event) => setSearchQuery(event.target.value)}
+        />
+      </div>
+
+      {(canCreate || canEdit) && (creating || selected) ? (
+        <form id="sale-scheme-form" onSubmit={onSubmit}>
+          <FormGroup title={creating ? 'New scheme' : 'Edit scheme'}>
+            <Field label="Scheme name">
+              <input className="desktop-input" value={name} onChange={(e) => setName(e.target.value)} required />
+            </Field>
+            <Field label="Apply mode">
+              <UiSimpleDropdown
+                triggerClassName="desktop-input"
+                aria-label="Apply mode"
+                value={applyMode}
+                searchable={false}
+                options={[
+                  { value: 'salesman', label: 'Salesman decides (Add / Skip)' },
+                  { value: 'auto', label: 'Auto apply when eligible' },
+                ]}
+                onChange={(value) => setApplyMode(value as SaleSchemeApplyMode)}
+              />
+            </Field>
+            <Field label="Min sale amount">
+              <input
+                className="desktop-input"
+                value={minSaleAmount}
+                onChange={(e) => setMinSaleAmount(e.target.value)}
+                required
+              />
+            </Field>
+            <Field label="Free product">
+              <UiTableDropdown
+                triggerClassName="desktop-input"
+                aria-label="Free product"
+                value={rewardProductUlid}
+                placeholder="— Select product —"
+                menuMinWidth={420}
+                menuColumns={[
+                  { header: 'Product #', width: '120px' },
+                  { header: 'Product' },
+                ]}
+                options={products
+                  .filter((row) => row.is_active || row.ulid === rewardProductUlid)
+                  .map((row) => ({
+                    value: row.ulid,
+                    label: `${row.product_number} — ${row.name}`,
+                    columns: [row.product_number, row.name],
+                  }))}
+                onChange={setRewardProductUlid}
+              />
+            </Field>
+            <Field label="Max free qty">
+              <input
+                className="desktop-input"
+                value={maxRewardQty}
+                onChange={(e) => setMaxRewardQty(e.target.value)}
+                required
+              />
+            </Field>
+            <Field label="Starts on"><span>Date range</span><UiDateRangePicker fromInputProps={{className:"desktop-input",type:"date",value:startsOn,onChange:(e) => setStartsOn(e.target.value)}} toInputProps={{className:"desktop-input",type:"date",value:endsOn,onChange:(e) => setEndsOn(e.target.value)}}/></Field>
+
+            <Field label="Stackable">
+              <label className="inline-flex items-center gap-2 text-[12px]">
+                <input
+                  type="checkbox"
+                  checked={isStackable}
+                  onChange={(e) => setIsStackable(e.target.checked)}
+                />
+                Can combine with other schemes
+              </label>
+            </Field>
+          </FormGroup>
+        </form>
+      ) : null}
+
+      <div className="sale-schemes-grid">
+        <PosDataGrid
+          columns={[
+            {
+              key: 'name',
+              header: 'Scheme',
+              render: (row) => (
+                <span className="inline-flex items-center gap-1">
+                  <Gift size={12} /> {row.name}
+                </span>
+              ),
+            },
+            {
+              key: 'mode',
+              header: 'Mode',
+              width: 120,
+              render: (row) => (row.apply_mode === 'auto' ? 'Auto' : 'Salesman'),
+            },
+            {
+              key: 'min',
+              header: 'Min amount',
+              width: 110,
+              render: (row) => row.min_sale_amount,
+            },
+            {
+              key: 'reward',
+              header: 'Free product',
+              render: (row) => row.reward_product?.name ?? '—',
+            },
+            {
+              key: 'qty',
+              header: 'Max qty',
+              width: 80,
+              render: (row) => row.max_reward_qty,
+            },
+            {
+              key: 'status',
+              header: 'Status',
+              width: 90,
+              render: (row) => (row.is_active ? 'Active' : 'Inactive'),
+            },
+          ]}
+          rows={filteredRows}
+          rowKey={(row) => row.ulid}
+          selectedKey={selectedKey}
+          onSelect={(row) => {
+            setCreating(false)
+            setSelectedKey(row.ulid)
+          }}
+        />
+      </div>
+    </DesktopPanel>
+  )
+}

@@ -1,0 +1,173 @@
+<?php
+
+namespace App\Models;
+
+use App\Enums\PurchaseInvoiceStatus;
+use App\Support\HasPublicUlid;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+
+#[Fillable([
+    'tenant_id',
+    'branch_id',
+    'warehouse_id',
+    'supplier_id',
+    'purchase_order_id',
+    'document_number',
+    'supplier_invoice_number',
+    'po_number',
+    'invoice_type',
+    'currency_code',
+    'calculation_method',
+    'discount_apply_on',
+    'calculation_modes',
+    'auto_calc_mrp',
+    'withholding_is_pct',
+    'withholding_pct',
+    'default_sales_tax_pct',
+    'default_further_tax_pct',
+    'default_advance_tax_pct',
+    'default_price_type',
+    'brand_label',
+    'invoice_date',
+    'due_date',
+    'status',
+    'subtotal',
+    'discount_amount',
+    'tax_amount',
+    'further_tax_amount',
+    'freight_amount',
+    'loading_amount',
+    'other_charges',
+    'other_discount',
+    'trade_offer',
+    'advance_tax_amount',
+    'round_off',
+    'grand_total',
+    'notes',
+    'tax_type',
+    'payment_terms',
+    'created_by',
+    'updated_by',
+    'posted_by',
+    'posted_at',
+])]
+class PurchaseInvoice extends Model
+{
+    use Concerns\BelongsToTenant, HasPublicUlid;
+
+    protected $table = 'purchase_invoices';
+
+    protected function casts(): array
+    {
+        return [
+            'status' => PurchaseInvoiceStatus::class,
+            'invoice_date' => 'date',
+            'due_date' => 'date',
+            'subtotal' => 'decimal:4',
+            'discount_amount' => 'decimal:4',
+            'tax_amount' => 'decimal:4',
+            'further_tax_amount' => 'decimal:4',
+            'freight_amount' => 'decimal:4',
+            'loading_amount' => 'decimal:4',
+            'other_charges' => 'decimal:4',
+            'other_discount' => 'decimal:4',
+            'trade_offer' => 'decimal:4',
+            'advance_tax_amount' => 'decimal:4',
+            'round_off' => 'decimal:4',
+            'grand_total' => 'decimal:4',
+            'calculation_modes' => 'array',
+            'auto_calc_mrp' => 'boolean',
+            'withholding_is_pct' => 'boolean',
+            'withholding_pct' => 'decimal:8',
+            'default_sales_tax_pct' => 'decimal:8',
+            'default_further_tax_pct' => 'decimal:8',
+            'default_advance_tax_pct' => 'decimal:8',
+            'posted_at' => 'datetime',
+        ];
+    }
+
+    public function isDraft(): bool
+    {
+        return $this->status === PurchaseInvoiceStatus::Draft;
+    }
+
+    public function isPosted(): bool
+    {
+        return $this->status === PurchaseInvoiceStatus::Posted;
+    }
+
+    /**
+     * @return BelongsTo<Tenant, $this>
+     */
+    public function tenant(): BelongsTo
+    {
+        return $this->belongsTo(Tenant::class);
+    }
+
+    /**
+     * @return BelongsTo<Branch, $this>
+     */
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
+    }
+
+    /**
+     * @return BelongsTo<Warehouse, $this>
+     */
+    public function warehouse(): BelongsTo
+    {
+        return $this->belongsTo(Warehouse::class);
+    }
+
+    /**
+     * @return BelongsTo<Supplier, $this>
+     */
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class);
+    }
+
+    public function purchaseOrder(): BelongsTo
+    {
+        return $this->belongsTo(PurchaseOrder::class);
+    }
+
+    /**
+     * @return HasMany<PurchaseInvoiceLine, $this>
+     */
+    public function lines(): HasMany
+    {
+        return $this->hasMany(PurchaseInvoiceLine::class);
+    }
+
+    /**
+     * @return HasMany<PurchasePayment, $this>
+     */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(PurchasePayment::class);
+    }
+
+    /**
+     * @return HasMany<PurchaseReturn, $this>
+     */
+    public function purchaseReturns(): HasMany
+    {
+        return $this->hasMany(PurchaseReturn::class);
+    }
+
+    /**
+     * @return HasOne<DocumentRevision, $this>
+     */
+    public function latestRevision(): HasOne
+    {
+        return $this->hasOne(DocumentRevision::class, 'document_ulid', 'ulid')
+            ->where('document_type', 'purchase_invoice')
+            ->ofMany('revision_number', 'max');
+    }
+}

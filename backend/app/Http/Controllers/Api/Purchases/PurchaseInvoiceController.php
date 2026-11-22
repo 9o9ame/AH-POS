@@ -1,0 +1,410 @@
+<?php
+
+namespace App\Http\Controllers\Api\Purchases;
+
+use App\Enums\PurchaseReturnStatus;
+use App\Actions\Purchases\AmendPurchaseInvoiceAction;
+use App\Actions\Purchases\CreatePurchaseInvoiceAction;
+use App\Actions\Purchases\DeletePurchaseInvoiceLineAction;
+use App\Actions\Purchases\PayPurchaseInvoiceAction;
+use App\Actions\Purchases\PostPurchaseInvoiceAction;
+use App\Actions\Purchases\UpdatePurchaseInvoiceAction;
+use App\Authz\PermissionService;
+use App\Actions\Purchases\UpsertPurchaseInvoiceLineAction;
+use App\Exceptions\ApiException;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Purchases\AmendPurchaseInvoiceRequest;
+use App\Http\Requests\Purchases\StorePurchasePaymentRequest;
+use App\Http\Resources\Purchases\PurchaseInvoiceLineResource;
+use App\Http\Resources\Purchases\PurchaseInvoiceResource;
+use App\Http\Resources\Purchases\PurchasePaymentResource;
+use App\Models\PurchaseInvoice;
+use App\Models\PurchaseInvoiceLine;
+use App\Models\PurchasePayment;
+use App\Tenancy\TenantContext;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+
+class PurchaseInvoiceController extends Controller
+{
+    public function nextDocumentNumber(
+        CreatePurchaseInvoiceAction $create,
+        PermissionService $permissions,
+    ): array {
+        abort_unless(
+            $permissions->can('purchases.create') || $permissions->can('purchases.amend_posted'),
+            403,
+        );
+
+        return [
+            'document_number' => $create->previewNextDocumentNumber(),
+        ];
+    }
+
+    public function index(Request $request, TenantContext $tenantContext): mixed
+    {
+        $this->authorize('viewAny', PurchaseInvoice::class);
+
+        $perPage = min(max($request->integer('per_page', 25), 1), 100);
+        $query = PurchaseInvoice::query()
+            ->forTenant($tenantContext->tenantId())
+            ->where('branch_id', $tenantContext->branchId())
+            ->where('warehouse_id', $tenantContext->warehouseId())
+            ->with(['supplier', 'branch', 'warehouse', 'latestRevision'])
+            ->withSum('payments as paid_amount', 'amount')
+            ->withSum([
+                'purchaseReturns as returned_amount' => fn ($query) => $query
+                    ->where('status', PurchaseReturnStatus::Posted->value),
+            ], 'grand_total')
+            ->orderByDesc('invoice_date')
+            ->orderByDesc('id');
+
+        if ($request->filled('q')) {
+            $term = '%'.str_replace(['%', '_'], ['\\%', '\\_'], (string) $request->string('q')).'%';
+            $query->where(function ($inner) use ($term): void {
+                $inner->where('document_number', 'ilike', $term)
+                    ->orWhere('supplier_invoice_number', 'ilike', $term)
+                    ->orWhereHas('supplier', function ($supplier) use ($term): void {
+                        $supplier->where('name', 'ilike', $term)
+                            ->orWhere('code', 'ilike', $term);
+                    });
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', (string) $request->string('status'));
+        }
+
+        if ($request->filled('supplier_ulid')) {
+            $query->whereHas('supplier', fn ($q) => $q->where('ulid', (string) $request->string('supplier_ulid')));
+        }
+
+        if ($request->filled('warehouse_ulid')) {
+            $query->whereHas('warehouse', fn ($q) => $q->where('ulid', (string) $request->string('warehouse_ulid')));
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('invoice_date', '>=', (string) $request->string('date_from'));
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('invoice_date', '<=', (string) $request->string('date_to'));
+        }
+
+        $page = $query->paginate($perPage);
+
+        return [
+            'data' => PurchaseInvoiceResource::collection($page->items()),
+            'meta' => [
+                'current_page' => $page->currentPage(),
+                'per_page' => $page->perPage(),
+                'total' => $page->total(),
+                'last_page' => $page->lastPage(),
+            ],
+        ];
+    }
+
+    public function store(Request $request, CreatePurchaseInvoiceAction $create): JsonResponse
+    {
+        $this->authorize('create', PurchaseInvoice::class);
+
+        $data = $request->validate($this->headerRules());
+
+        $invoice = $create->execute($data);
+
+        return (new PurchaseInvoiceResource($invoice))->response()->setStatusCode(201);
+    }
+
+    public function show(string $purchaseUlid, TenantContext $tenantContext): PurchaseInvoiceResource
+    {
+        $invoice = $this->findInvoice($purchaseUlid, $tenantContext);
+        $this->authorize('view', $invoice);
+
+        return new PurchaseInvoiceResource(
+            $invoice->load([...CreatePurchaseInvoiceAction::with(), 'payments', 'latestRevision'])
+        );
+    }
+
+    public function update(
+        Request $request,
+        string $purchaseUlid,
+        TenantContext $tenantContext,
+        UpdatePurchaseInvoiceAction $update,
+    ): PurchaseInvoiceResource {
+        $invoice = $this->findInvoice($purchaseUlid, $tenantContext);
+        $this->authorize('update', $invoice);
+
+        $data = $request->validate($this->headerRules(updating: true));
+
+        return new PurchaseInvoiceResource($update->execute($invoice, $data));
+    }
+
+    public function amend(
+        AmendPurchaseInvoiceRequest $request,
+        string $purchaseUlid,
+        TenantContext $tenantContext,
+        AmendPurchaseInvoiceAction $amend,
+    ): PurchaseInvoiceResource {
+        $invoice = $this->findInvoice($purchaseUlid, $tenantContext);
+        $this->authorize('amend', $invoice);
+
+        $document = $amend->execute(
+            $invoice,
+            $request->validated(),
+            (string) $request->header('Idempotency-Key', ''),
+        );
+
+        return new PurchaseInvoiceResource(
+            $document->load([...CreatePurchaseInvoiceAction::with(), 'payments', 'latestRevision'])
+        );
+    }
+
+    public function storeLine(
+        Request $request,
+        string $purchaseUlid,
+        TenantContext $tenantContext,
+        UpsertPurchaseInvoiceLineAction $upsert,
+    ): JsonResponse {
+        $invoice = $this->findInvoice($purchaseUlid, $tenantContext);
+        $this->authorize('update', $invoice);
+
+        $data = $request->validate($this->lineRules());
+
+        $line = $upsert->execute($invoice, $data);
+
+        return (new PurchaseInvoiceLineResource($line))->response()->setStatusCode(201);
+    }
+
+    public function updateLine(
+        Request $request,
+        string $purchaseUlid,
+        string $lineUlid,
+        TenantContext $tenantContext,
+        UpsertPurchaseInvoiceLineAction $upsert,
+    ): PurchaseInvoiceLineResource {
+        $invoice = $this->findInvoice($purchaseUlid, $tenantContext);
+        $this->authorize('update', $invoice);
+        $line = $this->findLine($invoice, $lineUlid);
+        $line->loadMissing(['product', 'unit']);
+
+        $data = $request->validate($this->lineRules(updating: true));
+
+        $payload = [
+            'product_ulid' => $data['product_ulid'] ?? $line->product->ulid,
+            'unit_ulid' => $data['unit_ulid'] ?? $line->unit->ulid,
+            'quantity' => $data['quantity'] ?? (string) $line->quantity,
+            'conversion_factor' => $data['conversion_factor'] ?? (string) $line->conversion_factor,
+            'unit_cost' => $data['unit_cost'] ?? (string) $line->unit_cost,
+            'discount_amount' => $data['discount_amount'] ?? (string) $line->discount_amount,
+            'tax_amount' => $data['tax_amount'] ?? (string) $line->tax_amount,
+            'supplier_product_code' => array_key_exists('supplier_product_code', $data)
+                ? $data['supplier_product_code']
+                : $line->supplier_product_code,
+            'batch_number' => array_key_exists('batch_number', $data) ? $data['batch_number'] : $line->batch_number,
+            'expiry_date' => array_key_exists('expiry_date', $data)
+                ? $data['expiry_date']
+                : ($line->expiry_date?->toDateString()),
+            'notes' => array_key_exists('notes', $data) ? $data['notes'] : $line->notes,
+            'brand_label' => array_key_exists('brand_label', $data) ? $data['brand_label'] : $line->brand_label,
+            'hs_code' => array_key_exists('hs_code', $data) ? $data['hs_code'] : $line->hs_code,
+            'pack_size' => array_key_exists('pack_size', $data) ? $data['pack_size'] : $line->pack_size,
+            'qty_ctn' => $data['qty_ctn'] ?? (string) $line->qty_ctn,
+            'free_pcs' => $data['free_pcs'] ?? (string) $line->free_pcs,
+            'price_type' => $data['price_type'] ?? $line->price_type,
+            'mrp' => $data['mrp'] ?? (string) $line->mrp,
+            'trade_disc_pct' => $data['trade_disc_pct'] ?? (string) $line->trade_disc_pct,
+            'regular_disc_pct' => $data['regular_disc_pct'] ?? (string) $line->regular_disc_pct,
+            'regular_disc_amount' => $data['regular_disc_amount'] ?? (string) $line->regular_disc_amount,
+            'special_disc_pct' => $data['special_disc_pct'] ?? (string) $line->special_disc_pct,
+            'special_disc_amount' => $data['special_disc_amount'] ?? (string) $line->special_disc_amount,
+            'disc_after_gst_pct' => $data['disc_after_gst_pct'] ?? (string) $line->disc_after_gst_pct,
+            'disc_after_gst_amount' => $data['disc_after_gst_amount'] ?? (string) $line->disc_after_gst_amount,
+            'tax_pct' => $data['tax_pct'] ?? (string) $line->tax_pct,
+            'further_tax_pct' => $data['further_tax_pct'] ?? (string) $line->further_tax_pct,
+        ];
+
+        return new PurchaseInvoiceLineResource($upsert->execute($invoice, $payload, $line));
+    }
+
+    public function destroyLine(
+        string $purchaseUlid,
+        string $lineUlid,
+        TenantContext $tenantContext,
+        DeletePurchaseInvoiceLineAction $delete,
+    ): JsonResponse {
+        $invoice = $this->findInvoice($purchaseUlid, $tenantContext);
+        $this->authorize('update', $invoice);
+        $line = $this->findLine($invoice, $lineUlid);
+        $delete->execute($invoice, $line);
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function post(
+        string $purchaseUlid,
+        TenantContext $tenantContext,
+        PostPurchaseInvoiceAction $post,
+    ): PurchaseInvoiceResource {
+        $invoice = $this->findInvoice($purchaseUlid, $tenantContext);
+        $this->authorize('post', $invoice);
+
+        return new PurchaseInvoiceResource($post->execute($invoice));
+    }
+
+    /**
+     * @return mixed
+     */
+    public function payments(string $purchaseUlid, TenantContext $tenantContext): mixed
+    {
+        $invoice = $this->findInvoice($purchaseUlid, $tenantContext);
+        $this->authorize('view', $invoice);
+
+        return PurchasePaymentResource::collection(
+            PurchasePayment::query()
+                ->forTenant($tenantContext->tenantId())
+                ->where('purchase_invoice_id', $invoice->id)
+                ->orderBy('id')
+                ->get()
+        );
+    }
+
+    public function storePayment(
+        StorePurchasePaymentRequest $request,
+        string $purchaseUlid,
+        TenantContext $tenantContext,
+        PayPurchaseInvoiceAction $pay,
+    ): JsonResponse {
+        $invoice = $this->findInvoice($purchaseUlid, $tenantContext);
+        $this->authorize('createPayment', $invoice);
+
+        $payment = $pay->execute(
+            $invoice,
+            $request->validated(),
+            (string) $request->header('Idempotency-Key', ''),
+        );
+
+        return (new PurchasePaymentResource($payment))->response()->setStatusCode(201);
+    }
+
+    private function findInvoice(string $ulid, TenantContext $tenantContext): PurchaseInvoice
+    {
+        $invoice = PurchaseInvoice::query()
+            ->forTenant($tenantContext->tenantId())
+            ->where('branch_id', $tenantContext->branchId())
+            ->where('warehouse_id', $tenantContext->warehouseId())
+            ->where('ulid', $ulid)
+            ->first();
+
+        if (! $invoice) {
+            throw new ApiException('NOT_FOUND', 'The requested resource was not found.', 404);
+        }
+
+        return $invoice;
+    }
+
+    private function findLine(PurchaseInvoice $invoice, string $lineUlid): PurchaseInvoiceLine
+    {
+        $line = PurchaseInvoiceLine::query()
+            ->where('purchase_invoice_id', $invoice->id)
+            ->where('ulid', $lineUlid)
+            ->first();
+
+        if (! $line) {
+            throw new ApiException('NOT_FOUND', 'The requested resource was not found.', 404);
+        }
+
+        return $line;
+    }
+
+    /**
+     * @return array<string, list<string|\Illuminate\Validation\Rules\In>>
+     */
+    private function headerRules(bool $updating = false): array
+    {
+        $money = ['nullable', 'regex:/^(?:0|[1-9]\d*)(?:\.\d{1,4})?$/'];
+        $pct = ['nullable', 'regex:/^(?:0|[1-9]\d*)(?:\.\d{1,8})?$/'];
+        $req = $updating ? ['sometimes', 'required'] : ['required'];
+
+        return [
+            'supplier_ulid' => [...$req, 'string', 'size:26'],
+            'warehouse_ulid' => [...$req, 'string', 'size:26'],
+            'invoice_date' => [$updating ? 'sometimes' : 'nullable', 'date'],
+            'due_date' => ['nullable', 'date'],
+            'supplier_invoice_number' => ['nullable', 'string', 'max:100'],
+            'purchase_order_ulid' => ['nullable', 'string', 'size:26'],
+            'po_number' => ['nullable', 'string', 'max:100'],
+            'invoice_type' => ['nullable', 'string', 'max:40'],
+            'currency_code' => ['nullable', 'string', 'size:3'],
+            'calculation_method' => ['nullable', 'string', 'max:40'],
+            'discount_apply_on' => ['nullable', new \Illuminate\Validation\Rules\In(['trade', 'mrp_ex_gst', 'mrp_incl_gst'])],
+            'calculation_modes' => ['nullable', 'array'],
+            'calculation_modes.regular_disc' => ['nullable', new \Illuminate\Validation\Rules\In(['pct', 'rs'])],
+            'calculation_modes.special_disc' => ['nullable', new \Illuminate\Validation\Rules\In(['pct', 'rs'])],
+            'calculation_modes.gst' => ['nullable', new \Illuminate\Validation\Rules\In(['pct', 'rs'])],
+            'calculation_modes.disc_after_gst' => ['nullable', new \Illuminate\Validation\Rules\In(['pct', 'rs'])],
+            'calculation_modes.further_tax' => ['nullable', new \Illuminate\Validation\Rules\In(['pct', 'rs'])],
+            'calculation_modes.advance_tax' => ['nullable', new \Illuminate\Validation\Rules\In(['pct', 'rs'])],
+            'auto_calc_mrp' => ['nullable', 'boolean'],
+            'withholding_is_pct' => ['nullable', 'boolean'],
+            'withholding_pct' => $pct,
+            'default_sales_tax_pct' => $pct,
+            'default_further_tax_pct' => $pct,
+            'default_advance_tax_pct' => $pct,
+            'default_price_type' => ['nullable', 'string', 'max:20'],
+            'brand_label' => ['nullable', 'string', 'max:120'],
+            'freight_amount' => $money,
+            'loading_amount' => $money,
+            'other_charges' => $money,
+            'other_discount' => $money,
+            'trade_offer' => $money,
+            'advance_tax_amount' => $money,
+            'round_off' => ['nullable', 'regex:/^-?(?:0|[1-9]\d*)(?:\.\d{1,4})?$/'],
+            'notes' => ['nullable', 'string', 'max:5000'],
+            'tax_type' => ['nullable', 'string', 'max:40'],
+            'payment_terms' => ['nullable', 'string', 'max:40'],
+        ];
+    }
+
+    /**
+     * @return array<string, list<string>>
+     */
+    private function lineRules(bool $updating = false): array
+    {
+        $money = ['nullable', 'regex:/^(?:0|[1-9]\d*)(?:\.\d{1,4})?$/'];
+        $pct = ['nullable', 'regex:/^(?:0|[1-9]\d*)(?:\.\d{1,8})?$/'];
+        $qty = ['nullable', 'regex:/^(?:0|[1-9]\d*)(?:\.\d{1,6})?$/'];
+        $req = $updating ? ['sometimes', 'required'] : ['required'];
+
+        return [
+            'purchase_order_line_ulid' => ['nullable', 'string', 'size:26'],
+            'product_ulid' => [...$req, 'string', 'size:26'],
+            'unit_ulid' => [...$req, 'string', 'size:26'],
+            'quantity' => [...$req, 'regex:/^(?:0|[1-9]\d*)(?:\.\d{1,6})?$/'],
+            'conversion_factor' => ['nullable', 'regex:/^(?:0|[1-9]\d*)(?:\.\d{1,8})?$/'],
+            'unit_cost' => [...$req, 'regex:/^(?:0|[1-9]\d*)(?:\.\d{1,4})?$/'],
+            'discount_amount' => $money,
+            'tax_amount' => $money,
+            'supplier_product_code' => ['nullable', 'string', 'max:100'],
+            'batch_number' => ['nullable', 'string', 'max:100'],
+            'expiry_date' => ['nullable', 'date'],
+            'notes' => ['nullable', 'string', 'max:500'],
+            'brand_label' => ['nullable', 'string', 'max:120'],
+            'hs_code' => ['nullable', 'string', 'max:40'],
+            'pack_size' => ['nullable', 'string', 'max:40'],
+            'qty_ctn' => $qty,
+            'free_pcs' => $qty,
+            'price_type' => ['nullable', 'string', 'max:20'],
+            'mrp' => $money,
+            'trade_disc_pct' => $pct,
+            'regular_disc_pct' => $pct,
+            'regular_disc_amount' => $money,
+            'special_disc_pct' => $pct,
+            'special_disc_amount' => $money,
+            'disc_after_gst_pct' => $pct,
+            'disc_after_gst_amount' => $money,
+            'tax_pct' => $pct,
+            'further_tax_pct' => $pct,
+            'further_tax_amount' => $money,
+        ];
+    }
+}

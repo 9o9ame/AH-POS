@@ -1,0 +1,2192 @@
+/*
+ * Purchase Invoice Entry — compact single-page layout.
+ * Bright modern visual shell (layout/geometry preserved).
+ */
+
+.purchase-reference-screen.purchase-entry-screen {
+  --pie-blue: #0b6bcb;
+  --pie-blue-mid: #1a84ef;
+  --pie-blue-deep: #064a96;
+  --pie-blue-soft: #e3f2ff;
+  --pie-cyan: #00b8d4;
+  --pie-teal: #00a3a3;
+  --pie-border: #8ec5f2;
+  --pie-panel: #ffffff;
+  --pie-muted: #4a6785;
+  --pie-green: #00a65a;
+  --pie-green-bright: #12c76d;
+  --pie-red: #e53935;
+  --pie-amber: #ffb300;
+  --pie-orange: #ff8a00;
+  --pie-violet: #5c6bc0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  height: 100%;
+  min-height: 0;
+  padding: 4px 6px;
+  overflow: hidden;
+  border: 0;
+  background:
+    radial-gradient(1200px 420px at 8% -10%, rgba(26, 132, 239, 0.22), transparent 55%),
+    radial-gradient(900px 360px at 92% 0%, rgba(0, 184, 212, 0.18), transparent 50%),
+    linear-gradient(180deg, #eaf5ff 0%, #f3f9ff 38%, #f7fbff 100%);
+  color: #17324d;
+  font-size: 10px;
+  font-family: var(--app-font-family, "Segoe UI", sans-serif);
+}
+
+.purchase-entry-screen * {
+  box-sizing: border-box;
+}
+
+.pie-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 3px;
+  margin-left: auto;
+}
+
+.pie-inline-check {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  font-size: 9px;
+  color: var(--pie-muted);
+  cursor: pointer;
+}
+
+.pie-inline-check input {
+  margin: 0;
+  width: 11px;
+  height: 11px;
+  accent-color: var(--pie-blue-mid);
+}
+
+.pie-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-height: 24px;
+  padding: 0 9px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) inset, 0 2px 6px rgba(15, 55, 100, 0.16);
+  transition: transform 0.12s ease, filter 0.12s ease, box-shadow 0.12s ease;
+}
+
+.pie-btn:hover:not(:disabled) {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset, 0 4px 10px rgba(15, 55, 100, 0.2);
+}
+
+.pie-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.pie-btn svg {
+  width: 11px;
+  height: 11px;
+}
+
+.pie-btn.is-new {
+  background: linear-gradient(180deg, #2fd67a 0%, #12a855 100%);
+  border-color: #0e8f47;
+}
+.pie-btn.is-save {
+  background: linear-gradient(180deg, #3b9dff 0%, #1170e0 100%);
+  border-color: #0d5fc0;
+}
+.pie-btn.is-post {
+  background: linear-gradient(180deg, #22d3ee 0%, #0891b2 100%);
+  border-color: #0e7490;
+}
+.pie-btn.is-print {
+  background: linear-gradient(180deg, #60a5fa 0%, #2563eb 100%);
+  border-color: #1d4ed8;
+}
+.pie-btn.is-close {
+  background: linear-gradient(180deg, #ff6b6b 0%, #e03131 100%);
+  border-color: #c92a2a;
+}
+.pie-btn.is-ghost {
+  background: linear-gradient(180deg, #ffffff 0%, #eef7ff 100%);
+  color: var(--pie-blue);
+  border-color: #8ec5f2;
+  box-shadow: 0 1px 0 #fff inset, 0 1px 4px rgba(17, 112, 224, 0.12);
+}
+.pie-btn.is-danger-ghost {
+  background: linear-gradient(180deg, #fff5f5 0%, #ffe3e3 100%);
+  color: var(--pie-red);
+  border-color: #ffb4b4;
+}
+.pie-btn.is-settings {
+  background: linear-gradient(180deg, #7c8cff 0%, #4f5bd5 100%);
+  border-color: #3f4ab8;
+}
+
+.pie-error {
+  flex: 0 0 auto;
+  padding: 4px 8px;
+  border: 1px solid #ff9aa2;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #fff1f2 0%, #ffe4e6 100%);
+  color: #be123c;
+  font-weight: 700;
+  font-size: 10px;
+}
+
+.pie-info-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  flex: 0 0 auto;
+  max-height: none;
+  overflow: hidden;
+  align-items: stretch;
+}
+
+.pie-field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 6px;
+  align-items: center;
+}
+
+.pie-field-grid .pie-field {
+  margin: 0;
+}
+
+.pie-field-grid .pie-field-span-2 {
+  grid-column: 1 / -1;
+}
+
+.pie-field-grid .pie-field > span {
+  font-size: 9px;
+}
+
+.pie-radio-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1px 8px;
+  padding: 4px;
+  border: 1px solid #9ee7f3;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #ecfeff 0%, #e0f7fa 100%);
+}
+
+.pie-radio-grid input,
+.pie-radio-row input,
+.pie-chips input {
+  accent-color: #0891b2;
+}
+
+.pie-radio-grid label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  cursor: pointer;
+  line-height: 1.2;
+  min-width: 0;
+}
+
+
+
+.pie-radio-grid input {
+  width: 11px;
+  height: 11px;
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+.pie-radio-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+}
+
+.pie-radio-row label {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 9px;
+  cursor: pointer;
+}
+
+.pie-radio-row input {
+  width: 11px;
+  height: 11px;
+  margin: 0;
+}
+
+.pie-discount-apply {
+  margin-top: 4px;
+}
+
+.pie-charge-pairs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 6px;
+}
+
+.pie-charge-pairs label {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 58px;
+  gap: 4px;
+  align-items: center;
+  min-width: 0;
+}
+
+.pie-charge-pairs label span {
+  font-size: 9px;
+  color: var(--pie-muted);
+}
+
+.pie-charge-pairs input {
+  width: 100%;
+  min-height: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border: 1px solid #b7c7d9;
+  border-radius: 2px;
+  font-size: 10px;
+}
+
+.pie-charge-pairs input[type='checkbox'] {
+  width: 11px;
+  height: 11px;
+  min-height: 11px;
+  padding: 0;
+}
+
+.pie-panel-supplier,
+.pie-field-supplier,
+.pie-supplier-hint {
+  /* legacy selectors kept harmlessly */
+}
+
+.pie-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 3px 5px 5px;
+  border: 1px solid #b9dbf8;
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(245, 251, 255, 0.96) 100%);
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(11, 107, 203, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.7) inset;
+}
+
+.pie-panel-invoice {
+  border-top: 3px solid #1a84ef;
+}
+
+.pie-panel-gst {
+  border-top: 3px solid #00b8d4;
+}
+
+.pie-panel-charges {
+  border-top: 3px solid #ff8a00;
+}
+
+.pie-panel.pie-final {
+  border-top: 3px solid #12c76d;
+}
+
+.pie-panel-payment {
+  border-top: 3px solid #ffb300;
+}
+
+.pie-panel-head {
+  margin: -3px -5px 3px;
+  padding: 4px 7px;
+  border-bottom: 0;
+  background: linear-gradient(90deg, #0b6bcb 0%, #1a84ef 48%, #00b8d4 100%);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-shadow: 0 1px 0 rgba(0, 40, 80, 0.25);
+  box-shadow: 0 2px 6px rgba(11, 107, 203, 0.2);
+}
+
+.pie-panel-gst .pie-panel-head {
+  background: linear-gradient(90deg, #0891b2 0%, #06b6d4 55%, #22d3ee 100%);
+}
+
+.pie-panel-charges .pie-panel-head {
+  background: linear-gradient(90deg, #ea580c 0%, #f59e0b 55%, #fbbf24 100%);
+  color: #1f2937;
+  text-shadow: none;
+}
+
+.pie-panel.pie-final .pie-panel-head {
+  background: linear-gradient(90deg, #059669 0%, #10b981 55%, #34d399 100%);
+}
+
+.pie-panel-payment .pie-panel-head {
+  background: linear-gradient(90deg, #d97706 0%, #f59e0b 50%, #fbbf24 100%);
+  color: #1f2937;
+  text-shadow: none;
+}
+
+.pie-field {
+  display: grid;
+  grid-template-columns: 70px minmax(0, 1fr);
+  gap: 3px;
+  align-items: center;
+}
+
+.pie-field.is-stack {
+  grid-template-columns: 1fr;
+  align-items: stretch;
+}
+
+.pie-field > span {
+  font-size: 9px;
+  color: var(--pie-muted);
+  font-weight: 600;
+}
+
+.pie-field input,
+.pie-field select,
+.pie-field textarea,
+.pie-charge-grid input,
+.pie-inline-input {
+  width: 100%;
+  min-height: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border: 1px solid #9ecaf0;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #ffffff 0%, #f4faff 100%);
+  font-size: 10px;
+  line-height: 1.15;
+  color: #17324d;
+}
+
+.pie-field input:focus,
+.pie-field select:focus,
+.pie-field textarea:focus,
+.pie-charge-pairs input:focus,
+.pie-inline-input:focus {
+  outline: none;
+  border-color: #1a84ef;
+  box-shadow: 0 0 0 2px rgba(26, 132, 239, 0.18);
+}
+
+.pie-field textarea {
+  min-height: 20px;
+  height: auto;
+  resize: none;
+}
+
+.pie-field-row {
+  display: flex;
+  gap: 3px;
+  min-width: 0;
+}
+
+.pie-field-row select {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.pie-supplier-actions {
+  flex: 0 0 auto;
+}
+
+.pie-supplier-combo {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 20px;
+}
+
+.pie-supplier-combo-input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 20px !important;
+  padding: 0 26px 0 5px !important;
+  border: 1px solid var(--ui-control-border) !important;
+  border-radius: var(--control-radius) !important;
+  background: var(--ui-control-face) !important;
+  color: var(--ui-text);
+  box-shadow: var(--ui-control-shadow) !important;
+}
+
+.pie-supplier-combo-input:hover:not(:disabled) {
+  border-color: var(--ui-control-hover-border, var(--ui-accent)) !important;
+  background: var(--ui-control-hover-bg, var(--ui-accent-soft)) !important;
+}
+
+.pie-supplier-combo-input:focus {
+  outline: none;
+  border-color: var(--ui-accent) !important;
+  box-shadow: var(--ui-focus-shadow) !important;
+}
+
+.pie-supplier-combo-toggle {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  padding: 0;
+  border: 1px solid var(--ui-select-arrow-border, var(--ui-accent));
+  border-radius: var(--control-radius);
+  background: var(--ui-select-arrow-face);
+  color: var(--ui-select-selected-text, #fff);
+  cursor: pointer;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #fff 28%, transparent),
+    var(--ui-control-shadow);
+}
+
+.pie-supplier-combo-toggle:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.pie-supplier-combo-toggle:focus-visible {
+  outline: none;
+  box-shadow: var(--ui-focus-shadow);
+}
+
+.pie-supplier-combo-toggle:disabled {
+  border-color: var(--ui-border);
+  background: var(--ui-surface-muted);
+  color: var(--ui-text-muted);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.pie-supplier-combo-arrow {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  transition: transform var(--ui-transition-normal);
+}
+
+.pie-supplier-combo-toggle[aria-expanded='true'] .pie-supplier-combo-arrow {
+  transform: rotate(180deg);
+}
+
+html[data-animations='off'] .pie-supplier-combo-arrow {
+  transition: none;
+}
+
+.pie-radio-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 2px 3px;
+  border: 1px solid #d5e0ec;
+  border-radius: 3px;
+  background: #f7fafc;
+}
+
+.pie-radio-list label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  cursor: pointer;
+  line-height: 1.2;
+}
+
+.pie-radio-list input {
+  width: 11px;
+  height: 11px;
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+.pie-option-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pie-option-block strong {
+  font-size: 9px;
+  color: var(--pie-blue);
+}
+
+.pie-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 6px;
+}
+
+.pie-chips label {
+  display: inline-flex;
+  gap: 2px;
+  align-items: center;
+  font-size: 9px;
+  cursor: pointer;
+}
+
+.pie-chips input {
+  width: 11px;
+  height: 11px;
+  margin: 0;
+}
+
+.pie-charge-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) 56px;
+  gap: 2px 4px;
+  align-items: center;
+}
+
+.pie-charge-grid span {
+  font-size: 9px;
+  color: var(--pie-muted);
+}
+
+.pie-charge-with-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pie-charge-with-check label {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--pie-blue);
+}
+
+.pie-items {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.pie-items-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  align-items: center;
+  flex: 0 0 auto;
+  padding: 4px 6px;
+  border: 1px solid #5eb0ff;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #0b6bcb 0%, #1a84ef 42%, #00b8d4 100%);
+  box-shadow: 0 3px 10px rgba(11, 107, 203, 0.22);
+}
+
+.pie-items-title {
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  margin-right: 4px;
+  text-shadow: 0 1px 0 rgba(0, 40, 80, 0.25);
+  letter-spacing: 0.03em;
+}
+
+.pie-items-toolbar .pie-search input {
+  width: 100%;
+  height: 22px;
+  padding: 0 6px 0 24px;
+  border: 1px solid #fff;
+  border-radius: 5px;
+  font-size: 10px;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 40, 80, 0.12);
+}
+
+.pie-items-toolbar .pie-search-icon {
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--pie-muted);
+  pointer-events: none;
+}
+
+.pie-items-toolbar .pie-search-icon svg {
+  width: 11px;
+  height: 11px;
+}
+
+.pie-lookup {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  max-height: 140px;
+  overflow: auto;
+  border: 1px solid var(--pie-border);
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 6px 14px rgba(16, 40, 70, 0.16);
+}
+
+.pie-lookup button {
+  display: block;
+  width: 100%;
+  padding: 4px 6px;
+  border: 0;
+  border-bottom: 1px solid #e6edf5;
+  background: #fff;
+  text-align: left;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.pie-lookup button:hover {
+  background: var(--pie-blue-soft);
+}
+
+.pie-items-toolbar .pie-search {
+  position: relative;
+  flex: 1 1 160px;
+  min-width: 120px;
+}
+
+.pie-product-combo {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  height: var(--ui-control-h-md);
+  overflow: visible;
+}
+
+.pie-product-combo-input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 100% !important;
+  padding: 0 calc((var(--ui-control-h-md) - 4px) * 2 + 8px) 0 5px !important;
+  border: 1px solid var(--ui-control-border) !important;
+  border-radius: var(--control-radius) !important;
+  background: var(--ui-control-face) !important;
+  color: var(--ui-text);
+  box-shadow: var(--ui-control-shadow) !important;
+}
+
+.pie-product-combo-input:hover:not(:disabled) {
+  border-color: var(--ui-control-hover-border, var(--ui-accent)) !important;
+  background: var(--ui-control-hover-bg, var(--ui-accent-soft)) !important;
+}
+
+.pie-product-combo-input:focus {
+  outline: none;
+  border-color: var(--ui-accent) !important;
+  box-shadow: var(--ui-focus-shadow) !important;
+}
+
+.pie-product-combo-actions {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  bottom: 2px;
+  z-index: 2;
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  pointer-events: auto;
+}
+
+.pie-product-combo-toggle,
+.pie-product-combo-add {
+  display: grid;
+  place-items: center;
+  width: auto;
+  min-width: 0;
+  height: 100%;
+  min-height: 0;
+  aspect-ratio: 1 / 1;
+  padding: 0;
+  border: 1px solid var(--ui-select-arrow-border, var(--ui-accent));
+  border-radius: var(--control-radius);
+  color: var(--ui-select-selected-text, #fff);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #fff 28%, transparent),
+    var(--ui-control-shadow);
+}
+
+.pie-product-combo-toggle {
+  background: var(--ui-select-arrow-face);
+}
+
+.pie-product-combo-add {
+  background: var(--ui-select-arrow-face);
+  border-color: var(--ui-select-arrow-border, var(--ui-accent));
+  color: var(--ui-select-selected-text, #fff);
+  font-size: 13px;
+}
+
+.pie-product-combo-toggle:hover:not(:disabled),
+.pie-product-combo-add:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.pie-product-combo-toggle:focus-visible,
+.pie-product-combo-add:focus-visible {
+  outline: none;
+  box-shadow: var(--ui-focus-shadow);
+}
+
+.pie-product-combo-toggle:disabled,
+.pie-product-combo-add:disabled {
+  border-color: var(--ui-border);
+  background: var(--ui-surface-muted);
+  color: var(--ui-text-muted);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.pie-product-combo-arrow {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  transition: transform var(--ui-transition-normal);
+}
+
+.pie-product-combo-toggle[aria-expanded='true'] .pie-product-combo-arrow {
+  transform: rotate(180deg);
+}
+
+html[data-animations='off'] .pie-product-combo-arrow {
+  transition: none;
+}
+
+.purchase-reference-grid tr.is-new-line td {
+  background: var(--ui-surface-subtle) !important;
+}
+
+.purchase-reference-grid tr.is-new-line td.col-product {
+  overflow: visible;
+}
+
+.purchase-reference-grid-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  border: 1px solid #8ec5f2;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(11, 107, 203, 0.08);
+}
+
+.purchase-entry-screen .purchase-reference-grid {
+  font-size: 10px;
+}
+
+.purchase-entry-screen .purchase-reference-grid th {
+  padding: 2px 3px;
+  font-size: 9px;
+  line-height: 1.15;
+  background: linear-gradient(180deg, #e8f4ff 0%, #d4ebff 100%);
+  color: #0b4f94;
+  border-color: #b6d8f5;
+}
+
+.purchase-entry-screen .purchase-reference-grid td {
+  padding: 1px 2px;
+  font-size: 10px;
+  line-height: 1.15;
+}
+
+.purchase-entry-screen .purchase-reference-grid td input,
+.purchase-entry-screen .purchase-reference-grid td select {
+  min-height: 16px;
+  height: 16px;
+  padding: 0 2px;
+  font-size: 10px;
+}
+
+.purchase-entry-screen .purchase-reference-grid td.cell-yellow {
+  background: #fff7c2 !important;
+}
+
+.purchase-entry-screen .purchase-reference-grid td.cell-cyan {
+  background: #c8f7f5 !important;
+}
+
+.pie-bottom {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 4px;
+  flex: 0 0 auto;
+  max-height: 28vh;
+  overflow: hidden;
+}
+
+.pie-bottom.pie-bottom-mock {
+  grid-template-columns: 1.35fr 1fr;
+}
+
+.pie-bottom .pie-panel {
+  min-height: 0;
+}
+
+.pie-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.pie-summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1px 8px;
+}
+
+.pie-summary-grid > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 0 2px;
+  border-bottom: 1px dotted #d5e0ec;
+  font-size: 9px;
+  line-height: 1.4;
+  min-width: 0;
+}
+
+.pie-summary-grid > div span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pie-summary-grid strong,
+.pie-summary-list strong {
+  font-variant-numeric: tabular-nums;
+  flex: 0 0 auto;
+}
+
+.pie-summary-list > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 0;
+  border-bottom: 1px dotted #d5e0ec;
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+.pie-payment-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px 6px;
+  align-items: center;
+}
+
+.pie-payment-grid .pie-balance-payable {
+  margin-top: 0;
+  min-height: 18px;
+  padding: 2px 6px;
+}
+
+.pie-discount-apply-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+
+.pie-inline-check-inline {
+  margin-top: 0;
+  white-space: nowrap;
+}
+
+.pie-disc-input-row {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin-bottom: 3px;
+}
+
+.pie-disc-input-row strong {
+  flex: 0 0 auto;
+}
+
+.pie-chips-inline {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.pie-charge-triple {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 2px 6px;
+  margin-top: 2px;
+}
+
+.pie-charge-triple label {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 52px;
+  gap: 3px;
+  align-items: center;
+  min-width: 0;
+}
+
+.pie-charge-triple label span {
+  font-size: 9px;
+  color: var(--pie-muted);
+}
+
+.pie-charge-triple input {
+  width: 100%;
+  min-height: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border: 1px solid #9ecaf0;
+  border-radius: 4px;
+  font-size: 10px;
+}
+
+.pie-charge-triple input[type='checkbox'] {
+  width: 11px;
+  height: 11px;
+  min-height: 11px;
+  padding: 0;
+}
+
+.pie-panel-payment .pie-notes-inline {
+  margin-top: 3px;
+  grid-template-columns: 40px minmax(0, 1fr);
+  flex: 0 0 auto;
+}
+
+.pie-panel-payment .pie-notes-fit {
+  min-height: 18px;
+  height: 18px;
+}
+
+.pie-grand {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #d1fae5 0%, #6ee7b7 45%, #34d399 100%);
+  border: 1px solid #10b981;
+  font-weight: 800;
+  font-size: 10px;
+  color: #065f46;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+}
+
+.pie-grand strong {
+  font-size: 14px;
+  color: #047857;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.pie-amount-words {
+  margin: 3px 0 0;
+  font-size: 9px;
+  color: var(--pie-muted);
+  font-style: italic;
+  line-height: 1.15;
+}
+
+.pie-balance-payable {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 3px;
+  padding: 4px 7px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #fff7d6 0%, #ffe082 50%, #ffca28 100%);
+  border: 1px solid #f59e0b;
+  font-size: 10px;
+  font-weight: 800;
+  color: #92400e;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.22);
+}
+
+.pie-balance-payable strong {
+  color: #b45309;
+  font-size: 13px;
+}
+
+.pie-dual-toggles button {
+  min-width: 20px;
+  height: 14px;
+  padding: 0 3px;
+  border: 1px solid #5eb0ff;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #e8f4ff 0%, #cfe8ff 100%);
+  color: #0b6bcb;
+  font-size: 8px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.pie-dual-toggles button.is-active {
+  background: linear-gradient(180deg, #3b9dff 0%, #1170e0 100%);
+  border-color: #0d5fc0;
+  color: #fff;
+  box-shadow: 0 1px 4px rgba(17, 112, 224, 0.35);
+}
+
+.pie-notes-fit {
+  width: 100%;
+  min-height: 56px;
+  height: 100%;
+  margin-top: 0;
+  padding: 4px;
+  resize: none;
+  font-size: 10px;
+}
+
+.pie-dual-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  line-height: 1.05;
+}
+
+.pie-dual-toggles {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.pie-dual-toggles button {
+  min-width: 20px;
+  height: 14px;
+  padding: 0 3px;
+  border: 1px solid #7aa3d4;
+  border-radius: 2px;
+  background: #e8f1fb;
+  color: #1a4f8c;
+  font-size: 8px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.pie-dual-toggles button.is-active {
+  background: #1f6bb5;
+  border-color: #1f6bb5;
+  color: #fff;
+}
+
+.pie-dual-cell .pie-dual-inputs,
+.pie-dual-inputs {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 1px;
+}
+
+.pie-dual-inputs input,
+.pie-dual-inputs span {
+  width: 100%;
+  min-height: 15px;
+  height: 15px;
+  padding: 0 2px;
+  border: 1px solid #c5d3e2;
+  border-radius: 2px;
+  font-size: 9px;
+  text-align: right;
+  background: #fff;
+}
+
+.pie-dual-inputs input.is-disabled,
+.pie-dual-inputs input:disabled {
+  background: #eef2f6;
+  color: #6b7785;
+  cursor: not-allowed;
+}
+
+.pie-dual-inputs.is-readonly span {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  background: #f5f8fb;
+}
+
+.purchase-reference-grid td.col-uom select {
+  width: 100%;
+  min-height: 20px;
+  height: 22px;
+  padding: 0 2px;
+  border: 1px solid #c5d3e2;
+  border-radius: 2px;
+  font-size: 10px;
+  background: #fff;
+}
+
+@media (max-width: 1400px) {
+  .pie-info-row {
+    grid-template-columns: 1fr;
+    max-height: none;
+    overflow: auto;
+  }
+
+  .pie-bottom {
+    grid-template-columns: 1fr;
+    max-height: none;
+    overflow: auto;
+  }
+}
+
+@media (max-width: 980px) {
+  .pie-info-row,
+  .pie-bottom,
+  .pie-summary-grid,
+  .pie-payment-grid,
+  .pie-field-grid,
+  .pie-radio-grid,
+  .pie-charge-pairs,
+  .pie-charge-triple {
+    grid-template-columns: 1fr;
+  }
+}
+
+:root[data-theme='dark'] .pie-panel {
+  background: #1a2026;
+  border-color: #4d5862;
+}
+
+:root[data-theme='dark'] .pie-field input,
+:root[data-theme='dark'] .pie-field select,
+:root[data-theme='dark'] .pie-field textarea,
+:root[data-theme='dark'] .pie-charge-grid input,
+:root[data-theme='dark'] .pie-inline-input,
+:root[data-theme='dark'] .pie-items-toolbar .pie-search input {
+  background: #1a2026;
+  border-color: #5d6873;
+  color: #edf1f5;
+}
+
+:root[data-theme='dark'] .pie-radio-list {
+  background: #1a2026;
+  border-color: #4d5862;
+}
+
+:root[data-theme='dark'] .purchase-reference-grid-wrap {
+  background: #151a1f;
+  border-color: #4d5862;
+}
+
+
+/* ---------- PURCHASES DESIGN SYSTEM MIGRATION ---------- */
+.purchase-reference-screen,
+.purchase-entry-screen {
+  color: var(--ui-text) !important;
+}
+
+.pie-panel,
+.pie-items,
+.pie-bottom,
+.purchase-reference-grid-wrap {
+  border-color: var(--ui-border) !important;
+  background: var(--ui-surface) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-card-shadow) !important;
+  border-radius: var(--panel-radius) !important;
+}
+
+.pie-panel-head,
+.pie-items-toolbar,
+.pie-bottom-mock {
+  border-color: var(--ui-border) !important;
+  background: linear-gradient(180deg, var(--ui-surface), var(--ui-surface-subtle)) !important;
+  color: var(--ui-text) !important;
+}
+
+.pie-btn,
+.pie-discount-apply,
+.pie-supplier-actions button,
+.pie-record-nav button {
+  border-color: var(--ui-border) !important;
+  border-radius: var(--control-radius) !important;
+  background: var(--ui-surface) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-control-shadow) !important;
+  transition:
+    border-color var(--ui-transition-fast),
+    background-color var(--ui-transition-fast),
+    color var(--ui-transition-fast),
+    box-shadow var(--ui-transition-fast) !important;
+}
+
+.pie-btn:hover:not(:disabled),
+.pie-discount-apply:hover:not(:disabled),
+.pie-supplier-actions button:hover:not(:disabled) {
+  border-color: var(--ui-accent) !important;
+  background: var(--ui-accent-soft) !important;
+}
+
+.pie-btn.is-save,
+.pie-btn.is-post {
+  border-color: var(--ui-accent) !important;
+  background: var(--ui-accent) !important;
+  color: #fff !important;
+}
+
+.pie-btn.is-new { color: var(--ui-info) !important; }
+.pie-btn.is-close,
+.pie-btn.is-danger-ghost,
+.pie-error { color: var(--ui-danger) !important; }
+.pie-btn.is-print { color: var(--ui-success) !important; }
+
+.purchase-entry-screen :where(input, select, textarea),
+.pie-inline-input,
+.pie-search {
+  border-color: var(--ui-border) !important;
+  border-radius: var(--control-radius) !important;
+  background: var(--ui-surface) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-control-shadow) !important;
+}
+
+.purchase-entry-screen :where(input, select, textarea):focus-visible,
+.pie-inline-input:focus-visible,
+.pie-search:focus-visible {
+  outline: none !important;
+  border-color: var(--ui-accent) !important;
+  box-shadow: var(--ui-focus-shadow) !important;
+}
+
+.purchase-entry-screen :where(input, select, textarea):disabled,
+.pie-inline-input.is-disabled,
+.pie-inline-input.is-readonly {
+  background: var(--ui-surface-muted) !important;
+  color: var(--ui-text-muted) !important;
+}
+
+.purchase-reference-grid th {
+  border-color: var(--ui-border) !important;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ui-accent) 7%, var(--ui-surface)),
+    color-mix(in srgb, var(--ui-accent) 14%, var(--ui-surface-subtle))
+  ) !important;
+  color: var(--ui-text) !important;
+}
+
+.purchase-reference-grid td {
+  border-color: color-mix(in srgb, var(--ui-border) 58%, transparent) !important;
+  color: var(--ui-text) !important;
+}
+
+.purchase-reference-grid tr.is-selected td {
+  background: color-mix(in srgb, var(--ui-accent) 18%, var(--ui-surface)) !important;
+}
+
+.pie-balance-payable,
+.pie-grand {
+  color: var(--ui-accent-strong) !important;
+}
+
+html[data-animations='off'] .purchase-entry-screen * {
+  transition: none !important;
+  animation: none !important;
+}
+
+
+/* ---------- PURCHASE GRAND TOTAL TOKEN CLEANUP ---------- */
+.pie-grand {
+  border-color: var(--ui-success) !important;
+  border-radius: var(--control-radius) !important;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--ui-success) 10%, var(--ui-surface)),
+    color-mix(in srgb, var(--ui-success) 28%, var(--ui-surface)),
+    color-mix(in srgb, var(--ui-success) 48%, var(--ui-surface))
+  ) !important;
+  color: color-mix(in srgb, var(--ui-success) 78%, var(--ui-text)) !important;
+  box-shadow: var(--ui-control-shadow) !important;
+}
+
+.pie-grand strong {
+  color: color-mix(in srgb, var(--ui-success) 84%, var(--ui-text)) !important;
+  text-shadow: none !important;
+}
+
+
+/* ---------- CANONICAL UI SELECT GEOMETRY ---------- */
+.purchase-entry-screen .ui-select {
+  min-width: 0;
+}
+
+.purchase-entry-screen .pie-field .ui-select-trigger,
+.purchase-entry-screen .pie-field-row .ui-select-trigger {
+  min-height: 26px;
+  height: 26px;
+}
+
+.purchase-entry-screen .pie-line-select .ui-select-trigger {
+  min-height: 22px;
+  height: 22px;
+  padding-left: 4px;
+  grid-template-columns: minmax(0, 1fr) 17px;
+  box-shadow: none;
+}
+
+.purchase-entry-screen .pie-line-select .ui-select-arrow {
+  width: 15px;
+  height: 14px;
+}
+
+
+/* ==========================================================================
+   Daily Entries global Definition baseline consumer.
+   Purchase Invoice keeps its current workflow geometry; appearance is global.
+   ========================================================================== */
+.purchase-entry-screen {
+  background: var(--ui-bg) !important;
+  color: var(--ui-text) !important;
+}
+
+.purchase-entry-screen .pie-panel {
+  border-color: var(--ui-border) !important;
+  border-radius: var(--panel-radius) !important;
+  background: var(--ui-surface) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-card-shadow) !important;
+}
+
+.purchase-entry-screen :where(
+  .pie-panel-invoice,
+  .pie-panel-gst,
+  .pie-panel-charges,
+  .pie-panel.pie-final,
+  .pie-panel-payment
+) {
+  border-top-color: var(--ui-accent) !important;
+}
+
+.purchase-entry-screen .pie-panel-head {
+  border-color: var(--ui-border) !important;
+  background: var(--ui-table-header) !important;
+  color: var(--ui-table-header-text) !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+}
+
+.purchase-entry-screen :where(
+  .pie-panel-gst .pie-panel-head,
+  .pie-panel-charges .pie-panel-head,
+  .pie-panel.pie-final .pie-panel-head,
+  .pie-panel-payment .pie-panel-head
+) {
+  background: var(--ui-table-header) !important;
+  color: var(--ui-table-header-text) !important;
+}
+
+.purchase-entry-screen :where(
+  .pie-field input,
+  .pie-field textarea,
+  .pie-charge-grid input,
+  .pie-charge-pairs input,
+  .pie-inline-input
+) {
+  border-color: var(--ui-control-border) !important;
+  border-radius: var(--control-radius) !important;
+  background: var(--ui-control-face) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-control-shadow) !important;
+}
+
+.purchase-entry-screen :where(
+  .pie-field input,
+  .pie-field textarea,
+  .pie-charge-grid input,
+  .pie-charge-pairs input,
+  .pie-inline-input
+):hover:not(:disabled) {
+  border-color: var(--ui-control-hover-border) !important;
+  background: var(--ui-control-hover-bg) !important;
+}
+
+.purchase-entry-screen :where(
+  .pie-field input,
+  .pie-field textarea,
+  .pie-charge-grid input,
+  .pie-charge-pairs input,
+  .pie-inline-input
+):focus-visible {
+  outline: none !important;
+  border-color: var(--ui-accent) !important;
+  box-shadow: var(--ui-focus-shadow) !important;
+}
+
+.purchase-entry-screen :where(
+  .pie-field > span,
+  .pie-charge-pairs label span,
+  .pie-supplier-hint,
+  .pie-muted
+) {
+  color: var(--ui-text-muted) !important;
+}
+
+.purchase-entry-screen :where(
+  .pie-radio-grid,
+  .pie-radio-row,
+  .pie-chips
+) {
+  border-color: var(--ui-border) !important;
+  background: var(--ui-surface-subtle) !important;
+  color: var(--ui-text) !important;
+}
+
+.purchase-entry-screen :where(
+  .pie-radio-grid input,
+  .pie-radio-row input,
+  .pie-chips input
+) {
+  accent-color: var(--ui-accent) !important;
+}
+
+.purchase-entry-screen :where(
+  .pie-btn,
+  .pie-chip,
+  .pie-tool-btn
+) {
+  border-color: var(--ui-control-border) !important;
+  background: var(--ui-control-face) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-control-shadow) !important;
+}
+
+.purchase-entry-screen :where(
+  .pie-btn,
+  .pie-chip,
+  .pie-tool-btn
+):hover:not(:disabled) {
+  border-color: var(--ui-control-hover-border) !important;
+  background: var(--ui-control-hover-bg) !important;
+}
+
+.purchase-entry-screen :where(
+  table th,
+  .pie-grid th
+) {
+  border-color: var(--ui-table-border) !important;
+  background: var(--ui-table-header) !important;
+  color: var(--ui-table-header-text) !important;
+}
+
+.purchase-entry-screen :where(
+  table td,
+  .pie-grid td
+) {
+  border-color: var(--ui-border-soft) !important;
+  background: var(--ui-surface) !important;
+  color: var(--ui-text) !important;
+}
+
+.purchase-entry-screen :where(
+  table tbody tr:hover td,
+  .pie-grid tbody tr:hover td
+) {
+  background: var(--ui-row-hover) !important;
+}
+
+.purchase-entry-screen .pie-error {
+  border-color: color-mix(in srgb, var(--ui-danger) 40%, var(--ui-border)) !important;
+  background: var(--ui-danger-soft) !important;
+  color: var(--ui-danger) !important;
+}
+
+
+/* ==========================================================================
+   Purchase Invoice list filter geometry.
+   Visual styling stays global; this section owns layout only.
+   ========================================================================== */
+.purchase-list-filters {
+  display: grid;
+  grid-template-columns:
+    minmax(180px, 1.45fr)
+    minmax(125px, .72fr)
+    minmax(125px, .72fr)
+    minmax(220px, 1.15fr)
+    minmax(150px, .8fr);
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  min-width: 0;
+  font-size: var(--ui-font-sm, 10px);
+}
+
+.purchase-list-filters > * {
+  min-width: 0;
+  width: 100%;
+}
+
+.purchase-list-filters .ui-select,
+.purchase-list-filters .ui-select-trigger {
+  width: 100%;
+  min-width: 0;
+}
+
+.purchase-list-page {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.purchase-list-page .desktop-panel-body {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.purchase-list-page .purchase-list-filters,
+.purchase-list-page .purchase-list-foot {
+  flex: 0 0 auto;
+}
+
+.purchase-list-grid {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.purchase-list-grid .pos-grid-wrap {
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+}
+
+.purchase-list-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ui-gap-sm, 6px);
+  min-height: 26px;
+  padding: 4px 6px 0;
+  color: var(--ui-text-muted);
+  font-size: var(--ui-font-sm, 10px);
+  font-weight: var(--ui-weight-medium, 600);
+}
+
+@media (max-width: 1180px) {
+  .purchase-list-filters {
+    grid-template-columns:
+      minmax(160px, 1.2fr)
+      120px
+      120px
+      minmax(190px, 1fr)
+      140px;
+    gap: 4px;
+  }
+}
+
+
+/* ==========================================================================
+   Purchase Invoice readability + approved Definition visual cleanup.
+   Geometry stays page-owned; typography/control states use global tokens.
+   ========================================================================== */
+.purchase-entry-screen .pie-panel {
+  gap: var(--ui-gap-xs) !important;
+}
+
+.purchase-entry-screen .pie-panel-head {
+  font-size: var(--ui-font-sm) !important;
+  font-weight: var(--ui-weight-strong) !important;
+  line-height: var(--ui-line-tight) !important;
+  letter-spacing: .01em !important;
+}
+
+.purchase-entry-screen :where(
+  .pie-field > span,
+  .pie-radio-grid label,
+  .pie-radio-row label,
+  .pie-chips label,
+  .pie-charge-grid span,
+  .pie-charge-pairs label span,
+  .pie-option-block strong,
+  .pie-inline-check,
+  .pie-supplier-hint
+) {
+  font-size: var(--ui-font-sm) !important;
+  font-weight: var(--ui-weight-medium) !important;
+  line-height: var(--ui-line-normal) !important;
+  letter-spacing: .002em !important;
+}
+
+.purchase-entry-screen :where(
+  .pie-field input,
+  .pie-field textarea,
+  .pie-charge-grid input,
+  .pie-charge-pairs input,
+  .pie-inline-input,
+  .pie-items-toolbar .pie-search input
+) {
+  min-height: var(--ui-control-h-sm) !important;
+  height: var(--ui-control-h-sm) !important;
+  font-size: var(--ui-font-md) !important;
+  font-weight: var(--ui-weight-normal) !important;
+  line-height: var(--ui-line-normal) !important;
+}
+
+.purchase-entry-screen .pie-field textarea {
+  height: auto !important;
+  min-height: var(--ui-control-h-md) !important;
+}
+
+.purchase-entry-screen :where(
+  .pie-radio-grid,
+  .pie-radio-row,
+  .pie-chips
+) {
+  gap: var(--ui-gap-sm) !important;
+}
+
+.purchase-entry-screen :where(
+  .pie-radio-grid input,
+  .pie-radio-row input,
+  .pie-chips input,
+  .pie-inline-check input
+) {
+  width: 13px !important;
+  height: 13px !important;
+  min-width: 13px !important;
+  min-height: 13px !important;
+}
+
+.purchase-entry-screen .pie-items-title {
+  font-size: var(--ui-font-md) !important;
+  font-weight: var(--ui-weight-strong) !important;
+  color: var(--ui-text) !important;
+  text-shadow: none !important;
+}
+
+.purchase-entry-screen .purchase-reference-grid th {
+  font-size: var(--ui-font-sm) !important;
+  font-weight: var(--ui-weight-strong) !important;
+  line-height: var(--ui-line-tight) !important;
+}
+
+.purchase-entry-screen .purchase-reference-grid td,
+.purchase-entry-screen .purchase-reference-grid td input,
+.purchase-entry-screen .purchase-reference-grid td button {
+  font-size: var(--ui-font-sm) !important;
+  font-weight: var(--ui-weight-normal) !important;
+  line-height: var(--ui-line-normal) !important;
+}
+
+.purchase-entry-screen .pie-summary-grid > div {
+  gap: var(--ui-gap-sm) !important;
+}
+
+.purchase-entry-screen .pie-summary-grid span,
+.purchase-entry-screen .pie-payment-grid .pie-field > span,
+.purchase-entry-screen .pie-notes-inline > span {
+  font-size: var(--ui-font-sm) !important;
+  font-weight: var(--ui-weight-medium) !important;
+  line-height: var(--ui-line-normal) !important;
+}
+
+.purchase-entry-screen .pie-summary-grid strong {
+  font-size: var(--ui-font-sm) !important;
+  font-weight: var(--ui-weight-medium) !important;
+  line-height: var(--ui-line-normal) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.purchase-entry-screen .pie-grand,
+.purchase-entry-screen .pie-balance-payable {
+  font-size: var(--ui-font-md) !important;
+  font-weight: var(--ui-weight-strong) !important;
+  line-height: var(--ui-line-normal) !important;
+}
+
+.purchase-entry-screen .pie-grand strong,
+.purchase-entry-screen .pie-balance-payable strong {
+  font-size: var(--ui-font-md) !important;
+  font-weight: var(--ui-weight-strong) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Remove the old per-panel brand-strip language; use the shared panel border. */
+.purchase-entry-screen :where(
+  .pie-panel-invoice,
+  .pie-panel-gst,
+  .pie-panel-charges,
+  .pie-panel.pie-final,
+  .pie-panel-payment
+) {
+  border-top-width: 1px !important;
+  border-top-color: var(--ui-border) !important;
+}
+
+/* Item toolbar should read as the same Definition surface, not a second brand bar. */
+.purchase-entry-screen .pie-items-toolbar {
+  border-color: var(--ui-border) !important;
+  border-radius: var(--panel-radius) !important;
+  background: var(--ui-panel-face) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-card-shadow) !important;
+}
+
+
+/* ==========================================================================
+   Purchase product lookup interaction polish.
+   Uses shared Definition state tokens; geometry remains page-owned.
+   ========================================================================== */
+.purchase-entry-screen .pie-lookup {
+  border-color: var(--ui-border) !important;
+  border-radius: var(--panel-radius) !important;
+  background: var(--ui-select-menu-bg) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-card-shadow) !important;
+}
+
+.purchase-entry-screen .pie-lookup-option {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--ui-gap-sm);
+  min-height: var(--ui-control-h-md);
+  padding: var(--ui-pad-sm) var(--ui-pad-md) !important;
+  border-bottom: 1px solid var(--ui-border-soft) !important;
+  background: var(--ui-surface) !important;
+  color: var(--ui-text) !important;
+  text-align: left;
+  font-size: var(--ui-font-sm) !important;
+  font-weight: var(--ui-weight-normal) !important;
+  line-height: var(--ui-line-normal) !important;
+}
+
+.purchase-entry-screen .pie-lookup-option:hover,
+.purchase-entry-screen .pie-lookup-option:focus-visible {
+  outline: none;
+  border-color: color-mix(in srgb, var(--ui-accent) 38%, transparent) !important;
+  background: var(--ui-select-hover-bg) !important;
+  color: var(--ui-select-hover-text) !important;
+}
+
+.purchase-entry-screen .pie-lookup-option-main {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: var(--ui-weight-medium);
+}
+
+.purchase-entry-screen .pie-lookup-option-meta {
+  color: var(--ui-text-muted);
+  font-size: var(--ui-font-xs);
+  font-weight: var(--ui-weight-normal);
+  white-space: nowrap;
+}
+
+.purchase-entry-screen .pie-lookup-option:hover .pie-lookup-option-meta,
+.purchase-entry-screen .pie-lookup-option:focus-visible .pie-lookup-option-meta {
+  color: var(--ui-select-hover-text);
+}
+
+/* Keep row selection visible without overpowering editable semantic cells. */
+.purchase-entry-screen .purchase-reference-grid tr.is-selected td:not(.cell-yellow):not(.cell-cyan) {
+  background: color-mix(in srgb, var(--ui-accent) 10%, var(--ui-surface)) !important;
+}
+
+.purchase-entry-screen .purchase-reference-grid tr.is-selected td.cell-yellow {
+  background:
+    linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--ui-accent) 6%, transparent),
+      color-mix(in srgb, var(--ui-accent) 6%, transparent)
+    ),
+    #fff7c2 !important;
+}
+
+.purchase-entry-screen .purchase-reference-grid tr.is-selected td.cell-cyan {
+  background:
+    linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--ui-accent) 6%, transparent),
+      color-mix(in srgb, var(--ui-accent) 6%, transparent)
+    ),
+    #c8f7f5 !important;
+}
+
+
+/* ==========================================================================
+   Purchase Invoice requested geometry/readability polish.
+   Visual language remains global; this section only adjusts page geometry.
+   ========================================================================== */
+.purchase-entry-screen .pie-charge-triple {
+  gap: var(--ui-gap-sm) var(--ui-gap-md) !important;
+}
+
+.purchase-entry-screen .pie-charge-triple label {
+  grid-template-columns: minmax(0, 1fr) 72px !important;
+  gap: var(--ui-gap-sm) !important;
+}
+
+.purchase-entry-screen .pie-charge-triple label > span {
+  font-size: var(--ui-font-md) !important;
+  font-weight: var(--ui-weight-medium) !important;
+  line-height: var(--ui-line-normal) !important;
+  color: var(--ui-text) !important;
+}
+
+.purchase-entry-screen .pie-charge-triple input:not([type='checkbox']) {
+  min-height: var(--ui-control-h-md) !important;
+  height: var(--ui-control-h-md) !important;
+  padding-inline: var(--ui-pad-sm) !important;
+  font-size: var(--ui-font-md) !important;
+  font-weight: var(--ui-weight-normal) !important;
+}
+
+/* Single-value row editors should be easier to scan than dual %/Rs cells. */
+.purchase-entry-screen .purchase-reference-grid td:not(.pie-dual-cell) > input,
+.purchase-entry-screen .purchase-reference-grid td:not(.pie-dual-cell) > div > input {
+  min-height: var(--ui-control-h-lg) !important;
+  height: var(--ui-control-h-lg) !important;
+  padding-inline: var(--ui-pad-sm) !important;
+  font-size: var(--ui-font-md) !important;
+}
+
+.purchase-entry-screen .purchase-reference-grid td:not(.pie-dual-cell) .pie-line-select .ui-select-trigger {
+  min-height: var(--ui-control-h-lg) !important;
+  height: var(--ui-control-h-lg) !important;
+  font-size: var(--ui-font-md) !important;
+}
+
+/* Notes is intentionally a real multi-line editor. */
+.purchase-entry-screen .pie-panel-payment .pie-notes-inline {
+  align-items: start;
+}
+
+.purchase-entry-screen .pie-panel-payment .pie-notes-fit {
+  min-height: 52px !important;
+  height: 52px !important;
+  padding: var(--ui-pad-sm) var(--ui-pad-md) !important;
+  resize: vertical !important;
+  line-height: var(--ui-line-normal) !important;
+  font-size: var(--ui-font-md) !important;
+}
+
+/* Reuse the existing embedded Party/Vendor editor inside the canonical modal. */
+.purchase-supplier-modal {
+  width: min(1180px, calc(100vw - 28px)) !important;
+  max-height: min(92vh, 860px) !important;
+}
+
+.purchase-supplier-modal-body {
+  padding: 0 !important;
+  overflow: auto !important;
+}
+
+.purchase-supplier-modal-body .parties-vca {
+  min-height: min(78vh, 720px);
+}
+
+
+/* ==========================================================================
+   Product lookup + dual-mode header polish.
+   Match the canonical UiSelect menu language without changing lookup logic.
+   ========================================================================== */
+.purchase-entry-screen .pie-lookup {
+  box-sizing: border-box;
+  padding: var(--ui-pad-sm) !important;
+  border: 1px solid var(--ui-border) !important;
+  border-radius: var(--panel-radius) !important;
+  background: var(--ui-select-menu-bg, var(--ui-surface)) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-card-shadow) !important;
+}
+
+.purchase-entry-screen .pie-lookup-option {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  min-height: 28px !important;
+  margin: 0 0 2px !important;
+  padding: 5px 9px !important;
+  border: 1px solid transparent !important;
+  border-radius: var(--control-radius) !important;
+  background: transparent !important;
+  color: var(--ui-text) !important;
+  font-size: var(--ui-font-md) !important;
+  font-weight: var(--ui-weight-medium) !important;
+  line-height: var(--ui-line-normal) !important;
+  letter-spacing: .005em;
+  transition:
+    background-color var(--ui-transition-fast),
+    border-color var(--ui-transition-fast),
+    color var(--ui-transition-fast) !important;
+}
+
+.purchase-entry-screen .pie-lookup-option:last-child {
+  margin-bottom: 0 !important;
+  border-bottom-color: transparent !important;
+}
+
+.purchase-entry-screen .pie-lookup-option:hover,
+.purchase-entry-screen .pie-lookup-option:focus-visible {
+  outline: none !important;
+  border-color: color-mix(in srgb, var(--ui-accent) 38%, transparent) !important;
+  background: var(--ui-select-hover-bg, var(--ui-accent-soft)) !important;
+  color: var(--ui-select-hover-text, var(--ui-accent-strong)) !important;
+}
+
+.purchase-entry-screen .pie-lookup-option-main {
+  font-size: var(--ui-font-md) !important;
+  font-weight: var(--ui-weight-medium) !important;
+  line-height: var(--ui-line-normal) !important;
+}
+
+.purchase-entry-screen .pie-lookup-option-meta {
+  color: var(--ui-text-muted) !important;
+  font-size: var(--ui-font-sm) !important;
+  font-weight: var(--ui-weight-normal) !important;
+  line-height: var(--ui-line-normal) !important;
+}
+
+.purchase-entry-screen .pie-lookup-option:hover .pie-lookup-option-meta,
+.purchase-entry-screen .pie-lookup-option:focus-visible .pie-lookup-option-meta {
+  color: var(--ui-select-hover-text, var(--ui-accent-strong)) !important;
+}
+
+/* Treat % / Rs as a compact segmented control instead of tiny badges. */
+.purchase-entry-screen .pie-dual-head {
+  gap: 3px !important;
+  line-height: var(--ui-line-tight) !important;
+}
+
+.purchase-entry-screen .pie-dual-toggles {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 2px !important;
+  padding: 2px !important;
+  border: 1px solid var(--ui-border) !important;
+  border-radius: var(--control-radius) !important;
+  background: var(--ui-surface-subtle) !important;
+  box-shadow: var(--ui-control-shadow) !important;
+}
+
+.purchase-entry-screen .pie-dual-toggles button {
+  min-width: 28px !important;
+  height: var(--ui-control-h-sm) !important;
+  padding: 0 var(--ui-pad-sm) !important;
+  border: 1px solid transparent !important;
+  border-radius: var(--control-radius) !important;
+  background: transparent !important;
+  color: var(--ui-text-muted) !important;
+  box-shadow: none !important;
+  font-size: var(--ui-font-sm) !important;
+  font-weight: var(--ui-weight-medium) !important;
+  line-height: 1 !important;
+  cursor: pointer;
+  transition:
+    background-color var(--ui-transition-fast),
+    border-color var(--ui-transition-fast),
+    color var(--ui-transition-fast),
+    box-shadow var(--ui-transition-fast) !important;
+}
+
+.purchase-entry-screen .pie-dual-toggles button:hover:not(.is-active),
+.purchase-entry-screen .pie-dual-toggles button:focus-visible:not(.is-active) {
+  outline: none !important;
+  border-color: color-mix(in srgb, var(--ui-accent) 32%, transparent) !important;
+  background: var(--ui-accent-soft) !important;
+  color: var(--ui-accent-strong) !important;
+}
+
+.purchase-entry-screen .pie-dual-toggles button.is-active {
+  border-color: var(--ui-accent-strong) !important;
+  background: var(--ui-select-selected-face, var(--ui-accent)) !important;
+  color: var(--ui-select-selected-text, #fff) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18) !important;
+  font-weight: var(--ui-weight-strong) !important;
+}
+
+
+/* Purchase header searchable selects use one integrated surface, like Supplier/Sales Return. */
+.purchase-entry-screen .pie-inline-search-select .ui-select-combobox-trigger {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--ui-control-h-sm);
+  height: var(--ui-control-h-sm);
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid var(--ui-control-border);
+  border-radius: var(--control-radius);
+  background: var(--ui-control-face);
+  box-shadow: var(--ui-control-shadow);
+}
+
+.purchase-entry-screen .pie-inline-search-select .ui-select-trigger-search {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 100% !important;
+  min-height: 0 !important;
+  padding: 0 25px 0 var(--ui-pad-sm) !important;
+  border: 0 !important;
+  border-radius: inherit !important;
+  outline: none !important;
+  background: transparent !important;
+  color: var(--ui-text) !important;
+  box-shadow: none !important;
+  font: inherit;
+}
+
+.purchase-entry-screen .pie-inline-search-select .ui-select-trigger-search:focus,
+.purchase-entry-screen .pie-inline-search-select .ui-select-trigger-search:focus-visible {
+  outline: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.purchase-entry-screen .pie-inline-search-select .ui-select-combobox-toggle {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  bottom: 2px;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  min-width: 18px;
+  height: auto;
+  min-height: 0;
+  padding: 0;
+  border: 1px solid var(--ui-select-arrow-border);
+  border-radius: calc(var(--control-radius) - 1px);
+  background: var(--ui-select-arrow-face);
+  color: var(--ui-select-selected-text);
+  box-shadow: none;
+}
+
+.purchase-entry-screen .pie-inline-search-select .ui-select-combobox-toggle .ui-select-arrow {
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  box-shadow: none;
+}
+
+.purchase-entry-screen .pie-inline-search-select .ui-select-combobox-trigger:focus-within {
+  border-color: var(--ui-accent);
+  box-shadow: var(--ui-focus-shadow);
+}
+
+
+/* Purchase Invoice numeric cells: keep right-aligned values off the cell edge. */
+.purchase-entry-screen .purchase-reference-grid td.is-num > input,
+.purchase-entry-screen .purchase-reference-grid td.is-num > div > input,
+.purchase-entry-screen .purchase-reference-grid .pie-dual-inputs input,
+.purchase-entry-screen .purchase-reference-grid .pie-dual-inputs span {
+  padding-right: 6px !important;
+}
+
+.purchase-entry-screen .purchase-reference-grid td.is-num {
+  padding-right: 5px !important;
+}
+
+
+/* ==========================================================================
+   Purchase Invoice contrast refinement.
+   Geometry is intentionally unchanged; only token-based visual hierarchy is
+   strengthened so column boundaries and editable/calculated states scan clearly.
+   ========================================================================== */
+.purchase-entry-screen .purchase-reference-grid-wrap {
+  border-color: var(--ui-table-border) !important;
+  background: var(--ui-surface) !important;
+  box-shadow: var(--ui-card-shadow) !important;
+}
+
+.purchase-entry-screen .purchase-reference-grid th {
+  border-color: var(--ui-table-border) !important;
+  background: var(--ui-table-header) !important;
+  color: var(--ui-table-header-text) !important;
+  font-weight: var(--ui-weight-bold, 700) !important;
+}
+
+.purchase-entry-screen .purchase-reference-grid td {
+  border-color: color-mix(in srgb, var(--ui-table-border) 88%, var(--ui-text) 12%) !important;
+  background: var(--ui-surface) !important;
+  color: var(--ui-text) !important;
+}
+
+.purchase-entry-screen .purchase-reference-grid tbody tr:nth-child(even) td {
+  background: color-mix(in srgb, var(--ui-row-alt) 82%, var(--ui-surface) 18%) !important;
+}
+
+.purchase-entry-screen .purchase-reference-grid td.cell-yellow {
+  background: color-mix(in srgb, var(--ui-warning) 16%, var(--ui-surface)) !important;
+}
+
+.purchase-entry-screen .purchase-reference-grid td.cell-cyan {
+  background: color-mix(in srgb, var(--ui-info) 13%, var(--ui-surface)) !important;
+}
+
+.purchase-entry-screen .purchase-reference-grid td.col-cost_price,
+.purchase-entry-screen .purchase-reference-grid td.col-sale_price,
+.purchase-entry-screen .purchase-reference-grid td.col-total_amount {
+  background: color-mix(in srgb, var(--ui-success) 11%, var(--ui-surface)) !important;
+}
+
+.purchase-entry-screen .purchase-reference-grid td.col-gst,
+.purchase-entry-screen .purchase-reference-grid td.col-further_tax,
+.purchase-entry-screen .purchase-reference-grid td.col-advance_tax {
+  background: color-mix(in srgb, var(--ui-info) 9%, var(--ui-surface)) !important;
+}
+
+.purchase-entry-screen .purchase-reference-grid td input,
+.purchase-entry-screen .purchase-reference-grid .pie-dual-inputs input,
+.purchase-entry-screen .purchase-reference-grid .pie-line-select .ui-select-trigger {
+  border-color: var(--ui-control-border) !important;
+  background: var(--ui-control-face) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-control-shadow) !important;
+}
+
+.purchase-entry-screen .purchase-reference-grid td input:focus,
+.purchase-entry-screen .purchase-reference-grid .pie-dual-inputs input:focus,
+.purchase-entry-screen .purchase-reference-grid .pie-line-select .ui-select-trigger:focus-visible {
+  border-color: var(--ui-accent) !important;
+  box-shadow: var(--ui-focus-shadow) !important;
+}
+
+.purchase-entry-screen .purchase-reference-grid .pie-dual-inputs input:disabled,
+.purchase-entry-screen .purchase-reference-grid .pie-dual-inputs input.is-disabled {
+  background: var(--ui-surface-muted) !important;
+  color: var(--ui-text-muted) !important;
+  border-color: var(--ui-table-border) !important;
+  box-shadow: none !important;
+}
+
+.purchase-entry-screen .purchase-reference-grid tr.is-selected td:not(.cell-yellow):not(.cell-cyan) {
+  background: color-mix(in srgb, var(--ui-accent) 14%, var(--ui-surface)) !important;
+}

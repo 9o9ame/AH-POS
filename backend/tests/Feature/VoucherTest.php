@@ -1,0 +1,436 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Accounting\CashierTransactionLock;
+use App\Models\Account;
+use App\Models\AccountType;
+use App\Models\BusinessSetting;
+use App\Models\JournalEntry;
+use App\Models\Permission;
+use App\Models\Supplier;
+use App\Tenancy\TenantContext;
+use App\Authz\PermissionService;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
+
+class VoucherTest extends TestCase
+{
+    use DatabaseTransactions;
+
+    public function test_payment_voucher_draft_posts_balanced_journal_and_is_immutable_after_posting(): void
+    {
+        $this->signInOwner('voucher-payment')->assertOk();
+
+        $cash = $this->leafAccount('Voucher Cash', 'V-CASH-01', '0010');
+        $supplierUlid = $this->postJson('/api/suppliers', [
+            'code' => 'SUP-VOUCH-1',
+            'name' => 'Voucher Supplier',
+        ])->assertCreated()->json('ulid');
+
+        $supplier = Supplier::query()->where('ulid', $supplierUlid)->firstOrFail();
+        $supplierAccount = Account::query()->where('supplier_id', $supplier->id)->firstOrFail();
+        $date = now()->toDateString();
+
+        $draft = $this->postJson('/api/vouchers', [
+            'type' => 'payment',
+            'entry_date' => $date,
+            'book_number' => 'BOOK-42',
+            'description' => 'Supplier settlement',
+            'header_account_ulid' => $cash->ulid,
+            'lines' => [[
+                'account_ulid' => $supplierAccount->ulid,
+                'narration' => 'Pay supplier',
+                'amount' => '30.0000',
+            ]],
+        ], $this->idem('voucher-payment-1'))->assertCreated();
+
+        $draft->assertJsonPath('type', 'payment')
+            ->assertJsonPath('book_number', 'BOOK-42')
+            ->assertJsonPath('status', 'draft')
+            ->assertJsonPath('total_debit', '30.0000')
+            ->assertJsonPath('total_credit', '30.0000')
+            ->assertJsonPath('header_account.ulid', $cash->ulid)
+            ->assertJsonPath('lines.0.credit', '30.0000')
+            ->assertJsonPath('lines.1.debit', '30.0000')
+            ->assertJsonPath('lines.1.party_type', 'vendor');
+
+        $voucherUlid = $draft->json('ulid');
+        $this->assertStringStartsWith('DV-', (string) $draft->json('voucher_number'));
+        $this->assertNoInternalIds($draft->json());
+
+        $this->mock(CashierTransactionLock::class, function (\Mockery\MockInterface $mock): void {
+            $mock->shouldReceive('lockCurrent')
+                ->once()
+                ->andReturn(app(TenantContext::class)->membership());
+        });
+
+        $this->postJson('/api/vouchers/'.$voucherUlid.'/post')
+            ->assertOk()
+            ->assertJsonPath('status', 'posted');
+
+        $accounts = $this->getJson('/api/vouchers/accounts?as_of='.$date)
+            ->assertOk()
+            ->json();
+
+        $cashRow = collect($accounts)->firstWhere('ulid', $cash->ulid);
+        $supplierRow = collect($accounts)->firstWhere('ulid', $supplierAccount->ulid);
+
+        $this->assertSame('-30.0000', $cashRow['balance'] ?? null);
+        $this->assertSame('-30.0000', $supplierRow['balance'] ?? null);
+
+        $preVoucherAccounts = $this->getJson(
+            '/api/vouchers/accounts?as_of='.$date.'&before_voucher_ulid='.$voucherUlid,
+        )->assertOk()->json();
+
+        $preCashRow = collect($preVoucherAccounts)->firstWhere('ulid', $cash->ulid);
+        $preSupplierRow = collect($preVoucherAccounts)->firstWhere('ulid', $supplierAccount->ulid);
+
+        $this->assertSame('0.0000', $preCashRow['balance'] ?? null);
+        $this->assertSame('0.0000', $preSupplierRow['balance'] ?? null);
+
+        $journal = JournalEntry::query()
+            ->where('ulid', $voucherUlid)
+            ->with('lines')
+            ->firstOrFail();
+
+        $this->assertTrue($journal->isPosted());
+        $this->assertSame('30.0000', $journal->lines->reduce(
+            fn (string $total, $line): string => bcadd($total, (string) $line->debit, 4),
+            '0.0000',
+        ));
+        $this->assertSame('30.0000', $journal->lines->reduce(
+            fn (string $total, $line): string => bcadd($total, (string) $line->credit, 4),
+            '0.0000',
+        ));
+
+        $this->putJson('/api/vouchers/'.$voucherUlid, [
+            'entry_date' => $date,
+            'book_number' => 'BOOK-43',
+            'description' => 'Changed',
+            'header_account_ulid' => $cash->ulid,
+            'lines' => [[
+                'account_ulid' => $supplierAccount->ulid,
+                'amount' => '31.0000',
+            ]],
+        ])->assertStatus(422)->assertJsonPath('error.key', 'DOCUMENT_POSTED');
+
+        $this->deleteJson('/api/vouchers/'.$voucherUlid)
+            ->assertStatus(422)
+            ->assertJsonPath('error.key', 'DOCUMENT_POSTED');
+    }
+
+    public function test_receiving_and_journal_vouchers_follow_server_side_debit_credit_rules(): void
+    {
+        $this->signInOwner('voucher-directions')->assertOk();
+
+        $cash = $this->leafAccount('Voucher Cash 2', 'V-CASH-02', '0010');
+        $revenue = $this->leafAccount('Voucher Revenue', 'V-REV-01', '0040');
+        $expense = $this->leafAccount('Voucher Expense', 'V-EXP-01', '0030');
+        $date = now()->toDateString();
+
+        $receiving = $this->postJson('/api/vouchers', [
+            'type' => 'receiving',
+            'entry_date' => $date,
+            'description' => 'Other income received',
+            'header_account_ulid' => $cash->ulid,
+            'lines' => [[
+                'account_ulid' => $revenue->ulid,
+                'amount' => '25.0000',
+            ]],
+        ], $this->idem('voucher-receiving-1'))->assertCreated();
+
+        $receiving->assertJsonPath('lines.0.debit', '25.0000')
+            ->assertJsonPath('lines.0.credit', '0.0000')
+            ->assertJsonPath('lines.1.debit', '0.0000')
+            ->assertJsonPath('lines.1.credit', '25.0000');
+
+        $this->postJson('/api/vouchers/'.$receiving->json('ulid').'/post')->assertOk();
+
+        $accounts = $this->getJson('/api/vouchers/accounts?as_of='.$date)->assertOk()->json();
+        $cashBalance = collect($accounts)->firstWhere('ulid', $cash->ulid);
+        $revenueBalance = collect($accounts)->firstWhere('ulid', $revenue->ulid);
+
+        $this->assertSame('debit', $cashBalance['normal_balance'] ?? null);
+        $this->assertSame('25.0000', $cashBalance['balance'] ?? null);
+        $this->assertSame('credit', $revenueBalance['normal_balance'] ?? null);
+        $this->assertSame('25.0000', $revenueBalance['balance'] ?? null);
+
+        $journal = $this->postJson('/api/vouchers', [
+            'type' => 'journal',
+            'entry_date' => $date,
+            'description' => 'Manual accrual',
+            'lines' => [
+                [
+                    'account_ulid' => $expense->ulid,
+                    'debit' => '10.0000',
+                    'credit' => '0.0000',
+                ],
+                [
+                    'account_ulid' => $revenue->ulid,
+                    'debit' => '0.0000',
+                    'credit' => '9.0000',
+                ],
+            ],
+        ], $this->idem('voucher-journal-1'))->assertCreated();
+
+        $journal->assertJsonPath('status', 'draft')
+            ->assertJsonPath('total_debit', '10.0000')
+            ->assertJsonPath('total_credit', '9.0000');
+
+        $journalUlid = $journal->json('ulid');
+
+        $this->postJson('/api/vouchers/'.$journalUlid.'/post')
+            ->assertStatus(422)
+            ->assertJsonPath('error.key', 'UNBALANCED_JOURNAL');
+
+        $this->putJson('/api/vouchers/'.$journalUlid, [
+            'entry_date' => $date,
+            'description' => 'Manual accrual corrected',
+            'lines' => [
+                [
+                    'account_ulid' => $expense->ulid,
+                    'debit' => '10.0000',
+                    'credit' => '0.0000',
+                ],
+                [
+                    'account_ulid' => $revenue->ulid,
+                    'debit' => '0.0000',
+                    'credit' => '10.0000',
+                ],
+            ],
+        ])->assertOk()
+            ->assertJsonPath('total_debit', '10.0000')
+            ->assertJsonPath('total_credit', '10.0000');
+
+        $this->postJson('/api/vouchers/'.$journalUlid.'/post')
+            ->assertOk()
+            ->assertJsonPath('status', 'posted');
+    }
+
+    public function test_opening_balance_voucher_uses_configured_equity_offset_and_hides_system_line(): void
+    {
+        $this->signInOwner('voucher-opening')->assertOk();
+
+        $asset = $this->leafAccount('Opening Asset', 'V-OPV-A', '0010');
+        $liability = $this->leafAccount('Opening Liability', 'V-OPV-L', '0020');
+        $equity = $this->leafAccount('Opening Equity Offset', 'V-OPV-E', '0050');
+        $date = now()->toDateString();
+
+        $payload = [
+            'type' => 'opening',
+            'entry_date' => $date,
+            'book_number' => 'OPEN-1',
+            'lines' => [
+                [
+                    'account_ulid' => $asset->ulid,
+                    'narration' => 'Opening asset',
+                    'debit' => '100.0000',
+                    'credit' => '0.0000',
+                ],
+                [
+                    'account_ulid' => $liability->ulid,
+                    'narration' => 'Opening liability',
+                    'debit' => '0.0000',
+                    'credit' => '30.0000',
+                ],
+            ],
+        ];
+
+        $draft = $this->postJson('/api/vouchers', $payload, $this->idem('voucher-opening-1'))
+            ->assertCreated()
+            ->assertJsonPath('type', 'opening')
+            ->assertJsonPath('status', 'draft')
+            ->assertJsonPath('book_number', 'OPEN-1')
+            ->assertJsonPath('total_debit', '100.0000')
+            ->assertJsonPath('total_credit', '30.0000')
+            ->assertJsonCount(2, 'lines');
+
+        $voucherUlid = $draft->json('ulid');
+        $this->assertStringStartsWith('OPV-', (string) $draft->json('voucher_number'));
+
+        $this->postJson('/api/vouchers/'.$voucherUlid.'/post')
+            ->assertStatus(422)
+            ->assertJsonPath('error.key', 'OPENING_EQUITY_ACCOUNT_REQUIRED');
+
+        BusinessSetting::query()
+            ->forTenant(app(TenantContext::class)->tenantId())
+            ->update(['opening_balance_equity_account_id' => $equity->id]);
+
+        $posted = $this->postJson('/api/vouchers/'.$voucherUlid.'/post')
+            ->assertOk()
+            ->assertJsonPath('status', 'posted')
+            ->assertJsonPath('total_debit', '100.0000')
+            ->assertJsonPath('total_credit', '100.0000')
+            ->assertJsonCount(2, 'lines');
+
+        $entry = JournalEntry::query()->where('ulid', $voucherUlid)->with('lines')->firstOrFail();
+        $this->assertSame(3, $entry->lines->count());
+        $offset = $entry->lines->firstWhere('sort_order', 9999);
+        $this->assertNotNull($offset);
+        $this->assertSame($equity->id, $offset->account_id);
+        $this->assertSame('70.0000', (string) $offset->credit);
+
+        $accounts = $this->getJson('/api/vouchers/accounts?as_of='.$date)->assertOk()->json();
+        $assetBalance = collect($accounts)->firstWhere('ulid', $asset->ulid);
+        $liabilityBalance = collect($accounts)->firstWhere('ulid', $liability->ulid);
+        $equityBalance = collect($accounts)->firstWhere('ulid', $equity->ulid);
+
+        $this->assertSame('debit', $assetBalance['normal_balance'] ?? null);
+        $this->assertSame('100.0000', $assetBalance['balance'] ?? null);
+        $this->assertSame('credit', $liabilityBalance['normal_balance'] ?? null);
+        $this->assertSame('30.0000', $liabilityBalance['balance'] ?? null);
+        $this->assertSame('credit', $equityBalance['normal_balance'] ?? null);
+        $this->assertSame('70.0000', $equityBalance['balance'] ?? null);
+
+        $replay = $this->postJson('/api/vouchers', $payload, $this->idem('voucher-opening-1'))
+            ->assertCreated()
+            ->assertJsonPath('ulid', $voucherUlid)
+            ->assertJsonCount(2, 'lines');
+        $this->assertSame($posted->json('ulid'), $replay->json('ulid'));
+
+        $this->getJson('/api/vouchers?type=opening&q='.urlencode((string) $draft->json('voucher_number')))
+            ->assertOk()
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('data.0.ulid', $voucherUlid);
+
+        $this->getJson('/api/vouchers/summary?date_from='.$date.'&date_to='.$date.'&type=opening')
+            ->assertOk()
+            ->assertJsonPath('data.0.debit', '100.0000')
+            ->assertJsonPath('data.0.credit', '100.0000');
+
+        $this->putJson('/api/vouchers/'.$voucherUlid, [
+            'entry_date' => $date,
+            'book_number' => 'OPEN-2',
+            'lines' => [[
+                'account_ulid' => $asset->ulid,
+                'debit' => '1.0000',
+                'credit' => '0.0000',
+            ]],
+        ])->assertStatus(422)->assertJsonPath('error.key', 'DOCUMENT_POSTED');
+    }
+
+    public function test_voucher_idempotency_search_summary_and_tenant_isolation(): void
+    {
+        $this->signInOwner('voucher-security-a')->assertOk();
+
+        $cash = $this->leafAccount('Voucher Cash A', 'V-CASH-A', '0010');
+        $expense = $this->leafAccount('Voucher Expense A', 'V-EXP-A', '0030');
+        $date = now()->toDateString();
+
+        $payload = [
+            'type' => 'payment',
+            'entry_date' => $date,
+            'description' => 'Branch expense payment',
+            'header_account_ulid' => $cash->ulid,
+            'lines' => [[
+                'account_ulid' => $expense->ulid,
+                'amount' => '12.5000',
+            ]],
+        ];
+
+        $first = $this->postJson('/api/vouchers', $payload, $this->idem('voucher-idem-1'))->assertCreated();
+        $second = $this->postJson('/api/vouchers', $payload, $this->idem('voucher-idem-1'))->assertCreated();
+
+        $this->assertSame($first->json('ulid'), $second->json('ulid'));
+        $this->assertSame(
+            1,
+            JournalEntry::query()
+                ->whereIn('document_type', [
+                    JournalEntry::DOCUMENT_PAYMENT_VOUCHER,
+                    JournalEntry::DOCUMENT_RECEIVING_VOUCHER,
+                    JournalEntry::DOCUMENT_JOURNAL_VOUCHER,
+                ])
+                ->count(),
+        );
+
+        $this->postJson('/api/vouchers', [
+            ...$payload,
+            'type' => 'receiving',
+        ], $this->idem('voucher-idem-1'))
+            ->assertStatus(409)
+            ->assertJsonPath('error.key', 'IDEMPOTENCY_KEY_CONFLICT');
+
+        $voucherUlid = $first->json('ulid');
+        $voucherNumber = $first->json('voucher_number');
+        $this->postJson('/api/vouchers/'.$voucherUlid.'/post')->assertOk();
+
+        $this->getJson('/api/vouchers?q='.urlencode((string) $voucherNumber))
+            ->assertOk()
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('data.0.ulid', $voucherUlid);
+
+        $this->getJson('/api/vouchers/summary?date_from='.$date.'&date_to='.$date)
+            ->assertOk()
+            ->assertJsonPath('data.0.debit', '12.5000')
+            ->assertJsonPath('data.0.credit', '12.5000');
+
+        $this->postJson('/api/auth/logout')->assertOk();
+        $this->postJson('/api/vouchers', $payload, $this->idem('voucher-no-auth'))
+            ->assertUnauthorized();
+
+        $this->signInOwner('voucher-security-b')->assertOk();
+        $this->getJson('/api/vouchers/'.$voucherUlid)->assertNotFound();
+
+        $otherCash = $this->leafAccount('Voucher Cash B', 'V-CASH-B', '0010');
+        $this->postJson('/api/vouchers', [
+            'type' => 'payment',
+            'entry_date' => $date,
+            'header_account_ulid' => $otherCash->ulid,
+            'lines' => [[
+                'account_ulid' => $expense->ulid,
+                'amount' => '1.0000',
+            ]],
+        ], $this->idem('voucher-cross-tenant-account'))
+            ->assertStatus(422)
+            ->assertJsonPath('error.key', 'VALIDATION_ERROR');
+    }
+
+    public function test_voucher_create_requires_permission(): void
+    {
+        $this->signInOwner('voucher-permission')->assertOk();
+
+        // Use a non-privileged membership for the negative permission case.
+        $this->restrictCurrentMembershipWithoutPermission('vouchers.create');
+
+        $cash = $this->leafAccount('Voucher Permission Cash', 'V-CASH-P', '0010');
+        $expense = $this->leafAccount('Voucher Permission Expense', 'V-EXP-P', '0030');
+
+        $this->postJson('/api/vouchers', [
+            'type' => 'payment',
+            'entry_date' => now()->toDateString(),
+            'header_account_ulid' => $cash->ulid,
+            'lines' => [[
+                'account_ulid' => $expense->ulid,
+                'amount' => '1.0000',
+            ]],
+        ], $this->idem('voucher-no-permission'))
+            ->assertForbidden();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function idem(string $key): array
+    {
+        return ['Idempotency-Key' => $key];
+    }
+
+    private function leafAccount(string $name, string $code, string $typeCode): Account
+    {
+        $tenant = app(TenantContext::class);
+        $type = AccountType::query()
+            ->forTenant($tenant->tenantId())
+            ->where('code', $typeCode)
+            ->firstOrFail();
+
+        return Account::query()->create([
+            'tenant_id' => $tenant->tenantId(),
+            'code' => $code,
+            'name' => $name,
+            'account_type_id' => $type->id,
+            'is_active' => true,
+            'created_by' => $tenant->userId(),
+        ]);
+    }
+}

@@ -1,0 +1,146 @@
+.bp-notification-root { position: relative; display: inline-flex; align-items: center; }
+.bp-notification-trigger, .bp-notification-icon { display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--ui-border); border-radius: var(--control-radius); background: var(--ui-control-face); color: var(--ui-text); cursor: pointer; }
+.bp-notification-trigger { position: relative; min-width: 28px; height: 26px; }
+.bp-notification-trigger:hover, .bp-notification-icon:hover { background: var(--ui-control-hover-bg); }
+.bp-notification-count { position: absolute; top: -6px; right: -9px; border-radius: 12px; padding: 0 4px; min-width: 16px; line-height: 15px; font-size: 10px; text-align: center; background: var(--ui-danger); color: white; }
+.bp-notification-popover { position: absolute; top: calc(100% + 7px); right: 0; width: min(340px, calc(100vw - 28px)); max-height: 420px; overflow: visible; background: var(--ui-surface); color: var(--ui-text); border: 1px solid var(--ui-border); border-radius: var(--panel-radius); box-shadow: var(--ui-card-shadow); }
+.bp-notification-heading, .bp-notification-settings { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px; border-bottom: 1px solid var(--ui-border); }
+.bp-notification-icon { width: 25px; height: 25px; flex: 0 0 auto; }
+.bp-notification-list { max-height: 220px; overflow: auto; }
+.bp-notification-item { display: flex; flex-direction: column; gap: 3px; width: 100%; text-align: left; padding: 9px 11px; background: transparent; color: var(--ui-text); border: 0; border-bottom: 1px solid var(--ui-border); cursor: pointer; }
+.bp-notification-item:hover { background: var(--ui-surface-muted); }
+.bp-notification-item small, .bp-notification-empty { color: var(--ui-text-muted); }
+.bp-notification-empty { padding: 12px; margin: 0; }
+.bp-notification-settings > span { flex: 0 0 auto; }
+.bp-notification-settings > div { min-width: 0; flex: 1; }
+.bp-notification-all { width: 100%; padding: 9px; border: 0; border-radius: 0 0 var(--panel-radius) var(--panel-radius); background: var(--ui-accent-soft); color: var(--ui-text); cursor: pointer; }
+.bp-notification-toast { position: fixed; top: 45px; right: 15px; display: flex; align-items: center; gap: 10px; max-width: calc(100vw - 24px); padding: 12px; border: 1px solid var(--ui-border); background: var(--ui-surface); box-shadow: var(--ui-card-shadow); border-radius: var(--panel-radius); color: var(--ui-text); z-index: 1200; }
+.bp-notification-toast > div { display: flex; flex-direction: column; gap: 2px; }
+.bp-notification-toast button { border: 1px solid var(--ui-border); border-radius: var(--control-radius); background: var(--ui-control-face); color: var(--ui-text); cursor: pointer; padding: 4px 7px; }
+@keyframes bp-notification-shake { 0%,100% { transform: rotate(0deg); } 20%,60% { transform: rotate(-16deg); } 40%,80% { transform: rotate(16deg); } }
+.bp-notification-ring svg { animation: bp-notification-shake 400ms ease-in-out 3; transform-origin: top center; }
+[data-animations='off'] .bp-notification-ring svg { animation: none; }
+@media (prefers-reduced-motion: reduce) { .bp-notification-ring svg { animation: none; } }
+
+/* Video-style staggered notification reveal; existing list geometry and colors stay intact. */
+.bp-notification-popover { animation: bp-motion-rise 420ms cubic-bezier(.22,1,.36,1) both; }
+.bp-notification-item.bp-motion-notice:hover { background: var(--ui-accent-soft); }
+.bp-notification-list .bp-notification-item:nth-child(2) { animation-delay: 70ms; }
+.bp-notification-list .bp-notification-item:nth-child(3) { animation-delay: 140ms; }
+.bp-notification-list .bp-notification-item:nth-child(4) { animation-delay: 210ms; }
+.bp-notification-list .bp-notification-item:nth-child(5) { animation-delay: 280ms; }
+.bp-notification-trigger.bp-motion-bell:hover svg { transform: rotate(-8deg); transition: transform 350ms cubic-bezier(.22,1,.36,1); }
+[data-animations='off'] .bp-notification-popover,
+[data-animations='off'] .bp-notification-item.bp-motion-notice { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .bp-notification-popover, .bp-notification-item.bp-motion-notice { animation: none; }
+  .bp-notification-trigger.bp-motion-bell:hover svg { transform: none; }
+}
+
+/* Visibly interactive notification cards, without altering the approved popover width or row size. */
+.bp-notification-item {
+  transition: background-color 420ms cubic-bezier(.22,1,.36,1), box-shadow 420ms ease;
+}
+.bp-notification-item:is(:hover, :focus-visible) {
+  background: var(--ui-accent-soft);
+  box-shadow: inset 4px 4px 9px color-mix(in srgb, var(--ui-text) 10%, transparent),
+    inset -3px -3px 8px color-mix(in srgb, var(--ui-surface) 95%, transparent);
+}
+.bp-notification-trigger:is(:hover, :focus-visible) {
+  background: var(--ui-accent-soft);
+  color: var(--ui-accent-strong);
+  box-shadow: var(--ui-control-shadow), 0 0 10px color-mix(in srgb, var(--ui-accent) 19%, transparent);
+}
+html[data-animations='off'] .bp-notification-item { transition: none; }
+@media (prefers-reduced-motion: reduce) { .bp-notification-item { transition: none; } }
+
+/* Security alerts: acknowledgement failures remain visible without changing
+   the approved bell/popover geometry or Theme & Appearance colors. */
+.bp-notification-error {
+  margin: 0;
+  padding: 8px 11px;
+  border-bottom: 1px solid var(--ui-border);
+  color: var(--ui-danger);
+  font-size: 11px;
+}
+.bp-notification-item:disabled { cursor: wait; opacity: .7; }
+html[data-animations='off'] .bp-notification-trigger.bp-motion-bell:hover svg {
+  transform: none;
+  transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bp-notification-trigger.bp-motion-bell:hover svg { transition: none; }
+}
+
+/* Premium stacked alerts reference: compact layered surfaces, no extra close
+   control; hover/focus works like the platform account dropdown. */
+.bp-notification-popover {
+  width: min(350px, calc(100vw - 28px));
+  padding: 12px;
+  border-radius: var(--panel-radius);
+  background: var(--ui-surface);
+  box-shadow: var(--ui-card-shadow), 0 16px 38px color-mix(in srgb, var(--ui-text) 12%, transparent);
+  animation: bp-notification-premium-open 320ms cubic-bezier(.22,1,.36,1) both;
+}
+.bp-notification-root::after {
+  content: ''; position: absolute; top: 100%; right: 0;
+  width: 100%; height: 9px;
+}
+.bp-notification-heading { padding: 4px 4px 12px; justify-content: flex-start; }
+.bp-notification-heading-mark {
+  width: 34px; height: 34px; flex: 0 0 34px; display: grid; place-items: center;
+  color: var(--ui-accent-strong); background: var(--ui-accent-soft);
+  border-radius: var(--control-radius);
+}
+.bp-notification-heading > div { display: grid; gap: 2px; }
+.bp-notification-heading small { font-size: 10px; color: var(--ui-text-muted); }
+.bp-notification-heading-count {
+  margin-left: auto; padding: 4px 7px; border-radius: 20px;
+  color: var(--ui-accent-strong); background: var(--ui-accent-soft);
+  font-size: 10px; font-weight: 700;
+}
+.bp-notification-list { display: grid; gap: 7px; padding: 8px 2px; max-height: 270px; }
+.bp-notification-item {
+  display: flex; flex-direction: row; align-items: center; gap: 9px;
+  padding: 11px 10px; border: 1px solid var(--ui-border);
+  border-radius: var(--control-radius);
+  background: var(--ui-surface); box-shadow: var(--ui-control-shadow);
+  animation: bp-notification-premium-card 430ms cubic-bezier(.22,1,.36,1) both;
+}
+.bp-notification-card-icon { width: 31px; height: 31px; flex: 0 0 31px; display: grid; place-items: center;
+  border-radius: var(--control-radius); background: var(--ui-accent-soft); color: var(--ui-accent-strong); }
+.bp-notification-card-content { flex: 1; min-width: 0; display: grid; gap: 3px; }
+.bp-notification-card-content strong { font-size: 11px; }
+.bp-notification-card-content > span { overflow-wrap: anywhere; color: var(--ui-text-muted); font-size: 11px; }
+.bp-notification-card-content small { font-size: 10px; }
+.bp-notification-unread-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ui-accent); flex-shrink: 0; }
+.bp-notification-read-icon { color: var(--ui-success); flex-shrink: 0; }
+.bp-notification-all { margin-top: 7px; border-radius: var(--control-radius); font-weight: 700; }
+@keyframes bp-notification-premium-open { from { opacity: 0; transform: translateY(-7px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes bp-notification-premium-card { from { opacity: 0; transform: translateY(9px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+html[data-animations='off'] .bp-notification-popover,
+html[data-animations='off'] .bp-notification-item { animation: none; }
+@media(prefers-reduced-motion: reduce) {
+  .bp-notification-popover, .bp-notification-item { animation: none; }
+}
+
+/* Keep unread badge INSIDE the toolbar's 26px button boundary so the
+   ribbon/header overflow cannot clip its count. */
+.bp-notification-count {
+  top: 1px;
+  right: 1px;
+  min-width: 13px;
+  height: 13px;
+  padding-inline: 2px;
+  line-height: 13px;
+  font-size: 9px;
+  z-index: 1;
+  pointer-events: none;
+}
+.bp-notification-open { display: flex; align-items: center; gap: 9px; flex: 1; min-width: 0; border: 0; padding: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
+.bp-notification-open::before, .bp-notification-open::after { content: none !important; }
+/* Dismiss the acknowledged card while its notification panel remains open. */
+.bp-notification-item.is-leaving { pointer-events: none; animation: bp-notification-dismiss var(--bp-motion-fast) var(--bp-motion-ease) both; }
+@keyframes bp-notification-dismiss { to { opacity: 0; transform: translateX(24px) scale(.94); } }
+html[data-animations='off'] .bp-notification-item.is-leaving { animation: none; }
+@media (prefers-reduced-motion: reduce) { .bp-notification-item.is-leaving { animation: none; } }

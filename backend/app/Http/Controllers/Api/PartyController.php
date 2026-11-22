@@ -1,0 +1,472 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Accounting\PartyLeafAccountSync;
+use App\Catalog\TenantCatalog;
+use App\Exceptions\ApiException;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Parties\StorePartyRequest;
+use App\Http\Requests\Parties\UpdatePartyRequest;
+use App\Http\Resources\PartyProfileResource;
+use App\Http\Resources\PartyResource;
+use App\Models\Account;
+use App\Models\Customer;
+use App\Models\PartyProfile;
+use App\Models\Supplier;
+use App\Parties\PartyProfileBridge;
+use App\Security\AuditLogger;
+use App\Tenancy\TenantContext;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
+class PartyController extends Controller
+{
+    public function __construct(
+        private readonly TenantCatalog $catalog,
+        private readonly AuditLogger $audit,
+        private readonly PartyLeafAccountSync $leafSync,
+        private readonly PartyProfileBridge $profileBridge,
+    ) {}
+
+    public function index(Request $request, TenantContext $tenantContext): JsonResponse
+    {
+        $type = strtolower(trim((string) $request->query('type', 'all')));
+        if (! in_array($type, ['all', 'vendor', 'customer', 'account', 'salesman'], true)) {
+            throw new ApiException('VALIDATION_FAILED', 'Invalid party type filter.', 422);
+        }
+
+        $rows = collect();
+
+        if (in_array($type, ['all', 'vendor'], true) && $this->canViewVendors()) {
+            $vendors = Supplier::query()
+                ->forTenant($tenantContext->tenantId())
+                ->where(function ($q) { $q->whereNull('party_profile_id')->orWhereHas('partyProfile.types', fn ($t) => $t->where('type', 'vendor')); })
+                ->with(['accountType', 'partyProfile.types', 'partyProfile.supplier.accountType', 'partyProfile.customer.accountType'])
+                ->when($request->boolean('expired_license'), function ($q) {
+                    $q->whereNotNull('license_expires_on')
+                        ->whereDate('license_expires_on', '<', now()->toDateString());
+                })
+                ->orderBy('name')
+                ->get()
+                ->map(fn (Supplier $supplier) => (new PartyResource($supplier, 'vendor'))->resolve());
+            $rows = $rows->concat($vendors);
+        }
+
+        if (in_array($type, ['all', 'customer'], true) && $this->canViewCustomers()) {
+            $customers = Customer::query()
+                ->forTenant($tenantContext->tenantId())
+                ->where(function ($q) { $q->whereNull('party_profile_id')->orWhereHas('partyProfile.types', fn ($t) => $t->where('type', 'customer')); })
+                ->with(['accountType', 'partyProfile.types', 'partyProfile.supplier.accountType', 'partyProfile.customer.accountType'])
+                ->when($request->boolean('expired_license'), function ($q) {
+                    $q->whereNotNull('license_expires_on')
+                        ->whereDate('license_expires_on', '<', now()->toDateString());
+                })
+                ->orderBy('name')
+                ->get()
+                ->map(fn (Customer $customer) => (new PartyResource($customer, 'customer'))->resolve());
+            $rows = $rows->concat($customers);
+        }
+
+        if (in_array($type, ['all', 'account'], true) && $this->canViewAccounts() && ! $request->boolean('expired_license')) {
+            $accounts = Account::query()
+                ->forTenant($tenantContext->tenantId())
+                ->whereNull('supplier_id')
+                ->whereNull('customer_id')
+                ->whereNull('party_profile_id')
+                ->with('accountType')
+                ->orderBy('name')
+                ->get()
+                ->map(fn (Account $account) => (new PartyResource($account, 'account'))->resolve());
+            $rows = $rows->concat($accounts);
+        }
+
+        if (in_array($type, ['all', 'salesman'], true) && $this->canViewSalesmen()) {
+            $salesmen = PartyProfile::query()
+                ->forTenant($tenantContext->tenantId())
+                ->where('is_active', true)
+                ->whereHas('types', fn ($q) => $q->where('type', 'salesman'))
+                ->with(['types', 'supplier.accountType', 'customer.accountType'])
+                ->orderBy('name')
+                ->get()
+                ->map(fn (PartyProfile $profile) => (new PartyProfileResource($profile, 'salesman'))->resolve());
+            $rows = $rows->concat($salesmen);
+        }
+
+        $sorted = $rows
+            ->sortBy(fn (array $row) => mb_strtolower((string) $row['name']), SORT_NATURAL)
+            ->values()
+            ->all();
+
+        return response()->json(['data' => $sorted]);
+    }
+
+    public function store(StorePartyRequest $request, TenantContext $tenantContext): JsonResponse
+    {
+        $partyType = (string) $request->validated('party_type');
+        $this->authorizeCreate($partyType);
+
+        $accountType = $this->catalog->accountType((string) $request->validated('account_type_ulid'));
+
+        $party = DB::transaction(function () use ($request, $tenantContext, $partyType, $accountType): Supplier|Customer|Account {
+            $payload = [
+                'tenant_id' => $tenantContext->tenantId(),
+                ...$request->partyAttributes(),
+                'account_type_id' => $accountType->id,
+                'is_active' => $request->boolean('is_active', true),
+                'created_by' => $tenantContext->userId(),
+            ];
+
+            if ($partyType === 'vendor') {
+                $party = Supplier::query()->create($payload);
+                $this->leafSync->syncSupplier($party);
+                $this->audit->record('SUPPLIER_CREATED', [
+                    'resource_type' => 'supplier',
+                    'resource_ulid' => $party->ulid,
+                ]);
+
+                return $party->load('accountType');
+            }
+
+            if ($partyType === 'customer') {
+                $party = Customer::query()->create($payload);
+                $this->leafSync->syncCustomer($party);
+                $this->audit->record('CUSTOMER_CREATED', [
+                    'resource_type' => 'customer',
+                    'resource_ulid' => $party->ulid,
+                ]);
+
+                return $party->load('accountType');
+            }
+
+            $party = Account::query()->create([
+                'tenant_id' => $payload['tenant_id'],
+                'code' => $payload['code'],
+                'name' => $payload['name'],
+                'address' => $payload['address'] ?? null,
+                'account_type_id' => $payload['account_type_id'],
+                'is_active' => $payload['is_active'],
+                'created_by' => $payload['created_by'],
+            ]);
+            $this->audit->record('ACCOUNT_CREATED', [
+                'resource_type' => 'account',
+                'resource_ulid' => $party->ulid,
+            ]);
+
+            return $party->load('accountType');
+        });
+
+        if ($partyType === 'vendor') {
+            $this->profileBridge->ensureSupplier($party);
+        } elseif ($partyType === 'customer') {
+            $this->profileBridge->ensureCustomer($party);
+        }
+
+        return (new PartyResource(
+            $party->refresh()->load(['accountType', 'partyProfile.types', 'partyProfile.supplier.accountType', 'partyProfile.customer.accountType']),
+            $partyType
+        ))->response()->setStatusCode(201);
+    }
+
+    public function show(Request $request, string $partyUlid): PartyResource
+    {
+        [$party, $partyType] = $this->resolveParty($request, $partyUlid);
+        $this->authorize('view', $party);
+
+        return new PartyResource($party->load('accountType'), $partyType);
+    }
+
+    public function update(UpdatePartyRequest $request, string $partyUlid): PartyResource
+    {
+        $partyType = (string) $request->validated('party_type');
+        $party = match ($partyType) {
+            'vendor' => $this->catalog->supplier($partyUlid),
+            'customer' => $this->catalog->customer($partyUlid),
+            'account' => $this->catalog->account($partyUlid),
+            default => throw new ApiException('VALIDATION_FAILED', 'Invalid party type.', 422),
+        };
+
+        $this->authorize('update', $party);
+        $this->assertLegacyMutationSafe($party);
+
+        DB::transaction(function () use ($party, $request, $partyType): void {
+            $wasActive = (bool) $party->is_active;
+            $attrs = $request->partyAttributes();
+            if ($request->filled('account_type_ulid')) {
+                $accountType = $this->catalog->accountType((string) $request->validated('account_type_ulid'));
+                $attrs['account_type_id'] = $accountType->id;
+            }
+            if ($partyType === 'account') {
+                $attrs = array_intersect_key($attrs, array_flip([
+                    'code',
+                    'name',
+                    'address',
+                    'area',
+                    'invoice_restricted',
+                    'credit_limit_amount',
+                    'credit_limit_days',
+                    'account_type_id',
+                    'is_active',
+                ]));
+            }
+            $party->fill($attrs);
+            $party->updated_by = app(TenantContext::class)->userId();
+            $party->save();
+
+            if ($partyType === 'vendor') {
+                $this->leafSync->syncSupplier($party);
+            } elseif ($partyType === 'customer') {
+                $this->leafSync->syncCustomer($party);
+            }
+
+            $becameActive = ! $wasActive && (bool) $party->is_active;
+            $event = match ($partyType) {
+                'vendor' => $becameActive ? 'SUPPLIER_ACTIVATED' : 'SUPPLIER_UPDATED',
+                'customer' => $becameActive ? 'CUSTOMER_ACTIVATED' : 'CUSTOMER_UPDATED',
+                default => $becameActive ? 'ACCOUNT_ACTIVATED' : 'ACCOUNT_UPDATED',
+            };
+            $this->audit->record($event, [
+                'resource_type' => $partyType === 'vendor' ? 'supplier' : $partyType,
+                'resource_ulid' => $party->ulid,
+            ]);
+        });
+
+        if ($partyType === 'vendor') {
+            $this->profileBridge->ensureSupplier($party);
+        } elseif ($partyType === 'customer') {
+            $this->profileBridge->ensureCustomer($party);
+        }
+
+        return new PartyResource(
+            $party->refresh()->load(['accountType', 'partyProfile.types', 'partyProfile.supplier.accountType', 'partyProfile.customer.accountType']),
+            $partyType
+        );
+    }
+
+    public function destroy(Request $request, string $partyUlid): JsonResponse
+    {
+        [$party, $partyType] = $this->resolveParty($request, $partyUlid);
+        $this->authorize('delete', $party);
+        $this->assertLegacyMutationSafe($party);
+
+        DB::transaction(function () use ($party, $partyType): void {
+            $party->is_active = false;
+            $party->updated_by = app(TenantContext::class)->userId();
+            $party->save();
+
+            $this->audit->record(
+                match ($partyType) {
+                    'vendor' => 'SUPPLIER_DEACTIVATED',
+                    'customer' => 'CUSTOMER_DEACTIVATED',
+                    default => 'ACCOUNT_DEACTIVATED',
+                },
+                [
+                    'resource_type' => $partyType === 'vendor' ? 'supplier' : $partyType,
+                    'resource_ulid' => $party->ulid,
+                ],
+            );
+        });
+
+        if ($partyType === 'vendor') {
+            $this->profileBridge->ensureSupplier($party);
+        } elseif ($partyType === 'customer') {
+            $this->profileBridge->ensureCustomer($party);
+        }
+
+        return response()->json(['ok' => true, 'archived' => true]);
+    }
+
+    public function image(Request $request, string $partyUlid): mixed
+    {
+        [$party] = $this->resolveParty($request, $partyUlid);
+        $this->authorize('view', $party);
+
+        if (! $party->image_path || ! Storage::disk('public')->exists($party->image_path)) {
+            abort(404);
+        }
+
+        return Storage::disk('public')->response(
+            $party->image_path,
+            null,
+            ['Cache-Control' => 'private, max-age=3600'],
+        );
+    }
+
+    public function uploadImage(Request $request, string $partyUlid, TenantContext $tenantContext): PartyResource
+    {
+        [$party, $partyType] = $this->resolveParty($request, $partyUlid);
+        $this->authorize('update', $party);
+
+        $data = $request->validate([
+            'image' => [
+                'required',
+                'file',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:5120',
+            ],
+        ]);
+
+        $file = $data['image'];
+        $extension = strtolower($file->extension() ?: 'jpg');
+        $folder = match ($partyType) {
+            'vendor' => 'suppliers',
+            'customer' => 'customers',
+            default => 'accounts',
+        };
+        $directory = 'tenants/'.$tenantContext->tenantId().'/'.$folder.'/'.$party->ulid;
+        $newPath = $file->storeAs(
+            $directory,
+            Str::uuid()->toString().'.'.$extension,
+            'public',
+        );
+
+        if (! is_string($newPath) || $newPath === '') {
+            throw new ApiException('INTERNAL_ERROR', 'Unable to store party image.', 500);
+        }
+
+        $oldPath = $party->image_path;
+        $party->image_path = $newPath;
+        $party->save();
+        $this->syncProfileImage($party, $newPath);
+
+        if ($oldPath && $oldPath !== $newPath) {
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        $this->audit->record('PARTY_IMAGE_UPLOADED', [
+            'resource_type' => $partyType === 'vendor' ? 'supplier' : $partyType,
+            'resource_ulid' => $party->ulid,
+        ]);
+
+        return new PartyResource($party->fresh()->load('accountType'), $partyType);
+    }
+
+    public function deleteImage(Request $request, string $partyUlid): PartyResource
+    {
+        [$party, $partyType] = $this->resolveParty($request, $partyUlid);
+        $this->authorize('update', $party);
+
+        $oldPath = $party->image_path;
+        if ($oldPath) {
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        $party->image_path = null;
+        $party->save();
+        $this->syncProfileImage($party, null);
+
+        $this->audit->record('PARTY_IMAGE_REMOVED', [
+            'resource_type' => $partyType === 'vendor' ? 'supplier' : $partyType,
+            'resource_ulid' => $party->ulid,
+        ]);
+
+        return new PartyResource($party->fresh()->load('accountType'), $partyType);
+    }
+
+    /**
+     * @return array{0: Supplier|Customer|Account, 1: string}
+     */
+    private function resolveParty(Request $request, string $partyUlid): array
+    {
+        $type = strtolower(trim((string) $request->query('type', $request->input('party_type', ''))));
+        if (! in_array($type, ['vendor', 'customer', 'account'], true)) {
+            throw new ApiException('VALIDATION_FAILED', 'party type (vendor|customer|account) is required.', 422);
+        }
+
+        $party = match ($type) {
+            'vendor' => $this->catalog->supplier($partyUlid),
+            'customer' => $this->catalog->customer($partyUlid),
+            default => $this->catalog->account($partyUlid),
+        };
+
+        return [$party, $type];
+    }
+
+    private function authorizeCreate(string $partyType): void
+    {
+        match ($partyType) {
+            'vendor' => $this->authorize('create', Supplier::class),
+            'customer' => $this->authorize('create', Customer::class),
+            'account' => $this->authorize('create', Account::class),
+            default => throw new ApiException('VALIDATION_FAILED', 'Invalid party type.', 422),
+        };
+    }
+
+    private function canViewVendors(): bool
+    {
+        return $this->userCan('suppliers.view')
+            || $this->userCan('suppliers.manage')
+            || $this->userCan('vendors.view');
+    }
+
+    private function canViewCustomers(): bool
+    {
+        return $this->userCan('customers.view') || $this->userCan('customers.manage');
+    }
+
+    private function canViewAccounts(): bool
+    {
+        return $this->userCan('accounts.view') || $this->userCan('accounts.manage');
+    }
+
+    private function canViewSalesmen(): bool
+    {
+        return $this->userCan('customers.view')
+            || $this->userCan('suppliers.view')
+            || $this->userCan('sales.create');
+    }
+
+    private function assertLegacyMutationSafe(Supplier|Customer|Account $party): void
+    {
+        if ($party instanceof Account || ! $party->party_profile_id) {
+            return;
+        }
+
+        $typeCount = \App\Models\PartyProfileType::query()
+            ->where('party_profile_id', $party->party_profile_id)
+            ->count();
+
+        if ($typeCount > 1) {
+            throw new ApiException(
+                'MULTI_TYPE_PARTY_REQUIRES_PROFILE_EDIT',
+                'Multi-type parties must be edited from Data Entry Details so all business types stay synchronized.',
+                422,
+            );
+        }
+    }
+
+    private function syncProfileImage(Supplier|Customer|Account $party, ?string $path): void
+    {
+        $profileId = (int) ($party->getAttribute('party_profile_id') ?? 0);
+        if ($profileId <= 0) {
+            return;
+        }
+
+        $userId = app(TenantContext::class)->userId();
+
+        PartyProfile::query()
+            ->whereKey($profileId)
+            ->update([
+                'image_path' => $path,
+                'updated_by' => $userId,
+                'updated_at' => now(),
+            ]);
+
+        Supplier::query()
+            ->where('party_profile_id', $profileId)
+            ->update(['image_path' => $path, 'updated_by' => $userId, 'updated_at' => now()]);
+
+        Customer::query()
+            ->where('party_profile_id', $profileId)
+            ->update(['image_path' => $path, 'updated_by' => $userId, 'updated_at' => now()]);
+    }
+
+    private function userCan(string $permission): bool
+    {
+        return app(\App\Authz\PermissionService::class)->can($permission);
+    }
+}

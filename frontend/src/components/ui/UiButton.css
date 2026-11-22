@@ -1,0 +1,83 @@
+.ui-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: var(--ui-control-h-md, 28px);
+  padding: 0 var(--ui-pad-sm, 8px);
+  border: 1px solid var(--ui-control-border, var(--ui-border));
+  border-radius: var(--control-radius);
+  background: var(--ui-control-face, linear-gradient(180deg, var(--ui-surface), var(--ui-surface-subtle)));
+  color: var(--ui-text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--ui-control-shadow);
+  transition:
+    border-color var(--ui-transition-fast),
+    background-color var(--ui-transition-fast),
+    color var(--ui-transition-fast),
+    box-shadow var(--ui-transition-fast),
+    transform var(--ui-transition-fast);
+}
+
+.ui-button:hover:not(:disabled) {
+  border-color: var(--ui-control-hover-border, var(--ui-accent));
+  background: var(--ui-control-hover-bg, var(--ui-accent-soft));
+}
+
+.ui-button:focus-visible {
+  outline: none;
+  border-color: var(--ui-accent);
+  box-shadow: var(--ui-focus-shadow), var(--ui-control-shadow);
+}
+
+.ui-button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.ui-button:disabled {
+  cursor: not-allowed;
+  background: var(--ui-surface-muted);
+  color: var(--ui-text-muted);
+  box-shadow: none;
+  opacity: .68;
+}
+
+.ui-button.is-primary {
+  border-color: color-mix(in srgb, var(--ui-accent) 62%, var(--ui-border));
+  background: var(--ui-button-primary-face);
+  color: var(--ui-accent-strong);
+}
+
+.ui-button.is-success {
+  border-color: color-mix(in srgb, var(--ui-success) 42%, var(--ui-border));
+  background: var(--ui-button-success-face);
+  color: color-mix(in srgb, var(--ui-success) 82%, var(--ui-text));
+}
+
+.ui-button.is-warning {
+  border-color: color-mix(in srgb, var(--ui-warning) 42%, var(--ui-border));
+  background: var(--ui-button-warning-face);
+  color: color-mix(in srgb, var(--ui-warning) 82%, var(--ui-text));
+}
+
+.ui-button.is-danger {
+  border-color: color-mix(in srgb, var(--ui-danger) 42%, var(--ui-border));
+  background: var(--ui-button-danger-face);
+  color: var(--ui-danger);
+}
+
+.ui-button.is-info {
+  border-color: color-mix(in srgb, var(--ui-info) 42%, var(--ui-border));
+  background: var(--ui-button-info-face);
+  color: var(--ui-info);
+}
+
+html[data-animations='off'] .ui-button {
+  transition: none !important;
+}
+
+html[data-animations='off'] .ui-button:active:not(:disabled) {
+  transform: none !important;
+}

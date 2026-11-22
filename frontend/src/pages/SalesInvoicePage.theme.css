@@ -1,0 +1,4875 @@
+/* BluePOS Phase E2 — Sales Invoice visual theme layer.
+   Light+Classic remains the approved reference.
+   No content, DOM order, functionality or geometry is changed. */
+
+:root[data-skin] .sales-reference-screen,
+:root[data-skin] .sales-reference-screen button,
+:root[data-skin] .sales-reference-screen input,
+:root[data-skin] .sales-reference-screen select,
+:root[data-skin] .sales-reference-screen textarea,
+:root[data-skin] .sales-reference-screen legend,
+:root[data-skin] .sales-reference-screen table {
+  font-family: var(--app-font-family) !important;
+  letter-spacing: var(--app-letter-spacing, 0);
+}
+
+/* ---------- Dark base ---------- */
+:root[data-theme='dark'] .sales-reference-screen,
+:root[data-theme='dark'] .sales-reference-main {
+  color: #edf1f5;
+  background: #151a1f;
+  border-color: #4d5862;
+}
+
+:root[data-theme='dark'] .sales-reference-subtabs {
+  background: #242b31;
+  border-bottom-color: #4c5761;
+}
+:root[data-theme='dark'] .sales-reference-subtab {
+  border-color: #56616c;
+  background: linear-gradient(#353d45,#242a30);
+  color: #dce4eb;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,.06);
+}
+:root[data-theme='dark'] .sales-reference-subtab.is-active {
+  border-color: #527b9c;
+  background: linear-gradient(#35566e,#233b4f);
+  color: #c9e9ff;
+}
+:root[data-theme='dark'] .sales-reference-subtab:disabled { color:#7d8994; }
+
+:root[data-theme='dark'] .sales-reference-meta {
+  background:#1d2329;
+  border-color:#4d5862;
+}
+:root[data-theme='dark'] .sales-reference-options,
+:root[data-theme='dark'] .sales-reference-amounts,
+:root[data-theme='dark'] .sales-reference-pay-options {
+  border-color:#56616c;
+  background:#20262c;
+}
+:root[data-theme='dark'] .sales-reference-options legend,
+:root[data-theme='dark'] .sales-reference-amounts legend,
+:root[data-theme='dark'] .sales-reference-pay-options legend,
+:root[data-theme='dark'] .sales-reference-screen label {
+  color:#dce4eb;
+}
+
+:root[data-theme='dark'] .sales-reference-screen input,
+:root[data-theme='dark'] .sales-reference-screen select,
+:root[data-theme='dark'] .sales-reference-screen textarea {
+  border-color:#5d6873;
+  background:#1a2026;
+  color:#edf1f5;
+  color-scheme:dark;
+}
+:root[data-theme='dark'] .sales-reference-screen input:disabled,
+:root[data-theme='dark'] .sales-reference-screen select:disabled,
+:root[data-theme='dark'] .sales-reference-screen textarea:disabled {
+  border-color:#47515b;
+  background:#282f36;
+  color:#8d99a4;
+}
+:root[data-theme='dark'] .sales-reference-input-button button,
+:root[data-theme='dark'] .sales-reference-amounts-grid button,
+:root[data-theme='dark'] .sales-reference-pay-tools button,
+:root[data-theme='dark'] .sales-reference-payment-method button,
+:root[data-theme='dark'] .sales-reference-sale-btn {
+  border-color:#59646f;
+  background:linear-gradient(#353d44,#272e34);
+  color:#dce4eb;
+}
+
+/* Approved Amounts geometry is intentionally untouched. */
+:root[data-theme='dark'] .sales-reference-amounts-grid { color:#e7edf2; }
+:root[data-theme='dark'] .sales-reference-amounts-grid .is-green { color:#91e5a0; }
+
+:root[data-theme='dark'] .sales-reference-entry-row {
+  border-color:#4d5862;
+  background:#20262c;
+}
+:root[data-theme='dark'] .sales-reference-product-entry {
+  border-color:#5d6873;
+  background:#171d22;
+  color:#edf1f5;
+}
+:root[data-theme='dark'] .sales-reference-f1 { color:#dce4eb; }
+
+:root[data-theme='dark'] .sales-reference-grid-wrap,
+:root[data-theme='dark'] .sales-reference-grid-empty {
+  border-color:#4d5862;
+  background:#14191d;
+}
+:root[data-theme='dark'] .sales-reference-grid {
+  background:#14191d;
+  color:#e7edf2;
+}
+:root[data-theme='dark'] .sales-reference-grid th {
+  border-color:#56616c;
+  background:linear-gradient(#343c44,#2a3138);
+  color:#edf1f5;
+}
+:root[data-theme='dark'] .sales-reference-grid td {
+  border-color:#38424b;
+  background:#171c21;
+  color:#dfe6ec;
+}
+:root[data-theme='dark'] .sales-reference-grid .sales-reference-yellow {
+  background:#4b451e;
+  color:#fff4a6;
+}
+:root[data-theme='dark'] .sales-reference-product-drop {
+  border-color:#56616c;
+  background:#262e35;
+  color:#cbd4dc;
+}
+
+:root[data-theme='dark'] .sales-reference-grid-totals,
+:root[data-theme='dark'] .sales-reference-record-nav {
+  border-color:#4d5862;
+  background:#232a30;
+  color:#e7edf2;
+}
+:root[data-theme='dark'] .sales-reference-record-controls button {
+  border-color:#56616c;
+  background:linear-gradient(#353d44,#272e34);
+  color:#dce4eb;
+}
+
+:root[data-theme='dark'] .sales-reference-actions {
+  border-color:#56616c;
+  background:linear-gradient(#30373e,#252b31);
+}
+:root[data-theme='dark'] .sales-reference-shortcuts { color:#aeb8c2; }
+:root[data-theme='dark'] .sales-reference-actions-center button {
+  border-color:#59646f;
+  background:linear-gradient(#353c43,#282e34);
+  color:#edf1f5;
+  box-shadow:inset 1px 1px 0 rgba(255,255,255,.05);
+}
+:root[data-theme='dark'] .sales-reference-actions-center button:disabled { color:#77838e; }
+
+:root[data-theme='dark'] .sales-reference-action-icon.is-save { background:#39434c;color:#e3eaf0; }
+:root[data-theme='dark'] .sales-reference-action-icon.is-refresh { background:#2e78ae;color:#dff1ff; }
+:root[data-theme='dark'] .sales-reference-action-icon.is-preview { background:#49545e;color:#dce4eb; }
+:root[data-theme='dark'] .sales-reference-action-icon.is-print { background:#434d56;color:#e6edf3; }
+:root[data-theme='dark'] .sales-reference-action-icon.is-close { background:#a84545;color:#fff; }
+
+/* Right payment panel */
+:root[data-theme='dark'] .sales-reference-pay {
+  border-color:#4d5862;
+  background:#1b2127;
+}
+:root[data-theme='dark'] .sales-reference-retail-title { color:#f2f5f7; }
+:root[data-theme='dark'] .sales-reference-payment-label,
+:root[data-theme='dark'] .sales-reference-remarks-label,
+:root[data-theme='dark'] .sales-reference-side-label,
+:root[data-theme='dark'] .sales-reference-disc-line { color:#dce4eb; }
+:root[data-theme='dark'] .sales-reference-pay-head-values strong,
+:root[data-theme='dark'] .sales-reference-disc-values strong,
+:root[data-theme='dark'] .sales-reference-disc-values input {
+  border-color:#56616c;
+  background:#222a30;
+  color:#e7edf2;
+}
+:root[data-theme='dark'] .sales-reference-payment-method {
+  border-color:#56616c;
+  background:#222a30;
+  color:#edf1f5;
+}
+:root[data-theme='dark'] .sales-reference-pay-options textarea {
+  border-color:#56616c;
+  background:#181e23;
+}
+:root[data-theme='dark'] .sales-reference-total-block > div {
+  border-color:#56616c;
+  background:#050607;
+  color:#4cff62;
+}
+:root[data-theme='dark'] .sales-reference-received {
+  border-color:#56616c;background:#4b451e;color:#fff4a6;
+}
+:root[data-theme='dark'] .sales-reference-card {
+  border-color:#56616c;background:#1c3948;color:#bceeff;
+}
+:root[data-theme='dark'] .sales-reference-balance {
+  border-color:#56616c;background:#2b3b2f;color:#cdebd3;
+}
+
+/* ---------- Hybrid ---------- */
+:root[data-skin='hybrid'] .sales-reference-subtab { border-radius:5px 5px 0 0; }
+:root[data-skin='hybrid'] .sales-reference-sale-btn,
+:root[data-skin='hybrid'] .sales-reference-record-controls button,
+:root[data-skin='hybrid'] .sales-reference-actions-center button,
+:root[data-skin='hybrid'] .sales-reference-input-button button,
+:root[data-skin='hybrid'] .sales-reference-screen input,
+:root[data-skin='hybrid'] .sales-reference-screen select,
+:root[data-skin='hybrid'] .sales-reference-screen textarea { border-radius:5px; }
+:root[data-skin='hybrid'] .sales-reference-options,
+:root[data-skin='hybrid'] .sales-reference-amounts,
+:root[data-skin='hybrid'] .sales-reference-pay-options,
+:root[data-skin='hybrid'] .sales-reference-payment-method { border-radius:4px; }
+
+:root[data-theme='light'][data-skin='hybrid'] .sales-reference-screen { background:#e8edf1; }
+:root[data-theme='light'][data-skin='hybrid'] .sales-reference-subtabs { background:#dbe2e8; }
+:root[data-theme='light'][data-skin='hybrid'] .sales-reference-subtab {
+  border-color:#a6b1bb;background:linear-gradient(#fff,#e8edf1);color:#26323c;
+}
+:root[data-theme='light'][data-skin='hybrid'] .sales-reference-subtab.is-active {
+  border-color:#8aaec6;background:linear-gradient(#eefaff,#c9eaf7);color:#174f7d;
+}
+:root[data-theme='light'][data-skin='hybrid'] .sales-reference-meta,
+:root[data-theme='light'][data-skin='hybrid'] .sales-reference-pay { background:#edf1f4; }
+:root[data-theme='light'][data-skin='hybrid'] .sales-reference-options,
+:root[data-theme='light'][data-skin='hybrid'] .sales-reference-amounts,
+:root[data-theme='light'][data-skin='hybrid'] .sales-reference-pay-options {
+  border-color:#aeb9c3;background:#f3f5f7;
+}
+:root[data-theme='light'][data-skin='hybrid'] .sales-reference-grid th {
+  background:linear-gradient(#dce4eb,#c5ced7);border-color:#a9b5bf;
+}
+:root[data-theme='light'][data-skin='hybrid'] .sales-reference-actions {
+  background:linear-gradient(#eef2f5,#d9dfe5);
+}
+
+/* ---------- Advanced ---------- */
+:root[data-skin='advanced'] .sales-reference-subtab {
+  border-radius:8px 8px 0 0;
+  box-shadow:none;
+}
+:root[data-skin='advanced'] .sales-reference-sale-btn,
+:root[data-skin='advanced'] .sales-reference-record-controls button,
+:root[data-skin='advanced'] .sales-reference-actions-center button,
+:root[data-skin='advanced'] .sales-reference-input-button button,
+:root[data-skin='advanced'] .sales-reference-screen input,
+:root[data-skin='advanced'] .sales-reference-screen select,
+:root[data-skin='advanced'] .sales-reference-screen textarea {
+  border-radius:7px;
+  box-shadow:none;
+}
+:root[data-skin='advanced'] .sales-reference-options,
+:root[data-skin='advanced'] .sales-reference-amounts,
+:root[data-skin='advanced'] .sales-reference-pay-options,
+:root[data-skin='advanced'] .sales-reference-payment-method {
+  border-radius:8px;
+  box-shadow:var(--panel-shadow);
+}
+:root[data-skin='advanced'] .sales-reference-tab-icon,
+:root[data-skin='advanced'] .sales-reference-action-icon {
+  background-image:none !important;
+  box-shadow:none !important;
+}
+
+:root[data-theme='light'][data-skin='advanced'] .sales-reference-screen,
+:root[data-theme='light'][data-skin='advanced'] .sales-reference-main { background:#f3f6f9; }
+:root[data-theme='light'][data-skin='advanced'] .sales-reference-subtabs { background:#eef2f6; }
+:root[data-theme='light'][data-skin='advanced'] .sales-reference-subtab {
+  border-color:#d0d8e0;background:#f8fafc;color:#465463;
+}
+:root[data-theme='light'][data-skin='advanced'] .sales-reference-subtab.is-active {
+  border-color:#a9c6dd;background:#fff;color:#1769aa;box-shadow:inset 0 -2px 0 #278bd1;
+}
+:root[data-theme='light'][data-skin='advanced'] .sales-reference-meta { background:#f5f7f9; }
+:root[data-theme='light'][data-skin='advanced'] .sales-reference-options,
+:root[data-theme='light'][data-skin='advanced'] .sales-reference-amounts,
+:root[data-theme='light'][data-skin='advanced'] .sales-reference-pay-options {
+  border-color:#ccd5dd;background:#fff;
+}
+:root[data-theme='light'][data-skin='advanced'] .sales-reference-grid th {
+  border-color:#c8d2db;background:#e8eef3;color:#33414d;
+}
+:root[data-theme='light'][data-skin='advanced'] .sales-reference-grid td { border-color:#dde4ea;background:#fff; }
+:root[data-theme='light'][data-skin='advanced'] .sales-reference-grid-empty { background:#fff; }
+:root[data-theme='light'][data-skin='advanced'] .sales-reference-actions {
+  background:#eef2f5;border-top-color:#c8d2db;
+}
+:root[data-theme='light'][data-skin='advanced'] .sales-reference-actions-center button {
+  border-color:#c1ccd5;background:#fff;color:#2d3944;box-shadow:none;
+}
+:root[data-theme='light'][data-skin='advanced'] .sales-reference-pay {
+  background:#f4f7f9;border-color:#c8d1da;
+}
+
+:root[data-theme='dark'][data-skin='advanced'] .sales-reference-screen,
+:root[data-theme='dark'][data-skin='advanced'] .sales-reference-main { background:#11161a;border-color:#414d57; }
+:root[data-theme='dark'][data-skin='advanced'] .sales-reference-subtabs { background:#1d242a; }
+:root[data-theme='dark'][data-skin='advanced'] .sales-reference-subtab {
+  border-color:#46535f;background:#222a31;color:#c7d1da;box-shadow:none;
+}
+:root[data-theme='dark'][data-skin='advanced'] .sales-reference-subtab.is-active {
+  border-color:#45657f;background:#293844;color:#b9e1ff;box-shadow:inset 0 -2px 0 #69b7f5;
+}
+:root[data-theme='dark'][data-skin='advanced'] .sales-reference-meta { background:#171d22; }
+:root[data-theme='dark'][data-skin='advanced'] .sales-reference-options,
+:root[data-theme='dark'][data-skin='advanced'] .sales-reference-amounts,
+:root[data-theme='dark'][data-skin='advanced'] .sales-reference-pay-options {
+  border-color:#414d57;background:#1b2228;
+}
+:root[data-theme='dark'][data-skin='advanced'] .sales-reference-grid th {
+  border-color:#414d57;background:#293139;
+}
+:root[data-theme='dark'][data-skin='advanced'] .sales-reference-grid td {
+  border-color:#303941;background:#12171b;
+}
+:root[data-theme='dark'][data-skin='advanced'] .sales-reference-grid-empty { background:#11161a; }
+:root[data-theme='dark'][data-skin='advanced'] .sales-reference-actions {
+  border-top-color:#414d57;background:#1c2329;
+}
+:root[data-theme='dark'][data-skin='advanced'] .sales-reference-actions-center button {
+  border-color:#46535f;background:#252d34;box-shadow:none;
+}
+:root[data-theme='dark'][data-skin='advanced'] .sales-reference-pay {
+  background:#171d22;border-color:#414d57;
+}
+
+:root[data-skin='advanced'] .sales-reference-screen button:focus-visible,
+:root[data-skin='advanced'] .sales-reference-screen input:focus-visible,
+:root[data-skin='advanced'] .sales-reference-screen select:focus-visible,
+:root[data-skin='advanced'] .sales-reference-screen textarea:focus-visible {
+  outline:2px solid var(--skin-focus-ring);
+  outline-offset:1px;
+}
+
+
+/* ==========================================================================
+   Phase E2.1 — Dark-mode text/readability correction
+   Chrome can dim disabled form text independently of `color`, so explicitly
+   set opacity and -webkit-text-fill-color. Also remove the remaining white
+   spacer surface in the Sales Invoice header.
+   ========================================================================== */
+
+:root[data-theme='dark'] .sales-reference-meta-spacer,
+:root[data-theme='dark'] .sales-reference-entry-spacer {
+  background: #1d2329 !important;
+  color: #dce4eb !important;
+}
+
+/* Labels/headings that had hard-coded light-theme text colors. */
+:root[data-theme='dark'] .sales-reference-options-head,
+:root[data-theme='dark'] .sales-reference-options-head label,
+:root[data-theme='dark'] .sales-reference-option-grid > label,
+:root[data-theme='dark'] .sales-reference-copy-from,
+:root[data-theme='dark'] .sales-reference-copy-from > span,
+:root[data-theme='dark'] .sales-reference-amounts-checks,
+:root[data-theme='dark'] .sales-reference-amounts-checks label,
+:root[data-theme='dark'] .sales-reference-amounts-grid > label,
+:root[data-theme='dark'] .sales-reference-payment-label,
+:root[data-theme='dark'] .sales-reference-remarks-label,
+:root[data-theme='dark'] .sales-reference-side-label,
+:root[data-theme='dark'] .sales-reference-pay-options legend,
+:root[data-theme='dark'] .sales-reference-total-block > span {
+  color: #e6edf3 !important;
+}
+
+/* Chromium/WebKit disabled fields can ignore normal text color through
+   -webkit-text-fill-color and opacity. */
+:root[data-theme='dark'] .sales-reference-screen input:disabled,
+:root[data-theme='dark'] .sales-reference-screen select:disabled,
+:root[data-theme='dark'] .sales-reference-screen textarea:disabled,
+:root[data-theme='dark'] .sales-reference-screen input[readonly],
+:root[data-theme='dark'] .sales-reference-screen textarea[readonly] {
+  color: #c7d1da !important;
+  -webkit-text-fill-color: #c7d1da !important;
+  opacity: 1 !important;
+}
+
+/* Placeholder text must remain readable but visually secondary. */
+:root[data-theme='dark'] .sales-reference-screen input::placeholder,
+:root[data-theme='dark'] .sales-reference-screen textarea::placeholder {
+  color: #8f9ba6 !important;
+  -webkit-text-fill-color: #8f9ba6 !important;
+  opacity: 1 !important;
+}
+
+/* Keep disabled buttons visibly disabled without making their captions vanish. */
+:root[data-theme='dark'] .sales-reference-screen button:disabled {
+  color: #aab5bf !important;
+  -webkit-text-fill-color: #aab5bf !important;
+  opacity: 1 !important;
+}
+
+:root[data-theme='dark'] .sales-reference-subtab:disabled {
+  color: #98a4ae !important;
+}
+
+/* Native/select option text. */
+:root[data-theme='dark'] .sales-reference-screen select,
+:root[data-theme='dark'] .sales-reference-screen select option {
+  color: #dce4eb !important;
+  background: #1a2026 !important;
+}
+
+/* Specific value text that had stronger light-theme color declarations. */
+:root[data-theme='dark'] .sales-reference-payment-method strong {
+  color: #9bd0ff !important;
+  -webkit-text-fill-color: #9bd0ff !important;
+}
+
+:root[data-theme='dark'] .sales-reference-copy-from {
+  color: #79b8f3 !important;
+}
+
+:root[data-theme='dark'] .sales-reference-f1 {
+  color: #d7e0e8 !important;
+}
+
+:root[data-theme='dark'] .sales-reference-grid-totals strong {
+  color: #15191d !important;
+  -webkit-text-fill-color: #15191d !important;
+}
+
+/* Radio/checkbox labels keep full readability while controls remain disabled. */
+:root[data-theme='dark'] .sales-reference-screen input[type='radio']:disabled,
+:root[data-theme='dark'] .sales-reference-screen input[type='checkbox']:disabled {
+  opacity: .9 !important;
+}
+
+/* Stronger readable muted text in record/navigation/footer areas. */
+:root[data-theme='dark'] .sales-reference-record-controls,
+:root[data-theme='dark'] .sales-reference-shortcuts {
+  color: #bac4cd !important;
+}
+
+:root[data-theme='dark'] .sales-reference-actions-center button:disabled {
+  color: #a5b0ba !important;
+  -webkit-text-fill-color: #a5b0ba !important;
+}
+
+
+/* ==========================================================================
+   Phase E2.2 — Sales dark contrast correction
+   Fixes the remaining light-theme islands identified in the screenshot:
+   - F1 to Add New strip
+   - three grid total value boxes
+   ========================================================================== */
+
+/* F1 to Add New: original reference CSS uses a very light grey background.
+   In dark mode make the whole block dark and keep the shortcut text vivid. */
+:root[data-theme='dark'] .sales-reference-f1 {
+  background: #1f262c !important;
+  color: #69d889 !important;
+  -webkit-text-fill-color: #69d889 !important;
+  border-color: #4d5862 !important;
+  opacity: 1 !important;
+}
+
+/* Keep its surrounding entry strip continuous rather than leaving a light island. */
+:root[data-theme='dark'] .sales-reference-entry-row {
+  background: #1d2329 !important;
+}
+
+:root[data-theme='dark'] .sales-reference-entry-spacer {
+  background: #1d2329 !important;
+}
+
+/* Grid total boxes: use a true dark-mode value field instead of the reference
+   light grey boxes. Geometry and positions remain exactly unchanged. */
+:root[data-theme='dark'] .sales-reference-grid-totals strong {
+  border-color: #56616c !important;
+  background: #20272d !important;
+  color: #f4f7f9 !important;
+  -webkit-text-fill-color: #f4f7f9 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04) !important;
+  opacity: 1 !important;
+}
+
+/* Slightly distinguish totals from the surrounding footer without changing size. */
+:root[data-theme='dark'] .sales-reference-grid-totals {
+  background: #1b2228 !important;
+  border-top-color: #4d5862 !important;
+  border-bottom-color: #4d5862 !important;
+}
+
+/* Advanced keeps the same corrected contrast but flatter surfaces. */
+:root[data-theme='dark'][data-skin='advanced'] .sales-reference-grid-totals strong {
+  background: #182027 !important;
+  border-color: #414d57 !important;
+  box-shadow: none !important;
+}
+
+/* Hybrid gets the slightly softer raised-field treatment. */
+:root[data-theme='dark'][data-skin='hybrid'] .sales-reference-grid-totals strong {
+  background: #252d34 !important;
+}
+
+
+/* ==========================================================================
+   Sales editable-field contrast
+   Color-only corrections; approved Sales geometry remains unchanged.
+   ========================================================================== */
+
+:root[data-theme='light'] .sales-reference-screen input:not([type='radio']):not([type='checkbox']):not(:disabled):not([readonly]),
+:root[data-theme='light'] .sales-reference-screen textarea:not(:disabled):not([readonly]),
+:root[data-theme='light'] .sales-reference-screen select:not(:disabled) {
+  background: #ffffff;
+  color: #20242a;
+  -webkit-text-fill-color: #20242a;
+}
+
+:root[data-theme='light'] .sales-reference-screen input::placeholder,
+:root[data-theme='light'] .sales-reference-screen textarea::placeholder {
+  color: #66707a;
+  -webkit-text-fill-color: #66707a;
+  opacity: 1;
+}
+
+:root[data-theme='light'] .sales-reference-screen input:disabled,
+:root[data-theme='light'] .sales-reference-screen select:disabled,
+:root[data-theme='light'] .sales-reference-screen textarea:disabled,
+:root[data-theme='light'] .sales-reference-screen input[readonly],
+:root[data-theme='light'] .sales-reference-screen textarea[readonly] {
+  background: #f0f1f2;
+  color: #68727c;
+  -webkit-text-fill-color: #68727c;
+  opacity: 1;
+}
+
+:root[data-theme='light'] .sales-reference-screen .sales-pos-product-entry {
+  background: #fff4a6;
+  color: #20242a;
+  -webkit-text-fill-color: #20242a;
+}
+
+:root[data-theme='dark'] .sales-reference-screen .sales-pos-product-entry {
+  background: #4b451e;
+  color: #fff4a6;
+  -webkit-text-fill-color: #fff4a6;
+}
+
+:root[data-theme='light'] .sales-reference-screen .sales-pos-line-qty {
+  background: #ffffff;
+  color: #20242a;
+  -webkit-text-fill-color: #20242a;
+}
+
+:root[data-theme='dark'] .sales-reference-screen .sales-pos-line-qty {
+  background: #1a2026;
+  color: #edf1f5;
+  -webkit-text-fill-color: #edf1f5;
+}
+
+:root[data-theme='dark'] .sales-reference-screen .sales-pos-line-qty:disabled {
+  background: #282f36;
+  color: #8d99a4;
+  -webkit-text-fill-color: #8d99a4;
+}
+
+:root[data-theme='light'] .sales-reference-screen .sales-reference-pay-options textarea,
+:root[data-theme='light'] .sales-reference-screen .sales-reference-pay-options > input,
+:root[data-theme='light'] .sales-reference-screen .sales-reference-received input {
+  background: #ffffff;
+  color: #20242a;
+  -webkit-text-fill-color: #20242a;
+}
+
+:root[data-theme='dark'] .sales-reference-screen .sales-reference-pay-options textarea,
+:root[data-theme='dark'] .sales-reference-screen .sales-reference-pay-options > input,
+:root[data-theme='dark'] .sales-reference-screen .sales-reference-received input {
+  background: #1a2026;
+  color: #edf1f5;
+  -webkit-text-fill-color: #edf1f5;
+}
+
+
+/* ==========================================================================
+   Modern visual prototype — Sales Invoice
+   Presentation only: no dimensions, spacing, positioning, or Amounts geometry.
+   ========================================================================== */
+
+:root[data-theme='light'] .sales-reference-screen {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  color: #17202a;
+}
+
+:root[data-theme='light'] .sales-reference-main {
+  background: #eef2f6;
+}
+
+:root[data-theme='light'] .sales-reference-subtabs {
+  background: #e7edf3;
+  border-bottom-color: #c7d1dc;
+}
+
+:root[data-theme='light'] .sales-reference-subtab {
+  border-color: #c7d1dc;
+  border-radius: 8px 8px 0 0;
+  background: linear-gradient(180deg, #ffffff 0%, #f2f5f8 100%);
+  color: #344250;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, .08);
+  font-weight: 600;
+}
+
+:root[data-theme='light'] .sales-reference-subtab.is-active {
+  border-color: #9fc8e3;
+  background: #ffffff;
+  color: #12649b;
+  box-shadow: inset 0 -2px 0 #2388c9, 0 2px 8px rgba(15, 23, 42, .08);
+}
+
+:root[data-theme='light'] .sales-reference-meta,
+:root[data-theme='light'] .sales-reference-pay {
+  background: #f7f9fb;
+  border-color: #cbd5df;
+}
+
+:root[data-theme='light'] .sales-reference-options,
+:root[data-theme='light'] .sales-reference-amounts,
+:root[data-theme='light'] .sales-reference-pay-options,
+:root[data-theme='light'] .sales-reference-payment-method {
+  border-color: #cbd5df;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, .07);
+}
+
+:root[data-theme='light'] .sales-reference-options legend,
+:root[data-theme='light'] .sales-reference-amounts legend,
+:root[data-theme='light'] .sales-reference-pay-options legend {
+  color: #263746;
+  font-weight: 700;
+}
+
+:root[data-theme='light'] .sales-reference-screen input:not([type='radio']):not([type='checkbox']),
+:root[data-theme='light'] .sales-reference-screen select,
+:root[data-theme='light'] .sales-reference-screen textarea {
+  border-color: #b9c5d1;
+  border-radius: 6px;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, .05);
+  transition: border-color .14s ease, box-shadow .14s ease, background-color .14s ease;
+}
+
+:root[data-theme='light'] .sales-reference-screen input:not([type='radio']):not([type='checkbox']):focus,
+:root[data-theme='light'] .sales-reference-screen select:focus,
+:root[data-theme='light'] .sales-reference-screen textarea:focus {
+  border-color: #3c94cf;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(35, 136, 201, .15), inset 0 1px 2px rgba(15, 23, 42, .04);
+}
+
+:root[data-theme='light'] .sales-reference-sale-btn,
+:root[data-theme='light'] .sales-reference-record-controls button,
+:root[data-theme='light'] .sales-reference-actions-center button,
+:root[data-theme='light'] .sales-reference-input-button button,
+:root[data-theme='light'] .sales-reference-amounts-grid button,
+:root[data-theme='light'] .sales-reference-pay-tools button,
+:root[data-theme='light'] .sales-reference-payment-method button {
+  border-color: #b9c5d1;
+  border-radius: 7px;
+  background: linear-gradient(180deg, #ffffff 0%, #eef2f6 100%);
+  color: #263746;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, .10);
+  font-weight: 600;
+  transition: border-color .14s ease, box-shadow .14s ease, transform .14s ease;
+}
+
+:root[data-theme='light'] .sales-reference-sale-btn:hover,
+:root[data-theme='light'] .sales-reference-actions-center button:not(:disabled):hover,
+:root[data-theme='light'] .sales-reference-record-controls button:not(:disabled):hover {
+  border-color: #86b6d6;
+  box-shadow: 0 2px 7px rgba(15, 23, 42, .14);
+}
+
+:root[data-theme='light'] .sales-reference-entry-row {
+  background: #f7f9fb;
+  border-color: #cbd5df;
+}
+
+:root[data-theme='light'] .sales-reference-f1 {
+  color: #188348;
+  font-weight: 700;
+}
+
+:root[data-theme='light'] .sales-reference-grid-wrap,
+:root[data-theme='light'] .sales-reference-grid-empty {
+  border-color: #cbd5df;
+  background: #ffffff;
+}
+
+:root[data-theme='light'] .sales-reference-grid {
+  color: #1f2d3a;
+  background: #ffffff;
+}
+
+:root[data-theme='light'] .sales-reference-grid th {
+  border-color: #bdc9d5;
+  background: linear-gradient(180deg, #f5f8fb 0%, #e5ebf1 100%);
+  color: #243442;
+  font-weight: 700;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .85);
+}
+
+:root[data-theme='light'] .sales-reference-grid td {
+  border-color: #d7dfe7;
+}
+
+:root[data-theme='light'] .sales-reference-grid tbody tr:hover td {
+  background-color: #f4f9fd;
+}
+
+:root[data-theme='light'] .sales-reference-grid-totals,
+:root[data-theme='light'] .sales-reference-record-nav {
+  border-color: #c7d1dc;
+  background: #e9eef3;
+}
+
+:root[data-theme='light'] .sales-reference-grid-totals strong {
+  border-color: #bcc8d3;
+  border-radius: 5px;
+  background: #f8fafc;
+  color: #17202a;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, .06);
+}
+
+:root[data-theme='light'] .sales-reference-actions {
+  border-color: #c3ced9;
+  background: linear-gradient(180deg, #f4f7fa 0%, #e5ebf1 100%);
+  box-shadow: 0 -2px 8px rgba(15, 23, 42, .06);
+}
+
+:root[data-theme='light'] .sales-reference-retail-title {
+  color: #17202a;
+  letter-spacing: -.01em;
+}
+
+:root[data-theme='light'] .sales-reference-pay-head-values strong,
+:root[data-theme='light'] .sales-reference-disc-values strong,
+:root[data-theme='light'] .sales-reference-disc-values input {
+  border-color: #c0ccd7;
+  border-radius: 5px;
+  background: #ffffff;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, .05);
+}
+
+:root[data-theme='light'] .sales-reference-total-block > div {
+  border-radius: 7px;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, .18);
+}
+
+:root[data-theme='light'] .sales-reference-received,
+:root[data-theme='light'] .sales-reference-card,
+:root[data-theme='light'] .sales-reference-balance {
+  border-radius: 6px;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, .06);
+}
+
+/* Sales inline dropdown carets: match Define Products without changing field geometry. */
+.sales-reference-inline-caret {
+  position: relative;
+}
+
+.sales-reference-inline-caret > input {
+  padding-right: 27px !important;
+}
+
+.sales-reference-inline-caret > .sales-reference-field-caret {
+  position: absolute;
+  top: 50%;
+  right: 3px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  min-width: 18px;
+  height: 16px;
+  padding: 0;
+  border: 1px solid #5fa3d4;
+  border-radius: 5px;
+  background: linear-gradient(180deg, #7ec8ff, #1769aa);
+  color: #fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.35),
+    0 1px 2px rgba(20,50,80,.18);
+  transform: translateY(-50%) rotate(0deg);
+  transform-origin: center;
+  transition: transform .18s ease, filter .12s ease;
+}
+
+.sales-reference-inline-caret > .sales-reference-field-caret:hover {
+  filter: brightness(1.06);
+}
+
+.sales-reference-inline-caret.is-open > .sales-reference-field-caret {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+:root[data-theme='dark'] .sales-reference-inline-caret > .sales-reference-field-caret {
+  border-color: #5fa3d4;
+  background: linear-gradient(180deg, #4aa3e0, #1769aa);
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sales-reference-inline-caret > .sales-reference-field-caret {
+    transition: none;
+  }
+}
+
+/* Sales customer quick-add control. Keeps the approved Sales field footprint intact. */
+.sales-reference-to {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 22px;
+  align-items: stretch;
+}
+
+.sales-reference-to > input {
+  min-width: 0;
+}
+
+.sales-reference-to > .sales-reference-field-caret {
+  right: 25px;
+}
+
+.sales-reference-to > .sales-reference-party-add {
+  grid-column: 2;
+  min-width: 22px;
+  width: 22px;
+  padding: 0;
+}
+
+.sales-reference-to .sales-reference-party-add {
+  display: grid;
+  place-items: center;
+  border-color: #69ad7b;
+  background: linear-gradient(180deg, #eaffee, #a9ddb4);
+  color: #176b32;
+}
+
+.sales-reference-to .sales-reference-party-add:hover {
+  background: linear-gradient(180deg, #f2fff4, #98d6a5);
+}
+
+:root[data-theme='dark'] .sales-reference-to .sales-reference-party-add {
+  border-color: #4f8a61;
+  background: linear-gradient(180deg, #315d3d, #24482f);
+  color: #c7f2d0;
+}
+
+
+/* Sales customer selector — wide party grid like the reference POS picker. */
+.sales-customer-dropdown-shutter {
+  position: absolute;
+  z-index: 80;
+  left: 0;
+  top: calc(100% + 2px);
+  width: min(920px, calc(100vw - 48px));
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transform-origin: top;
+  transition: max-height .28s ease, opacity .16s ease, transform .28s ease, visibility 0s linear .28s;
+}
+
+.sales-customer-dropdown-shutter.is-open {
+  max-height: 286px;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+  transition: max-height .28s ease, opacity .16s ease, transform .28s ease, visibility 0s;
+}
+
+.sales-pos-customer-grid {
+  width: 100%;
+  border: 1px solid #7894aa;
+  background: #fff;
+  color: #173f60;
+  box-shadow: 0 5px 12px rgba(31, 58, 78, .22);
+  font-size: 12px;
+}
+
+.sales-pos-customer-grid-head,
+.sales-pos-customer-grid-row {
+  display: grid !important;
+  grid-template-columns: 105px minmax(220px, 1.25fr) minmax(260px, 2fr) 130px;
+  align-items: center;
+}
+
+.sales-pos-customer-grid-head {
+  min-height: 25px;
+  border-bottom: 1px solid #8fa6b7;
+  background: linear-gradient(180deg, #f9fbfc, #dce6ed);
+  color: #263e50;
+  font-weight: 700;
+  text-align: center;
+}
+
+.sales-pos-customer-grid-head > span {
+  padding: 4px 7px;
+  border-right: 1px solid #aabac6;
+}
+
+.sales-pos-customer-grid-body {
+  max-height: 225px;
+  overflow-y: auto;
+  background: #fff;
+}
+
+.sales-pos-customer-grid-row {
+  width: 100% !important;
+  min-height: 24px !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-bottom: 1px solid #d1dce4 !important;
+  border-radius: 0 !important;
+  background: #fff !important;
+  color: #173f60 !important;
+  box-shadow: none !important;
+  font: inherit !important;
+  line-height: 1.25 !important;
+  text-align: left !important;
+  cursor: pointer;
+}
+
+.sales-pos-customer-grid-row > span,
+.sales-pos-customer-grid-row > strong {
+  display: block;
+  min-width: 0;
+  padding: 4px 7px;
+  overflow: hidden;
+  border-right: 1px solid #d8e1e7;
+  color: inherit;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.sales-pos-customer-grid-row > strong {
+  font-weight: 600;
+}
+
+.sales-pos-customer-grid-row:hover,
+.sales-pos-customer-grid-row:focus-visible {
+  background: #2d72b5 !important;
+  color: #fff !important;
+  outline: none !important;
+}
+
+.sales-pos-customer-grid-foot {
+  min-height: 23px;
+  padding: 4px 8px;
+  border-top: 1px solid #8fa6b7;
+  background: linear-gradient(180deg, #e8edf1, #c9d2d9);
+  color: #263e50;
+  font-weight: 700;
+  text-align: center;
+}
+
+:root[data-theme='dark'] .sales-pos-customer-grid,
+:root[data-theme='dark'] .sales-pos-customer-grid-body {
+  border-color: #60798c;
+  background: #202a32;
+  color: #edf2f6;
+}
+
+:root[data-theme='dark'] .sales-pos-customer-grid-head,
+:root[data-theme='dark'] .sales-pos-customer-grid-foot {
+  border-color: #60798c;
+  background: linear-gradient(180deg, #354652, #283640);
+  color: #edf2f6;
+}
+
+:root[data-theme='dark'] .sales-pos-customer-grid-row {
+  border-color: #40515e !important;
+  background: #202a32 !important;
+  color: #edf2f6 !important;
+}
+
+:root[data-theme='dark'] .sales-pos-customer-grid-row:hover,
+:root[data-theme='dark'] .sales-pos-customer-grid-row:focus-visible {
+  background: #176dcc !important;
+  color: #fff !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sales-customer-dropdown-shutter {
+    transition: none;
+  }
+}
+
+/* Define Products-style blue dropdown button. */
+.sales-reference-inline-caret > .sales-reference-field-caret {
+  border: 1px solid #3f8fbe !important;
+  border-radius: 5px !important;
+  background: linear-gradient(180deg, #73c8f3 0%, #2a8bc4 52%, #1472aa 100%) !important;
+  color: #fff !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.48),
+    0 1px 1px rgba(25,65,95,.22) !important;
+}
+
+.sales-reference-inline-caret > .sales-reference-field-caret:hover {
+  background: linear-gradient(180deg, #83d2f8 0%, #3397ce 52%, #177bb6 100%) !important;
+  filter: none;
+}
+
+.sales-reference-inline-caret > .sales-reference-field-caret svg {
+  display: block;
+  stroke: currentColor;
+}
+
+:root[data-theme='dark'] .sales-pos-customer-results {
+  border-color: #60798c;
+  background: #202a32;
+  color: #edf2f6;
+}
+
+:root[data-theme='dark'] .sales-pos-customer-results button {
+  background: #202a32;
+  color: #edf2f6;
+}
+
+:root[data-theme='dark'] .sales-pos-customer-results button:hover,
+:root[data-theme='dark'] .sales-pos-customer-results button:focus-visible {
+  background: #176dcc;
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sales-customer-dropdown-shutter {
+    transition: none;
+  }
+}
+
+
+/* ==========================================================================
+   Sales entry workflow refresh
+   Explicitly requested geometry changes for Invoice Options and Amounts.
+   ========================================================================== */
+
+.sales-reference-meta {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.sales-reference-options {
+  width: 100%;
+  min-width: 0;
+}
+
+.sales-reference-meta-spacer {
+  display: none !important;
+}
+
+.sales-reference-option-grid {
+  display: grid !important;
+  grid-template-columns:
+    auto minmax(72px, .55fr)
+    auto minmax(128px, .8fr)
+    auto minmax(118px, .8fr)
+    auto minmax(135px, .9fr)
+    auto minmax(170px, 1.25fr)
+    auto minmax(145px, 1fr)
+    auto minmax(130px, .9fr) !important;
+  align-items: center;
+  gap: 4px 6px !important;
+}
+
+.sales-reference-option-grid > label {
+  white-space: nowrap;
+}
+
+.sales-reference-option-grid > input,
+.sales-reference-option-grid > .sales-reference-input-button {
+  min-width: 0;
+  width: 100%;
+}
+
+.sales-reference-pay > .sales-reference-amounts {
+  margin: 0 6px 7px;
+}
+
+.sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid {
+  width: 100%;
+}
+
+/* Top entry is barcode/scanner-only. Product lookup lives in the grid entry row. */
+.sales-reference-product-entry-wrap {
+  min-width: 0;
+}
+
+.sales-reference-product-entry[aria-label='Barcode scanner input'] {
+  font-variant-numeric: tabular-nums;
+}
+
+.sales-product-search-cell {
+  position: relative;
+  overflow: visible !important;
+}
+
+.sales-pos-product-results-grid {
+  position: absolute;
+  z-index: 950;
+  top: calc(100% - 1px);
+  left: 0;
+  width: min(520px, 72vw);
+  max-height: 260px;
+  overflow: auto;
+}
+
+.sales-reference-grid tbody tr.is-active-entry td {
+  position: relative;
+}
+
+.sales-reference-grid tbody tr.is-active-entry .sales-reference-yellow {
+  font-weight: 700;
+}
+
+.sales-reference-grid tbody tr.is-active-entry input:focus,
+.sales-reference-grid tbody tr.is-active-entry select:focus {
+  outline: 2px solid var(--skin-focus-ring, #2b6aa3);
+  outline-offset: -1px;
+}
+
+@media (max-width: 1450px) {
+  .sales-reference-option-grid {
+    grid-template-columns:
+      auto minmax(62px, .5fr)
+      auto minmax(116px, .75fr)
+      auto minmax(104px, .7fr)
+      auto minmax(122px, .8fr)
+      auto minmax(150px, 1.1fr)
+      auto minmax(132px, .9fr)
+      auto minmax(116px, .8fr) !important;
+    gap: 3px 4px !important;
+  }
+}
+
+/* Sales invoice balanced single-line header + scrolling line area */
+.sales-reference-option-grid {
+  display: grid !important;
+  grid-template-columns:
+    34px minmax(72px, .60fr)
+    30px minmax(132px, .95fr)
+    34px minmax(118px, .85fr)
+    42px minmax(126px, .95fr)
+    24px minmax(190px, 1.45fr)
+    40px minmax(170px, 1.25fr)
+    34px minmax(130px, .95fr) !important;
+  align-items: center;
+  column-gap: 6px !important;
+  row-gap: 0 !important;
+  width: 100%;
+}
+
+.sales-reference-option-grid > label {
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.sales-reference-option-grid > input,
+.sales-reference-option-grid > .sales-reference-input-button {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+}
+
+.sales-reference-option-grid > .sales-reference-to {
+  grid-column: auto !important;
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.sales-reference-options {
+  overflow: visible;
+}
+
+.sales-pos-status:empty {
+  display: none;
+}
+
+.sales-reference-grid-wrap {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-gutter: stable;
+}
+
+.sales-reference-grid thead th {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+}
+
+@media (max-width: 1450px) {
+  .sales-reference-option-grid {
+    grid-template-columns:
+      32px minmax(64px, .55fr)
+      28px minmax(118px, .90fr)
+      32px minmax(104px, .80fr)
+      40px minmax(112px, .88fr)
+      22px minmax(160px, 1.25fr)
+      36px minmax(145px, 1.08fr)
+      32px minmax(112px, .85fr) !important;
+    column-gap: 4px !important;
+  }
+}
+
+
+/* Sales line grid: keep header and every row inside the main invoice card. */
+.sales-reference-grid-wrap {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.sales-reference-grid {
+  width: 100% !important;
+  max-width: 100% !important;
+  table-layout: fixed !important;
+}
+
+/* Column widths are resolved from the visible column catalog in SalesInvoicePage.
+   Product Description gets a responsive capped width; all other visible columns
+   share the remaining space proportionally, including columns enabled from Customization. */
+
+.sales-reference-grid th,
+.sales-reference-grid td {
+  box-sizing: border-box;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.sales-reference-grid th {
+  text-overflow: ellipsis;
+}
+
+.sales-reference-grid td > input,
+.sales-reference-grid td > select {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.sales-pos-line-product,
+.sales-reference-grid td > strong {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.sales-reference-grid-totals {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+
+.sales-reference-salesman select {
+  width: 100%;
+  min-width: 0;
+  height: 23px;
+  border: 1px solid #aaa;
+  background: #f6f6f6;
+  color: #444;
+  padding: 0 22px 0 5px;
+}
+
+
+/* Reference-style Sales lookup grids.
+   Popups open back into the invoice card and never extend beneath the right payment panel. */
+.sales-reference-to,
+.sales-reference-salesman {
+  position: relative;
+}
+
+.sales-customer-dropdown-shutter,
+.sales-salesman-dropdown-shutter {
+  left: auto !important;
+  right: 0 !important;
+  width: min(760px, calc(100vw - 360px)) !important;
+  max-width: calc(100vw - 360px);
+}
+
+.sales-salesman-dropdown-shutter {
+  position: absolute;
+  z-index: 82;
+  top: calc(100% + 2px);
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transform-origin: top;
+  transition: max-height .24s ease, opacity .14s ease, transform .24s ease, visibility 0s linear .24s;
+}
+
+.sales-salesman-dropdown-shutter.is-open {
+  max-height: 286px;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+  transition: max-height .24s ease, opacity .14s ease, transform .24s ease, visibility 0s;
+}
+
+.sales-pos-salesman-grid {
+  width: 100%;
+  border: 1px solid #7894aa;
+  background: #fff;
+  color: #173f60;
+  box-shadow: 0 5px 12px rgba(31, 58, 78, .22);
+  font-size: 12px;
+}
+
+.sales-pos-salesman-grid-head,
+.sales-pos-salesman-grid-row {
+  display: grid !important;
+  grid-template-columns: 105px minmax(210px, 1.2fr) minmax(230px, 1.6fr) 125px;
+  align-items: center;
+}
+
+.sales-pos-salesman-grid-head {
+  min-height: 25px;
+  border-bottom: 1px solid #8fa6b7;
+  background: linear-gradient(180deg, #f9fbfc, #dce6ed);
+  color: #263e50;
+  font-weight: 700;
+  text-align: center;
+}
+
+.sales-pos-salesman-grid-head > span,
+.sales-pos-salesman-grid-row > span,
+.sales-pos-salesman-grid-row > strong {
+  display: block;
+  min-width: 0;
+  padding: 4px 7px;
+  overflow: hidden;
+  border-right: 1px solid #d8e1e7;
+  color: inherit;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.sales-pos-salesman-grid-body {
+  max-height: 225px;
+  overflow-y: auto;
+  background: #fff;
+}
+
+.sales-pos-salesman-grid-row {
+  width: 100% !important;
+  min-height: 24px !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-bottom: 1px solid #d1dce4 !important;
+  border-radius: 0 !important;
+  background: #fff !important;
+  color: #173f60 !important;
+  box-shadow: none !important;
+  font: inherit !important;
+  line-height: 1.25 !important;
+  text-align: left !important;
+  cursor: pointer;
+}
+
+.sales-pos-salesman-grid-row > strong {
+  font-weight: 600;
+}
+
+.sales-pos-salesman-grid-row:hover,
+.sales-pos-salesman-grid-row:focus-visible {
+  background: #2d72b5 !important;
+  color: #fff !important;
+  outline: none !important;
+}
+
+.sales-pos-salesman-grid-foot {
+  min-height: 23px;
+  padding: 4px 8px;
+  border-top: 1px solid #8fa6b7;
+  background: linear-gradient(180deg, #e8edf1, #c9d2d9);
+  color: #263e50;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* Product search suggestions use the same data-grid language as the reference app. */
+.sales-pos-product-results-grid {
+  position: absolute;
+  z-index: 950;
+  top: calc(100% - 1px);
+  left: 0;
+  width: min(820px, calc(100vw - 360px)) !important;
+  max-width: calc(100vw - 360px);
+  max-height: 310px;
+  overflow: hidden !important;
+  border: 1px solid #7894aa;
+  background: #fff;
+  color: #173f60;
+  box-shadow: 0 5px 12px rgba(31, 58, 78, .22);
+  font-size: 11px;
+}
+
+.sales-pos-product-grid-head,
+.sales-pos-product-grid-row {
+  display: grid !important;
+  grid-template-columns:
+    86px
+    132px
+    minmax(220px, 1.65fr)
+    minmax(110px, .85fr)
+    minmax(100px, .8fr)
+    65px
+    82px;
+  align-items: center;
+}
+
+.sales-pos-product-grid-head {
+  min-height: 25px;
+  border-bottom: 1px solid #8fa6b7;
+  background: linear-gradient(180deg, #f9fbfc, #dce6ed);
+  color: #263e50;
+  font-weight: 700;
+  text-align: center;
+}
+
+.sales-pos-product-grid-head > span,
+.sales-pos-product-grid-row > span,
+.sales-pos-product-grid-row > strong {
+  display: block;
+  min-width: 0;
+  padding: 4px 6px;
+  overflow: hidden;
+  border-right: 1px solid #d8e1e7;
+  color: inherit;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.sales-pos-product-grid-body {
+  max-height: 250px;
+  overflow-y: auto;
+  background: #fff;
+}
+
+.sales-pos-product-grid-row {
+  width: 100% !important;
+  min-height: 24px !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-bottom: 1px solid #d1dce4 !important;
+  border-radius: 0 !important;
+  background: #fff !important;
+  color: #173f60 !important;
+  box-shadow: none !important;
+  font: inherit !important;
+  line-height: 1.25 !important;
+  text-align: left !important;
+  cursor: pointer;
+}
+
+.sales-pos-product-grid-row > strong {
+  font-weight: 650;
+}
+
+.sales-pos-product-grid-row:hover,
+.sales-pos-product-grid-row:focus-visible {
+  background: #2d72b5 !important;
+  color: #fff !important;
+  outline: none !important;
+}
+
+.sales-pos-product-grid-foot {
+  min-height: 23px;
+  padding: 4px 8px;
+  border-top: 1px solid #8fa6b7;
+  background: linear-gradient(180deg, #e8edf1, #c9d2d9);
+  color: #263e50;
+  font-weight: 700;
+  text-align: center;
+}
+
+:root[data-theme='dark'] .sales-pos-salesman-grid,
+:root[data-theme='dark'] .sales-pos-salesman-grid-body,
+:root[data-theme='dark'] .sales-pos-product-results-grid,
+:root[data-theme='dark'] .sales-pos-product-grid-body {
+  border-color: #60798c;
+  background: #202a32;
+  color: #edf2f6;
+}
+
+:root[data-theme='dark'] .sales-pos-salesman-grid-head,
+:root[data-theme='dark'] .sales-pos-salesman-grid-foot,
+:root[data-theme='dark'] .sales-pos-product-grid-head,
+:root[data-theme='dark'] .sales-pos-product-grid-foot {
+  border-color: #60798c;
+  background: linear-gradient(180deg, #354652, #283640);
+  color: #edf2f6;
+}
+
+:root[data-theme='dark'] .sales-pos-salesman-grid-row,
+:root[data-theme='dark'] .sales-pos-product-grid-row {
+  border-color: #40515e !important;
+  background: #202a32 !important;
+  color: #edf2f6 !important;
+}
+
+:root[data-theme='dark'] .sales-pos-salesman-grid-row:hover,
+:root[data-theme='dark'] .sales-pos-salesman-grid-row:focus-visible,
+:root[data-theme='dark'] .sales-pos-product-grid-row:hover,
+:root[data-theme='dark'] .sales-pos-product-grid-row:focus-visible {
+  background: #176dcc !important;
+  color: #fff !important;
+}
+
+@media (max-width: 1100px) {
+  .sales-customer-dropdown-shutter,
+  .sales-salesman-dropdown-shutter {
+    width: min(620px, calc(100vw - 300px)) !important;
+    max-width: calc(100vw - 300px);
+  }
+
+  .sales-pos-product-results-grid {
+    width: min(700px, calc(100vw - 300px)) !important;
+    max-width: calc(100vw - 300px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sales-salesman-dropdown-shutter {
+    transition: none;
+  }
+}
+
+
+/* Sales product lookup aligned to the reference POS detail picker. */
+.sales-pos-product-results-grid {
+  width: min(1080px, calc(100vw - 360px)) !important;
+  max-width: calc(100vw - 360px);
+}
+
+.sales-pos-product-grid-head,
+.sales-pos-product-grid-row {
+  grid-template-columns:
+    76px
+    minmax(330px, 2.4fr)
+    78px
+    88px
+    86px
+    82px
+    66px
+    92px !important;
+}
+
+.sales-pos-product-grid-row > span:nth-child(3),
+.sales-pos-product-grid-row > span:nth-child(4),
+.sales-pos-product-grid-row > span:nth-child(5),
+.sales-pos-product-grid-row > span:nth-child(6) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.sales-pos-product-grid-row > span:nth-child(3) {
+  font-weight: 800;
+}
+
+.sales-pos-product-entry.is-active-product {
+  width: 100%;
+  height: 100%;
+  min-height: 23px;
+  box-sizing: border-box;
+  border: 1px solid #d4b600;
+  background: #fffbd0;
+  color: #17212b;
+  font-weight: 700;
+}
+
+.sales-pos-product-entry.is-active-product:focus {
+  border-color: #4e8ec4;
+  background: #fff;
+}
+
+/* Keep operational status in the F1/scanner row instead of consuming a line above it. */
+.sales-reference-entry-row {
+  display: flex !important;
+  align-items: stretch;
+  min-width: 0;
+}
+
+.sales-reference-product-entry-wrap {
+  flex: 0 0 min(270px, 24%);
+}
+
+.sales-reference-f1,
+.sales-reference-sale-btn {
+  flex: 0 0 auto;
+}
+
+.sales-reference-entry-status {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+  margin-left: auto;
+  padding: 0 10px;
+  overflow: hidden;
+  color: #53616c;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.sales-reference-entry-status.is-ready,
+.sales-reference-entry-status.is-error {
+  align-self: center;
+  min-height: 23px;
+  margin-right: 5px;
+  border: 1px solid #9aa8b3;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #ffffff 0%, #e6ebef 50%, #cbd4db 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.95),
+    inset 0 -1px 0 rgba(76,96,111,.15),
+    0 1px 2px rgba(35,53,67,.22);
+}
+
+.sales-reference-entry-status.is-ready {
+  border-color: #8caf91;
+  color: #246b33;
+}
+
+.sales-reference-entry-status.is-error {
+  border-color: #c78e8e;
+  color: #b42318;
+  background: linear-gradient(180deg, #fffefe 0%, #f8e7e7 52%, #ecd0d0 100%);
+}
+
+:root[data-theme='dark'] .sales-pos-product-entry.is-active-product {
+  border-color: #9d8a35;
+  background: #47411e;
+  color: #fff5ac;
+}
+
+:root[data-theme='dark'] .sales-pos-product-entry.is-active-product:focus {
+  border-color: #5798cc;
+  background: #202a32;
+  color: #edf2f6;
+}
+
+:root[data-theme='dark'] .sales-reference-entry-status.is-ready,
+:root[data-theme='dark'] .sales-reference-entry-status.is-error {
+  border-color: #566674;
+  background: linear-gradient(180deg, #34404a 0%, #28323a 52%, #20282f 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.08),
+    0 1px 2px rgba(0,0,0,.35);
+}
+
+:root[data-theme='dark'] .sales-reference-entry-status.is-ready {
+  color: #78df8c;
+}
+
+:root[data-theme='dark'] .sales-reference-entry-status.is-error {
+  color: #ff9a9a;
+}
+
+@media (max-width: 1100px) {
+  .sales-pos-product-results-grid {
+    width: min(820px, calc(100vw - 300px)) !important;
+  }
+
+  .sales-pos-product-grid-head,
+  .sales-pos-product-grid-row {
+    grid-template-columns:
+      68px
+      minmax(250px, 2fr)
+      68px
+      76px
+      72px
+      72px
+      58px
+      76px !important;
+  }
+}
+
+
+/* ==========================================================================
+   Polished POS lookup theme
+   Hybrid direction: classic desktop POS geometry + richer modern color cues.
+   Applies only to Sales Invoice customer, salesman, and product lookups.
+   ========================================================================== */
+
+.sales-customer-dropdown-shutter.is-open,
+.sales-salesman-dropdown-shutter.is-open,
+.sales-pos-product-results-grid {
+  filter: drop-shadow(0 9px 14px rgba(27, 56, 79, .18));
+}
+
+.sales-pos-customer-grid,
+.sales-pos-salesman-grid,
+.sales-pos-product-results-grid {
+  overflow: hidden;
+  border: 1px solid #4f7fa5 !important;
+  border-radius: 7px;
+  background: #f8fbfd;
+  box-shadow:
+    0 8px 20px rgba(34, 69, 95, .20),
+    0 2px 5px rgba(34, 69, 95, .16),
+    inset 0 1px 0 rgba(255,255,255,.92) !important;
+}
+
+/* Metallic-blue 3D headers */
+.sales-pos-customer-grid-head,
+.sales-pos-salesman-grid-head,
+.sales-pos-product-grid-head {
+  min-height: 28px !important;
+  border-bottom: 1px solid #426f91 !important;
+  background:
+    linear-gradient(180deg, #fafdff 0%, #ddecf6 18%, #a9d0e8 52%, #78afd1 53%, #5b95bb 100%) !important;
+  color: #123b59 !important;
+  text-shadow: 0 1px 0 rgba(255,255,255,.72);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.95),
+    inset 0 -1px 0 rgba(27,74,108,.16);
+  font-size: 11px;
+  font-weight: 900 !important;
+  letter-spacing: .1px;
+}
+
+.sales-pos-customer-grid-head > span,
+.sales-pos-salesman-grid-head > span,
+.sales-pos-product-grid-head > span {
+  min-height: 28px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border-right: 1px solid rgba(60,105,137,.30) !important;
+}
+
+/* Light zebra rows with a subtle classic data-grid feel */
+.sales-pos-customer-grid-row,
+.sales-pos-salesman-grid-row,
+.sales-pos-product-grid-row {
+  min-height: 27px !important;
+  border-bottom: 1px solid #d6e3ec !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f5f9fc 100%) !important;
+  color: #21455f !important;
+  transition:
+    background .11s ease,
+    color .11s ease,
+    box-shadow .11s ease,
+    transform .08s ease;
+}
+
+.sales-pos-customer-grid-row:nth-child(even),
+.sales-pos-salesman-grid-row:nth-child(even),
+.sales-pos-product-grid-row:nth-child(even) {
+  background: linear-gradient(180deg, #f4f9fd 0%, #eaf3f9 100%) !important;
+}
+
+.sales-pos-customer-grid-row:hover,
+.sales-pos-customer-grid-row:focus-visible,
+.sales-pos-salesman-grid-row:hover,
+.sales-pos-salesman-grid-row:focus-visible,
+.sales-pos-product-grid-row:hover,
+.sales-pos-product-grid-row:focus-visible {
+  background:
+    linear-gradient(180deg, #4ba6e2 0%, #2585c8 48%, #126daf 52%, #0d5f9b 100%) !important;
+  color: #fff !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.34),
+    inset 0 -1px 0 rgba(0,46,82,.18) !important;
+  outline: none !important;
+}
+
+.sales-pos-customer-grid-row:active,
+.sales-pos-salesman-grid-row:active,
+.sales-pos-product-grid-row:active {
+  transform: translateY(1px);
+}
+
+/* Main labels are easier to scan */
+.sales-pos-customer-grid-row > strong,
+.sales-pos-salesman-grid-row > strong,
+.sales-pos-product-grid-row > strong {
+  color: #123f63 !important;
+  font-weight: 850 !important;
+}
+
+.sales-pos-customer-grid-row:hover > strong,
+.sales-pos-customer-grid-row:focus-visible > strong,
+.sales-pos-salesman-grid-row:hover > strong,
+.sales-pos-salesman-grid-row:focus-visible > strong,
+.sales-pos-product-grid-row:hover > strong,
+.sales-pos-product-grid-row:focus-visible > strong {
+  color: #fff !important;
+}
+
+/* Customer / salesman secondary information */
+.sales-pos-customer-grid-row > span:first-child,
+.sales-pos-salesman-grid-row > span:first-child {
+  color: #44708d !important;
+  font-weight: 800;
+  background: rgba(112, 173, 210, .09);
+}
+
+.sales-pos-customer-grid-row > span:last-child,
+.sales-pos-salesman-grid-row > span:last-child {
+  color: #176b86 !important;
+  font-weight: 750;
+}
+
+.sales-pos-customer-grid-row:hover > span,
+.sales-pos-customer-grid-row:focus-visible > span,
+.sales-pos-salesman-grid-row:hover > span,
+.sales-pos-salesman-grid-row:focus-visible > span {
+  color: #fff !important;
+  background: transparent !important;
+}
+
+/* Product lookup: semantic color hints similar to the reference POS */
+.sales-pos-product-grid-row > span:nth-child(1) {
+  color: #395f7a !important;
+  font-weight: 850;
+  background: rgba(91, 149, 187, .08);
+}
+
+.sales-pos-product-grid-row > span:nth-child(3) {
+  color: #08752c !important;
+  background: linear-gradient(90deg, rgba(38, 180, 75, .10), rgba(38, 180, 75, .03));
+}
+
+.sales-pos-product-grid-row > span:nth-child(4) {
+  color: #075f9f !important;
+  background: linear-gradient(90deg, rgba(62, 147, 211, .11), rgba(62, 147, 211, .03));
+  font-weight: 850;
+}
+
+.sales-pos-product-grid-row > span:nth-child(5) {
+  color: #8a5a00 !important;
+  background: linear-gradient(90deg, rgba(255, 190, 47, .14), rgba(255, 190, 47, .04));
+  font-weight: 800;
+}
+
+.sales-pos-product-grid-row > span:nth-child(6) {
+  color: #a64f00 !important;
+  background: linear-gradient(90deg, rgba(240, 143, 42, .12), rgba(240, 143, 42, .03));
+  font-weight: 800;
+}
+
+.sales-pos-product-grid-row > span:nth-child(7),
+.sales-pos-product-grid-row > span:nth-child(8) {
+  color: #5d6d78 !important;
+  font-weight: 750;
+}
+
+.sales-pos-product-grid-row:hover > span,
+.sales-pos-product-grid-row:focus-visible > span {
+  color: #fff !important;
+  background: transparent !important;
+}
+
+/* Stronger bottom summary bar */
+.sales-pos-customer-grid-foot,
+.sales-pos-salesman-grid-foot,
+.sales-pos-product-grid-foot {
+  min-height: 25px !important;
+  border-top: 1px solid #6f95af !important;
+  background:
+    linear-gradient(180deg, #eef5f9 0%, #d3e1e9 48%, #bdced9 52%, #aebfca 100%) !important;
+  color: #2c4f67 !important;
+  text-shadow: 0 1px 0 rgba(255,255,255,.75);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.82),
+    inset 0 -1px 0 rgba(54,83,102,.13);
+  font-size: 11px;
+  font-weight: 900 !important;
+}
+
+/* Give the To / Salesman fields the same polished dropdown affordance */
+.sales-reference-to > input,
+.sales-reference-salesman > input,
+.sales-reference-to .sales-reference-input-button > input,
+.sales-reference-salesman .sales-reference-input-button > input {
+  border-color: #75a6c7 !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f2f8fc 100%) !important;
+  box-shadow:
+    inset 0 1px 1px rgba(22,72,105,.07),
+    0 1px 0 rgba(255,255,255,.82);
+}
+
+.sales-reference-to.is-open > input,
+.sales-reference-salesman.is-open > input,
+.sales-reference-to:focus-within input,
+.sales-reference-salesman:focus-within input {
+  border-color: #2586c6 !important;
+  box-shadow:
+    0 0 0 2px rgba(37, 134, 198, .12),
+    inset 0 1px 1px rgba(22,72,105,.07) !important;
+}
+
+/* Scrollbars: compact, visible, and visually integrated with the lookup */
+.sales-pos-customer-grid-body,
+.sales-pos-salesman-grid-body,
+.sales-pos-product-grid-body {
+  scrollbar-width: thin;
+  scrollbar-color: #6da6ca #e9f2f8;
+}
+
+.sales-pos-customer-grid-body::-webkit-scrollbar,
+.sales-pos-salesman-grid-body::-webkit-scrollbar,
+.sales-pos-product-grid-body::-webkit-scrollbar {
+  width: 10px;
+}
+
+.sales-pos-customer-grid-body::-webkit-scrollbar-track,
+.sales-pos-salesman-grid-body::-webkit-scrollbar-track,
+.sales-pos-product-grid-body::-webkit-scrollbar-track {
+  background: #e9f2f8;
+  border-left: 1px solid #cfdee8;
+}
+
+.sales-pos-customer-grid-body::-webkit-scrollbar-thumb,
+.sales-pos-salesman-grid-body::-webkit-scrollbar-thumb,
+.sales-pos-product-grid-body::-webkit-scrollbar-thumb {
+  border: 2px solid #e9f2f8;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #8bc5e6, #4e91bb);
+}
+
+/* Dark theme keeps the richer hierarchy without becoming bright/neon. */
+:root[data-theme='dark'] .sales-pos-customer-grid,
+:root[data-theme='dark'] .sales-pos-salesman-grid,
+:root[data-theme='dark'] .sales-pos-product-results-grid {
+  border-color: #446c88 !important;
+  background: #1c252c !important;
+  box-shadow:
+    0 9px 22px rgba(0,0,0,.42),
+    inset 0 1px 0 rgba(255,255,255,.05) !important;
+}
+
+:root[data-theme='dark'] .sales-pos-customer-grid-head,
+:root[data-theme='dark'] .sales-pos-salesman-grid-head,
+:root[data-theme='dark'] .sales-pos-product-grid-head {
+  border-color: #3b6684 !important;
+  background:
+    linear-gradient(180deg, #45667d 0%, #35576e 48%, #29495f 52%, #213d50 100%) !important;
+  color: #eef8ff !important;
+  text-shadow: 0 1px 0 rgba(0,0,0,.45);
+}
+
+:root[data-theme='dark'] .sales-pos-customer-grid-row,
+:root[data-theme='dark'] .sales-pos-salesman-grid-row,
+:root[data-theme='dark'] .sales-pos-product-grid-row {
+  border-color: #354652 !important;
+  background: linear-gradient(180deg, #253039 0%, #202a32 100%) !important;
+  color: #dce9f1 !important;
+}
+
+:root[data-theme='dark'] .sales-pos-customer-grid-row:nth-child(even),
+:root[data-theme='dark'] .sales-pos-salesman-grid-row:nth-child(even),
+:root[data-theme='dark'] .sales-pos-product-grid-row:nth-child(even) {
+  background: linear-gradient(180deg, #2a3741 0%, #24313a 100%) !important;
+}
+
+:root[data-theme='dark'] .sales-pos-customer-grid-row > strong,
+:root[data-theme='dark'] .sales-pos-salesman-grid-row > strong,
+:root[data-theme='dark'] .sales-pos-product-grid-row > strong,
+:root[data-theme='dark'] .sales-pos-customer-grid-row > span,
+:root[data-theme='dark'] .sales-pos-salesman-grid-row > span,
+:root[data-theme='dark'] .sales-pos-product-grid-row > span {
+  color: #dce9f1 !important;
+  background: transparent;
+}
+
+:root[data-theme='dark'] .sales-pos-customer-grid-row:hover,
+:root[data-theme='dark'] .sales-pos-customer-grid-row:focus-visible,
+:root[data-theme='dark'] .sales-pos-salesman-grid-row:hover,
+:root[data-theme='dark'] .sales-pos-salesman-grid-row:focus-visible,
+:root[data-theme='dark'] .sales-pos-product-grid-row:hover,
+:root[data-theme='dark'] .sales-pos-product-grid-row:focus-visible {
+  background:
+    linear-gradient(180deg, #258fd2 0%, #1577b8 50%, #0f659f 51%, #0b588d 100%) !important;
+  color: #fff !important;
+}
+
+
+/* Completed Sales rows are visually final but can be reopened with a double-click. */
+.sales-reference-grid tbody tr.is-completed-entry {
+  cursor: default;
+  background: linear-gradient(180deg, #fbfdff 0%, #f2f7fb 100%);
+}
+
+.sales-reference-grid tbody tr.is-completed-entry:hover {
+  background: linear-gradient(180deg, #eef7fd 0%, #e2f0fa 100%);
+}
+
+.sales-reference-grid tbody tr.is-completed-entry td {
+  color: #26475e;
+}
+
+.sales-reference-grid tbody tr.is-completed-entry .sales-pos-line-product {
+  color: #123f63;
+  font-weight: 750;
+}
+
+.sales-pos-line-value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 750;
+  color: #284b62;
+}
+
+.sales-reference-grid tbody tr.is-completed-entry td.col-uom,
+.sales-reference-grid tbody tr.is-completed-entry .col-uom {
+  text-align: center;
+}
+
+.sales-reference-grid tbody tr.is-completed-entry .sales-reference-delete-cell button {
+  opacity: .78;
+}
+
+.sales-reference-grid tbody tr.is-completed-entry:hover .sales-reference-delete-cell button {
+  opacity: 1;
+}
+
+:root[data-theme='dark'] .sales-reference-grid tbody tr.is-completed-entry {
+  background: linear-gradient(180deg, #25313a 0%, #202a32 100%);
+}
+
+:root[data-theme='dark'] .sales-reference-grid tbody tr.is-completed-entry:hover {
+  background: linear-gradient(180deg, #2c3a45 0%, #25323b 100%);
+}
+
+:root[data-theme='dark'] .sales-reference-grid tbody tr.is-completed-entry td,
+:root[data-theme='dark'] .sales-pos-line-value,
+:root[data-theme='dark'] .sales-reference-grid tbody tr.is-completed-entry .sales-pos-line-product {
+  color: #dce9f1;
+}
+
+
+/* ---------- SALES INVOICE DESIGN SYSTEM MIGRATION ---------- */
+/* Visual-only overrides: frozen Sales Invoice geometry and Amounts layout are untouched. */
+.sales-reference-screen {
+  color: var(--ui-text) !important;
+}
+
+.sales-reference-options,
+.sales-reference-amounts,
+.sales-reference-pay-options,
+.sales-reference-grid-wrap,
+.sales-customer-dropdown-shutter,
+.sales-salesman-dropdown-shutter,
+.sales-reference-product-drop {
+  border-color: var(--ui-border) !important;
+  background-color: var(--ui-surface) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-card-shadow) !important;
+  border-radius: var(--panel-radius) !important;
+}
+
+.sales-reference-subtab,
+.sales-reference-sale-btn,
+.sales-reference-actions button,
+.sales-reference-input-button,
+.sales-reference-party-add,
+.sales-reference-record-controls button {
+  border-color: var(--ui-border) !important;
+  border-radius: var(--control-radius) !important;
+  background: var(--ui-surface) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-control-shadow) !important;
+  transition:
+    border-color var(--ui-transition-fast),
+    background-color var(--ui-transition-fast),
+    color var(--ui-transition-fast),
+    box-shadow var(--ui-transition-fast) !important;
+}
+
+.sales-reference-subtab:hover,
+.sales-reference-sale-btn:hover:not(:disabled),
+.sales-reference-actions button:hover:not(:disabled),
+.sales-reference-input-button:hover:not(:disabled) {
+  border-color: var(--ui-accent) !important;
+  background: var(--ui-accent-soft) !important;
+}
+
+.sales-reference-subtab.is-active {
+  border-color: var(--ui-accent) !important;
+  background: var(--ui-accent) !important;
+  color: #fff !important;
+}
+
+.sales-reference-screen :where(input, select, textarea) {
+  border-color: var(--ui-border) !important;
+  border-radius: var(--control-radius) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-control-shadow) !important;
+}
+
+.sales-reference-screen :where(input, select, textarea):focus-visible {
+  outline: none !important;
+  border-color: var(--ui-accent) !important;
+  box-shadow: var(--ui-focus-shadow) !important;
+}
+
+.sales-reference-screen :where(input, select, textarea):disabled {
+  background-color: var(--ui-surface-muted) !important;
+  color: var(--ui-text-muted) !important;
+}
+
+.sales-pos-customer-grid-head,
+.sales-pos-salesman-grid-head,
+.sales-pos-product-grid-head {
+  border-color: var(--ui-border) !important;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ui-accent) 7%, var(--ui-surface)),
+    color-mix(in srgb, var(--ui-accent) 14%, var(--ui-surface-subtle))
+  ) !important;
+  color: var(--ui-text) !important;
+}
+
+.sales-pos-customer-grid-row,
+.sales-pos-salesman-grid-row,
+.sales-pos-product-grid-row {
+  border-color: color-mix(in srgb, var(--ui-border) 58%, transparent) !important;
+  color: var(--ui-text) !important;
+}
+
+.sales-pos-customer-grid-row:hover,
+.sales-pos-salesman-grid-row:hover,
+.sales-pos-product-grid-row:hover,
+.sales-pos-product-grid-row.is-active-product,
+.sales-pos-customer-grid-row.is-active-entry {
+  background: var(--ui-accent-soft) !important;
+}
+
+.sales-reference-inline-caret,
+.sales-reference-field-caret {
+  color: var(--ui-accent) !important;
+}
+
+.sales-reference-action-icon.is-save,
+.sales-reference-sale-btn.is-green { color: var(--ui-success) !important; }
+.sales-reference-action-icon.is-close,
+.sales-reference-entry-status.is-error { color: var(--ui-danger) !important; }
+.sales-reference-entry-status.is-ready { color: var(--ui-info) !important; }
+
+html[data-animations='off'] .sales-reference-screen * {
+  transition: none !important;
+  animation: none !important;
+}
+
+
+/* ---------- SALES INVOICE FINAL SHADOW CLEANUP ---------- */
+/* Visual-only: preserve frozen Amounts geometry while honoring Radius/Card Shadow. */
+.sales-reference-total-block > div,
+.sales-reference-received,
+.sales-reference-card,
+.sales-reference-balance {
+  border-radius: var(--control-radius) !important;
+  box-shadow: var(--ui-control-shadow) !important;
+}
+
+
+/* ---------- CANONICAL SELECT GEOMETRY BRIDGE ---------- */
+/* Shared dropdown adoption only. Frozen Sales Invoice geometry is preserved. */
+.sales-reference-grid td > .sales-pos-line-uom-select {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.sales-pos-line-uom-select .sales-pos-line-uom-trigger {
+  width: 100%;
+  min-width: 0;
+  height: 22px;
+  min-height: 22px;
+  padding-left: 4px;
+  font-size: inherit;
+  box-shadow: none;
+}
+
+.sales-pos-line-uom-select .ui-select-arrow {
+  width: 15px;
+  height: 14px;
+}
+
+.sales-reference-payment-method .sales-reference-payment-select {
+  width: 100%;
+  min-width: 0;
+}
+
+.sales-reference-payment-method .sales-reference-payment-select-trigger {
+  width: 100%;
+  min-width: 0;
+  height: 24px;
+  min-height: 24px;
+  font-size: inherit;
+}
+
+
+/* ==========================================================================
+   Sales Invoice — user appearance compliance
+   Visual-only overrides. Frozen Sales geometry and Amounts layout are untouched.
+   ========================================================================== */
+
+/* Primary-theme accent: inline lookup/dropdown carets. */
+.sales-reference-screen .sales-reference-inline-caret > .sales-reference-field-caret {
+  border-color: color-mix(in srgb, var(--ui-accent) 72%, var(--ui-border)) !important;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ui-accent) 48%, white) 0%,
+    var(--ui-accent) 54%,
+    color-mix(in srgb, var(--ui-accent) 84%, black) 100%
+  ) !important;
+  color: #fff !important;
+  border-radius: var(--control-radius) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.34),
+    var(--ui-control-shadow) !important;
+}
+
+.sales-reference-screen .sales-reference-inline-caret > .sales-reference-field-caret:hover {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ui-accent) 40%, white) 0%,
+    color-mix(in srgb, var(--ui-accent) 92%, white) 54%,
+    var(--ui-accent) 100%
+  ) !important;
+}
+
+:root[data-theme='dark'] .sales-reference-screen .sales-reference-inline-caret > .sales-reference-field-caret {
+  border-color: color-mix(in srgb, var(--ui-accent) 72%, var(--ui-border)) !important;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ui-accent) 72%, var(--ui-surface)) 0%,
+    color-mix(in srgb, var(--ui-accent) 82%, black) 100%
+  ) !important;
+}
+
+/* Focus treatment follows the selected primary theme. */
+.sales-reference-screen input:not([type='radio']):not([type='checkbox']):focus,
+.sales-reference-screen select:focus,
+.sales-reference-screen textarea:focus,
+.sales-reference-screen button:focus-visible {
+  border-color: var(--ui-accent) !important;
+  outline: none;
+  box-shadow: var(--ui-focus-shadow);
+}
+
+/* Lookup/picker chrome follows the selected primary theme. */
+.sales-reference-screen .sales-pos-customer-grid,
+.sales-reference-screen .sales-pos-salesman-grid,
+.sales-reference-screen .sales-pos-product-results-grid {
+  border-color: color-mix(in srgb, var(--ui-accent) 42%, var(--ui-border));
+  border-radius: var(--panel-radius);
+  box-shadow: var(--ui-card-shadow);
+}
+
+.sales-reference-screen .sales-pos-customer-grid-head,
+.sales-reference-screen .sales-pos-customer-grid-foot,
+.sales-reference-screen .sales-pos-salesman-grid-head,
+.sales-reference-screen .sales-pos-salesman-grid-foot,
+.sales-reference-screen .sales-pos-product-grid-head,
+.sales-reference-screen .sales-pos-product-grid-foot {
+  border-color: color-mix(in srgb, var(--ui-accent) 28%, var(--ui-border));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ui-accent) 7%, var(--ui-surface)),
+    color-mix(in srgb, var(--ui-accent) 13%, var(--ui-surface-subtle))
+  );
+  color: var(--ui-text);
+}
+
+.sales-reference-screen .sales-pos-customer-grid-row:hover,
+.sales-reference-screen .sales-pos-customer-grid-row:focus-visible,
+.sales-reference-screen .sales-pos-salesman-grid-row:hover,
+.sales-reference-screen .sales-pos-salesman-grid-row:focus-visible,
+.sales-reference-screen .sales-pos-product-grid-row:hover,
+.sales-reference-screen .sales-pos-product-grid-row:focus-visible {
+  background: var(--ui-accent) !important;
+  color: #fff !important;
+}
+
+:root[data-theme='dark'] .sales-reference-screen .sales-pos-customer-grid-row:hover,
+:root[data-theme='dark'] .sales-reference-screen .sales-pos-customer-grid-row:focus-visible,
+:root[data-theme='dark'] .sales-reference-screen .sales-pos-salesman-grid-row:hover,
+:root[data-theme='dark'] .sales-reference-screen .sales-pos-salesman-grid-row:focus-visible,
+:root[data-theme='dark'] .sales-reference-screen .sales-pos-product-grid-row:hover,
+:root[data-theme='dark'] .sales-reference-screen .sales-pos-product-grid-row:focus-visible {
+  background: color-mix(in srgb, var(--ui-accent) 82%, black) !important;
+  color: #fff !important;
+}
+
+/* Active Sales sub-tab uses the user's primary theme rather than fixed blue. */
+.sales-reference-screen .sales-reference-subtab.is-active {
+  border-color: color-mix(in srgb, var(--ui-accent) 55%, var(--ui-border));
+  color: var(--ui-accent-strong);
+  box-shadow: inset 0 -2px 0 var(--ui-accent);
+}
+
+/* Appearance radius/shadow preferences apply visually without changing layout. */
+.sales-reference-screen :where(
+  .sales-reference-subtab,
+  .sales-reference-sale-btn,
+  .sales-reference-record-controls button,
+  .sales-reference-actions-center button,
+  .sales-reference-input-button button,
+  .sales-reference-amounts-grid button,
+  .sales-reference-pay-tools button,
+  .sales-reference-payment-method button,
+  input,
+  select,
+  textarea
+) {
+  border-radius: var(--control-radius);
+}
+
+.sales-reference-screen :where(
+  .sales-reference-options,
+  .sales-reference-amounts,
+  .sales-reference-pay-options,
+  .sales-pos-customer-grid,
+  .sales-pos-salesman-grid,
+  .sales-pos-product-results-grid
+) {
+  border-radius: var(--panel-radius);
+}
+
+:root[data-shadow='none'] .sales-reference-screen :where(
+  .sales-reference-options,
+  .sales-reference-amounts,
+  .sales-reference-pay-options,
+  .sales-pos-customer-grid,
+  .sales-pos-salesman-grid,
+  .sales-pos-product-results-grid,
+  button,
+  input,
+  select,
+  textarea
+) {
+  box-shadow: none !important;
+}
+
+/* Respect the explicit animation preference. */
+:root[data-animations='off'] .sales-reference-screen *,
+:root[data-animations='off'] .sales-reference-screen *::before,
+:root[data-animations='off'] .sales-reference-screen *::after {
+  transition: none !important;
+  animation: none !important;
+}
+
+
+/* ==========================================================================
+   Sales Invoice UI refinements — footer navigation + searchable pickers.
+   Visual-only changes on sales-ui-fixes. Amounts geometry is untouched.
+   ========================================================================== */
+
+.sales-reference-actions {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.sales-reference-subtabs-bottom {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.sales-reference-subtabs-bottom .sales-reference-subtab {
+  min-height: 34px;
+  margin: 0;
+}
+
+.sales-reference-actions-view-label {
+  justify-self: end;
+  color: var(--ui-text-muted);
+  font-size: var(--ui-font-sm, 11px);
+  font-weight: 700;
+}
+
+.sales-reference-salesman > input,
+.sales-reference-to > input {
+  cursor: text;
+}
+
+.sales-reference-salesman > input::placeholder,
+.sales-reference-to > input::placeholder {
+  color: var(--ui-text-muted);
+}
+
+@media (max-width: 1180px) {
+  .sales-reference-actions {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .sales-reference-shortcuts {
+    display: none;
+  }
+
+  .sales-reference-subtabs-bottom {
+    overflow-x: auto;
+  }
+}
+
+
+/* Footer refinement: view tabs and action buttons stay on one line. */
+.sales-reference-actions {
+  display: flex !important;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+
+.sales-reference-subtabs-bottom {
+  flex: 0 0 auto;
+  overflow: visible;
+}
+
+.sales-reference-actions-center {
+  flex: 0 0 auto;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.sales-reference-shortcuts {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+@media (max-width: 1320px) {
+  .sales-reference-shortcuts {
+    display: none;
+  }
+}
+
+.sales-picker-search {
+  padding: 5px;
+  border-bottom: 1px solid var(--ui-border);
+  background: var(--ui-surface-subtle);
+}
+
+.sales-picker-search input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--control-radius);
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sales-picker-search input:focus {
+  border-color: var(--ui-accent);
+  outline: none;
+  box-shadow: var(--ui-focus-shadow);
+}
+
+
+/* Invoice Options refinement: customer identity fields start a fresh line. */
+.sales-reference-option-grid > :nth-child(9),
+.sales-reference-option-grid > :nth-child(10),
+.sales-reference-option-grid > :nth-child(11),
+.sales-reference-option-grid > :nth-child(12),
+.sales-reference-option-grid > :nth-child(13),
+.sales-reference-option-grid > :nth-child(14) {
+  grid-row: 2;
+}
+
+.sales-reference-option-grid > :nth-child(9) {
+  grid-column: 1;
+}
+
+.sales-reference-option-grid > :nth-child(10) {
+  grid-column: 2 / 6;
+}
+
+.sales-reference-option-grid > :nth-child(11) {
+  grid-column: 6;
+}
+
+.sales-reference-option-grid > :nth-child(12) {
+  grid-column: 7 / 10;
+}
+
+.sales-reference-option-grid > :nth-child(13) {
+  grid-column: 10;
+}
+
+.sales-reference-option-grid > :nth-child(14) {
+  grid-column: 11 / 15;
+}
+
+.sales-reference-option-grid {
+  row-gap: 4px !important;
+}
+
+
+/* Corrected Invoice Options order: one line only.
+   Customer fields lead from the left; document fields continue to the right. */
+.sales-reference-option-grid {
+  grid-template-columns:
+    24px minmax(190px, 1.45fr)
+    40px minmax(170px, 1.25fr)
+    34px minmax(130px, .95fr)
+    34px minmax(72px, .60fr)
+    30px minmax(132px, .95fr)
+    34px minmax(118px, .85fr)
+    42px minmax(126px, .95fr) !important;
+  row-gap: 0 !important;
+}
+
+.sales-reference-option-grid > * {
+  grid-row: 1 !important;
+}
+
+.sales-reference-option-grid > :nth-child(9)  { grid-column: 1 !important; }
+.sales-reference-option-grid > :nth-child(10) { grid-column: 2 !important; }
+.sales-reference-option-grid > :nth-child(11) { grid-column: 3 !important; }
+.sales-reference-option-grid > :nth-child(12) { grid-column: 4 !important; }
+.sales-reference-option-grid > :nth-child(13) { grid-column: 5 !important; }
+.sales-reference-option-grid > :nth-child(14) { grid-column: 6 !important; }
+
+.sales-reference-option-grid > :nth-child(1) { grid-column: 7 !important; }
+.sales-reference-option-grid > :nth-child(2) { grid-column: 8 !important; }
+.sales-reference-option-grid > :nth-child(3) { grid-column: 9 !important; }
+.sales-reference-option-grid > :nth-child(4) { grid-column: 10 !important; }
+.sales-reference-option-grid > :nth-child(5) { grid-column: 11 !important; }
+.sales-reference-option-grid > :nth-child(6) { grid-column: 12 !important; }
+.sales-reference-option-grid > :nth-child(7) { grid-column: 13 !important; }
+.sales-reference-option-grid > :nth-child(8) { grid-column: 14 !important; }
+
+
+/* Customer picker alignment after header reorder: expand toward the right. */
+.sales-reference-to {
+  position: relative;
+}
+
+.sales-reference-to .sales-customer-dropdown-shutter {
+  left: 0;
+  right: auto;
+  width: min(920px, calc(100vw - 72px));
+  transform-origin: top left;
+}
+
+
+/* Customer picker must anchor from To field and expand right.
+   Overrides older shared picker rule that forces right:0 !important. */
+.sales-reference-to > .sales-customer-dropdown-shutter {
+  left: 0 !important;
+  right: auto !important;
+  width: min(760px, calc(100vw - 48px)) !important;
+  max-width: calc(100vw - 48px) !important;
+  transform-origin: top left !important;
+}
+
+
+/* ==========================================================================
+   Sales Invoice responsive phase 1: Invoice Options / Header
+   Desktop >=1280 keeps the approved frozen geometry.
+   Tablet layouts use semantic field classes instead of brittle nth-child
+   placement, so optional Salesman visibility cannot break the grid.
+   ========================================================================== */
+
+@media (max-width: 1600px) {
+  .sales-reference-shortcuts {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .sales-reference-options {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .sales-reference-options-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+  }
+
+  .sales-reference-copy-from {
+    flex: 0 1 220px;
+    min-width: 170px;
+    margin-left: auto;
+  }
+
+  .sales-reference-option-grid {
+    grid-template-columns:
+      26px minmax(0, 1fr)
+      38px minmax(0, 1fr)
+      40px minmax(0, 1fr) !important;
+    column-gap: 4px !important;
+    row-gap: 4px !important;
+  }
+
+  .sales-reference-option-grid > .sales-responsive-customer-label { grid-column: 1 !important; grid-row: 1 !important; }
+  .sales-reference-option-grid > .sales-responsive-customer-field { grid-column: 2 !important; grid-row: 1 !important; }
+  .sales-reference-option-grid > .sales-responsive-name-label { grid-column: 3 !important; grid-row: 1 !important; }
+  .sales-reference-option-grid > .sales-responsive-name-field { grid-column: 4 !important; grid-row: 1 !important; }
+  .sales-reference-option-grid > .sales-responsive-phone-label { grid-column: 5 !important; grid-row: 1 !important; }
+  .sales-reference-option-grid > .sales-responsive-phone-field { grid-column: 6 !important; grid-row: 1 !important; }
+
+  .sales-reference-option-grid > .sales-responsive-invoice-label { grid-column: 1 !important; grid-row: 2 !important; }
+  .sales-reference-option-grid > .sales-responsive-invoice-field { grid-column: 2 !important; grid-row: 2 !important; }
+  .sales-reference-option-grid > .sales-responsive-date-label { grid-column: 3 !important; grid-row: 2 !important; }
+  .sales-reference-option-grid > .sales-responsive-date-field { grid-column: 4 !important; grid-row: 2 !important; }
+  .sales-reference-option-grid > .sales-responsive-quotation-label { grid-column: 5 !important; grid-row: 2 !important; }
+  .sales-reference-option-grid > .sales-responsive-quotation-field { grid-column: 6 !important; grid-row: 2 !important; }
+
+  .sales-reference-option-grid > .sales-responsive-salesman-label { grid-column: 1 !important; grid-row: 3 !important; }
+  .sales-reference-option-grid > .sales-responsive-salesman-field {
+    grid-column: 2 / 4 !important;
+    grid-row: 3 !important;
+  }
+
+  .sales-reference-entry-row {
+    column-gap: 4px;
+  }
+
+  .sales-reference-entry-status {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .sales-reference-actions {
+    gap: 4px !important;
+  }
+
+  .sales-reference-subtabs-bottom {
+    gap: 2px;
+  }
+
+  .sales-reference-subtabs-bottom .sales-reference-subtab {
+    min-width: 0;
+    padding-left: 6px;
+    padding-right: 6px;
+    white-space: nowrap;
+  }
+
+  .sales-reference-actions-center {
+    gap: 3px;
+  }
+
+  .sales-reference-actions-center button {
+    min-width: 0;
+    padding-left: 5px;
+    padding-right: 5px;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 1023px) {
+  .sales-reference-screen,
+  .sales-reference-main {
+    min-width: 0 !important;
+  }
+
+  .sales-reference-screen {
+    overflow-x: hidden !important;
+  }
+
+  .sales-reference-options {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .sales-reference-options-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 7px;
+  }
+
+  .sales-reference-copy-from {
+    flex: 1 1 100%;
+    min-width: 0;
+    margin-left: 0;
+  }
+
+  .sales-reference-option-grid {
+    grid-template-columns:
+      30px minmax(0, 1fr)
+      40px minmax(0, 1fr) !important;
+    column-gap: 4px !important;
+    row-gap: 4px !important;
+  }
+
+  .sales-responsive-customer-label { grid-column: 1 !important; grid-row: 1 !important; }
+  .sales-responsive-customer-field { grid-column: 2 !important; grid-row: 1 !important; }
+  .sales-responsive-name-label { grid-column: 3 !important; grid-row: 1 !important; }
+  .sales-responsive-name-field { grid-column: 4 !important; grid-row: 1 !important; }
+
+  .sales-reference-option-grid > .sales-responsive-phone-label { grid-column: 1 !important; grid-row: 2 !important; }
+  .sales-reference-option-grid > .sales-responsive-phone-field { grid-column: 2 !important; grid-row: 2 !important; }
+  .sales-reference-option-grid > .sales-responsive-invoice-label { grid-column: 3 !important; grid-row: 2 !important; }
+  .sales-reference-option-grid > .sales-responsive-invoice-field { grid-column: 4 !important; grid-row: 2 !important; }
+
+  .sales-reference-option-grid > .sales-responsive-date-label { grid-column: 1 !important; grid-row: 3 !important; }
+  .sales-reference-option-grid > .sales-responsive-date-field { grid-column: 2 !important; grid-row: 3 !important; }
+  .sales-reference-option-grid > .sales-responsive-quotation-label { grid-column: 3 !important; grid-row: 3 !important; }
+  .sales-reference-option-grid > .sales-responsive-quotation-field { grid-column: 4 !important; grid-row: 3 !important; }
+
+  .sales-reference-option-grid > .sales-responsive-salesman-label { grid-column: 1 !important; grid-row: 4 !important; }
+  .sales-reference-option-grid > .sales-responsive-salesman-field {
+    grid-column: 2 / 5 !important;
+    grid-row: 4 !important;
+  }
+
+  .sales-reference-grid-wrap {
+    min-width: 0;
+  }
+
+  .sales-reference-actions {
+    flex-wrap: nowrap !important;
+    gap: 4px !important;
+  }
+
+  .sales-reference-subtabs-bottom,
+  .sales-reference-actions-center {
+    flex-wrap: nowrap !important;
+    white-space: nowrap;
+  }
+
+  .sales-reference-actions-center {
+    margin-left: auto;
+    gap: 3px;
+  }
+
+  .sales-reference-actions-center button {
+    min-width: 0;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .sales-reference-entry-status {
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
+
+/* Sales Invoice containment + footer fit polish. */
+/* User-requested visual correction only; financial values/Amounts field order are unchanged. */
+.sales-reference-pay > .sales-reference-amounts {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: calc(100% - 12px);
+  overflow: hidden;
+}
+
+.sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-checks,
+.sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid > * {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid input,
+.sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid button {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Keep footer navigation and POS actions inside the main invoice column. */
+.sales-reference-actions {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  gap: 5px !important;
+}
+
+.sales-reference-subtabs-bottom {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  gap: 3px;
+}
+
+.sales-reference-subtabs-bottom .sales-reference-subtab {
+  flex: 0 1 auto;
+  min-width: 0;
+  min-height: 32px;
+  padding-left: 7px;
+  padding-right: 7px;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.sales-reference-subtabs-bottom .sales-reference-subtab > span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sales-reference-subtabs-bottom .sales-reference-tab-icon {
+  flex: 0 0 auto;
+}
+
+.sales-reference-actions-center {
+  flex: 0 0 auto;
+  min-width: 0;
+  margin-left: 0;
+  gap: 3px;
+}
+
+.sales-reference-actions-center button {
+  min-width: 0;
+  padding-left: 5px;
+  padding-right: 5px;
+  white-space: nowrap;
+}
+
+@media (max-width: 1450px) {
+  .sales-reference-subtabs-bottom .sales-reference-subtab {
+    padding-left: 5px;
+    padding-right: 5px;
+    font-size: 10px;
+  }
+
+  .sales-reference-subtabs-bottom .sales-reference-tab-icon {
+    width: 22px;
+    min-width: 22px;
+  }
+
+  .sales-reference-actions-center button {
+    font-size: 10px;
+  }
+}
+
+
+/* Final Sales Invoice Amounts/footer containment pass. */
+/* Explicitly requested geometry correction; no financial behavior changes. */
+.sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto auto auto;
+  column-gap: 4px;
+  row-gap: 3px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid > :nth-child(1) {
+  grid-column: 1 / 3;
+  grid-row: 1;
+}
+
+.sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid > :nth-child(2) {
+  grid-column: 3;
+  grid-row: 1;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid > :nth-child(3) {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid > :nth-child(4) {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid > :nth-child(5) {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid > :nth-child(6) {
+  grid-column: 1;
+  grid-row: 3;
+}
+
+.sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid > :nth-child(7) {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid > :nth-child(8) {
+  grid-column: 3;
+  grid-row: 3;
+}
+
+.sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid > :where(
+  strong,
+  button,
+  input,
+  label
+) {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid > label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Use footer width for real navigation/actions rather than the optional shortcut legend. */
+.sales-reference-actions .sales-reference-shortcuts {
+  display: none !important;
+}
+
+.sales-reference-subtabs-bottom {
+  flex: 0 1 auto;
+}
+
+.sales-reference-subtabs-bottom .sales-reference-subtab:nth-child(1),
+.sales-reference-subtabs-bottom .sales-reference-subtab:nth-child(2),
+.sales-reference-subtabs-bottom .sales-reference-subtab:nth-child(3) {
+  flex: 0 0 142px;
+  width: 142px;
+  max-width: 142px;
+}
+
+.sales-reference-subtabs-bottom .sales-reference-subtab:nth-child(2),
+.sales-reference-subtabs-bottom .sales-reference-subtab:nth-child(3) {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.sales-reference-subtabs-bottom .sales-reference-subtab:nth-child(2) > span:last-child,
+.sales-reference-subtabs-bottom .sales-reference-subtab:nth-child(3) > span:last-child {
+  font-size: 9.5px;
+}
+
+.sales-reference-actions-center {
+  margin-left: auto;
+}
+
+.sales-reference-actions-center button {
+  flex: 0 0 auto;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+@media (max-width: 1500px) {
+  .sales-reference-subtabs-bottom .sales-reference-subtab:nth-child(1),
+  .sales-reference-subtabs-bottom .sales-reference-subtab:nth-child(2),
+  .sales-reference-subtabs-bottom .sales-reference-subtab:nth-child(3) {
+    flex-basis: 132px;
+    width: 132px;
+    max-width: 132px;
+  }
+
+  .sales-reference-subtabs-bottom .sales-reference-subtab:nth-child(2) > span:last-child {
+    font-size: 9px;
+  }
+
+  .sales-reference-subtabs-bottom .sales-reference-subtab:nth-child(3) > span:last-child {
+    font-size: 8px;
+    letter-spacing: -0.1px;
+  }
+
+  .sales-reference-actions-center button {
+    padding-left: 3px;
+    padding-right: 3px;
+    font-size: 9.5px;
+  }
+}
+
+
+/* ==========================================================================
+   Daily Entries global Definition baseline consumer.
+   Sales Invoice geometry is frozen; this section is visual-only.
+   ========================================================================== */
+.sales-reference-screen {
+  background: var(--ui-bg) !important;
+  color: var(--ui-text) !important;
+}
+
+.sales-reference-screen :where(
+  .sales-reference-meta,
+  .sales-reference-entry-row,
+  .sales-reference-grid-wrap,
+  .sales-reference-grid-totals,
+  .sales-reference-record-nav,
+  .sales-reference-actions,
+  .sales-reference-pay,
+  .sales-reference-amounts,
+  .sales-reference-amount-options,
+  .sales-reference-payment-box
+) {
+  border-color: var(--ui-border) !important;
+  background-color: var(--ui-surface) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-card-shadow) !important;
+}
+
+.sales-reference-screen :where(
+  .sales-reference-product-entry,
+  .sales-reference-option-grid input,
+  .sales-reference-copy-from input,
+  .sales-reference-remarks textarea,
+  .sales-reference-payment-reference input,
+  .sales-reference-received input,
+  .sales-reference-amounts-grid input
+) {
+  border-color: var(--ui-control-border) !important;
+  background: var(--ui-control-face) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-control-shadow) !important;
+}
+
+.sales-reference-screen :where(
+  .sales-reference-product-entry,
+  .sales-reference-option-grid input,
+  .sales-reference-copy-from input,
+  .sales-reference-remarks textarea,
+  .sales-reference-payment-reference input,
+  .sales-reference-received input,
+  .sales-reference-amounts-grid input
+):focus-visible {
+  border-color: var(--ui-accent) !important;
+  box-shadow: var(--ui-focus-shadow) !important;
+}
+
+.sales-reference-screen .sales-reference-grid th {
+  border-color: var(--ui-table-border) !important;
+  background: var(--ui-table-header) !important;
+  color: var(--ui-table-header-text) !important;
+}
+
+.sales-reference-screen .sales-reference-grid td {
+  border-color: var(--ui-border-soft) !important;
+  background: var(--ui-surface) !important;
+  color: var(--ui-text) !important;
+}
+
+.sales-reference-screen .sales-reference-grid tbody tr:hover td {
+  background: var(--ui-row-hover) !important;
+}
+
+.sales-reference-screen .sales-reference-product-drop,
+.sales-reference-screen .sales-reference-customer-picker,
+.sales-reference-screen .sales-reference-copy-results {
+  border-color: var(--ui-border) !important;
+  background: var(--ui-select-menu-bg) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-card-shadow) !important;
+}
+
+.sales-reference-screen :where(
+  .sales-reference-actions,
+  .sales-reference-grid-totals,
+  .sales-reference-record-nav
+) {
+  background: var(--ui-panel-face) !important;
+}
+
+.sales-reference-screen :where(
+  .sales-reference-payment-label,
+  .sales-reference-remarks-label,
+  .sales-reference-side-label,
+  .sales-reference-shortcuts
+) {
+  color: var(--ui-text-muted) !important;
+}
+
+
+/* ---------- SALES PICKER STATE PARITY WITH GLOBAL DEFINITION BASELINE ---------- */
+.sales-pos-customer-grid-row:hover:not(.is-selected),
+.sales-pos-salesman-grid-row:hover:not(.is-selected),
+.sales-pos-product-grid-row:hover:not(.is-selected) {
+  border-color: color-mix(in srgb, var(--ui-accent) 38%, transparent) !important;
+  background: var(--ui-select-hover-bg) !important;
+  color: var(--ui-select-hover-text) !important;
+}
+
+.sales-pos-customer-grid-row:hover:not(.is-selected) > *,
+.sales-pos-salesman-grid-row:hover:not(.is-selected) > *,
+.sales-pos-product-grid-row:hover:not(.is-selected) > * {
+  color: var(--ui-select-hover-text) !important;
+}
+
+.sales-pos-customer-grid-row.is-selected,
+.sales-pos-salesman-grid-row.is-selected,
+.sales-pos-product-grid-row.is-selected {
+  border-color: var(--ui-accent-strong) !important;
+  background: var(--ui-select-selected-face) !important;
+  color: var(--ui-select-selected-text) !important;
+  font-weight: 800 !important;
+}
+
+.sales-pos-customer-grid-row.is-selected > *,
+.sales-pos-salesman-grid-row.is-selected > *,
+.sales-pos-product-grid-row.is-selected > * {
+  color: var(--ui-select-selected-text) !important;
+}
+
+/* ==========================================================================
+   Sales Invoice lookup theme parity.
+   Keep frozen Sales Invoice geometry; only normalize lookup colors/states.
+   ========================================================================== */
+.sales-pos-customer-grid,
+.sales-pos-salesman-grid,
+.sales-pos-product-results-grid.is-themed {
+  border-color: var(--ui-border) !important;
+  background: var(--ui-select-menu-bg, var(--ui-surface)) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-card-shadow) !important;
+}
+
+.sales-pos-customer-grid-head,
+.sales-pos-salesman-grid-head,
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-head {
+  border-bottom-color: var(--ui-table-border) !important;
+  background: var(--ui-table-header) !important;
+  color: var(--ui-table-header-text) !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+}
+
+.sales-pos-customer-grid-head > span,
+.sales-pos-salesman-grid-head > span,
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-head > span {
+  border-right-color: var(--ui-table-border) !important;
+}
+
+.sales-pos-customer-grid-body,
+.sales-pos-salesman-grid-body,
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-body {
+  background: var(--ui-surface) !important;
+  scrollbar-color:
+    color-mix(in srgb, var(--ui-accent) 72%, var(--ui-border))
+    var(--ui-surface-muted);
+}
+
+.sales-pos-customer-grid-row,
+.sales-pos-salesman-grid-row,
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-row {
+  border-bottom-color: var(--ui-table-border) !important;
+  background: var(--ui-surface) !important;
+  color: var(--ui-text) !important;
+}
+
+.sales-pos-customer-grid-row:nth-child(even),
+.sales-pos-salesman-grid-row:nth-child(even),
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-row:nth-child(even) {
+  background: var(--ui-row-alt) !important;
+}
+
+.sales-pos-customer-grid-row > span,
+.sales-pos-customer-grid-row > strong,
+.sales-pos-salesman-grid-row > span,
+.sales-pos-salesman-grid-row > strong,
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-row > span,
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-row > strong {
+  background: transparent !important;
+  color: inherit !important;
+}
+
+.sales-pos-customer-grid-row:hover:not(.is-selected),
+.sales-pos-customer-grid-row:focus-visible:not(.is-selected),
+.sales-pos-salesman-grid-row:hover:not(.is-selected),
+.sales-pos-salesman-grid-row:focus-visible:not(.is-selected),
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-row:hover:not(.is-selected),
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-row:focus-visible:not(.is-selected) {
+  border-color: color-mix(in srgb, var(--ui-accent) 38%, transparent) !important;
+  background: var(--ui-select-hover-bg) !important;
+  color: var(--ui-select-hover-text) !important;
+  box-shadow: none !important;
+}
+
+.sales-pos-customer-grid-row.is-selected,
+.sales-pos-salesman-grid-row.is-selected,
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-row.is-selected {
+  border-color: var(--ui-accent-strong) !important;
+  background: var(--ui-select-selected-face) !important;
+  color: var(--ui-select-selected-text) !important;
+  box-shadow: none !important;
+}
+
+.sales-pos-customer-grid-foot,
+.sales-pos-salesman-grid-foot,
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-foot {
+  border-top-color: var(--ui-border) !important;
+  background: var(--ui-surface-subtle) !important;
+  color: var(--ui-text-muted) !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+}
+
+.sales-pos-customer-grid-body::-webkit-scrollbar-track,
+.sales-pos-salesman-grid-body::-webkit-scrollbar-track,
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-body::-webkit-scrollbar-track {
+  background: var(--ui-surface-muted) !important;
+  border-left-color: var(--ui-border) !important;
+}
+
+.sales-pos-customer-grid-body::-webkit-scrollbar-thumb,
+.sales-pos-salesman-grid-body::-webkit-scrollbar-thumb,
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-body::-webkit-scrollbar-thumb {
+  border-color: var(--ui-surface-muted) !important;
+  background: color-mix(in srgb, var(--ui-accent) 72%, var(--ui-border)) !important;
+}
+
+.sales-reference-to > input,
+.sales-reference-salesman > input {
+  border-color: var(--ui-control-border) !important;
+  background: var(--ui-control-face) !important;
+  color: var(--ui-text) !important;
+  box-shadow: var(--ui-control-shadow) !important;
+}
+
+.sales-reference-to.is-open > input,
+.sales-reference-salesman.is-open > input,
+.sales-reference-to:focus-within > input,
+.sales-reference-salesman:focus-within > input {
+  border-color: var(--ui-accent) !important;
+  box-shadow: var(--ui-focus-shadow) !important;
+}
+
+
+
+/* ==========================================================================
+   Sales Invoice responsive phase 2: body/footer fit
+   Desktop >=1280 remains unchanged. Tablet widths let the responsive header
+   grow to its intrinsic height and move the crowded footer into two rows.
+   Frozen Amounts child order/geometry and business behavior are unchanged.
+   ========================================================================== */
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .sales-reference-meta {
+    height: auto !important;
+    min-height: 0 !important;
+    align-items: start;
+  }
+
+  .sales-reference-options {
+    align-self: start;
+  }
+
+  .sales-reference-actions {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    align-items: stretch !important;
+    gap: 3px !important;
+    min-height: 0 !important;
+    padding: 4px 6px !important;
+    overflow: visible !important;
+  }
+
+  .sales-reference-subtabs-bottom {
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .sales-reference-actions-center {
+    width: 100%;
+    margin-left: 0 !important;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 1023px) {
+  .sales-reference-meta {
+    height: auto !important;
+    min-height: 0 !important;
+    align-items: start;
+  }
+
+  .sales-reference-options {
+    align-self: start;
+  }
+
+  .sales-reference-entry-row {
+    min-width: 0;
+    padding-left: 0 !important;
+  }
+
+  .sales-reference-product-entry-wrap {
+    flex: 1 1 180px;
+    width: auto;
+    min-width: 120px;
+    max-width: 260px;
+  }
+
+  .sales-reference-product-entry {
+    width: 100% !important;
+    max-width: 100%;
+    flex-basis: auto !important;
+  }
+
+  .sales-reference-f1 {
+    width: auto !important;
+    min-width: 82px;
+    flex: 0 0 auto !important;
+    padding-right: 4px;
+  }
+
+  .sales-reference-sale-btn {
+    flex: 0 0 64px !important;
+    width: 64px !important;
+  }
+
+  .sales-reference-actions {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    align-items: stretch !important;
+    gap: 3px !important;
+    min-height: 0 !important;
+    padding: 4px !important;
+    overflow: visible !important;
+  }
+
+  .sales-reference-subtabs-bottom {
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .sales-reference-actions-center {
+    width: 100%;
+    min-width: 0;
+    margin-left: 0 !important;
+    justify-content: flex-end;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .sales-reference-actions-center button {
+    flex: 0 0 auto;
+  }
+}
+
+
+/* ==========================================================================
+   Sales Invoice responsive phase 3: specificity/footer correction
+   The legacy frozen-header nth-child rules carry higher specificity than the
+   semantic responsive classes. The parent-qualified selectors above ensure
+   tablet placement actually wins without changing desktop >=1280 geometry.
+   ========================================================================== */
+
+@media (max-width: 1023px) {
+  .sales-reference-actions-center {
+    justify-content: flex-start !important;
+    overflow-x: hidden !important;
+  }
+
+  .sales-reference-actions-center button {
+    flex: 1 1 0 !important;
+    min-width: 72px !important;
+    max-width: none !important;
+    padding-left: 3px !important;
+    padding-right: 3px !important;
+  }
+
+  .sales-reference-subtabs-bottom {
+    overflow-x: hidden !important;
+  }
+
+  .sales-reference-subtabs-bottom .sales-reference-subtab {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    padding-left: 3px !important;
+    padding-right: 3px !important;
+  }
+
+  .sales-reference-subtabs-bottom .sales-reference-subtab > span:last-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+
+/* ==========================================================================
+   Sales Invoice responsive phase 4: adaptive density and tablet scroll
+   Wide desktop >=1280 remains the approved frozen reference.
+   Laptop widths become denser; tablet widths wrap the header cleanly and use
+   controlled workspace scrolling instead of crushing controls beyond usability.
+   ========================================================================== */
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .sales-reference-screen {
+    font-size: 10px !important;
+  }
+
+  .sales-reference-screen :where(button, input, textarea, select) {
+    font-size: 10.5px !important;
+  }
+
+  .sales-reference-options-head {
+    height: auto !important;
+    min-height: 20px;
+    margin-bottom: 2px !important;
+    gap: 2px 6px !important;
+    font-size: 10px !important;
+  }
+
+  .sales-reference-copy-from {
+    flex: 0 1 180px !important;
+    min-width: 145px !important;
+  }
+
+  .sales-reference-copy-from input,
+  .sales-reference-option-grid > input,
+  .sales-reference-option-grid > .sales-reference-input-button {
+    min-height: 21px !important;
+    height: 21px !important;
+  }
+
+  .sales-reference-option-grid {
+    grid-template-columns:
+      22px minmax(0, 1.15fr)
+      30px minmax(0, .95fr)
+      30px minmax(0, .9fr)
+      34px minmax(0, 1fr) !important;
+    column-gap: 3px !important;
+    row-gap: 3px !important;
+  }
+
+  .sales-reference-option-grid > .sales-responsive-customer-label { grid-column: 1 !important; grid-row: 1 !important; }
+  .sales-reference-option-grid > .sales-responsive-customer-field { grid-column: 2 !important; grid-row: 1 !important; }
+  .sales-reference-option-grid > .sales-responsive-name-label { grid-column: 3 !important; grid-row: 1 !important; }
+  .sales-reference-option-grid > .sales-responsive-name-field { grid-column: 4 !important; grid-row: 1 !important; }
+  .sales-reference-option-grid > .sales-responsive-phone-label { grid-column: 5 !important; grid-row: 1 !important; }
+  .sales-reference-option-grid > .sales-responsive-phone-field { grid-column: 6 !important; grid-row: 1 !important; }
+
+  .sales-reference-option-grid > .sales-responsive-invoice-label { grid-column: 1 !important; grid-row: 2 !important; }
+  .sales-reference-option-grid > .sales-responsive-invoice-field { grid-column: 2 !important; grid-row: 2 !important; }
+  .sales-reference-option-grid > .sales-responsive-date-label { grid-column: 3 !important; grid-row: 2 !important; }
+  .sales-reference-option-grid > .sales-responsive-date-field { grid-column: 4 !important; grid-row: 2 !important; }
+  .sales-reference-option-grid > .sales-responsive-quotation-label { grid-column: 5 !important; grid-row: 2 !important; }
+  .sales-reference-option-grid > .sales-responsive-quotation-field { grid-column: 6 !important; grid-row: 2 !important; }
+  .sales-reference-option-grid > .sales-responsive-salesman-label { grid-column: 7 !important; grid-row: 2 !important; }
+  .sales-reference-option-grid > .sales-responsive-salesman-field { grid-column: 8 !important; grid-row: 2 !important; }
+
+  .sales-reference-entry-row {
+    height: 30px !important;
+    min-height: 30px !important;
+  }
+
+  .sales-reference-product-entry,
+  .sales-reference-f1 {
+    height: 30px !important;
+  }
+
+  .sales-reference-sale-btn {
+    height: 27px !important;
+  }
+
+  .sales-reference-grid th {
+    height: 29px !important;
+    font-size: 9px !important;
+  }
+
+  .sales-reference-grid td {
+    height: 25px !important;
+    font-size: 9.5px !important;
+  }
+
+  .sales-reference-actions-center button {
+    height: 34px !important;
+    font-size: 9.5px !important;
+  }
+
+  .sales-reference-action-icon {
+    width: 22px !important;
+    height: 22px !important;
+    flex-basis: 22px !important;
+  }
+
+  .sales-reference-action-icon svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .sales-reference-subtabs-bottom .sales-reference-subtab {
+    min-height: 30px !important;
+    height: 30px !important;
+    font-size: 9px !important;
+  }
+
+  .sales-reference-subtabs-bottom .sales-reference-tab-icon {
+    width: 22px !important;
+    height: 22px !important;
+    flex-basis: 22px !important;
+  }
+
+  .sales-reference-subtabs-bottom .sales-reference-tab-icon svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .sales-reference-retail-title {
+    font-size: 20px !important;
+  }
+
+  .sales-reference-pay {
+    font-size: 9.5px !important;
+  }
+
+  .sales-reference-pay :where(input, textarea, button) {
+    font-size: 10px !important;
+  }
+
+  .sales-reference-total-block > div {
+    height: 46px !important;
+    line-height: 46px !important;
+    font-size: 27px !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .workspace-host-inner:has(.sales-reference-screen) {
+    overflow: auto !important;
+    scrollbar-gutter: stable;
+  }
+
+  .sales-reference-screen {
+    min-width: 800px !important;
+    width: 800px !important;
+    max-width: none !important;
+    overflow: visible !important;
+    font-size: 10px !important;
+  }
+
+  .sales-reference-main {
+    min-width: 570px !important;
+  }
+
+  .sales-reference-pay {
+    width: 230px !important;
+    min-width: 230px !important;
+    max-width: 230px !important;
+  }
+
+  .sales-reference-options-head {
+    height: auto !important;
+    min-height: 0 !important;
+    margin-bottom: 4px !important;
+    gap: 3px 6px !important;
+  }
+
+  .sales-reference-copy-from {
+    flex: 1 0 100% !important;
+    width: 100%;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    justify-content: flex-end;
+  }
+
+  .sales-reference-copy-from input {
+    width: 74px !important;
+  }
+
+  .sales-reference-option-grid {
+    grid-template-columns:
+      26px minmax(0, 1fr)
+      34px minmax(0, 1fr) !important;
+    column-gap: 4px !important;
+    row-gap: 3px !important;
+  }
+
+  .sales-reference-option-grid > .sales-responsive-customer-label { grid-column: 1 !important; grid-row: 1 !important; }
+  .sales-reference-option-grid > .sales-responsive-customer-field { grid-column: 2 !important; grid-row: 1 !important; }
+  .sales-reference-option-grid > .sales-responsive-name-label { grid-column: 3 !important; grid-row: 1 !important; }
+  .sales-reference-option-grid > .sales-responsive-name-field { grid-column: 4 !important; grid-row: 1 !important; }
+
+  .sales-reference-option-grid > .sales-responsive-phone-label { grid-column: 1 !important; grid-row: 2 !important; }
+  .sales-reference-option-grid > .sales-responsive-phone-field { grid-column: 2 !important; grid-row: 2 !important; }
+  .sales-reference-option-grid > .sales-responsive-invoice-label { grid-column: 3 !important; grid-row: 2 !important; }
+  .sales-reference-option-grid > .sales-responsive-invoice-field { grid-column: 4 !important; grid-row: 2 !important; }
+
+  .sales-reference-option-grid > .sales-responsive-date-label { grid-column: 1 !important; grid-row: 3 !important; }
+  .sales-reference-option-grid > .sales-responsive-date-field { grid-column: 2 !important; grid-row: 3 !important; }
+  .sales-reference-option-grid > .sales-responsive-quotation-label { grid-column: 3 !important; grid-row: 3 !important; }
+  .sales-reference-option-grid > .sales-responsive-quotation-field { grid-column: 4 !important; grid-row: 3 !important; }
+
+  .sales-reference-option-grid > .sales-responsive-salesman-label { grid-column: 1 !important; grid-row: 4 !important; }
+  .sales-reference-option-grid > .sales-responsive-salesman-field {
+    grid-column: 2 / 5 !important;
+    grid-row: 4 !important;
+  }
+
+  .sales-reference-screen :where(button, input, textarea, select) {
+    font-size: 10px !important;
+  }
+
+  .sales-reference-grid th {
+    font-size: 8.5px !important;
+  }
+
+  .sales-reference-grid td {
+    font-size: 9px !important;
+  }
+
+  .sales-reference-actions-center button {
+    min-width: 68px !important;
+    height: 33px !important;
+    font-size: 9px !important;
+  }
+
+  .sales-reference-subtabs-bottom .sales-reference-subtab {
+    min-height: 30px !important;
+    height: 30px !important;
+    font-size: 8.5px !important;
+  }
+
+  .sales-reference-retail-title {
+    font-size: 20px !important;
+  }
+
+  .sales-reference-total-block > div {
+    height: 46px !important;
+    line-height: 46px !important;
+    font-size: 27px !important;
+  }
+}
+
+
+/* ==========================================================================
+   Sales Invoice responsive phase 5: 1024 laptop composition
+   Laptop-only polish requested from the 1024x768 review. Tablet remains
+   intentionally unchanged for now; desktop >=1280 keeps the approved layout.
+   ========================================================================== */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .sales-reference-screen {
+    grid-template-columns: minmax(0, 1fr) 244px !important;
+  }
+
+  .sales-reference-pay {
+    width: 244px !important;
+    min-width: 244px !important;
+    max-width: 244px !important;
+    padding: 4px 6px 5px !important;
+  }
+
+  /* Use the full Invoice Options width: To / Name / Phone fill row one. */
+  .sales-reference-option-grid > .sales-responsive-phone-field {
+    grid-column: 6 / 9 !important;
+  }
+
+  /* Keep document fields on row two, with Salesman consuming the right edge. */
+  .sales-reference-option-grid > .sales-responsive-salesman-label {
+    grid-column: 7 !important;
+    grid-row: 2 !important;
+  }
+
+  .sales-reference-option-grid > .sales-responsive-salesman-field {
+    grid-column: 8 !important;
+    grid-row: 2 !important;
+  }
+
+  /* Scanner row: barcode left, F1 visible, operational status in the middle,
+     and Sale anchored at the far right instead of leaving dead space. */
+  .sales-reference-entry-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 0 5px !important;
+  }
+
+  .sales-reference-product-entry-wrap {
+    order: 1;
+    flex: 0 1 255px !important;
+    width: 255px !important;
+    min-width: 190px !important;
+    max-width: 255px !important;
+  }
+
+  .sales-reference-product-entry {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    flex: 1 1 auto !important;
+  }
+
+  .sales-reference-f1 {
+    order: 2;
+    display: flex !important;
+    align-items: center !important;
+    width: auto !important;
+    min-width: 104px !important;
+    flex: 0 0 104px !important;
+    padding: 0 4px !important;
+    overflow: visible !important;
+    white-space: nowrap !important;
+    font-size: 10px !important;
+  }
+
+  .sales-reference-entry-status {
+    order: 3;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding: 0 5px !important;
+    justify-content: flex-end !important;
+  }
+
+  .sales-reference-sale-btn {
+    order: 4;
+    flex: 0 0 68px !important;
+    width: 68px !important;
+    min-width: 68px !important;
+    margin-left: auto !important;
+    margin-right: 0 !important;
+  }
+
+  /* Both footer lines are centered on laptop widths. */
+  .sales-reference-actions {
+    justify-items: center !important;
+  }
+
+  .sales-reference-subtabs-bottom {
+    width: auto !important;
+    max-width: 100% !important;
+    justify-content: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  .sales-reference-actions-center {
+    width: auto !important;
+    justify-content: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  /* Right payment card: preserve field order and Amounts structure, but reduce
+     vertical density so the full card reads cleanly at 768px height. */
+  .sales-reference-retail-title {
+    padding-bottom: 5px !important;
+    font-size: 19px !important;
+    line-height: 1 !important;
+  }
+
+  .sales-reference-pay-options {
+    padding: 3px 5px 5px !important;
+  }
+
+  .sales-reference-pay-options legend {
+    font-size: 9.5px !important;
+  }
+
+  .sales-reference-pay-head-values,
+  .sales-reference-disc-values {
+    gap: 3px !important;
+  }
+
+  .sales-reference-pay-head-values strong,
+  .sales-reference-disc-values strong,
+  .sales-reference-disc-values input {
+    height: 24px !important;
+    line-height: 24px !important;
+    font-size: 10px !important;
+  }
+
+  .sales-reference-disc-line {
+    min-height: 22px !important;
+    font-size: 12px !important;
+  }
+
+  .sales-reference-payment-label,
+  .sales-reference-remarks-label,
+  .sales-reference-side-label {
+    margin-top: 3px !important;
+    margin-bottom: 1px !important;
+    font-size: 9.5px !important;
+  }
+
+  .sales-reference-payment-method,
+  .sales-reference-payment-select-trigger {
+    min-height: 27px !important;
+    height: 27px !important;
+  }
+
+  .sales-reference-pay-options textarea {
+    height: 34px !important;
+    min-height: 34px !important;
+  }
+
+  .sales-reference-total-block {
+    margin-top: 4px !important;
+  }
+
+  .sales-reference-total-block > span {
+    margin-bottom: 1px !important;
+    font-size: 10px !important;
+  }
+
+  .sales-reference-total-block > div {
+    height: 40px !important;
+    line-height: 40px !important;
+    font-size: 24px !important;
+  }
+
+  .sales-reference-received {
+    height: 29px !important;
+  }
+
+  .sales-reference-card {
+    height: 31px !important;
+  }
+
+  .sales-reference-card strong:first-child {
+    font-size: 18px !important;
+  }
+
+  .sales-reference-card strong,
+  .sales-reference-received strong {
+    font-size: 13px !important;
+  }
+
+  .sales-reference-balance {
+    height: 26px !important;
+  }
+
+  .sales-reference-balance strong {
+    font-size: 11px !important;
+  }
+}
+
+
+/* ==========================================================================
+   Sales Invoice responsive phase 6: compact laptop lookups and Amounts containment
+   1024-1279 only. Keep desktop >=1280 and tablet rules unchanged.
+   ========================================================================== */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  /* Customer / salesman lookup tables: smaller footprint at laptop width. */
+  .sales-reference-to > .sales-customer-dropdown-shutter,
+  .sales-reference-salesman > .sales-salesman-dropdown-shutter {
+    width: 520px !important;
+    max-width: min(520px, calc(100vw - 300px)) !important;
+  }
+
+  .sales-salesman-dropdown-shutter.is-open {
+    max-height: 230px !important;
+  }
+
+  .sales-pos-customer-grid,
+  .sales-pos-salesman-grid {
+    font-size: 9.5px !important;
+  }
+
+  .sales-pos-customer-grid-head,
+  .sales-pos-salesman-grid-head,
+  .sales-pos-customer-grid-row,
+  .sales-pos-salesman-grid-row {
+    grid-template-columns:
+      78px
+      minmax(150px, 1.15fr)
+      minmax(180px, 1.35fr)
+      92px !important;
+  }
+
+  .sales-pos-customer-grid-head,
+  .sales-pos-salesman-grid-head {
+    min-height: 21px !important;
+  }
+
+  .sales-pos-customer-grid-row,
+  .sales-pos-salesman-grid-row {
+    min-height: 20px !important;
+  }
+
+  .sales-pos-customer-grid-head > span,
+  .sales-pos-customer-grid-row > span,
+  .sales-pos-customer-grid-row > strong,
+  .sales-pos-salesman-grid-head > span,
+  .sales-pos-salesman-grid-row > span,
+  .sales-pos-salesman-grid-row > strong {
+    padding: 3px 5px !important;
+  }
+
+  .sales-pos-customer-grid-body,
+  .sales-pos-salesman-grid-body {
+    max-height: 175px !important;
+  }
+
+  .sales-pos-customer-grid-foot,
+  .sales-pos-salesman-grid-foot {
+    min-height: 19px !important;
+    padding: 3px 6px !important;
+    font-size: 9px !important;
+  }
+
+  /* Product lookup: reduce both width and height while keeping all columns. */
+  .sales-pos-product-results-grid {
+    width: 620px !important;
+    max-width: min(620px, calc(100vw - 300px)) !important;
+    max-height: 245px !important;
+    font-size: 9px !important;
+  }
+
+  .sales-pos-product-grid-head,
+  .sales-pos-product-grid-row {
+    grid-template-columns:
+      52px
+      minmax(205px, 1.8fr)
+      58px
+      66px
+      62px
+      62px
+      48px
+      66px !important;
+  }
+
+  .sales-pos-product-grid-head {
+    min-height: 21px !important;
+  }
+
+  .sales-pos-product-grid-row {
+    min-height: 20px !important;
+  }
+
+  .sales-pos-product-grid-head > span,
+  .sales-pos-product-grid-row > span,
+  .sales-pos-product-grid-row > strong {
+    padding: 3px 4px !important;
+  }
+
+  .sales-pos-product-grid-body {
+    max-height: 190px !important;
+  }
+
+  .sales-pos-product-grid-foot {
+    min-height: 19px !important;
+    padding: 3px 6px !important;
+    font-size: 9px !important;
+  }
+
+  /* Amounts: use the full sidebar width and keep every row inside the fieldset. */
+  .sales-reference-pay > .sales-reference-amounts {
+    width: auto !important;
+    max-width: none !important;
+    min-height: 86px !important;
+    margin: 0 0 5px !important;
+    padding: 3px 4px 5px !important;
+    overflow: hidden !important;
+  }
+
+  .sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-checks {
+    top: 2px !important;
+    left: 6px !important;
+    right: 4px !important;
+    gap: 12px !important;
+    height: 18px !important;
+  }
+
+  .sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-checks label {
+    font-size: 8.5px !important;
+  }
+
+  .sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid {
+    grid-template-columns: 38px minmax(0, 1fr) minmax(0, 1fr) !important;
+    grid-template-rows: 20px 18px 20px !important;
+    column-gap: 3px !important;
+    row-gap: 2px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 17px !important;
+    padding: 0 !important;
+  }
+
+  .sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid > strong.is-green {
+    width: 100% !important;
+    height: 20px !important;
+    line-height: 20px !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    font-size: 9px !important;
+  }
+
+  .sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid > button {
+    height: 18px !important;
+    min-height: 18px !important;
+    font-size: 8px !important;
+  }
+
+  .sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid > label {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 0 1px !important;
+    overflow: hidden !important;
+    text-align: center !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+    font-size: 8px !important;
+    line-height: 18px !important;
+  }
+
+  .sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid > input {
+    height: 20px !important;
+    min-height: 20px !important;
+    line-height: 18px !important;
+    padding: 0 3px !important;
+    font-size: 9px !important;
+  }
+}
+
+
+/* ==========================================================================
+   Sales Invoice responsive phase 7: compact wide-desktop continuity
+   Preserve the approved wide layout structure; reduce density only where the
+   1280/1366 screenshots begin to underlap. Keep the same stable composition through 1600px, and reuse it on wider low-height desktops below 820px.
+   ========================================================================== */
+@media (min-width: 1280px) and (max-width: 1600px),
+       (min-width: 1280px) and (max-height: 819px) {
+  .sales-reference-screen {
+    font-size: 10px !important;
+  }
+
+  .sales-reference-screen :where(button, input, textarea, select) {
+    font-size: 10px !important;
+  }
+
+  /* Invoice Options: keep the approved single-row order, but let every pair
+     shrink enough to fit before the payment sidebar. */
+  .sales-reference-options {
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+  }
+
+  .sales-reference-options-head {
+    height: 19px !important;
+    min-height: 19px !important;
+    margin-bottom: 2px !important;
+    gap: 5px !important;
+    font-size: 9px !important;
+  }
+
+  .sales-reference-copy-from {
+    font-size: 9px !important;
+  }
+
+  .sales-reference-copy-from input {
+    width: 58px !important;
+    height: 19px !important;
+    font-size: 9px !important;
+  }
+
+  .sales-reference-option-grid {
+    grid-template-columns:
+      22px minmax(90px, 1.20fr)
+      28px minmax(78px, 1fr)
+      30px minmax(78px, 1fr)
+      24px minmax(58px, .65fr)
+      28px minmax(78px, .90fr)
+      26px minmax(78px, .90fr)
+      32px minmax(82px, .95fr) !important;
+    column-gap: 3px !important;
+    row-gap: 0 !important;
+  }
+
+  .sales-reference-option-grid > label {
+    font-size: 9px !important;
+  }
+
+  .sales-reference-option-grid > input,
+  .sales-reference-option-grid > .sales-reference-input-button {
+    min-width: 0 !important;
+    height: 20px !important;
+  }
+
+  .sales-reference-input-button input,
+  .sales-reference-input-button button {
+    height: 20px !important;
+  }
+
+  .sales-reference-input-button button {
+    width: 20px !important;
+    flex-basis: 20px !important;
+  }
+
+  /* F1/scanner row: slightly denser without changing its layout. */
+  .sales-reference-entry-row {
+    height: 31px !important;
+    min-height: 31px !important;
+  }
+
+  .sales-reference-product-entry {
+    height: 31px !important;
+  }
+
+  .sales-reference-f1 {
+    font-size: 11px !important;
+  }
+
+  .sales-reference-sale-btn {
+    height: 27px !important;
+    font-size: 9px !important;
+  }
+
+  /* Amounts: same child order/geometry, smaller typography and rows so the
+     Sales Tax label/value remain inside the fieldset. */
+  .sales-reference-pay > .sales-reference-amounts {
+    margin: 0 3px 5px !important;
+    padding: 3px 4px 5px !important;
+    min-height: 82px !important;
+    overflow: hidden !important;
+  }
+
+  .sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-checks {
+    top: 2px !important;
+    left: 6px !important;
+    gap: 14px !important;
+    height: 18px !important;
+  }
+
+  .sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-checks label {
+    font-size: 8.5px !important;
+  }
+
+  .sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid {
+    grid-template-columns: 40px minmax(0, 1fr) minmax(0, 1fr) !important;
+    grid-template-rows: 20px 18px 20px !important;
+    column-gap: 3px !important;
+    row-gap: 2px !important;
+    width: 100% !important;
+    margin-top: 17px !important;
+  }
+
+  .sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid > strong.is-green {
+    width: 100% !important;
+    height: 20px !important;
+    line-height: 20px !important;
+    font-size: 9px !important;
+  }
+
+  .sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid > label {
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    font-size: 8px !important;
+    line-height: 18px !important;
+  }
+
+  .sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid > button {
+    height: 18px !important;
+    min-height: 18px !important;
+    font-size: 8px !important;
+  }
+
+  .sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid > input {
+    height: 20px !important;
+    min-height: 20px !important;
+    line-height: 18px !important;
+    padding: 0 3px !important;
+    font-size: 9px !important;
+  }
+
+  /* Bottom rows: shrink icons/text first; keep both rows on one line. */
+  .sales-reference-actions {
+    gap: 4px !important;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+  }
+
+  .sales-reference-subtabs-bottom {
+    gap: 2px !important;
+  }
+
+  .sales-reference-subtabs-bottom .sales-reference-subtab,
+  .sales-reference-subtabs-bottom .sales-reference-subtab:nth-child(1),
+  .sales-reference-subtabs-bottom .sales-reference-subtab:nth-child(2),
+  .sales-reference-subtabs-bottom .sales-reference-subtab:nth-child(3) {
+    flex: 0 1 auto !important;
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    min-height: 30px !important;
+    height: 30px !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    gap: 3px !important;
+    font-size: 8.5px !important;
+  }
+
+  .sales-reference-subtabs-bottom .sales-reference-tab-icon {
+    width: 20px !important;
+    min-width: 20px !important;
+    height: 20px !important;
+    flex-basis: 20px !important;
+  }
+
+  .sales-reference-subtabs-bottom .sales-reference-tab-icon svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  .sales-reference-subtabs-bottom .sales-reference-subtab > span:last-child {
+    font-size: 8.5px !important;
+  }
+
+  .sales-reference-actions-center {
+    gap: 2px !important;
+  }
+
+  .sales-reference-actions-center button {
+    height: 32px !important;
+    min-width: 0 !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    gap: 3px !important;
+    font-size: 8.5px !important;
+  }
+
+  .sales-reference-action-icon {
+    width: 20px !important;
+    height: 20px !important;
+    flex-basis: 20px !important;
+  }
+
+  .sales-reference-action-icon svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+}
+
+
+/* ==========================================================================
+   Sales Invoice responsive phase 8: wrapped wide-desktop continuity
+   Keep the approved compact composition stable through 1600px and on wider low-height desktops below 820px.
+   ========================================================================== */
+@media (min-width: 1280px) and (max-width: 1600px),
+       (min-width: 1280px) and (max-height: 819px) {
+  /* Invoice Options: move from one crushed row to two controlled rows. */
+  .sales-reference-meta {
+    height: auto !important;
+    min-height: 72px !important;
+    align-items: start !important;
+  }
+
+  .sales-reference-options {
+    align-self: start !important;
+  }
+
+  .sales-reference-option-grid {
+    grid-template-columns:
+      24px minmax(0, 1.2fr)
+      30px minmax(0, 1fr)
+      30px minmax(0, 1fr)
+      34px minmax(0, 1fr) !important;
+    column-gap: 4px !important;
+    row-gap: 3px !important;
+  }
+
+  .sales-reference-option-grid > .sales-responsive-customer-label { grid-column: 1 !important; grid-row: 1 !important; }
+  .sales-reference-option-grid > .sales-responsive-customer-field { grid-column: 2 !important; grid-row: 1 !important; }
+  .sales-reference-option-grid > .sales-responsive-name-label { grid-column: 3 !important; grid-row: 1 !important; }
+  .sales-reference-option-grid > .sales-responsive-name-field { grid-column: 4 !important; grid-row: 1 !important; }
+  .sales-reference-option-grid > .sales-responsive-phone-label { grid-column: 5 !important; grid-row: 1 !important; }
+  .sales-reference-option-grid > .sales-responsive-phone-field { grid-column: 6 / 9 !important; grid-row: 1 !important; }
+
+  .sales-reference-option-grid > .sales-responsive-invoice-label { grid-column: 1 !important; grid-row: 2 !important; }
+  .sales-reference-option-grid > .sales-responsive-invoice-field { grid-column: 2 !important; grid-row: 2 !important; }
+  .sales-reference-option-grid > .sales-responsive-date-label { grid-column: 3 !important; grid-row: 2 !important; }
+  .sales-reference-option-grid > .sales-responsive-date-field { grid-column: 4 !important; grid-row: 2 !important; }
+  .sales-reference-option-grid > .sales-responsive-quotation-label { grid-column: 5 !important; grid-row: 2 !important; }
+  .sales-reference-option-grid > .sales-responsive-quotation-field { grid-column: 6 !important; grid-row: 2 !important; }
+  .sales-reference-option-grid > .sales-responsive-salesman-label { grid-column: 7 !important; grid-row: 2 !important; }
+  .sales-reference-option-grid > .sales-responsive-salesman-field { grid-column: 8 !important; grid-row: 2 !important; }
+
+  /* Bottom section: shorter, cleaner, and no visible underline below the tabs. */
+  .sales-reference-actions {
+    min-height: 42px !important;
+    padding: 3px 6px !important;
+    align-items: center !important;
+    border-bottom: 0 !important;
+  }
+
+  .sales-reference-subtabs-bottom {
+    min-height: 0 !important;
+    height: 30px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .sales-reference-subtabs-bottom .sales-reference-subtab {
+    height: 28px !important;
+    min-height: 28px !important;
+    border-bottom-color: transparent !important;
+  }
+
+  .sales-reference-actions-center button {
+    height: 29px !important;
+  }
+
+  /* Right panel below Amounts: reduce vertical consumption rather than letting
+     controls push into one another. */
+  .sales-reference-pay-options {
+    padding: 2px 4px 4px !important;
+  }
+
+  .sales-reference-pay-options legend {
+    font-size: 9px !important;
+  }
+
+  .sales-reference-pay-head-values,
+  .sales-reference-disc-values {
+    gap: 2px !important;
+  }
+
+  .sales-reference-pay-head-values strong,
+  .sales-reference-disc-values strong,
+  .sales-reference-disc-values input {
+    height: 21px !important;
+    min-height: 21px !important;
+    line-height: 21px !important;
+    font-size: 9px !important;
+  }
+
+  .sales-reference-disc-line {
+    min-height: 19px !important;
+    line-height: 19px !important;
+    font-size: 10.5px !important;
+  }
+
+  .sales-reference-payment-label,
+  .sales-reference-remarks-label,
+  .sales-reference-side-label {
+    margin-top: 2px !important;
+    margin-bottom: 0 !important;
+    font-size: 9px !important;
+    line-height: 1 !important;
+  }
+
+  .sales-reference-payment-method,
+  .sales-reference-payment-select-trigger {
+    height: 24px !important;
+    min-height: 24px !important;
+  }
+
+  .sales-reference-pay-options textarea {
+    height: 29px !important;
+    min-height: 29px !important;
+    padding-top: 3px !important;
+    padding-bottom: 3px !important;
+  }
+
+  .sales-reference-total-block {
+    margin-top: 3px !important;
+  }
+
+  .sales-reference-total-block > span {
+    margin-bottom: 0 !important;
+    font-size: 9px !important;
+    line-height: 1 !important;
+  }
+
+  .sales-reference-total-block > div {
+    height: 36px !important;
+    line-height: 36px !important;
+    font-size: 22px !important;
+  }
+
+  .sales-reference-received {
+    height: 26px !important;
+  }
+
+  .sales-reference-card {
+    height: 28px !important;
+  }
+
+  .sales-reference-card strong:first-child {
+    font-size: 16px !important;
+  }
+
+  .sales-reference-card strong,
+  .sales-reference-received strong {
+    font-size: 11px !important;
+  }
+
+  .sales-reference-balance {
+    height: 23px !important;
+  }
+
+  .sales-reference-balance strong {
+    font-size: 10px !important;
+  }
+}
+
+
+/* ==========================================================================
+   Sales Invoice low-height laptop density
+   Real laptops can expose substantially less CSS viewport height than DevTools
+   768px presets because browser chrome/taskbars consume space. Keep the same
+   width composition, but tighten vertical geometry when viewport height is low.
+   ========================================================================== */
+@media (min-width: 1280px) and (max-height: 700px) {
+  .sales-reference-meta {
+    min-height: 62px !important;
+  }
+
+  .sales-reference-options-head {
+    min-height: 16px !important;
+    height: 16px !important;
+    margin-bottom: 1px !important;
+    line-height: 16px !important;
+  }
+
+  .sales-reference-option-grid {
+    row-gap: 2px !important;
+  }
+
+  .sales-reference-option-grid > input,
+  .sales-reference-option-grid > .sales-reference-input-button,
+  .sales-reference-input-button input,
+  .sales-reference-input-button button {
+    height: 18px !important;
+    min-height: 18px !important;
+  }
+
+  .sales-reference-entry-row {
+    height: 27px !important;
+    min-height: 27px !important;
+  }
+
+  .sales-reference-product-entry,
+  .sales-reference-f1 {
+    height: 27px !important;
+  }
+
+  .sales-reference-sale-btn {
+    height: 24px !important;
+  }
+
+  .sales-reference-grid th {
+    height: 27px !important;
+  }
+
+  .sales-reference-grid td {
+    height: 23px !important;
+  }
+
+  .sales-reference-actions {
+    min-height: 36px !important;
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+  }
+
+  .sales-reference-subtabs-bottom {
+    height: 26px !important;
+  }
+
+  .sales-reference-subtabs-bottom .sales-reference-subtab {
+    height: 25px !important;
+    min-height: 25px !important;
+  }
+
+  .sales-reference-actions-center button {
+    height: 26px !important;
+  }
+
+  .sales-reference-retail-title {
+    padding-bottom: 3px !important;
+    font-size: 18px !important;
+  }
+
+  .sales-reference-pay > .sales-reference-amounts {
+    min-height: 76px !important;
+    margin-bottom: 3px !important;
+    padding-bottom: 3px !important;
+  }
+
+  .sales-reference-pay-options {
+    padding: 2px 4px 3px !important;
+  }
+
+  .sales-reference-pay-head-values strong,
+  .sales-reference-disc-values strong,
+  .sales-reference-disc-values input {
+    height: 19px !important;
+    min-height: 19px !important;
+    line-height: 19px !important;
+  }
+
+  .sales-reference-disc-line {
+    min-height: 17px !important;
+    line-height: 17px !important;
+  }
+
+  .sales-reference-payment-label,
+  .sales-reference-remarks-label,
+  .sales-reference-side-label {
+    margin-top: 1px !important;
+    font-size: 8.5px !important;
+  }
+
+  .sales-reference-payment-method,
+  .sales-reference-payment-select-trigger {
+    height: 22px !important;
+    min-height: 22px !important;
+  }
+
+  .sales-reference-pay-options textarea {
+    height: 25px !important;
+    min-height: 25px !important;
+  }
+
+  .sales-reference-total-block {
+    margin-top: 2px !important;
+  }
+
+  .sales-reference-total-block > div {
+    height: 31px !important;
+    line-height: 31px !important;
+    font-size: 20px !important;
+  }
+
+  .sales-reference-received {
+    height: 23px !important;
+  }
+
+  .sales-reference-card {
+    height: 25px !important;
+  }
+
+  .sales-reference-card strong:first-child {
+    font-size: 15px !important;
+  }
+
+  .sales-reference-card strong,
+  .sales-reference-received strong {
+    font-size: 10px !important;
+  }
+
+  .sales-reference-balance {
+    height: 21px !important;
+  }
+}
+
+
+/* ==========================================================================
+   Sales Invoice Amounts right-edge containment
+   Single source of truth after all responsive overrides.
+   Preserve approved Amounts child order/geometry. Inset only the rightmost
+   column directly so later responsive/grid padding rules cannot cancel it.
+   ========================================================================== */
+.sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid {
+  box-sizing: border-box !important;
+}
+
+.sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid > :nth-child(2),
+.sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid > :nth-child(5),
+.sales-reference-pay > .sales-reference-amounts .sales-reference-amounts-grid > :nth-child(8) {
+  box-sizing: border-box !important;
+  justify-self: start !important;
+  width: calc(100% - 7px) !important;
+  max-width: calc(100% - 7px) !important;
+  min-width: 0 !important;
+}
+
+
+/* ---------- SALES INVOICE OPERATIONAL COLUMN CLARITY ---------- */
+/* Visual-only refinement. Frozen geometry and workflow remain unchanged. */
+.sales-reference-screen .sales-reference-grid th.col-product {
+  background: var(--ui-col-identity) !important;
+}
+.sales-reference-screen .sales-reference-grid th.col-stock {
+  background: var(--ui-col-stock) !important;
+}
+.sales-reference-screen .sales-reference-grid th.col-qty {
+  background: var(--ui-col-quantity) !important;
+}
+.sales-reference-screen .sales-reference-grid th.col-price,
+.sales-reference-screen .sales-reference-grid th.col-disc,
+.sales-reference-screen .sales-reference-grid th.col-discrs {
+  background: var(--ui-col-price) !important;
+}
+.sales-reference-screen .sales-reference-grid th.col-amt,
+.sales-reference-screen .sales-reference-grid th.col-net {
+  background: var(--ui-col-amount) !important;
+}
+.sales-reference-screen .sales-reference-grid th.col-cost-rate,
+.sales-reference-screen .sales-reference-grid th.col-cost-amt {
+  background: var(--ui-col-cost) !important;
+}
+
+.sales-reference-screen .sales-reference-grid tbody tr:not(.is-active-entry) td.col-product {
+  background: var(--ui-col-identity) !important;
+}
+.sales-reference-screen .sales-reference-grid tbody tr:not(.is-active-entry) td.col-stock {
+  background: var(--ui-col-stock) !important;
+}
+.sales-reference-screen .sales-reference-grid tbody tr:not(.is-active-entry) td.col-qty {
+  background: var(--ui-col-quantity) !important;
+}
+.sales-reference-screen .sales-reference-grid tbody tr:not(.is-active-entry) td.col-price,
+.sales-reference-screen .sales-reference-grid tbody tr:not(.is-active-entry) td.col-disc,
+.sales-reference-screen .sales-reference-grid tbody tr:not(.is-active-entry) td.col-discrs {
+  background: var(--ui-col-price) !important;
+}
+.sales-reference-screen .sales-reference-grid tbody tr:not(.is-active-entry) td.col-amt,
+.sales-reference-screen .sales-reference-grid tbody tr:not(.is-active-entry) td.col-net {
+  background: var(--ui-col-amount) !important;
+}
+.sales-reference-screen .sales-reference-grid tbody tr:not(.is-active-entry) td.col-cost-rate,
+.sales-reference-screen .sales-reference-grid tbody tr:not(.is-active-entry) td.col-cost-amt {
+  background: var(--ui-col-cost) !important;
+}
+
+.sales-reference-screen .sales-reference-grid tbody tr:hover td {
+  background: var(--ui-row-hover) !important;
+}
+
+/* Product lookup mirrors the same scan pattern as the entry grid. */
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-head > span:nth-child(2),
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-row:not(.is-selected):not(:hover) > span:nth-child(2) {
+  background: var(--ui-col-identity) !important;
+}
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-head > span:nth-child(3) {
+  background: var(--ui-col-stock) !important;
+}
+
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-row:not(.is-selected):not(:hover) > span:nth-child(3) {
+  background: transparent !important;
+}
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-head > span:nth-child(4),
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-row:not(.is-selected):not(:hover) > span:nth-child(4),
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-head > span:nth-child(5),
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-row:not(.is-selected):not(:hover) > span:nth-child(5) {
+  background: var(--ui-col-price) !important;
+}
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-head > span:nth-child(6),
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-row:not(.is-selected):not(:hover) > span:nth-child(6) {
+  background: var(--ui-col-cost) !important;
+}
+
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-row:not(.is-selected):not(:hover) > span:nth-child(3) {
+  color: var(--ui-text) !important;
+  font-weight: 700 !important;
+}
+
+
+/* Completed-line semantic scan cues. Keep text readable while column position
+   communicates product, stock, quantity, price and amount at a glance. */
+.sales-reference-screen .sales-reference-grid tbody tr.is-completed-entry .col-product {
+  color: color-mix(in srgb, var(--ui-warning) 62%, var(--ui-text)) !important;
+}
+
+.sales-reference-screen .sales-reference-grid tbody tr.is-completed-entry .col-stock {
+  color: color-mix(in srgb, var(--ui-success) 88%, var(--ui-text)) !important;
+  font-weight: 800 !important;
+}
+
+.sales-reference-screen .sales-reference-grid tbody tr.is-completed-entry .col-qty {
+  color: color-mix(in srgb, var(--ui-info) 82%, var(--ui-text)) !important;
+  font-weight: 800 !important;
+}
+
+.sales-reference-screen .sales-reference-grid tbody tr.is-completed-entry .col-price {
+  color: color-mix(in srgb, var(--ui-warning) 82%, var(--ui-text)) !important;
+  font-weight: 800 !important;
+}
+
+.sales-reference-screen .sales-reference-grid tbody tr.is-completed-entry .col-amt {
+  color: color-mix(in srgb, var(--ui-info) 88%, var(--ui-text)) !important;
+  font-weight: 800 !important;
+}
+
+.sales-reference-screen .sales-reference-grid .col-qty > input {
+  background: var(--ui-col-quantity) !important;
+}
+
+.sales-reference-screen .sales-reference-grid .col-price > input {
+  border-color: color-mix(in srgb, var(--ui-warning) 48%, var(--ui-control-border)) !important;
+  background: var(--ui-col-price) !important;
+  color: color-mix(in srgb, var(--ui-warning) 84%, var(--ui-text)) !important;
+  font-weight: 800 !important;
+}
+
+.sales-reference-screen .sales-reference-grid .col-amt > input {
+  border-color: color-mix(in srgb, var(--ui-info) 48%, var(--ui-control-border)) !important;
+  background: var(--ui-col-amount) !important;
+  color: color-mix(in srgb, var(--ui-info) 86%, var(--ui-text)) !important;
+  font-weight: 800 !important;
+}
+
+/* Product lookup uses stronger operational text cues without saturated full-row
+   fills; active/selected rows remain a single theme accent. */
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-row:not(.is-selected):not(:hover) > span:nth-child(4),
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-row:not(.is-selected):not(:hover) > span:nth-child(5) {
+  color: color-mix(in srgb, var(--ui-warning) 82%, var(--ui-text)) !important;
+  font-weight: 750 !important;
+}
+
+.sales-pos-product-results-grid.is-themed .sales-pos-product-grid-row:not(.is-selected):not(:hover) > span:nth-child(6) {
+  color: color-mix(in srgb, var(--ui-warning) 58%, var(--ui-text)) !important;
+  font-weight: 700 !important;
+}
+
+
+/* ---------- SALES INVOICE HIGH-CLARITY FINAL CUES ---------- */
+/* Completed rows: stock is an immediate availability signal; price is a
+   commercial value and intentionally uses a red text cue. */
+.sales-reference-screen .sales-reference-grid tbody tr.is-completed-entry td.col-stock {
+  background: color-mix(in srgb, var(--ui-success) 76%, #123d24) !important;
+  color: #fff !important;
+  font-weight: 900 !important;
+}
+
+.sales-reference-screen .sales-reference-grid tbody tr.is-completed-entry td.col-price,
+.sales-reference-screen .sales-reference-grid tbody tr.is-completed-entry td.col-price input {
+  color: color-mix(in srgb, var(--ui-danger) 88%, #8b0000) !important;
+  font-weight: 900 !important;
+}
+
+/* Stronger lookup column identity, still calmer than the legacy saturated
+   full-row palette. Selected/hover rows retain one unified accent. */
+.sales-pos-product-results-grid.is-themed
+  .sales-pos-product-grid-head > span:nth-child(4),
+.sales-pos-product-results-grid.is-themed
+  .sales-pos-product-grid-row:not(.is-selected):not(:hover) > span:nth-child(4) {
+  background: color-mix(in srgb, var(--ui-warning) 24%, var(--ui-surface)) !important;
+  color: color-mix(in srgb, var(--ui-warning) 82%, var(--ui-text)) !important;
+  font-weight: 850 !important;
+}
+
+.sales-pos-product-results-grid.is-themed
+  .sales-pos-product-grid-head > span:nth-child(5),
+.sales-pos-product-results-grid.is-themed
+  .sales-pos-product-grid-row:not(.is-selected):not(:hover) > span:nth-child(5) {
+  background: color-mix(in srgb, var(--ui-warning) 17%, var(--ui-surface)) !important;
+  color: color-mix(in srgb, var(--ui-warning) 70%, var(--ui-text)) !important;
+  font-weight: 800 !important;
+}
+
+.sales-pos-product-results-grid.is-themed
+  .sales-pos-product-grid-head > span:nth-child(6),
+.sales-pos-product-results-grid.is-themed
+  .sales-pos-product-grid-row:not(.is-selected):not(:hover) > span:nth-child(6) {
+  background: color-mix(in srgb, var(--ui-warning) 11%, var(--ui-surface-muted)) !important;
+  color: color-mix(in srgb, var(--ui-warning) 58%, var(--ui-text)) !important;
+  font-weight: 750 !important;
+}
+
+
+
+
+/* Reference-style final specificity: completed stock cell is dark green with
+   white text; completed editable Price is red even on WebKit inputs. */
+:root[data-theme='light'] .sales-reference-screen
+  .sales-reference-grid tbody tr.is-completed-entry td.col-stock.sales-pos-line-pending {
+  background: color-mix(in srgb, var(--ui-success) 82%, #174d2b) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  font-weight: 900 !important;
+}
+
+:root[data-theme='light'] .sales-reference-screen
+  .sales-reference-grid tbody tr.is-completed-entry td.col-price,
+:root[data-theme='light'] .sales-reference-screen
+  .sales-reference-grid tbody tr.is-completed-entry td.col-price > input.sales-pos-line-qty {
+  color: color-mix(in srgb, var(--ui-danger) 90%, #8f0000) !important;
+  -webkit-text-fill-color: color-mix(in srgb, var(--ui-danger) 90%, #8f0000) !important;
+  font-weight: 900 !important;
+}
+
+
+/* Copy From stays separate from posted-invoice amendment.
+   The existing Inv# field handles amendment lookup; Copy From creates a new invoice. */
+.sales-reference-options-head > .sales-reference-copy-from input {
+  width: 132px !important;
+  min-width: 104px !important;
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .sales-reference-options-head > .sales-reference-copy-from {
+    flex: 0 1 222px !important;
+    min-width: 178px !important;
+  }
+
+  .sales-reference-options-head > .sales-reference-copy-from input {
+    width: 116px !important;
+    min-width: 100px !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .sales-reference-options-head > .sales-reference-copy-from {
+    flex: 1 1 100% !important;
+    width: 100%;
+    margin-left: 0 !important;
+    justify-content: flex-end;
+  }
+
+  .sales-reference-options-head > .sales-reference-copy-from input {
+    width: min(190px, 60vw) !important;
+    min-width: 120px !important;
+  }
+}
+
+@media (min-width: 1280px) and (max-height: 819px) {
+  .sales-reference-options-head > .sales-reference-copy-from input {
+    width: 104px !important;
+    min-width: 94px !important;
+  }
+}
+
+/* Sales Invoice focused interaction refinements.
+   Keep only the intentional local styling here. */
+.sales-reference-received {
+  display: flex !important;
+  align-items: stretch !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.sales-reference-received > span {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sales-reference-received > input {
+  flex: 0 0 72%;
+  width: 72% !important;
+  box-sizing: border-box;
+  margin: 0 !important;
+  padding-left: 8px !important;
+  padding-right: 6px !important;
+}
+
+.sales-invoice-switch-warning {
+  margin: 0;
+  color: var(--ui-text);
+  line-height: 1.5;
+}

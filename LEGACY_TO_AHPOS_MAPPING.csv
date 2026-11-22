@@ -1,2 +1,0 @@
-source_database,source_schema,source_table,source_column,source_data_type,source_key_or_relationship,source_business_meaning,target_entity,target_field,transform_rule,tenant_scope_rule,validation_rule,confidence,status,evidence_reference
-DBSmilePOS,,,,,,,,,,,,unknown,blocked_no_verified_schema,

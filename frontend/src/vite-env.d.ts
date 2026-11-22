@@ -1,3 +1,9 @@
 /// <reference types="vite/client" />
 
-/** Vite's ImportMetaEnv is required for local-only form policy hints. */
+interface ImportMetaEnv {
+  readonly VITE_API_URL?: string
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv
+}

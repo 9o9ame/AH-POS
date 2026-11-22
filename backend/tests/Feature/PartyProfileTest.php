@@ -1,0 +1,231 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\Account;
+use App\Models\AccountType;
+use App\Models\Customer;
+use App\Models\PartyProfile;
+use App\Models\Supplier;
+use App\Tenancy\TenantContext;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
+
+class PartyProfileTest extends TestCase
+{
+    use DatabaseTransactions;
+
+    public function test_party_can_be_vendor_customer_account_and_salesman_without_duplicate_identity(): void
+    {
+        $this->signInOwner('party-profile-multi')->assertOk();
+
+        $payable = $this->accountTypeUlid('payable');
+        $receivable = $this->accountTypeUlid('receivable');
+        $accountType = $this->accountTypeUlid('any');
+
+        $response = $this->postJson('/api/party-profiles', [
+            'party_types' => ['vendor', 'customer', 'account', 'salesman'],
+            'primary_type' => 'customer',
+            'code' => 'CLIENT-SUPPLIED-CODE',
+            'name' => 'Multi Role Party',
+            'vendor_account_type_ulid' => $payable,
+            'customer_account_type_ulid' => $receivable,
+            'account_account_type_ulid' => $accountType,
+            'mobile' => '03001234567',
+        ])->assertCreated()
+            ->assertJsonPath('party_type', 'customer')
+            ->assertJsonPath('name', 'Multi Role Party');
+
+        $generatedCode = (string) $response->json('code');
+        $this->assertMatchesRegularExpression('/^PTY-\d{6}$/', $generatedCode);
+        $this->assertNotSame('CLIENT-SUPPLIED-CODE', $generatedCode);
+
+        $identityUlid = (string) $response->json('identity_ulid');
+        $vendorUlid = (string) $response->json('vendor_ulid');
+        $customerUlid = (string) $response->json('customer_ulid');
+        $accountUlid = (string) $response->json('account_ulid');
+
+        $this->assertNotSame('', $identityUlid);
+        $this->assertNotSame('', $vendorUlid);
+        $this->assertNotSame('', $customerUlid);
+        $this->assertNotSame('', $accountUlid);
+
+        $profile = PartyProfile::query()->where('ulid', $identityUlid)->firstOrFail();
+        $supplier = Supplier::query()->where('ulid', $vendorUlid)->firstOrFail();
+        $customer = Customer::query()->where('ulid', $customerUlid)->firstOrFail();
+        $account = Account::query()->where('ulid', $accountUlid)->firstOrFail();
+
+        $this->assertSame($profile->id, $supplier->party_profile_id);
+        $this->assertSame($profile->id, $customer->party_profile_id);
+        $this->assertSame($profile->id, $account->party_profile_id);
+        $this->assertSame(
+            ['account', 'customer', 'salesman', 'vendor'],
+            $profile->types()->orderBy('type')->pluck('type')->all(),
+        );
+
+        $this->assertDatabaseHas('accounts', [
+            'tenant_id' => $profile->tenant_id,
+            'supplier_id' => $supplier->id,
+            'code' => $generatedCode.'-V',
+            'is_active' => true,
+        ]);
+        $this->assertDatabaseHas('accounts', [
+            'tenant_id' => $profile->tenant_id,
+            'customer_id' => $customer->id,
+            'code' => $generatedCode.'-C',
+            'is_active' => true,
+        ]);
+        $this->assertDatabaseHas('accounts', [
+            'tenant_id' => $profile->tenant_id,
+            'party_profile_id' => $profile->id,
+            'supplier_id' => null,
+            'customer_id' => null,
+            'code' => $generatedCode.'-A',
+            'is_active' => true,
+        ]);
+
+        $this->getJson('/api/party-profiles?type=salesman')
+            ->assertOk()
+            ->assertJsonFragment(['identity_ulid' => $identityUlid, 'name' => 'Multi Role Party']);
+
+        $this->getJson('/api/party-profiles?type=vendor')
+            ->assertOk()
+            ->assertJsonFragment(['vendor_ulid' => $vendorUlid]);
+
+        $this->getJson('/api/party-profiles?type=customer')
+            ->assertOk()
+            ->assertJsonFragment(['customer_ulid' => $customerUlid]);
+
+        $this->getJson('/api/party-profiles?type=account')
+            ->assertOk()
+            ->assertJsonFragment(['account_ulid' => $accountUlid]);
+    }
+
+    public function test_removing_vendor_type_preserves_history_and_deactivates_vendor_backing(): void
+    {
+        $this->signInOwner('party-profile-remove')->assertOk();
+
+        $payable = $this->accountTypeUlid('payable');
+        $receivable = $this->accountTypeUlid('receivable');
+
+        $created = $this->postJson('/api/party-profiles', [
+            'party_types' => ['vendor', 'customer', 'salesman'],
+            'primary_type' => 'vendor',
+            'name' => 'Role Removal Party',
+            'vendor_account_type_ulid' => $payable,
+            'customer_account_type_ulid' => $receivable,
+        ])->assertCreated();
+
+        $identityUlid = (string) $created->json('identity_ulid');
+        $generatedCode = (string) $created->json('code');
+        $this->assertMatchesRegularExpression('/^PTY-\d{6}$/', $generatedCode);
+        $vendorUlid = (string) $created->json('vendor_ulid');
+        $customerUlid = (string) $created->json('customer_ulid');
+
+        $updated = $this->patchJson('/api/party-profiles/'.$identityUlid, [
+            'party_types' => ['customer', 'salesman'],
+            'primary_type' => 'customer',
+            'name' => 'Role Removal Party',
+            'customer_account_type_ulid' => $receivable,
+        ])->assertOk();
+
+        $updated->assertJsonMissing(['vendor' => true]);
+        $this->assertFalse((bool) Supplier::query()->where('ulid', $vendorUlid)->value('is_active'));
+        $this->assertTrue((bool) Customer::query()->where('ulid', $customerUlid)->value('is_active'));
+
+        $customer = Customer::query()->where('ulid', $customerUlid)->firstOrFail();
+        $vendor = Supplier::query()->where('ulid', $vendorUlid)->firstOrFail();
+
+        $this->assertDatabaseHas('accounts', [
+            'customer_id' => $customer->id,
+            'code' => $generatedCode,
+            'is_active' => true,
+        ]);
+        $this->assertDatabaseHas('accounts', [
+            'supplier_id' => $vendor->id,
+            'code' => $generatedCode.'-V',
+            'is_active' => false,
+        ]);
+
+        $this->getJson('/api/party-profiles?type=vendor')
+            ->assertOk()
+            ->assertJsonMissing(['identity_ulid' => $identityUlid]);
+
+        $this->getJson('/api/party-profiles?type=salesman')
+            ->assertOk()
+            ->assertJsonFragment(['identity_ulid' => $identityUlid]);
+    }
+
+    public function test_party_profile_is_tenant_isolated(): void
+    {
+        $this->signInOwner('party-profile-tenant-a')->assertOk();
+
+        $created = $this->postJson('/api/party-profiles', [
+            'party_types' => ['salesman'],
+            'primary_type' => 'salesman',
+            'name' => 'Tenant A Salesman',
+        ])->assertCreated();
+
+        $identityUlid = (string) $created->json('identity_ulid');
+        $this->assertMatchesRegularExpression('/^SAL-\d{6}$/', (string) $created->json('code'));
+
+        $this->postJson('/api/auth/logout')->assertOk();
+        $this->signInOwner('party-profile-tenant-b')->assertOk();
+
+        $this->getJson('/api/party-profiles/'.$identityUlid)->assertNotFound();
+        $this->patchJson('/api/party-profiles/'.$identityUlid, [
+            'party_types' => ['salesman'],
+            'primary_type' => 'salesman',
+            'name' => 'Should Not Update',
+        ])->assertNotFound();
+    }
+
+    public function test_party_profile_name_is_unique_per_tenant_case_insensitively(): void
+    {
+        $this->signInOwner('party-profile-name-unique')->assertOk();
+
+        $this->postJson('/api/party-profiles', [
+            'party_types' => ['salesman'],
+            'primary_type' => 'salesman',
+            'name' => 'Alpha Traders',
+        ])->assertCreated();
+
+        $this->postJson('/api/party-profiles', [
+            'party_types' => ['salesman'],
+            'primary_type' => 'salesman',
+            'name' => '  alpha   traders  ',
+        ])->assertStatus(422)
+            ->assertJsonPath('error.key', 'VALIDATION_ERROR')
+            ->assertJsonPath('error.fields.name.0', 'A party with this name already exists.');
+
+        $this->postJson('/api/auth/logout')->assertOk();
+        $this->signInOwner('party-name-unique-b')->assertOk();
+
+        $this->postJson('/api/party-profiles', [
+            'party_types' => ['salesman'],
+            'primary_type' => 'salesman',
+            'name' => 'Alpha Traders',
+        ])->assertCreated();
+    }
+
+    private function accountTypeUlid(string $kind): string
+    {
+        $tenantId = app(TenantContext::class)->tenantId();
+
+        $query = AccountType::query()
+            ->forTenant($tenantId)
+            ->where('is_active', true);
+
+        if ($kind === 'payable') {
+            $query->where('is_payable', true);
+        } elseif ($kind === 'receivable') {
+            $query->where('is_receivable', true);
+        }
+
+        $ulid = $query->value('ulid');
+
+        $this->assertNotNull($ulid, 'Missing active '.$kind.' account type.');
+
+        return (string) $ulid;
+    }
+}

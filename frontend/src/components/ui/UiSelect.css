@@ -1,0 +1,494 @@
+.ui-select {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.ui-select-trigger {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 22px;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
+  height: var(--ui-control-h-md, 24px);
+  margin: 0;
+  padding: 0 2px 0 7px;
+  border: 1px solid var(--ui-control-border, var(--ui-border));
+  border-radius: var(--control-radius);
+  background: var(--ui-control-face, linear-gradient(180deg, var(--ui-surface), var(--ui-surface-subtle)));
+  color: var(--ui-text);
+  font: inherit;
+  font-size: var(--ui-font-md, 11px);
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: var(--ui-control-shadow);
+  transition:
+    border-color var(--ui-transition-normal),
+    background-color var(--ui-transition-normal),
+    color var(--ui-transition-normal),
+    box-shadow var(--ui-transition-normal);
+}
+
+.ui-select-trigger:hover:not(:disabled) {
+  border-color: var(--ui-control-hover-border, var(--ui-accent));
+  background: var(--ui-control-hover-bg, var(--ui-accent-soft));
+}
+
+.ui-select-combobox-trigger {
+  padding-left: 0;
+}
+
+.ui-select-trigger-search {
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0 0 0 7px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  text-overflow: ellipsis;
+}
+
+.ui-select-trigger-search::placeholder {
+  color: var(--ui-text-muted);
+}
+
+.ui-select-trigger-search:disabled {
+  color: var(--ui-text-muted);
+  cursor: not-allowed;
+}
+
+.ui-select-combobox-toggle {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 100%;
+  min-width: 22px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.ui-select-combobox-toggle:disabled {
+  cursor: not-allowed;
+}
+
+/* Canonical Simple Dropdown: searchable in the main field, but visually one
+   control surface. The inner text input must never look like a second field. */
+.ui-simple-dropdown .ui-select-combobox-trigger,
+.ui-table-dropdown .ui-select-combobox-trigger {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0;
+}
+
+.ui-simple-dropdown .ui-select-trigger-search,
+.ui-table-dropdown .ui-select-trigger-search {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 0 28px 0 7px;
+  border: 0 !important;
+  border-radius: 0 !important;
+  outline: 0;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: inherit;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.ui-simple-dropdown .ui-select-trigger-search:focus,
+.ui-table-dropdown .ui-select-trigger-search:focus {
+  border: 0 !important;
+  outline: 0;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.ui-simple-dropdown .ui-select-combobox-toggle,
+.ui-table-dropdown .ui-select-combobox-toggle {
+  position: absolute;
+  top: 50%;
+  right: 2px;
+  width: 20px;
+  min-width: 20px;
+  height: 18px;
+  min-height: 18px;
+  transform: translateY(-50%);
+}
+
+.ui-select.is-open .ui-select-trigger,
+.ui-select-trigger:focus-visible {
+  outline: none;
+  border-color: var(--ui-accent);
+  box-shadow: var(--ui-focus-shadow);
+}
+
+.ui-select-trigger:disabled {
+  cursor: not-allowed;
+  background: var(--ui-surface-muted);
+  color: var(--ui-text-muted);
+  box-shadow: none;
+}
+
+.ui-select-value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ui-select-arrow {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 18px;
+  border: 1px solid var(--ui-select-arrow-border, var(--ui-accent));
+  border-radius: var(--control-radius);
+  background: var(--ui-select-arrow-face);
+  color: #fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .28),
+    var(--ui-control-shadow);
+  transition:
+    transform var(--ui-transition-normal),
+    filter var(--ui-transition-fast),
+    border-color var(--ui-transition-normal),
+    background-color var(--ui-transition-normal);
+}
+
+.ui-select.is-open .ui-select-arrow {
+  transform: rotate(180deg);
+}
+
+.ui-select.is-disabled .ui-select-arrow {
+  border-color: var(--ui-border);
+  background: var(--ui-surface-muted);
+  color: var(--ui-text-muted);
+  box-shadow: none;
+}
+
+.ui-select-menu {
+  box-sizing: border-box;
+  overflow: hidden;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--panel-radius);
+  background: var(--ui-select-menu-bg, var(--ui-surface));
+  color: var(--ui-text);
+  box-shadow: var(--ui-card-shadow);
+  animation: ui-select-menu-in var(--ui-transition-normal);
+}
+
+.ui-select-menu.is-up {
+  transform-origin: bottom center;
+  animation-name: ui-select-menu-in-up;
+}
+
+.ui-select-menu.is-down {
+  transform-origin: top center;
+}
+
+@keyframes ui-select-menu-in {
+  from { opacity: 0; transform: translateY(4px) scale(.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes ui-select-menu-in-up {
+  from { opacity: 0; transform: translateY(-4px) scale(.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.ui-select-menu.is-reveal-motion.is-down {
+  animation-name: ui-select-menu-reveal-down;
+}
+
+.ui-select-menu.is-reveal-motion.is-up {
+  animation-name: ui-select-menu-reveal-up;
+}
+
+@keyframes ui-select-menu-reveal-down {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scaleY(.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+@keyframes ui-select-menu-reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scaleY(.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+.ui-select-menu-inner {
+  max-height: inherit;
+  overflow: auto;
+  padding: 4px;
+  overscroll-behavior: contain;
+  scrollbar-color:
+    color-mix(in srgb, var(--ui-accent) 60%, var(--ui-border))
+    var(--ui-surface-muted);
+}
+
+.ui-select-option {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 28px;
+  margin: 0 0 2px;
+  padding: 5px 9px;
+  border: 1px solid transparent;
+  border-radius: var(--control-radius);
+  background: transparent;
+  color: var(--ui-text);
+  font: inherit;
+  font-size: var(--ui-font-md, 12px);
+  font-weight: var(--ui-weight-medium, 600);
+  line-height: var(--ui-line-normal, 1.35);
+  letter-spacing: .005em;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color var(--ui-transition-fast),
+    border-color var(--ui-transition-fast),
+    color var(--ui-transition-fast);
+}
+
+.ui-select-option:last-child {
+  margin-bottom: 0;
+}
+
+.ui-select-option:hover:not(:disabled),
+.ui-select-option:focus-visible,
+.ui-select-option.is-active:not(.is-selected) {
+  outline: none;
+  border-color: color-mix(in srgb, var(--ui-accent) 38%, transparent);
+  background: var(--ui-select-hover-bg, var(--ui-accent-soft));
+  color: var(--ui-select-hover-text, var(--ui-accent-strong));
+}
+
+.ui-select-option.is-selected {
+  border-color: var(--ui-accent-strong);
+  background: var(--ui-select-selected-face);
+  color: var(--ui-select-selected-text, #fff);
+  font-weight: 800;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
+}
+
+.ui-select-option:disabled {
+  cursor: not-allowed;
+  background: transparent;
+  color: var(--ui-text-muted);
+  opacity: .55;
+}
+
+.ui-select-check {
+  color: currentColor;
+  font-weight: 900;
+}
+
+html[data-animations='off'] .ui-select-trigger,
+html[data-animations='off'] .ui-select-trigger-search,
+html[data-animations='off'] .ui-select-arrow,
+html[data-animations='off'] .ui-select-menu,
+html[data-animations='off'] .ui-select-option {
+  transition: none !important;
+  animation: none !important;
+}
+
+
+/* ---------- SEARCHABLE SELECT ---------- */
+.ui-select-search-wrap {
+  padding: 5px;
+  border-bottom: 1px solid var(--ui-border);
+  background: var(--ui-surface-subtle);
+}
+
+.ui-select-columns-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: grid;
+  align-items: center;
+  gap: 0;
+  min-height: 28px;
+  border-bottom: 1px solid var(--ui-table-border);
+  background: var(--ui-table-header);
+  color: var(--ui-table-header-text);
+  font-size: var(--ui-font-sm, 11px);
+  font-weight: 800;
+}
+
+.ui-select-columns-header > span {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  min-height: 28px;
+  padding: 5px 8px;
+  overflow: hidden;
+  border-right: 1px solid var(--ui-table-border);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ui-select-columns-header > span:last-child {
+  border-right: 0;
+}
+
+.ui-select-menu:has(.ui-select-columns-header) .ui-select-option {
+  position: relative;
+  display: grid;
+  align-items: center;
+  justify-content: stretch;
+  gap: 0;
+  padding: 0;
+  border-radius: 0;
+}
+
+.ui-select-option-cell {
+  min-width: 0;
+  min-height: 27px;
+  padding: 5px 8px;
+  overflow: hidden;
+  border-right: 1px solid var(--ui-table-border);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ui-select-option-cell:last-of-type {
+  border-right: 0;
+}
+
+.ui-select-menu:has(.ui-select-columns-header) .ui-select-check {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.ui-select-search {
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--ui-control-h-md, 24px);
+  min-height: var(--ui-control-h-md, 24px);
+  padding: 0 8px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--control-radius);
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  font: inherit;
+  font-size: var(--ui-font-md, 12px);
+  font-weight: var(--ui-weight-medium, 600);
+  line-height: var(--ui-line-normal, 1.35);
+  letter-spacing: .005em;
+  box-shadow: var(--ui-control-shadow);
+}
+
+.ui-select-search::placeholder {
+  color: var(--ui-text-muted);
+}
+
+.ui-select-search:focus {
+  outline: none;
+  border-color: var(--ui-accent);
+  box-shadow: var(--ui-focus-shadow);
+}
+
+.ui-select-empty {
+  padding: 9px;
+  color: var(--ui-text-muted);
+  font-size: var(--ui-font-sm, 11px);
+  text-align: center;
+}
+
+html[data-animations='off'] .ui-select-search {
+  transition: none !important;
+}
+
+
+/* Readability baseline shared with approved Definition controls. */
+.ui-select-trigger,
+.ui-select-value {
+  font-size: var(--ui-font-md, 12px);
+  font-weight: var(--ui-weight-medium, 600);
+  line-height: var(--ui-line-normal, 1.35);
+  letter-spacing: .005em;
+}
+
+.ui-select-option {
+  min-height: max(28px, var(--ui-control-h-md, 24px));
+}
+
+
+/* Operational Table Dropdown column emphasis.
+   Selected/active rows retain a single strong accent for scan clarity. */
+.ui-select-columns-header > [data-column-tone],
+.ui-select-option:not(.is-selected):not(.is-active) .ui-select-option-cell[data-column-tone] {
+  box-shadow: inset 1px 0 0 color-mix(in srgb, var(--ui-table-border) 72%, transparent);
+}
+
+.ui-select-columns-header > [data-column-tone='identity'],
+.ui-select-option:not(.is-selected):not(.is-active) .ui-select-option-cell[data-column-tone='identity'] {
+  background: var(--ui-col-identity);
+}
+
+.ui-select-columns-header > [data-column-tone='stock'],
+.ui-select-option:not(.is-selected):not(.is-active) .ui-select-option-cell[data-column-tone='stock'] {
+  background: var(--ui-col-stock);
+}
+
+.ui-select-columns-header > [data-column-tone='quantity'],
+.ui-select-option:not(.is-selected):not(.is-active) .ui-select-option-cell[data-column-tone='quantity'] {
+  background: var(--ui-col-quantity);
+}
+
+.ui-select-columns-header > [data-column-tone='price'],
+.ui-select-option:not(.is-selected):not(.is-active) .ui-select-option-cell[data-column-tone='price'] {
+  background: var(--ui-col-price);
+}
+
+.ui-select-columns-header > [data-column-tone='cost'],
+.ui-select-option:not(.is-selected):not(.is-active) .ui-select-option-cell[data-column-tone='cost'] {
+  background: var(--ui-col-cost);
+}
+
+.ui-select-columns-header > [data-column-tone='amount'],
+.ui-select-option:not(.is-selected):not(.is-active) .ui-select-option-cell[data-column-tone='amount'] {
+  background: var(--ui-col-amount);
+}
+
+.ui-select-option-cell[data-column-tone='stock'],
+.ui-select-option-cell[data-column-tone='quantity'],
+.ui-select-option-cell[data-column-tone='price'],
+.ui-select-option-cell[data-column-tone='cost'],
+.ui-select-option-cell[data-column-tone='amount'] {
+  font-variant-numeric: tabular-nums;
+}

@@ -1,0 +1,119 @@
+.cashbook-page{display:flex;flex-direction:column;min-height:0;height:100%;background:var(--ui-surface-subtle);color:var(--ui-text)}
+.cashbook-title{text-align:center;font-size:22px;font-weight:800;min-height:46px;box-sizing:border-box;padding:9px;margin:0;background:var(--ui-surface-muted);border:1px solid var(--ui-border)}
+.cashbook-selection{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:14px;padding:66px 24px 32px}
+.cashbook-selection-form{width:min(760px,100%);box-sizing:border-box;display:grid;gap:14px;padding:24px 36px 28px;border:1px solid var(--ui-border);border-radius:var(--panel-radius);box-shadow:var(--ui-card-shadow);background:var(--ui-surface);font-size:13px}
+.cashbook-selection-form h2{background:var(--ui-surface-muted);margin:-24px -36px 8px;padding:9px 14px;border-bottom:1px solid var(--ui-border);font-size:13px}
+.cashbook-selection-form label:not(.cashbook-check){font-weight:700;display:grid;gap:4px}
+.cashbook-date-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cashbook-selection-form input[type=date],.cashbook-tools input{width:100%;box-sizing:border-box;min-height:30px;background:var(--ui-control-face);color:var(--ui-text);border:1px solid var(--ui-control-border);border-radius:var(--control-radius);padding:3px 6px}
+.cashbook-checkbox-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 18px}.cashbook-check{display:flex;gap:7px;align-items:center;font-weight:600;min-height:26px}
+.cashbook-footer-actions{width:min(760px,100%);display:grid;gap:12px}
+.cashbook-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cashbook-footer-actions button.ui-button{width:100%;height:48px;min-height:48px;justify-content:center;font-size:15px;font-weight:700}
+.cashbook-note{font-size:10px;color:var(--ui-text-muted);line-height:1.5;margin:0}
+.cashbook-tools{display:flex;align-items:center;flex-wrap:wrap;gap:7px;padding:8px 10px;border-bottom:1px solid var(--ui-border);background:var(--ui-surface-muted);position:sticky;top:0;z-index:2}
+.cashbook-tools .ui-button{min-height:30px}
+.cashbook-tools .trial-balance-export-choice{min-width:125px;width:125px}
+.cashbook-tools .trial-balance-viewer-search,.cashbook-tools .trial-balance-viewer-zoom{display:flex;align-items:center;gap:6px}
+.cashbook-tools .trial-balance-viewer-zoom span{min-width:42px;text-align:center;font-variant-numeric:tabular-nums}
+.cashbook-tools input{max-width:220px}
+.cashbook-view{overflow:auto}
+.cashbook-paper{background:var(--ui-surface);color:var(--ui-text);padding:24px 28px;max-width:1240px;width:calc(100% - 32px);box-sizing:border-box;margin:16px auto;border:1px solid var(--ui-border)}
+.cashbook-paper header{text-align:center}
+.cashbook-paper header h2{font-size:20px;margin:4px 0}
+.cashbook-paper header p{font-size:12px;margin:6px 0}
+.cashbook-balances{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:12px;margin:14px 0;border-bottom:1px solid var(--ui-border);padding-bottom:10px}
+.cashbook-dual{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+.cashbook-dual h3{text-align:center;margin:2px 0 7px;font-size:14px}
+.cashbook-entries,.cashbook-flow-table{border-collapse:collapse;width:100%;font-size:11px}
+.cashbook-entries th,.cashbook-entries td,.cashbook-flow-table th,.cashbook-flow-table td{padding:4px;border-bottom:1px solid var(--ui-border);text-align:left;vertical-align:top}
+.cashbook-entries th,.cashbook-flow-table th{background:var(--ui-table-header);color:var(--ui-table-header-text)}
+.cashbook-entries th:last-child,.cashbook-money{text-align:right!important;font-variant-numeric:tabular-nums;white-space:nowrap}
+.cashbook-group{display:block;padding:3px 0;color:var(--ui-text-muted)}
+@media(max-width:700px){.cashbook-selection{padding:24px 12px}.cashbook-selection-form{padding:18px 14px}.cashbook-selection-form h2{margin:-18px -14px 8px}.cashbook-date-grid{grid-template-columns:1fr}.cashbook-checkbox-grid{grid-template-columns:1fr}.cashbook-dual{grid-template-columns:1fr}.cashbook-paper{padding:12px}}
+@media print{.cashbook-tools{display:none!important}.cashbook-page,.cashbook-view{height:auto;overflow:visible;background:#fff}.cashbook-paper{width:100%;max-width:none;border:0;margin:0;padding:0;color:#000}.cashbook-entries th,.cashbook-entries td{border-bottom:1px solid #aaa}.cashbook-entries thead,.cashbook-flow-table thead{display:table-header-group}.cashbook-entries tr{break-inside:avoid}.cashbook-dual{grid-template-columns:1fr 1fr}}
+
+/* Hide workspace chrome only while printing an active Cash Book preview. */
+@media print {
+  body:has(.cashbook-view) * { visibility: hidden !important; }
+  body:has(.cashbook-view) .cashbook-paper,
+  body:has(.cashbook-view) .cashbook-paper * { visibility: visible !important; }
+  body:has(.cashbook-view) .cashbook-paper {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+  }
+}
+
+/* Cash Flow Statement: reference-style dense, full-width daily grid. */
+.cashbook-flow-view{background:var(--ui-surface);overflow:hidden}
+.cashbook-flow-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:9px 16px;background:var(--ui-surface);border-bottom:1px solid var(--ui-border)}
+.cashbook-flow-heading h1{font-size:19px;font-weight:800;margin:0}
+.cashbook-flow-heading span{font-size:12px;font-weight:700}
+.cashbook-flow-view .cashbook-paper{max-width:none;width:100%;margin:0;padding:0 12px;box-shadow:none;border:0;overflow:auto;flex:1;min-height:0}
+.cashbook-flow-view .cashbook-flow-print-heading,.cashbook-flow-view .cashbook-flow-balances{display:none}
+.cashbook-flow-grid{overflow:auto;width:100%;max-height:100%}
+.cashbook-flow-view .cashbook-flow-table{width:100%;min-width:1300px;font-size:12px;border-collapse:separate;border-spacing:0}
+.cashbook-flow-table th,.cashbook-flow-table td{border-right:1px solid var(--ui-table-border);border-bottom:1px solid var(--ui-table-border);padding:4px 6px;white-space:nowrap}
+.cashbook-flow-table thead th{position:sticky;top:0;z-index:1;background:var(--ui-table-header);color:var(--ui-table-header-text);text-align:center;font-weight:800}
+.cashbook-flow-table tbody td:first-child{font-weight:700;text-align:center;background:var(--ui-surface-muted)}
+.cashbook-flow-table tbody td:nth-child(2),.cashbook-flow-table tbody td:nth-child(3){font-weight:700}
+.cashbook-flow-table tbody tr:nth-child(even){background:var(--ui-row-alt)}
+.cashbook-flow-table tbody tr:hover{background:var(--ui-row-hover)}
+.cashbook-flow-table tfoot th,.cashbook-flow-table tfoot td{position:sticky;bottom:0;background:var(--ui-surface-muted);font-weight:800;border-top:2px solid var(--ui-table-border)}
+@media print{.cashbook-flow-view .cashbook-flow-print-heading{display:block}.cashbook-flow-view .cashbook-paper{overflow:visible;padding:0}.cashbook-flow-grid{overflow:visible}.cashbook-flow-table thead th,.cashbook-flow-table tfoot td,.cashbook-flow-table tfoot th{position:static}}
+
+.cashbook-flow-filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.cashbook-flow-filters label{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700}
+.cashbook-flow-filters input[type="date"]{min-height:30px;padding:3px 6px;color:var(--ui-text);background:var(--ui-control-face);border:1px solid var(--ui-control-border);border-radius:var(--control-radius)}
+.cashbook-flow-footer{display:flex;justify-content:flex-end;padding:8px 14px;border-top:1px solid var(--ui-border);background:var(--ui-surface)}
+.cashbook-flow-footer button.ui-button{min-width:110px;min-height:36px}
+@media(max-width:780px){.cashbook-flow-heading{align-items:flex-start;flex-direction:column}.cashbook-flow-filters{width:100%}}
+
+/* Preview opens separately with a printable report surface and the standard viewer toolbar. */
+.cashbook-flow-preview .cashbook-flow-heading{display:none}
+.cashbook-flow-preview .cashbook-paper{max-width:1240px;width:calc(100% - 36px);margin:16px auto;padding:18px;background:var(--ui-surface);border:1px solid var(--ui-border)}
+.cashbook-flow-preview .cashbook-flow-print-heading{display:block;text-align:center;margin-bottom:12px}
+@media print{.cashbook-flow-preview .cashbook-paper{max-width:none;width:100%;margin:0;padding:0;border:0}}
+
+/* Fit all Cash Flow columns into the printable preview instead of horizontal scrolling. */
+.cashbook-flow-preview .cashbook-paper{overflow-x:hidden}
+.cashbook-flow-preview .cashbook-flow-grid{overflow-x:hidden;width:100%}
+.cashbook-flow-preview .cashbook-flow-table{
+  min-width:0;
+  width:100%;
+  table-layout:fixed;
+  font-size:clamp(7px,0.58vw,10px);
+}
+.cashbook-flow-preview .cashbook-flow-table th,
+.cashbook-flow-preview .cashbook-flow-table td{
+  padding:3px 2px;
+  overflow:hidden;
+  text-overflow:clip;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+.cashbook-flow-preview .cashbook-flow-table th:first-child{width:2.5%}
+.cashbook-flow-preview .cashbook-flow-table th:nth-child(2){width:8%}
+.cashbook-flow-preview .cashbook-flow-table th:nth-child(3){width:7%}
+@media print{
+  .cashbook-flow-preview .cashbook-flow-table{font-size:8px}
+  .cashbook-flow-preview .cashbook-flow-grid{overflow:visible}
+}
+
+.cashbook-group-picker{display:grid;grid-template-columns:minmax(0,1fr) 32px;align-items:center;gap:5px}
+.cashbook-group-picker .ui-select{min-width:0}
+.cashbook-group-plus{height:30px;width:32px;font-size:19px;font-weight:800;border:1px solid var(--ui-control-border);border-radius:var(--control-radius);color:var(--ui-text);background:var(--ui-control-face);cursor:pointer}
+.cashbook-group-overlay{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.32);display:flex;align-items:center;justify-content:center;padding:16px}
+.cashbook-group-modal{width:min(600px,100%);max-height:85vh;overflow:auto;background:var(--ui-surface);border:1px solid var(--ui-border);border-radius:var(--panel-radius);box-shadow:var(--ui-card-shadow);color:var(--ui-text)}
+.cashbook-group-modal>header{display:flex;align-items:center;justify-content:space-between;background:var(--ui-surface-muted);border-bottom:1px solid var(--ui-border);padding:9px 14px}
+.cashbook-group-modal>header button{border:0;background:transparent;color:inherit;font-size:22px;cursor:pointer}
+.cashbook-group-modal table{width:100%;border-collapse:collapse;font-size:12px}
+.cashbook-group-modal th,.cashbook-group-modal td{border-bottom:1px solid var(--ui-border);padding:9px 12px;text-align:left}
+.cashbook-group-modal th{background:var(--ui-surface-muted)}
+.cashbook-group-modal-actions{display:flex;justify-content:flex-end;padding:10px 14px}
+
+/* Group headings and side-specific counts/totals mirror the reference Cash Book. */
+.cashbook-group-heading th{background:var(--ui-surface-muted);font-weight:800;text-align:left;padding:8px 6px}
+.cashbook-group-subtotal th{border-top:1px solid var(--ui-border);font-weight:700;background:var(--ui-surface-muted)}
+.cashbook-grand-total th{border-top:2px solid var(--ui-border);font-weight:800;background:var(--ui-surface-muted)}

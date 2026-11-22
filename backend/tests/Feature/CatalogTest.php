@@ -1,0 +1,1237 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Authz\PermissionCatalogue;
+use App\Models\AuditLog;
+use App\Models\Product;
+use App\Models\StockBalance;
+use App\Models\Tenant;
+use App\Tenancy\TenantContext;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
+
+class CatalogTest extends TestCase
+{
+    use DatabaseTransactions;
+
+    public function test_tenant_can_view_and_update_own_business_settings(): void
+    {
+        $this->signInOwner('set-own')->assertOk();
+
+        $shown = $this->getJson('/api/settings/business')->assertOk();
+        $this->assertSame('Mart set-own', $shown->json('business_name'));
+        $this->assertSame('PKR', $shown->json('currency_code'));
+        $this->assertNoInternalIds($shown->json());
+
+        $updated = $this->patchJson('/api/settings/business', [
+            'business_name' => 'Updated Mart',
+            'backup_email' => 'backup@example.test',
+            'software_options' => [
+                'sale' => [
+                    'expiry_warning_days' => 45,
+                    'show_remarks' => false,
+                    'show_discount_percent' => true,
+                ],
+                'purchase' => [
+                    'show_expiry_batch' => true,
+                    'stock_taking_method' => 'simple',
+                ],
+                'general' => [
+                    'view_invoices_days' => 5,
+                    'view_history_days' => 10,
+                    'freight' => '25.5000',
+                ],
+            ],
+            'default_tax_percent' => '17.50000000',
+            'negative_stock_allowed' => true,
+        ])->assertOk();
+
+        $this->assertSame('Updated Mart', $updated->json('business_name'));
+        $this->assertSame('backup@example.test', $updated->json('backup_email'));
+        $this->assertSame(45, $updated->json('software_options.sale.expiry_warning_days'));
+        $this->assertFalse($updated->json('software_options.sale.show_remarks'));
+        $this->assertSame('simple', $updated->json('software_options.purchase.stock_taking_method'));
+        $this->assertSame(5, $updated->json('software_options.general.view_invoices_days'));
+        $this->assertSame('25.5000', $updated->json('software_options.general.freight'));
+        $this->assertSame('17.50000000', $updated->json('default_tax_percent'));
+        $this->assertTrue($updated->json('negative_stock_allowed'));
+
+        $this->patchJson('/api/settings/business', [
+            'backup_email' => 'not-an-email',
+        ])->assertUnprocessable();
+
+        $this->patchJson('/api/settings/business', [
+            'software_options' => [
+                'purchase' => ['stock_taking_method' => 'unsafe-mode'],
+            ],
+        ])->assertUnprocessable();
+
+        $this->patchJson('/api/settings/business', [
+            'software_options' => [
+                'sale' => ['unknown_option' => true],
+            ],
+        ])->assertUnprocessable();
+    }
+
+    public function test_unauthorized_user_cannot_update_settings_and_tenant_id_is_ignored(): void
+    {
+        $owner = $this->signInOwner('set-unauth')->assertOk();
+        $this->createCashier('set-unauth', $owner->json('branch.ulid'));
+        $this->postJson('/api/auth/logout')->assertOk();
+        $this->loginAs('set-unauth', 'cashier-set-unauth')->assertOk();
+
+        $this->patchJson('/api/settings/business', [
+            'business_name' => 'Hacked',
+        ])->assertForbidden()->assertJsonPath('error.key', 'FORBIDDEN');
+
+        $this->postJson('/api/auth/logout')->assertOk();
+        $this->loginAs('set-unauth', 'owner')->assertOk();
+
+        $this->patchJson('/api/settings/business', [
+            'tenant_id' => 999,
+            'business_name' => 'Safe Name',
+        ])->assertOk()->assertJsonPath('business_name', 'Safe Name');
+        $this->assertSame('Mart set-unauth', Tenant::query()->where('name', 'Mart set-unauth')->value('name'));
+    }
+
+    public function test_categories_are_tenant_scoped(): void
+    {
+        $this->signInOwner('cat-a')->assertOk();
+        $created = $this->postJson('/api/categories', [
+            'code' => 'BEV',
+            'name' => 'Beverages',
+        ])->assertCreated();
+        $this->assertNoInternalIds($created->json());
+        $ulidA = $created->json('ulid');
+
+        $this->postJson('/api/categories', [
+            'code' => 'BEV',
+            'name' => 'Second Category',
+        ])->assertCreated()->assertJsonPath('code', 'CAT-000002');
+
+        $this->postJson('/api/auth/logout')->assertOk();
+        $this->signInOwner('cat-b')->assertOk();
+        $this->postJson('/api/categories', [
+            'code' => 'BEV',
+            'name' => 'Beverages B',
+        ])->assertCreated();
+
+        $this->getJson('/api/categories/'.$ulidA)->assertNotFound();
+        $this->patchJson('/api/categories/'.$ulidA, ['name' => 'Hack'])->assertNotFound();
+        $this->deleteJson('/api/categories/'.$ulidA)->assertNotFound();
+    }
+
+    public function test_category_code_can_be_server_generated_per_tenant(): void
+    {
+        $this->signInOwner('cat-auto-a')->assertOk();
+
+        $first = $this->postJson('/api/categories', [
+            'name' => 'Auto One',
+        ])->assertCreated();
+        $first->assertJsonPath('code', 'CAT-000001');
+        $this->assertNoInternalIds($first->json());
+
+        $second = $this->postJson('/api/categories', [
+            'name' => 'Auto Two',
+        ])->assertCreated();
+        $second->assertJsonPath('code', 'CAT-000002');
+
+        $clientCodeIgnored = $this->postJson('/api/categories', [
+            'code' => 'CUSTOM',
+            'name' => 'Client Code Ignored',
+        ])->assertCreated();
+        $clientCodeIgnored->assertJsonPath('code', 'CAT-000003');
+
+        $this->postJson('/api/auth/logout')->assertOk();
+        $this->signInOwner('cat-auto-b')->assertOk();
+
+        $otherTenant = $this->postJson('/api/categories', [
+            'name' => 'Other Tenant Auto',
+        ])->assertCreated();
+        $otherTenant->assertJsonPath('code', 'CAT-000001');
+    }
+
+    public function test_subcategory_cannot_use_foreign_category(): void
+    {
+        $this->signInOwner('sub-a')->assertOk();
+        $categoryA = $this->postJson('/api/categories', [
+            'code' => 'FOOD',
+            'name' => 'Food',
+        ])->assertCreated()->json('ulid');
+
+        $this->postJson('/api/auth/logout')->assertOk();
+        $this->signInOwner('sub-b')->assertOk();
+        $this->postJson('/api/subcategories', [
+            'category_ulid' => $categoryA,
+            'code' => 'SNACK',
+            'name' => 'Snacks',
+        ])->assertNotFound();
+
+        $own = $this->postJson('/api/categories', [
+            'code' => 'FOOD',
+            'name' => 'Food B',
+        ])->assertCreated()->json('ulid');
+
+        $sub = $this->postJson('/api/subcategories', [
+            'category_ulid' => $own,
+            'code' => 'SNACK',
+            'name' => 'Snacks',
+        ])->assertCreated();
+        $this->assertSame($own, $sub->json('category.ulid'));
+        $this->assertNoInternalIds($sub->json());
+    }
+
+    public function test_brands_and_units_are_isolated(): void
+    {
+        $this->signInOwner('mst-a')->assertOk();
+        $brandA = $this->postJson('/api/brands', [
+            'code' => 'LOCAL',
+            'name' => 'Local Brand',
+        ])->assertCreated()->json('ulid');
+        $unitA = $this->postJson('/api/units', [
+            'code' => 'BAG',
+            'name' => 'Bag',
+            'symbol' => 'bag',
+            'allows_decimal' => false,
+        ])->assertCreated();
+        $this->assertFalse($unitA->json('allows_decimal'));
+        $this->assertNoInternalIds($unitA->json());
+
+        $this->postJson('/api/units', [
+            'code' => 'KGX',
+            'name' => 'Custom Kg',
+            'symbol' => 'kg',
+            'allows_decimal' => true,
+        ])->assertCreated()->assertJsonPath('allows_decimal', true);
+
+        $this->postJson('/api/auth/logout')->assertOk();
+        $this->signInOwner('mst-b')->assertOk();
+        $this->getJson('/api/brands/'.$brandA)->assertNotFound();
+        $this->getJson('/api/units/'.$unitA->json('ulid'))->assertNotFound();
+        $this->postJson('/api/brands', [
+            'code' => 'LOCAL',
+            'name' => 'Local B',
+        ])->assertCreated();
+    }
+
+    public function test_subcategory_brand_and_unit_codes_are_server_generated_and_immutable(): void
+    {
+        $this->signInOwner('master-auto-codes')->assertOk();
+
+        $categoryUlid = $this->postJson('/api/categories', [
+            'name' => 'Auto Parent',
+        ])->assertCreated()->json('ulid');
+
+        $subcategory = $this->postJson('/api/subcategories', [
+            'category_ulid' => $categoryUlid,
+            'code' => 'CLIENT-SUB',
+            'name' => 'Auto Subcategory',
+        ])->assertCreated();
+        $subcategory->assertJsonPath('code', 'SUB-000001');
+
+        $brand = $this->postJson('/api/brands', [
+            'code' => 'CLIENT-BRAND',
+            'name' => 'Auto Brand',
+        ])->assertCreated();
+        $brand->assertJsonPath('code', 'BRD-000001');
+
+        $unit = $this->postJson('/api/units', [
+            'code' => 'CLIENT-UNIT',
+            'name' => 'Auto Unit',
+            'symbol' => 'au',
+            'allows_decimal' => true,
+        ])->assertCreated();
+        $unit->assertJsonPath('code', 'UNT-000001');
+
+        $this->patchJson('/api/subcategories/'.$subcategory->json('ulid'), [
+            'code' => 'HACKED-SUB',
+            'name' => 'Updated Subcategory',
+        ])->assertOk()
+            ->assertJsonPath('code', 'SUB-000001')
+            ->assertJsonPath('name', 'Updated Subcategory');
+
+        $this->patchJson('/api/brands/'.$brand->json('ulid'), [
+            'code' => 'HACKED-BRAND',
+            'name' => 'Updated Brand',
+        ])->assertOk()
+            ->assertJsonPath('code', 'BRD-000001')
+            ->assertJsonPath('name', 'Updated Brand');
+
+        $this->patchJson('/api/units/'.$unit->json('ulid'), [
+            'code' => 'HACKED-UNIT',
+            'name' => 'Updated Unit',
+        ])->assertOk()
+            ->assertJsonPath('code', 'UNT-000001')
+            ->assertJsonPath('name', 'Updated Unit');
+
+        $this->postJson('/api/auth/logout')->assertOk();
+        $this->signInOwner('master-auto-codes-other')->assertOk();
+
+        $otherBrand = $this->postJson('/api/brands', [
+            'name' => 'Other Tenant Brand',
+        ])->assertCreated();
+        $otherBrand->assertJsonPath('code', 'BRD-000001');
+
+        $this->assertNoInternalIds($subcategory->json());
+        $this->assertNoInternalIds($brand->json());
+        $this->assertNoInternalIds($unit->json());
+    }
+
+    public function test_catalog_masters_can_be_created_updated_and_deactivated(): void
+    {
+        $this->signInOwner('master-crud')->assertOk();
+
+        $category = $this->postJson('/api/categories', [
+            'code' => 'FOOD',
+            'name' => 'Food',
+        ])->assertCreated();
+        $categoryUlid = $category->json('ulid');
+        $this->patchJson('/api/categories/'.$categoryUlid, [
+            'code' => 'FOODS',
+            'name' => 'Foods',
+        ])->assertOk()->assertJsonPath('name', 'Foods');
+        $subcategoryUlid = $this->postJson('/api/subcategories', [
+            'category_ulid' => $categoryUlid,
+            'code' => 'SNACK',
+            'name' => 'Snacks',
+        ])->assertCreated()->json('ulid');
+        $this->deleteJson('/api/categories/'.$categoryUlid)
+            ->assertOk()
+            ->assertJsonPath('archived', true);
+        $this->getJson('/api/categories/'.$categoryUlid)
+            ->assertOk()
+            ->assertJsonPath('is_active', false);
+        $this->getJson('/api/subcategories/'.$subcategoryUlid)->assertOk();
+
+        $brandUlid = $this->postJson('/api/brands', [
+            'code' => 'ACME',
+            'name' => 'Acme',
+        ])->assertCreated()->json('ulid');
+        $this->patchJson('/api/brands/'.$brandUlid, ['name' => 'Acme Updated'])
+            ->assertOk()
+            ->assertJsonPath('name', 'Acme Updated');
+        $this->deleteJson('/api/brands/'.$brandUlid)
+            ->assertOk()
+            ->assertJsonPath('archived', true);
+        $this->getJson('/api/brands/'.$brandUlid)->assertOk()->assertJsonPath('is_active', false);
+
+        $unitUlid = $this->postJson('/api/units', [
+            'code' => 'TSTBOX',
+            'name' => 'Box',
+            'symbol' => 'box',
+            'allows_decimal' => false,
+        ])->assertCreated()->json('ulid');
+        $unit = $this->patchJson('/api/units/'.$unitUlid, [
+            'name' => 'Large Box',
+            'symbol' => 'lbox',
+            'allows_decimal' => true,
+        ])->assertOk();
+        $unit->assertJsonPath('allows_decimal', true);
+        $this->deleteJson('/api/units/'.$unitUlid)
+            ->assertOk()
+            ->assertJsonPath('archived', true);
+        $this->getJson('/api/units/'.$unitUlid)->assertOk()->assertJsonPath('is_active', false);
+
+        $barcodeGroup = $this->postJson('/api/barcode-groups', [
+            'code' => ' retail ',
+            'name' => 'Retail',
+            'description' => 'Retail barcode family',
+            'sort_order' => 2,
+        ])->assertCreated();
+        $barcodeGroup->assertJsonPath('code', 'RETAIL');
+        $barcodeGroupUlid = $barcodeGroup->json('ulid');
+        $updatedBarcodeGroup = $this->patchJson('/api/barcode-groups/'.$barcodeGroupUlid, [
+            'code' => ' retail-main ',
+            'name' => 'Retail Main',
+        ])->assertOk();
+        $updatedBarcodeGroup->assertJsonPath('code', 'RETAIL-MAIN');
+        $this->assertNoInternalIds($updatedBarcodeGroup->json());
+        $this->deleteJson('/api/barcode-groups/'.$barcodeGroupUlid)
+            ->assertOk()
+            ->assertJsonPath('archived', true);
+        $this->getJson('/api/barcode-groups/'.$barcodeGroupUlid)
+            ->assertOk()
+            ->assertJsonPath('is_active', false);
+
+        foreach ([
+            'CATEGORY_CREATED',
+            'CATEGORY_UPDATED',
+            'CATEGORY_DEACTIVATED',
+            'BRAND_CREATED',
+            'BRAND_UPDATED',
+            'BRAND_DEACTIVATED',
+            'UNIT_CREATED',
+            'UNIT_UPDATED',
+            'UNIT_DEACTIVATED',
+            'BARCODE_GROUP_CREATED',
+            'BARCODE_GROUP_UPDATED',
+            'BARCODE_GROUP_DEACTIVATED',
+        ] as $event) {
+            $this->assertTrue(AuditLog::query()->where('event', $event)->exists(), "Missing audit event {$event}");
+        }
+    }
+
+    public function test_all_catalog_masters_are_tenant_isolated(): void
+    {
+        $this->signInOwner('master-iso-a')->assertOk();
+        $resources = [
+            'categories' => $this->postJson('/api/categories', [
+                'code' => 'ISOCAT',
+                'name' => 'Private Category',
+            ])->assertCreated()->json('ulid'),
+            'brands' => $this->postJson('/api/brands', [
+                'code' => 'ISOBRAND',
+                'name' => 'Private Brand',
+            ])->assertCreated()->json('ulid'),
+            'units' => $this->postJson('/api/units', [
+                'code' => 'ISOUNIT',
+                'name' => 'Private Unit',
+                'symbol' => 'iu',
+                'allows_decimal' => false,
+            ])->assertCreated()->json('ulid'),
+            'barcode-groups' => $this->postJson('/api/barcode-groups', [
+                'code' => 'ISOBAR',
+                'name' => 'Private Barcode Group',
+            ])->assertCreated()->json('ulid'),
+            'suppliers' => $this->postJson('/api/suppliers', [
+                'code' => 'ISOSUP',
+                'name' => 'Private Supplier',
+            ])->assertCreated()->json('ulid'),
+        ];
+
+        $this->postJson('/api/auth/logout')->assertOk();
+        $this->signInOwner('master-iso-b')->assertOk();
+
+        foreach ($resources as $endpoint => $ulid) {
+            $list = $this->getJson('/api/'.$endpoint)->assertOk()->json();
+            $this->assertNotContains($ulid, collect($list)->pluck('ulid')->all());
+            $this->getJson('/api/'.$endpoint.'/'.$ulid)->assertNotFound();
+            $this->patchJson('/api/'.$endpoint.'/'.$ulid, ['name' => 'Leaked'])->assertNotFound();
+            $this->deleteJson('/api/'.$endpoint.'/'.$ulid)->assertNotFound();
+        }
+    }
+
+    public function test_sales_product_lookup_uses_active_tenant_warehouse_stock_and_cost(): void
+    {
+        $this->signInOwner('sales-lookup')->assertOk();
+        $masters = $this->seedMasters();
+
+        $productUlid = $this->postJson('/api/products', [
+            'name' => 'Lookup Cola',
+            'category_ulid' => $masters['category'],
+            'brand_ulid' => $masters['brand'],
+            'base_unit_ulid' => $masters['pcs'],
+            'rack_location' => 'R-A1',
+        ])->assertCreated()->json('ulid');
+
+        $product = Product::query()->where('ulid', $productUlid)->firstOrFail();
+        $context = app(TenantContext::class);
+
+        StockBalance::query()->create([
+            'tenant_id' => $context->tenantId(),
+            'branch_id' => $context->branchId(),
+            'warehouse_id' => $context->warehouseId(),
+            'product_id' => $product->id,
+            'quantity' => '7.500000',
+            'average_cost' => '41.2500',
+            'stock_value' => '309.3750',
+        ]);
+
+        $this->putJson('/api/products/'.$productUlid.'/prices', [
+            'prices' => [[
+                'price_type' => 'retail',
+                'amount' => '60.0000',
+                'is_active' => true,
+            ]],
+        ])->assertOk();
+
+        $response = $this->getJson('/api/products?q=Lookup%20Cola&sales_lookup=1')
+            ->assertOk()
+            ->assertJsonPath('data.0.ulid', $productUlid)
+            ->assertJsonPath('data.0.sales_lookup.in_stock', '7.500000')
+            ->assertJsonPath('data.0.sales_lookup.average_cost', '41.2500')
+            ->assertJsonPath('data.0.sales_lookup.stock_value', '309.3750')
+            ->assertJsonPath('data.0.sales_lookup.retail_stock_value', '450.0000')
+            ->assertJsonPath('data.0.rack_location', 'R-A1');
+
+        $this->assertSame('7.500000', bcadd((string) $response->json('meta.stock_total'), '0', 6));
+        $this->assertSame('309.3750', bcadd((string) $response->json('meta.stock_value_total'), '0', 4));
+        $this->assertSame('450.0000', bcadd((string) $response->json('meta.retail_stock_value_total'), '0', 4));
+
+        $this->assertNoInternalIds($response->json());
+    }
+
+    public function test_product_barcode_group_round_trip_and_inactive_relations_remain_readable(): void
+    {
+        $this->signInOwner('barcode-product')->assertOk();
+        $masters = $this->seedMasters();
+        $barcodeGroupUlid = $this->postJson('/api/barcode-groups', [
+            'code' => 'PACKAGING',
+            'name' => 'Packaging',
+        ])->assertCreated()->json('ulid');
+
+        $product = $this->postJson('/api/products', [
+            'name' => 'Grouped Product',
+            'category_ulid' => $masters['category'],
+            'brand_ulid' => $masters['brand'],
+            'barcode_group_ulid' => $barcodeGroupUlid,
+            'base_unit_ulid' => $masters['pcs'],
+        ])->assertCreated();
+        $productUlid = $product->json('ulid');
+        $product->assertJsonPath('barcode_group.ulid', $barcodeGroupUlid);
+        $this->assertNoInternalIds($product->json());
+
+        $secondGroupUlid = $this->postJson('/api/barcode-groups', [
+            'code' => 'PACKAGING2',
+            'name' => 'Packaging Two',
+        ])->assertCreated()->json('ulid');
+        $this->patchJson('/api/products/'.$productUlid, [
+            'barcode_group_ulid' => $secondGroupUlid,
+        ])->assertOk()->assertJsonPath('barcode_group.ulid', $secondGroupUlid);
+
+        $this->deleteJson('/api/categories/'.$masters['category'])->assertOk();
+        $this->deleteJson('/api/brands/'.$masters['brand'])->assertOk();
+        $this->deleteJson('/api/units/'.$masters['pcs'])->assertOk();
+        $this->deleteJson('/api/barcode-groups/'.$secondGroupUlid)->assertOk();
+
+        $existing = $this->getJson('/api/products/'.$productUlid)->assertOk();
+        $existing->assertJsonPath('category.is_active', false);
+        $existing->assertJsonPath('brand.is_active', false);
+        $existing->assertJsonPath('base_unit.is_active', false);
+        $existing->assertJsonPath('barcode_group.is_active', false);
+        $this->assertNoInternalIds($existing->json());
+    }
+
+    public function test_foreign_barcode_group_assignment_and_unauthorized_master_mutations_are_blocked(): void
+    {
+        $owner = $this->signInOwner('master-auth-a')->assertOk();
+        $masters = $this->seedMasters();
+        $barcodeGroupUlid = $this->postJson('/api/barcode-groups', [
+            'code' => 'PRIVATE',
+            'name' => 'Private Group',
+        ])->assertCreated()->json('ulid');
+        $supplierUlid = $this->postJson('/api/suppliers', [
+            'code' => 'CASHBLOCK',
+            'name' => 'Cashier Block',
+        ])->assertCreated()->json('ulid');
+        $this->createCashier('master-auth-a', $owner->json('branch.ulid'));
+
+        $this->postJson('/api/auth/logout')->assertOk();
+        $this->signInOwner('master-auth-b')->assertOk();
+        $ownProduct = $this->postJson('/api/products', [
+            'name' => 'Own Product',
+            'base_unit_ulid' => $this->unitUlid('PCS'),
+        ])->assertCreated();
+        $this->postJson('/api/products', [
+            'name' => 'Foreign Group Product',
+            'base_unit_ulid' => $this->unitUlid('PCS'),
+            'barcode_group_ulid' => $barcodeGroupUlid,
+        ])->assertNotFound();
+        $this->patchJson('/api/products/'.$ownProduct->json('ulid'), [
+            'barcode_group_ulid' => $barcodeGroupUlid,
+        ])->assertNotFound();
+
+        $this->postJson('/api/auth/logout')->assertOk();
+        $this->loginAs('master-auth-a', 'cashier-master-auth-a')->assertOk();
+
+        $payloads = [
+            'categories' => ['code' => 'NOPE', 'name' => 'Nope'],
+            'brands' => ['code' => 'NOPE', 'name' => 'Nope'],
+            'units' => ['code' => 'NOPE', 'name' => 'Nope', 'symbol' => 'n', 'allows_decimal' => false],
+            'barcode-groups' => ['code' => 'NOPE', 'name' => 'Nope'],
+            'suppliers' => ['code' => 'NOPE', 'name' => 'Nope'],
+        ];
+        $existing = [
+            'categories' => $masters['category'],
+            'brands' => $masters['brand'],
+            'units' => $masters['pcs'],
+            'barcode-groups' => $barcodeGroupUlid,
+            'suppliers' => $supplierUlid,
+        ];
+
+        foreach ($payloads as $endpoint => $payload) {
+            $this->postJson('/api/'.$endpoint, $payload)->assertForbidden();
+            $this->patchJson('/api/'.$endpoint.'/'.$existing[$endpoint], ['name' => 'Forbidden'])
+                ->assertForbidden();
+            $this->deleteJson('/api/'.$endpoint.'/'.$existing[$endpoint])->assertForbidden();
+        }
+    }
+
+    public function test_existing_product_lookup_resolves_by_name_or_barcode_with_tenant_isolation(): void
+    {
+        $this->signInOwner('prd-lookup-a')->assertOk();
+        $masters = $this->seedMasters();
+
+        $created = $this->postJson('/api/products', [
+            'name' => 'Lookup Existing Cola',
+            'base_unit_ulid' => $masters['pcs'],
+            'barcodes' => [[
+                'barcode' => 'LOOKUP-12345',
+                'unit_ulid' => $masters['pcs'],
+                'conversion_factor' => '1.00000000',
+                'is_primary' => true,
+            ]],
+        ])->assertCreated();
+
+        $productUlid = $created->json('ulid');
+
+        $byName = $this->getJson('/api/products/lookup-existing?name=lookup%20existing%20cola')
+            ->assertOk()
+            ->assertJsonPath('ulid', $productUlid)
+            ->assertJsonPath('name', 'Lookup Existing Cola');
+        $this->assertNoInternalIds($byName->json());
+
+        $byBarcode = $this->getJson('/api/products/lookup-existing?barcode=LOOKUP-12345')
+            ->assertOk()
+            ->assertJsonPath('ulid', $productUlid);
+        $this->assertNoInternalIds($byBarcode->json());
+
+        $this->getJson('/api/products/lookup-existing?barcode=DOES-NOT-EXIST')
+            ->assertOk()
+            ->assertContent('null');
+
+        $this->postJson('/api/auth/logout')->assertOk();
+        $this->signInOwner('prd-lookup-b')->assertOk();
+
+        $this->getJson('/api/products/lookup-existing?barcode=LOOKUP-12345')
+            ->assertOk()
+            ->assertContent('null');
+
+        $this->getJson('/api/products/lookup-existing?name=Lookup%20Existing%20Cola')
+            ->assertOk()
+            ->assertContent('null');
+    }
+
+    public function test_product_lifecycle_barcodes_and_prices(): void
+    {
+        $this->signInOwner('prd-a')->assertOk();
+        $masters = $this->seedMasters();
+
+        $created = $this->postJson('/api/products', [
+            'product_number' => 'P-100',
+            'sku' => 'SKU-100',
+            'name' => 'Cola 330ml',
+            'category_ulid' => $masters['category'],
+            'brand_ulid' => $masters['brand'],
+            'base_unit_ulid' => $masters['pcs'],
+            'tax_percent' => '17.50000000',
+            'barcodes' => [[
+                'barcode' => '1234567890123',
+                'unit_ulid' => $masters['pcs'],
+                'conversion_factor' => '1.00000000',
+                'is_primary' => true,
+            ]],
+            'prices' => [
+                ['price_type' => 'retail', 'amount' => '120.2500'],
+                ['price_type' => 'wholesale', 'amount' => '110.0000'],
+            ],
+        ])->assertCreated();
+
+        $this->assertMatchesRegularExpression('/^[0-9A-HJKMNP-TV-Z]{26}$/', $created->json('ulid'));
+        $this->assertSame('P-100', $created->json('product_number'));
+        $this->assertSame('120.2500', collect($created->json('prices'))->firstWhere('price_type', 'retail')['amount']);
+        $this->assertNoInternalIds($created->json());
+
+        $this->postJson('/api/products', [
+            'product_number' => 'P-100',
+            'name' => 'Dup number',
+            'base_unit_ulid' => $masters['pcs'],
+        ])->assertUnprocessable();
+
+        $this->postJson('/api/products', [
+            'sku' => 'SKU-100',
+            'name' => 'Dup sku',
+            'base_unit_ulid' => $masters['pcs'],
+        ])->assertUnprocessable();
+
+        $second = $this->postJson('/api/products', [
+            'name' => 'Water',
+            'base_unit_ulid' => $masters['pcs'],
+        ])->assertCreated();
+
+        // Name-only product may sync an empty barcode list.
+        $this->putJson('/api/products/'.$second->json('ulid').'/barcodes', [
+            'barcodes' => [],
+        ])->assertOk()->assertJsonCount(0, 'barcodes');
+
+        $this->postJson('/api/products', [
+            'name' => 'water',
+            'base_unit_ulid' => $masters['pcs'],
+        ])->assertUnprocessable();
+
+        $this->postJson('/api/products', [
+            'name' => 'Cola 330ml',
+            'base_unit_ulid' => $masters['pcs'],
+        ])->assertUnprocessable();
+
+        $this->putJson('/api/products/'.$second->json('ulid').'/barcodes', [
+            'barcodes' => [
+                [
+                    'barcode' => '1234567890123',
+                    'unit_ulid' => $masters['pcs'],
+                    'conversion_factor' => '1.00000000',
+                    'is_primary' => true,
+                ],
+            ],
+        ])->assertUnprocessable();
+
+        $this->putJson('/api/products/'.$created->json('ulid').'/barcodes', [
+            'barcodes' => [
+                [
+                    'barcode' => '1234567890123',
+                    'unit_ulid' => $masters['pcs'],
+                    'conversion_factor' => '1.00000000',
+                    'is_primary' => true,
+                ],
+                [
+                    'barcode' => '1234567890999',
+                    'unit_ulid' => $masters['carton'],
+                    'conversion_factor' => '24.00000000',
+                    'is_primary' => false,
+                ],
+            ],
+        ])->assertOk()->assertJsonCount(2, 'barcodes');
+
+        $this->putJson('/api/products/'.$created->json('ulid').'/barcodes', [
+            'barcodes' => [
+                [
+                    'barcode' => 'AAA',
+                    'unit_ulid' => $masters['pcs'],
+                    'conversion_factor' => '1.00000000',
+                    'is_primary' => true,
+                ],
+                [
+                    'barcode' => 'BBB',
+                    'unit_ulid' => $masters['carton'],
+                    'conversion_factor' => '24.00000000',
+                    'is_primary' => true,
+                ],
+            ],
+        ])->assertUnprocessable();
+
+        $this->putJson('/api/products/'.$created->json('ulid').'/prices', [
+            'prices' => [
+                ['price_type' => 'retail', 'amount' => '-1.0000'],
+            ],
+        ])->assertUnprocessable();
+
+        $this->putJson('/api/products/'.$created->json('ulid').'/prices', [
+            'prices' => [
+                ['price_type' => 'minimum_sale', 'amount' => '100.5000'],
+            ],
+        ])->assertOk();
+
+        $this->assertSame('100.5000', collect($this->getJson('/api/products/'.$created->json('ulid'))->json('prices'))
+            ->firstWhere('price_type', 'minimum_sale')['amount']);
+
+        $deactivated = $this->deleteJson('/api/products/'.$created->json('ulid'))->assertOk();
+        $this->assertSame('discontinued', $deactivated->json('status'));
+        $this->assertFalse($deactivated->json('is_active'));
+        $this->getJson('/api/products/'.$created->json('ulid'))
+            ->assertOk()
+            ->assertJsonPath('status', 'discontinued');
+
+        $this->assertTrue(Product::query()->where('ulid', $created->json('ulid'))->exists());
+
+        $page = $this->getJson('/api/products?q=Cola&per_page=1000000')->assertOk();
+        $this->assertSame(100, $page->json('meta.per_page'));
+        $this->assertNoInternalIds($page->json());
+    }
+
+    public function test_product_rejects_foreign_masters_and_unauthorized_create(): void
+    {
+        $tenantA = $this->signInOwner('prd-iso-a')->assertOk();
+        $mastersA = $this->seedMasters();
+        $productA = $this->postJson('/api/products', [
+            'name' => 'Secret',
+            'base_unit_ulid' => $mastersA['pcs'],
+        ])->assertCreated()->json('ulid');
+        $this->createCashier('prd-iso-a', $tenantA->json('branch.ulid'));
+
+        $this->postJson('/api/auth/logout')->assertOk();
+        $this->signInOwner('prd-iso-b')->assertOk();
+        $pcsB = $this->unitUlid('PCS');
+
+        $this->postJson('/api/products', [
+            'name' => 'Steal category',
+            'category_ulid' => $mastersA['category'],
+            'base_unit_ulid' => $pcsB,
+        ])->assertNotFound();
+
+        $this->postJson('/api/products', [
+            'name' => 'Steal brand',
+            'brand_ulid' => $mastersA['brand'],
+            'base_unit_ulid' => $pcsB,
+        ])->assertNotFound();
+
+        $this->postJson('/api/products', [
+            'name' => 'Steal unit',
+            'base_unit_ulid' => $mastersA['pcs'],
+        ])->assertNotFound();
+
+        $this->getJson('/api/products/'.$productA)->assertNotFound();
+
+        $own = $this->postJson('/api/products', [
+            'product_number' => 'P-100',
+            'name' => 'Tenant B cola',
+            'base_unit_ulid' => $pcsB,
+            'barcodes' => [[
+                'barcode' => '1234567890123',
+                'unit_ulid' => $pcsB,
+                'conversion_factor' => '1.00000000',
+                'is_primary' => true,
+            ]],
+        ])->assertCreated();
+        $this->assertSame('P-100', $own->json('product_number'));
+
+        $this->putJson('/api/products/'.$own->json('ulid').'/barcodes', [
+            'barcodes' => [[
+                'barcode' => 'FOREIGN-UNIT',
+                'unit_ulid' => $mastersA['pcs'],
+                'conversion_factor' => '1.00000000',
+                'is_primary' => true,
+            ]],
+        ])->assertNotFound();
+
+        $this->postJson('/api/auth/logout')->assertOk();
+        $this->loginAs('prd-iso-a', 'cashier-prd-iso-a')->assertOk();
+
+        $this->postJson('/api/products', [
+            'name' => 'Cashier product',
+            'base_unit_ulid' => $mastersA['pcs'],
+        ])->assertForbidden()->assertJsonPath('error.key', 'FORBIDDEN');
+
+        $this->putJson('/api/products/'.$productA.'/prices', [
+            'prices' => [['price_type' => 'retail', 'amount' => '1.0000']],
+        ])->assertForbidden();
+    }
+
+    /**
+     * @return array{category: string, brand: string, pcs: string, carton: string}
+     */
+    private function seedMasters(): array
+    {
+        $category = $this->postJson('/api/categories', [
+            'code' => 'BEV',
+            'name' => 'Beverages',
+        ])->assertCreated()->json('ulid');
+
+        $brand = $this->postJson('/api/brands', [
+            'code' => 'NOBRAND',
+            'name' => 'No Brand',
+        ])->assertCreated()->json('ulid');
+
+        return [
+            'category' => $category,
+            'brand' => $brand,
+            'pcs' => $this->unitUlid('PCS'),
+            'carton' => $this->unitUlid('CARTON'),
+        ];
+    }
+
+    private function unitUlid(string $code): string
+    {
+        $units = $this->getJson('/api/units')->assertOk()->json();
+        foreach ($units as $unit) {
+            if ($unit['code'] === $code) {
+                return $unit['ulid'];
+            }
+        }
+
+        $this->fail('Missing unit '.$code);
+    }
+
+    private function createCashier(string $suffix, string $branchUlid): void
+    {
+        $roles = $this->getJson('/api/roles')->assertOk()->json();
+        $cashier = collect($roles)->firstWhere('code', PermissionCatalogue::CASHIER);
+
+        $this->postJson('/api/memberships', [
+            'name' => 'Cashier '.$suffix,
+            'username' => $this->staffUsername($suffix),
+            'recovery_email' => "cashier-{$suffix}@example.com",
+            'password' => 'password123',
+            'must_change_password' => false,
+            'roles' => [$cashier['ulid']],
+            'branches' => [$branchUlid],
+        ])->assertCreated();
+    }
+
+    public function test_product_tabular_filters_use_active_warehouse_stock_and_prices(): void
+    {
+        $this->signInOwner('tabular-filters')->assertOk();
+        $masters = $this->seedMasters();
+
+        $createProduct = function (string $name, string $reorder) use ($masters): string {
+            return $this->postJson('/api/products', [
+                'name' => $name,
+                'category_ulid' => $masters['category'],
+                'brand_ulid' => $masters['brand'],
+                'base_unit_ulid' => $masters['pcs'],
+                'reorder_level' => $reorder,
+            ])->assertCreated()->json('ulid');
+        };
+
+        $highCostUlid = $createProduct('Tabular High Cost', '3.000000');
+        $healthyUlid = $createProduct('Tabular Healthy', '2.000000');
+        $noBalanceUlid = $createProduct('Tabular No Balance', '1.000000');
+
+        $context = app(TenantContext::class);
+        $highCost = Product::query()->where('ulid', $highCostUlid)->firstOrFail();
+        $healthy = Product::query()->where('ulid', $healthyUlid)->firstOrFail();
+
+        foreach ([
+            [$highCost, '2.000000', '120.0000'],
+            [$healthy, '5.000000', '50.0000'],
+        ] as [$product, $quantity, $averageCost]) {
+            StockBalance::query()->create([
+                'tenant_id' => $context->tenantId(),
+                'branch_id' => $context->branchId(),
+                'warehouse_id' => $context->warehouseId(),
+                'product_id' => $product->id,
+                'quantity' => $quantity,
+                'average_cost' => $averageCost,
+                'stock_value' => '0.0000',
+            ]);
+        }
+
+        foreach ([$highCostUlid, $healthyUlid, $noBalanceUlid] as $ulid) {
+            $this->putJson('/api/products/'.$ulid.'/prices', [
+                'prices' => [[
+                    'price_type' => 'retail',
+                    'amount' => '100.0000',
+                    'currency_code' => 'PKR',
+                    'is_active' => true,
+                ]],
+            ])->assertOk();
+        }
+
+        $withBalance = $this->getJson('/api/products?with_balance=1&sales_lookup=1&per_page=100')
+            ->assertOk();
+        $withBalanceUlids = collect($withBalance->json('data'))->pluck('ulid');
+        $this->assertTrue($withBalanceUlids->contains($highCostUlid));
+        $this->assertTrue($withBalanceUlids->contains($healthyUlid));
+        $this->assertFalse($withBalanceUlids->contains($noBalanceUlid));
+
+        $lowStock = $this->getJson('/api/products?stock_le_reorder=1&sales_lookup=1&per_page=100')
+            ->assertOk();
+        $lowStockUlids = collect($lowStock->json('data'))->pluck('ulid');
+        $this->assertTrue($lowStockUlids->contains($highCostUlid));
+        $this->assertTrue($lowStockUlids->contains($noBalanceUlid));
+        $this->assertFalse($lowStockUlids->contains($healthyUlid));
+
+        $rateWarning = $this->getJson('/api/products?purchase_rate_ge_sale_rate=1&sales_lookup=1&per_page=100')
+            ->assertOk();
+        $rateWarningUlids = collect($rateWarning->json('data'))->pluck('ulid');
+        $this->assertTrue($rateWarningUlids->contains($highCostUlid));
+        $this->assertFalse($rateWarningUlids->contains($healthyUlid));
+        $this->assertFalse($rateWarningUlids->contains($noBalanceUlid));
+        $this->assertNoInternalIds($rateWarning->json());
+    }
+
+
+    public function test_product_tabular_bulk_update_is_atomic_and_computes_formula_server_side(): void
+    {
+        $this->signInOwner('tabular-bulk')->assertOk();
+        $masters = $this->seedMasters();
+
+        $firstUlid = $this->postJson('/api/products', [
+            'name' => 'Bulk Formula Product',
+            'base_unit_ulid' => $masters['pcs'],
+            'reorder_level' => '1.000000',
+        ])->assertCreated()->json('ulid');
+
+        $secondUlid = $this->postJson('/api/products', [
+            'name' => 'Bulk Manual Product',
+            'base_unit_ulid' => $masters['pcs'],
+            'reorder_level' => '2.000000',
+        ])->assertCreated()->json('ulid');
+
+        $this->putJson('/api/products/'.$firstUlid.'/prices', [
+            'prices' => [[
+                'price_type' => 'wholesale',
+                'amount' => '100.1234',
+                'is_active' => true,
+            ]],
+        ])->assertOk();
+
+        $response = $this->patchJson('/api/products/bulk', [
+            'rows' => [
+                [
+                    'product_ulid' => $firstUlid,
+                    'product' => [
+                        'reorder_level' => '7.500000',
+                    ],
+                    'prices' => [[
+                        'price_type' => 'retail',
+                        'formula' => 'trade_price_plus_percent',
+                        'percent' => '10.00000000',
+                    ]],
+                ],
+                [
+                    'product_ulid' => $secondUlid,
+                    'prices' => [[
+                        'price_type' => 'minimum_sale',
+                        'amount' => '55.4321',
+                    ]],
+                ],
+            ],
+        ])->assertOk()->assertJsonPath('updated', 2);
+
+        $this->assertNoInternalIds($response->json());
+
+        $first = $this->getJson('/api/products/'.$firstUlid)->assertOk();
+        $first->assertJsonPath('reorder_level', '7.500000');
+        $this->assertSame(
+            '110.1357',
+            collect($first->json('prices'))->firstWhere('price_type', 'retail')['amount'],
+        );
+
+        $second = $this->getJson('/api/products/'.$secondUlid)->assertOk();
+        $this->assertSame(
+            '55.4321',
+            collect($second->json('prices'))->firstWhere('price_type', 'minimum_sale')['amount'],
+        );
+    }
+
+    public function test_product_tabular_bulk_update_rolls_back_all_rows_when_formula_dependency_is_missing(): void
+    {
+        $this->signInOwner('tabular-rollback')->assertOk();
+        $masters = $this->seedMasters();
+
+        $firstUlid = $this->postJson('/api/products', [
+            'name' => 'Rollback First Product',
+            'base_unit_ulid' => $masters['pcs'],
+            'reorder_level' => '1.000000',
+        ])->assertCreated()->json('ulid');
+
+        $secondUlid = $this->postJson('/api/products', [
+            'name' => 'Rollback Missing Trade Product',
+            'base_unit_ulid' => $masters['pcs'],
+        ])->assertCreated()->json('ulid');
+
+        $this->patchJson('/api/products/bulk', [
+            'rows' => [
+                [
+                    'product_ulid' => $firstUlid,
+                    'product' => [
+                        'reorder_level' => '9.000000',
+                    ],
+                ],
+                [
+                    'product_ulid' => $secondUlid,
+                    'prices' => [[
+                        'price_type' => 'retail',
+                        'formula' => 'trade_price_plus_percent',
+                        'percent' => '10.00000000',
+                    ]],
+                ],
+            ],
+        ])->assertUnprocessable();
+
+        $this->getJson('/api/products/'.$firstUlid)
+            ->assertOk()
+            ->assertJsonPath('reorder_level', '1.000000');
+    }
+
+    public function test_product_tabular_bulk_update_rejects_cross_tenant_ulids(): void
+    {
+        $this->signInOwner('tabular-tenant-a')->assertOk();
+        $productUlid = $this->postJson('/api/products', [
+            'name' => 'Tenant A Bulk Product',
+            'base_unit_ulid' => $this->unitUlid('PCS'),
+            'reorder_level' => '2.000000',
+        ])->assertCreated()->json('ulid');
+
+        $this->postJson('/api/auth/logout')->assertOk();
+        $this->signInOwner('tabular-tenant-b')->assertOk();
+
+        $this->patchJson('/api/products/bulk', [
+            'rows' => [[
+                'product_ulid' => $productUlid,
+                'product' => [
+                    'reorder_level' => '8.000000',
+                ],
+            ]],
+        ])->assertNotFound();
+    }
+
+    public function test_product_tabular_bulk_price_update_requires_price_permission(): void
+    {
+        $owner = $this->signInOwner('tabular-auth')->assertOk();
+        $productUlid = $this->postJson('/api/products', [
+            'name' => 'Bulk Protected Price Product',
+            'base_unit_ulid' => $this->unitUlid('PCS'),
+        ])->assertCreated()->json('ulid');
+
+        $this->createCashier('tabular-auth', $owner->json('branch.ulid'));
+        $this->postJson('/api/auth/logout')->assertOk();
+        $this->loginAs('tabular-auth', 'cashier-tabular-auth')->assertOk();
+
+        $this->patchJson('/api/products/bulk', [
+            'rows' => [[
+                'product_ulid' => $productUlid,
+                'prices' => [[
+                    'price_type' => 'retail',
+                    'amount' => '123.4500',
+                ]],
+            ]],
+        ])->assertForbidden()->assertJsonPath('error.key', 'FORBIDDEN');
+    }
+
+
+    public function test_product_tabular_index_returns_filtered_stock_total(): void
+    {
+        $this->signInOwner('tabular-total')->assertOk();
+        $masters = $this->seedMasters();
+        $context = app(TenantContext::class);
+
+        $matchUlid = $this->postJson('/api/products', [
+            'name' => 'Total Match Product',
+            'base_unit_ulid' => $masters['pcs'],
+        ])->assertCreated()->json('ulid');
+
+        $otherUlid = $this->postJson('/api/products', [
+            'name' => 'Total Other Product',
+            'base_unit_ulid' => $masters['pcs'],
+        ])->assertCreated()->json('ulid');
+
+        foreach ([
+            [$matchUlid, '4.250000'],
+            [$otherUlid, '9.000000'],
+        ] as [$ulid, $quantity]) {
+            $product = Product::query()->where('ulid', $ulid)->firstOrFail();
+
+            StockBalance::query()->create([
+                'tenant_id' => $context->tenantId(),
+                'branch_id' => $context->branchId(),
+                'warehouse_id' => $context->warehouseId(),
+                'product_id' => $product->id,
+                'quantity' => $quantity,
+                'average_cost' => '10.0000',
+                'stock_value' => '0.0000',
+            ]);
+        }
+
+        $response = $this->getJson('/api/products?q=Total%20Match&sales_lookup=1&per_page=50')
+            ->assertOk()
+            ->assertJsonPath('meta.total', 1);
+
+        $this->assertSame('4.250000', bcadd((string) $response->json('meta.stock_total'), '0', 6));
+        $this->assertNoInternalIds($response->json());
+    }
+
+    public function test_product_tabular_export_respects_filters_and_tenant_isolation(): void
+    {
+        $this->signInOwner('tabular-export-a')->assertOk();
+        $masters = $this->seedMasters();
+        $context = app(TenantContext::class);
+
+        $includedUlid = $this->postJson('/api/products', [
+            'name' => 'Export Included Product',
+            'base_unit_ulid' => $masters['pcs'],
+        ])->assertCreated()->json('ulid');
+
+        $excludedUlid = $this->postJson('/api/products', [
+            'name' => 'Export Excluded Product',
+            'base_unit_ulid' => $masters['pcs'],
+        ])->assertCreated()->json('ulid');
+
+        $included = Product::query()->where('ulid', $includedUlid)->firstOrFail();
+        $excluded = Product::query()->where('ulid', $excludedUlid)->firstOrFail();
+
+        StockBalance::query()->create([
+            'tenant_id' => $context->tenantId(),
+            'branch_id' => $context->branchId(),
+            'warehouse_id' => $context->warehouseId(),
+            'product_id' => $included->id,
+            'quantity' => '2.000000',
+            'average_cost' => '41.2500',
+            'stock_value' => '82.5000',
+        ]);
+
+        StockBalance::query()->create([
+            'tenant_id' => $context->tenantId(),
+            'branch_id' => $context->branchId(),
+            'warehouse_id' => $context->warehouseId(),
+            'product_id' => $excluded->id,
+            'quantity' => '0.000000',
+            'average_cost' => '90.0000',
+            'stock_value' => '0.0000',
+        ]);
+
+        $this->putJson('/api/products/'.$includedUlid.'/prices', [
+            'prices' => [[
+                'price_type' => 'retail',
+                'amount' => '60.0000',
+                'is_active' => true,
+            ]],
+        ])->assertOk();
+
+        $csv = $this->get('/api/products/tabular-export?with_balance=1&q=Export')
+            ->assertOk()
+            ->streamedContent();
+
+        $this->assertStringContainsString('Export Included Product', $csv);
+        $this->assertStringNotContainsString('Export Excluded Product', $csv);
+        $this->assertStringContainsString('41.2500', $csv);
+
+        $this->postJson('/api/auth/logout')->assertOk();
+        $this->signInOwner('tabular-export-b')->assertOk();
+
+        $foreignTenantCsv = $this->get('/api/products/tabular-export?q=Export')
+            ->assertOk()
+            ->streamedContent();
+
+        $this->assertStringNotContainsString('Export Included Product', $foreignTenantCsv);
+        $this->assertStringNotContainsString('Export Excluded Product', $foreignTenantCsv);
+    }
+
+    public function test_product_tabular_export_hides_cost_without_inventory_permission(): void
+    {
+        $owner = $this->signInOwner('tabular-export-perm')->assertOk();
+        $masters = $this->seedMasters();
+        $context = app(TenantContext::class);
+
+        $productUlid = $this->postJson('/api/products', [
+            'name' => 'Export Cost Protected Product',
+            'base_unit_ulid' => $masters['pcs'],
+        ])->assertCreated()->json('ulid');
+
+        $product = Product::query()->where('ulid', $productUlid)->firstOrFail();
+        StockBalance::query()->create([
+            'tenant_id' => $context->tenantId(),
+            'branch_id' => $context->branchId(),
+            'warehouse_id' => $context->warehouseId(),
+            'product_id' => $product->id,
+            'quantity' => '3.000000',
+            'average_cost' => '9876.5432',
+            'stock_value' => '0.0000',
+        ]);
+
+        $roles = $this->getJson('/api/roles')->assertOk()->json();
+        $purchaseRole = collect($roles)->firstWhere('code', PermissionCatalogue::PURCHASE);
+
+        $this->postJson('/api/memberships', [
+            'name' => 'Purchase Export User',
+            'username' => 'purchase-export',
+            'recovery_email' => 'purchase-export@example.com',
+            'password' => 'password123',
+            'must_change_password' => false,
+            'roles' => [$purchaseRole['ulid']],
+            'branches' => [$owner->json('branch.ulid')],
+        ])->assertCreated();
+
+        $this->postJson('/api/auth/logout')->assertOk();
+        $this->loginAs('tabular-export-perm', 'purchase-export')->assertOk();
+
+        $csv = $this->get('/api/products/tabular-export?q=Export%20Cost%20Protected')
+            ->assertOk()
+            ->streamedContent();
+
+        $this->assertStringContainsString('Export Cost Protected Product', $csv);
+        $this->assertStringNotContainsString('9876.5432', $csv);
+    }
+
+}

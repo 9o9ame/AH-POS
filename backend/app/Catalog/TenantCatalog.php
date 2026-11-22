@@ -1,0 +1,110 @@
+<?php
+
+namespace App\Catalog;
+
+use App\Exceptions\ApiException;
+use App\Models\Account;
+use App\Models\AccountMainHead;
+use App\Models\AccountSubHead;
+use App\Models\AccountType;
+use App\Models\BarcodeGroup;
+use App\Models\Brand;
+use App\Models\Category;
+use App\Models\Customer;
+use App\Models\Product;
+use App\Models\Subcategory;
+use App\Models\Supplier;
+use App\Models\Unit;
+use App\Models\Warehouse;
+use App\Tenancy\TenantContext;
+use Illuminate\Database\Eloquent\Model;
+
+class TenantCatalog
+{
+    public function __construct(private readonly TenantContext $tenantContext) {}
+
+    public function category(string $ulid): Category
+    {
+        return $this->find(Category::class, $ulid);
+    }
+
+    public function subcategory(string $ulid): Subcategory
+    {
+        return $this->find(Subcategory::class, $ulid);
+    }
+
+    public function brand(string $ulid): Brand
+    {
+        return $this->find(Brand::class, $ulid);
+    }
+
+    public function barcodeGroup(string $ulid): BarcodeGroup
+    {
+        return $this->find(BarcodeGroup::class, $ulid);
+    }
+
+    public function unit(string $ulid): Unit
+    {
+        return $this->find(Unit::class, $ulid);
+    }
+
+    public function supplier(string $ulid): Supplier
+    {
+        return $this->find(Supplier::class, $ulid);
+    }
+
+    public function customer(string $ulid): Customer
+    {
+        return $this->find(Customer::class, $ulid);
+    }
+
+    public function accountMainHead(string $ulid): AccountMainHead
+    {
+        return $this->find(AccountMainHead::class, $ulid);
+    }
+
+    public function accountSubHead(string $ulid): AccountSubHead
+    {
+        return $this->find(AccountSubHead::class, $ulid);
+    }
+
+    public function accountType(string $ulid): AccountType
+    {
+        return $this->find(AccountType::class, $ulid);
+    }
+
+    public function account(string $ulid): Account
+    {
+        return $this->find(Account::class, $ulid);
+    }
+
+    public function warehouse(string $ulid): Warehouse
+    {
+        return $this->find(Warehouse::class, $ulid);
+    }
+
+    public function product(string $ulid): Product
+    {
+        return $this->find(Product::class, $ulid);
+    }
+
+    /**
+     * @template TModel of Model
+     *
+     * @param  class-string<TModel>  $class
+     * @return TModel
+     */
+    private function find(string $class, string $ulid): Model
+    {
+        $model = $class::query()
+            ->forTenant($this->tenantContext->tenantId())
+            ->where('ulid', $ulid)
+            ->first();
+
+        if (! $model) {
+            throw new ApiException('NOT_FOUND', 'The requested resource was not found.', 404);
+        }
+
+        return $model;
+    }
+}

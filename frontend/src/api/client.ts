@@ -1,0 +1,183 @@
+import { readCookie } from '../utils/cookies'
+import { apiBusy } from '../feedback/apiBusy'
+
+const API_BASE = import.meta.env.VITE_API_URL ?? ''
+
+let csrfReady = false
+
+export class ApiClientError extends Error {
+  readonly key: string
+  readonly status: number
+  readonly fields?: Record<string, string[]>
+  readonly extra: Record<string, unknown>
+
+  constructor(
+    key: string,
+    message: string,
+    status: number,
+    fields?: Record<string, string[]>,
+    extra: Record<string, unknown> = {},
+  ) {
+    super(message)
+    this.name = 'ApiClientError'
+    this.key = key
+    this.status = status
+    this.fields = fields
+    this.extra = extra
+  }
+}
+
+// A denied protected request invalidates cached tenant data immediately.
+// Do not treat login/MFA credential errors as revocation of an existing session.
+const tenantSessionInvalidationListeners = new Set<() => void>()
+
+export function subscribeTenantSessionInvalidation(listener: () => void): () => void {
+  tenantSessionInvalidationListeners.add(listener)
+  return () => { tenantSessionInvalidationListeners.delete(listener) }
+}
+
+function reportTenantSessionInvalidation(path: string, status: number, key: string): void {
+  // /auth/me is itself the session-discovery query. Invalidating its own cache on 401
+  // causes an unauthenticated login page to repeatedly re-fetch /me.
+  // AuthProvider handles its 401 directly; protected API 401s still revoke local state.
+  if (!path.startsWith('/api/') || path === '/api/auth/me' || path.startsWith('/api/auth/login') || path.startsWith('/api/auth/mfa/') || path.startsWith('/api/auth/logout')) return
+  if (status !== 401 && !['SESSION_REVOKED', 'DEVICE_REVOKED', 'DEVICE_NOT_APPROVED'].includes(key)) return
+  resetCsrf()
+  tenantSessionInvalidationListeners.forEach(listener => listener())
+}
+
+export function resetCsrf(): void {
+  csrfReady = false
+}
+
+export async function ensureCsrfCookie(): Promise<void> {
+  if (csrfReady) {
+    return
+  }
+
+  const response = await fetch(`${API_BASE}/sanctum/csrf-cookie`, {
+    method: 'GET',
+    credentials: 'include',
+    headers: { Accept: 'application/json' },
+  })
+
+  if (!response.ok) {
+    throw new ApiClientError('CSRF_INIT_FAILED', 'Unable to initialize a secure session.', response.status)
+  }
+
+  csrfReady = true
+}
+
+type ApiFetchOptions = RequestInit & {
+  /** Override busy overlay: block = fullscreen, fetch = top bar, none = silent */
+  busy?: 'block' | 'fetch' | 'none'
+}
+
+export async function apiFetch<T>(path: string, init: ApiFetchOptions = {}): Promise<T> {
+  const method = (init.method ?? 'GET').toUpperCase()
+  if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) {
+    await ensureCsrfCookie()
+  }
+
+  const { busy: busyMode, ...requestInit } = init
+  const trackBusy =
+    busyMode ??
+    (path.includes('/sanctum/csrf-cookie') || path.includes('/api/auth/me')
+      ? 'none'
+      : ['GET', 'HEAD', 'OPTIONS'].includes(method)
+        ? 'fetch'
+        : 'block')
+
+  if (trackBusy !== 'none') {
+    apiBusy.begin(trackBusy)
+  }
+
+  try {
+    const headers = new Headers(requestInit.headers)
+    headers.set('Accept', 'application/json')
+    headers.set('X-Requested-With', 'XMLHttpRequest')
+
+    const xsrf = readCookie('XSRF-TOKEN')
+    if (xsrf) {
+      headers.set('X-XSRF-TOKEN', xsrf)
+    }
+
+    if (requestInit.body && !headers.has('Content-Type') && !(requestInit.body instanceof FormData)) {
+      headers.set('Content-Type', 'application/json')
+    }
+
+    const response = await fetch(`${API_BASE}${path}`, {
+      ...requestInit,
+      credentials: 'include',
+      headers,
+    })
+
+    if (response.status === 204) {
+      return undefined as T
+    }
+
+    const payload = (await response.json().catch(() => ({}))) as {
+      error?: { key?: string; message?: string; fields?: Record<string, string[]>; [key: string]: unknown }
+    }
+
+    if (!response.ok) {
+      const { key, message, fields, ...extra } = payload.error ?? {}
+      reportTenantSessionInvalidation(path, response.status, String(key ?? 'SERVER_ERROR'))
+      throw new ApiClientError(
+        (key as string | undefined) ?? 'SERVER_ERROR',
+        (message as string | undefined) ?? 'Request failed.',
+        response.status,
+        fields,
+        extra,
+      )
+    }
+
+    return payload as T
+  } finally {
+    if (trackBusy !== 'none') {
+      apiBusy.end(trackBusy)
+    }
+  }
+}
+
+
+export async function apiDownload(path: string, filename: string): Promise<void> {
+  apiBusy.begin('fetch')
+
+  try {
+    const headers = new Headers()
+    headers.set('Accept', 'text/csv,application/octet-stream;q=0.9,*/*;q=0.8')
+    headers.set('X-Requested-With', 'XMLHttpRequest')
+
+    const response = await fetch(`${API_BASE}${path}`, {
+      method: 'GET',
+      credentials: 'include',
+      headers,
+    })
+
+    if (!response.ok) {
+      const payload = (await response.json().catch(() => ({}))) as {
+        error?: { key?: string; message?: string; fields?: Record<string, string[]>; [key: string]: unknown }
+      }
+      const { key, message, fields, ...extra } = payload.error ?? {}
+      reportTenantSessionInvalidation(path, response.status, String(key ?? 'SERVER_ERROR'))
+      throw new ApiClientError(
+        (key as string | undefined) ?? 'SERVER_ERROR',
+        (message as string | undefined) ?? 'Download failed.',
+        response.status,
+        fields,
+        extra,
+      )
+    }
+
+    const blob = await response.blob()
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename
+    link.click()
+    URL.revokeObjectURL(url)
+  } finally {
+    apiBusy.end('fetch')
+  }
+}

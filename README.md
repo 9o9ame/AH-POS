@@ -1,99 +1,109 @@
-# AH-POS
+# BluePOS
 
-AH-POS is a planned independent, commercial, multi-tenant online-first retail/wholesale POS + ERP system. BluePOS is a **functional and architectural reference**, not a source of reused branding or UI. The new product must have original visual identity and a shared global design system.
+Commercial **Multi-Mart POS + Inventory + Purchasing + Accounting + Reporting**.
 
-## Product direction
-- Web application first, with Android/iOS companion apps starting once **70–80% of weighted web acceptance** has been reached and API/sync contracts are stable.
-- Fully functional authorized online workflows; specifically allowlisted **offline sales** in browser IndexedDB; native mobile uses its own durable local store such as SQLite. Both use the same secure idempotent server sync contract.
-- A legacy Microsoft SQL Server `.bak` backup (source database name detected as `DBSmilePOS`) must be restored in a controlled isolated environment, inspected, mapped and migrated to **exactly one destination tenant**.
-- Tenant isolation at API, DB, storage, cache, worker, search, export, AI and offline synchronization levels.
-- Embedded AI copilot for text/voice commands, navigation, price/ledger lookup, and quotation/sale/purchase draft generation from messages, audio or handwriting. Sensitive postings require user review and server authorization.
+Licensed to multiple marts (tenants). Each mart has branches, warehouses, roles, and offline-capable POS terminals.
 
-## Start here (mandatory)
-1. [AGENTS.md](AGENTS.md) — assistant and engineering operating rules.
-2. [docs/MASTER_ARCHITECTURE.md](docs/MASTER_ARCHITECTURE.md) — architecture and migration baseline.
-3. [PROJECT_CURRENT_STATE.md](PROJECT_CURRENT_STATE.md) — what has **actually** happened and what happens next.
-4. [PROJECT_PROGRESS.md](PROJECT_PROGRESS.md) and [PROJECT_MILESTONES.csv](PROJECT_MILESTONES.csv) — measured completion.
-5. [docs/CHAT_HANDOFF_PROTOCOL.md](docs/CHAT_HANDOFF_PROTOCOL.md) — cross-chat continuity.
-6. [PROJECT_UI_DESIGN_SYSTEM.md](PROJECT_UI_DESIGN_SYSTEM.md) — initial UI principles, to refine before UI implementation.
+**Status:** Phase 1 foundation is implemented (`backend/` Laravel 13 API + `frontend/` React/Vite shell). Later domains (products, sales, stock, accounting, offline) are not started.
 
-## Status
-**Planning only; new application accepted implementation: 0%.** No legacy database restoration or source schema verification has yet been demonstrated. Do not confuse planning documentation with delivered software. P0 (restore/reverse engineer backup) is the first implementation milestone.
+---
 
-## Security
-This repository is public. **Never commit** original SQL Server backups, restored databases, customer/party/order data, credentials, API keys, production dumps, or unredacted source row samples. Use private secure custody for source backup.
+## What this system is
 
-## Reference
-BluePOS: https://github.com/9o9ame/bluepos
+- Multi-tenant SaaS-style product (shared PostgreSQL schema, row-level tenant isolation)
+- Multiple branches per tenant, multiple warehouses per branch
+- Super Admin (platform) separated from Tenant Admin
+- Fine-grained RBAC with optional branch scope
+- Fast barcode POS with hold/recall, split payments, configurable grids
+- Immutable stock movement ledger + double-entry accounting
+- Offline PWA (IndexedDB / Dexie outbox) with idempotent sync. **v1 offline: cash sales only**; credit and most returns stay online.
+- Reports, claims, vouchers, cashier shifts, device management
 
-Updated: 2026-11-18.
+UI: desktop-style **ribbon** (Definition, Daily Entries, Reports, Tools, Administration, Help) and **tabbed workspace**. Keyboard-first. Inspired by typical desktop POS workflow; proprietary assets are not copied.
 
-## Development bootstrap (2026-11-18)
-The original SQL Server backup is **sample/test reference data only**. Go-live migration will use a fresh legacy backup after the old system is stopped, with audited tenant-scoped reconciliation. No production migration has happened.
+---
 
-Development currently targets **one disposable PostgreSQL test database** for AH-POS (not a single-tenant data model); separate local SQL Server databases are legacy reference only. Do not put secrets or legacy customer data into public git. After launch, maintain **separate staging and production deployments, domains, databases and credentials**; promote approved, tested releases from staging to production.
+## Target stack
 
-First source files have been added: `frontend/` (temporary React/TypeScript engineering shell) and `scripts/bootstrap-backend.ps1` (Laravel 13 bootstrap, no migrations). These have **not been built or executed** in this session. Run on Windows from repo root:
-```powershell
-git pull origin main
-cd frontend
+| Layer | Choice |
+|---|---|
+| Frontend | React, TypeScript, Vite, Tailwind CSS, React Router, TanStack Query, React Hook Form, Zod, Dexie.js, PWA |
+| Backend | Laravel 13, PHP 8.3+, REST, Sanctum session auth, policies, queues |
+| System of record | PostgreSQL |
+| Cache / queue | Redis where available |
+| Offline | IndexedDB via Dexie — **not** localStorage for business data |
+| Money | `NUMERIC(20,4)` + BCMath — **not** float |
+| Quantity | `NUMERIC(20,6)` + `allows_decimal` validation |
+| Percent / factor | `NUMERIC(12,8)` |
+| Public ID | `ulid CHAR(26) UNIQUE NOT NULL` (Crockford ULID — not the identity PK, not a UUID column) |
+| Internal ID | `id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY` |
+
+Architecture: **modular monolith**. No microservices in this stage.
+
+---
+
+## Documentation (source of design)
+
+| File | Contents |
+|---|---|
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Tenancy, modules, UI, posting pipeline |
+| [docs/DATABASE.md](docs/DATABASE.md) | Tables, keys, indexes, enums, precision |
+| [docs/ACCOUNTING.md](docs/ACCOUNTING.md) | Double-entry, journals, COGS, examples |
+| [docs/INVENTORY.md](docs/INVENTORY.md) | Movements, cache, FEFO, locking |
+| [docs/PERMISSIONS.md](docs/PERMISSIONS.md) | RBAC catalogue and guards |
+| [docs/OFFLINE_SYNC.md](docs/OFFLINE_SYNC.md) | Outbox, state machine, conflicts |
+| [docs/SECURITY.md](docs/SECURITY.md) | AuthN/Z, IDOR, backups, errors |
+| [docs/ROADMAP.md](docs/ROADMAP.md) | 20 phases with exit criteria |
+| [AGENTS.md](AGENTS.md) | Mandatory rules for Cursor/AI agents |
+
+---
+
+## Repository layout (after Phase 1)
+
+```text
+backend/     Laravel 13 API
+frontend/    Vite React PWA
+docs/        Architecture
+AGENTS.md
+README.md
+```
+
+---
+
+## Implementation rule
+
+Follow `docs/ROADMAP.md`. After each phase: migrations, tests, report files/commands/results, **stop**.
+
+Never run `migrate:fresh`, `db:wipe`, `DROP DATABASE`, or destructive wipes against persistent databases (`bluepos_dev`, production). PHPUnit may refresh **`bluepos_test` only**, guarded in `tests/TestCase.php`.
+
+---
+
+## Local run (Phase 1)
+
+Prerequisites: PHP 8.3+, Composer, Node.js 18+ (20 LTS recommended), PostgreSQL 16+.
+
+1. Create databases `bluepos_dev` and `bluepos_test` (do not drop existing databases).
+2. Copy `backend/.env.example` to `backend/.env` and set `DB_PASSWORD`.
+3. Print/verify `APP_ENV`, `DB_CONNECTION`, `DB_DATABASE` then:
+
+```bash
+cd backend
+composer install
+php artisan key:generate
+php artisan bluepos:migrate-safe
+php artisan serve
+
+cd ../frontend
 npm install
-npm run build
 npm run dev
 ```
-Open Vite's printed local URL. Backend initialization, after checking Composer and PHP >=8.3:
-```powershell
-cd ..
-powershell -ExecutionPolicy Bypass -File .\scripts\bootstrap-backend.ps1
-```
-The script refuses to overwrite an existing `backend/`. Configure a NEW empty PostgreSQL test database in backend/.env; never connect Laravel to `DBSmilePOS` or `DBSmilePOS_LAB`, and do not run migrations against those SQL Server DBs. No backend routes, auth, tenancy, DB migrations or business functions are implemented by this bootstrap yet.
 
-The initial shell is NOT the approved AH-POS visual design. It is a temporary developer-only status page.
+- API: `http://localhost:8000`
+- SPA: `http://localhost:5173` (proxies `/api` and `/sanctum`)
+- Tests: `cd backend && php artisan test` (uses `bluepos_test` only)
+- Frontend check: `cd frontend && npm run typecheck && npm run build`
 
-## Local bootstrap observation (2026-11-19)
-Initial Laravel 13 installation succeeded on the developer PC. Laravel skeleton's own Composer post-create scripts auto-created a local SQLite DB and migrated three default tables. This does NOT represent the one planned PostgreSQL AH-POS test DB. No legacy SQL Server DBs were affected as far as user-supplied logs show.
 
-The `scripts/bootstrap-backend.ps1` script has been fixed for future fresh installations to suppress Composer scripts and implicit migrations. **Do not rerun it against existing backend/**. Backend code was generated locally; it has not been automatically committed to GitHub. Review `git status` before staging source. Do not add `.env`, SQLite databases or credentials. PostgreSQL setup, tenant schema, Laravel tests and API endpoints remain pending.
+## UI design system
 
-## 2026-11-19 — Operational MVP and new computer
-Earlier sections record historical setup; actual Laravel/React source now exists and is committed. PostgreSQL, login, tenant context and RBAC have been exercised on an earlier developer PC. On a **newly cloned Windows machine**, follow [docs/NEW_WINDOWS_DEV_SETUP.md](docs/NEW_WINDOWS_DEV_SETUP.md). The old local database and accounts do not accompany a git clone.
-
-P3 working product catalog source (migration, API, React page) is now committed but pending local verification. Target is a prioritized operational retail POS MVP within 10 working days; full ERP/offline/AI/WhatsApp cannot be promised on that timeframe. Never deploy unverified financial workflows, bypass tenant controls or migrate a historical sample SQL Server backup as current production data.
-
-## Customer/supplier directory (2026-11-19)
-Catalog create/list is user-verified in the browser. A new tenant-scoped customer/supplier directory is committed and awaiting local migration. On the existing dev database: `git pull origin main`, `cd backend; php artisan migrate`, rerun `php artisan ahpos:grant-local-catalog` using the already-created account and tenant ULID (adds party permissions idempotently), then `cd ../frontend; npm run build` and refresh the running Vite UI. The grant command changes only the explicitly selected local test membership; do not run it on production.
-
-## Larger operational batch: workspace and inventory (2026-11-19)
-New app shell (dashboard/sidebar/mobile navigation) and inbound inventory source are committed. A new migration adds tenant-scoped warehouses and append-only incoming stock entries with idempotency and a read-only per-warehouse balance view. Existing local account/tenant/product/customer persist. On the existing `ahpos_test` dev DB: `git pull origin main`, `cd backend && php artisan migrate`, rerun `php artisan ahpos:grant-local-catalog` to add inventory permissions, and verify warehouse + opening stock from the Vite browser. Keep `npm run dev` running; HMR avoids repeated production builds. This is NOT yet a full purchase, sale, journal, valuation or production-ready system.
-
-## 2026-11-19 — Purchase / POS / operations report local pilot
-New local-only purchase and cash checkout flows, receipt printing and operational reports are committed. Existing PostgreSQL `ahpos_test` needs additive migration `2026_11_19_000006_create_purchase_and_cash_sale_documents`. See [docs/LOCAL_TRADE_PILOT_WORKFLOW.md](docs/LOCAL_TRADE_PILOT_WORKFLOW.md) for the exact browser demonstration, targeted test and **production release blockers**. The local `Local Catalog Operator` role automatically covers these expressly enumerated demo business permissions; no repeated manual grant is required.
-
-**Very important:** Sale/purchase posting is disabled on staging/production until double-entry accounting, tax compliance, inventory cost layers, RLS/runtime DB separation, returns, printer/UAT and backup/reconciliation acceptance are implemented. Do not mistake operational pilot data for financial statements.
-
-## Sales Returns local pilot (2026-11-19)
-The verified cash-sale pilot now has an **unverified new return workflow** in source: immutable refund docs linked to original sale lines, stock restoration, refund history and gross/refund/net operational reporting. Read [docs/LOCAL_CASH_RETURNS_WORKFLOW.md](docs/LOCAL_CASH_RETURNS_WORKFLOW.md). Existing local PostgreSQL `ahpos_test` needs additive migration `2026_11_19_000007_create_cash_sale_returns` and only focused `CashReturnWorkflowTest` before browser UAT. Refunding physical cash, double-entry GL, COGS/tax reversal, returns disposition, fiscal notes and production RLS remain incomplete. Staging/production posting stays disabled.
-
-## 2026-11-19 — Local cash shift/register pilot
-Sales Returns browser renders with history; linked cash shift and close workflows now committed. A new additive migration creates `cash_shifts`, `cash_shift_closures` and optional links from **new** cash sales/refunds. See [docs/LOCAL_CASH_REGISTER_WORKFLOW.md](docs/LOCAL_CASH_REGISTER_WORKFLOW.md) for exact smoke steps and production safety exclusions. On existing local `ahpos_test`: `git pull origin main`, `php artisan migrate`, only `CashShiftWorkflowTest`, and refresh Vite. No default role grant rerun or unnecessary frontend production build. Cash closing does not execute physical cash movement or full GL postings.
-
-## 2026-11-19 — Desktop multi-invoice + Held Sales pilot
-BluePOS is now an explicit **business-flow reference** for AH-POS cash Sales/Purchase invoice interactions. Original AH-POS theme and **single PostgreSQL `ahpos_test`** architecture remain independent. Added desktop-style simultaneous Sales/Purchase invoice modals with taskbar, F2 / Shift+F2 shortcuts, independent cart state and a new **server-persisted Sales On Hold/Get** flow (cashier-scoped, not stock reservation). New additive migration `2026_11_19_000009_create_held_sales`, one focused `HeldSaleWorkflowTest`; old migrations/account setup unnecessary. See [docs/MULTI_INVOICE_WORKSPACE.md](docs/MULTI_INVOICE_WORKSPACE.md) and [docs/BLUEPOS_WORKFLOW_ADAPTATION.md](docs/BLUEPOS_WORKFLOW_ADAPTATION.md) for scope, exact browser verification and production limitations. Purchase holds still browser-tab only; live production posting remains disabled until financial/RLS/UAT approval.
-
-## Enterprise navigation & master definitions — 2026-11-19
-AH-POS now has source for an original desktop-like full ERP application menu (Home / Definitions / Daily Entries / Reports / Tools / Administration / Help), grouped business submenus, searchable module directory and Ctrl+K. Implemented workflow links open actual pages; other major systems are labeled **Planned** until real RBAC-secured modules are built. Also added tenant-scoped Categories, Sub Categories, Brands and Units masters and optional Product associations via additive `2026_11_19_000010_create_product_definition_masters`. See [docs/ENTERPRISE_MODULE_NAVIGATION.md](docs/ENTERPRISE_MODULE_NAVIGATION.md). **Pending** local migration, one focused `ProductDefinitionMastersTest`, one Vite build and browser acceptance. Existing `ahpos_test` data must never be reset. BluePOS remains a functional reference, not a UI/SQL Server data copy.
-
-## 2026-11-19 — Compact Admin desktop UX / Platform blueprint
-Following user screenshot review, AH-POS frontend source now includes direct sole-tenant verified login -> Dashboard, six-family ribbon at top, no duplicated breadcrumb/search row, hover/pin submenu, dense fixed application viewport with internal table scroll, list-first modal creation for Products, Parties, Product Masters and Inventory, tenant-authenticated cash-sale bar and document-count donut charts, prominent POS/Purchase shortcuts, themed skeleton loaders and provisional stock-watch colors. **User has not yet verified this new frontend batch by local build/browser.** No backend migrations. Separate Super Admin Platform RBAC, tenant Admin/staff delegated roles, server-enforced device approvals, consent-based IP/location audit and IndexedDB are documented **planned** architecture only in [ADR-0003](docs/decisions/ADR-0003-platform-admin-devices-and-desktop-ux.md), not working buttons or claimed enforcement. See [design handoff](docs/COMPACT_ADMIN_UX_AND_PLATFORM_HANDOFF.md). Run one `cd frontend; npm run build` after `git pull`; no old backend test reruns.
-
-## Separate Platform Super Admin control plane (pilot source, 2026-11-19)
-First real Super Admin pilot code: separate Platform role/permission tables, explicit local-only bootstrap, authenticated platform Admin onboarding/Platform staff/audit APIs and standalone Platform console. Additive migration **000011** and one focused `PlatformOnboardingTest` pending local run. See [Platform onboarding pilot](docs/PLATFORM_ADMIN_ONBOARDING_PILOT.md). This does **not** complete employee device approvals/tenant staff management, MFA, billing, AI/WhatsApp controls or production tenant isolation acceptance. Existing tenant data/membership remain intact. The screenshot-requested submenu now opens on **top ribbon hover**, click pins, repeat click unpins; detached edge trigger removed.
-
-## 2026-11-19 — Tenant staff & approved browser device pilot (pending verification)
-Following user-verified Platform test (20 assertions) and successful local Super Admin bootstrap, added source for tenant Admin staff creation, fixed role templates, suspended accounts and new employee device request/approve/revoke. New employees must receive server-side device approval (423 until approved). Existing members remain compatible until a deliberate device policy rollout. Additive migration `000012`, focused `TenantStaffDeviceWorkflowTest`, React build/browser checks pending. See [staff/device handoff](docs/TENANT_STAFF_AND_DEVICE_APPROVAL_PILOT.md). A one-time optional local `ahpos:authorize-local-admin-owner` allows the historical `ali` member to manage local staff with explicit consent. Platform staff never implicitly access business books. No full hardware attestation/GL/production claim.
-
-### Current onboarding rule (2026-11-19)
-Do **not** ask end users for tenant ULIDs or repeated manual authorization commands. With existing explicitly bootstrapped Platform Super Admin, use **Platform → Admin businesses → Assign Owner → select existing active member by name/email → Confirm** for historical ownerless tenants. Authenticated `platform.admins.create` permission, active membership check and audit are mandatory; nothing is automatic. Device approval HTTP 404 due to positional route binding and TS6133 import error were repaired in source, **targeted rerun/build pending**. 000012 migration already verified DONE. See `PROJECT_CURRENT_STATE.md`.
-
-## Independent Platform vs business POS applications (2026-11-19)
-Now follows BluePOS actual split-route model: separate Platform `/platform/*` React application tree and Platform-only server session; tenant POS on business root with no Platform links. **Development URLs:** `http://localhost:5173/` (POS) and `http://platform.localhost:5173/platform/login` (Super Admin; fallback `http://localhost:5173/platform/login`). BluePOS evidence: `frontend/src/App.tsx`, `frontend/src/routes/platform.tsx`, `frontend/src/features/platform/PlatformAuthProvider.tsx` and `backend/routes/platform.php`. Initial legacy Ali user is tenant member who later received Platform role; use Platform → Admin businesses → Assign Owner for Ali, then Platform → Super Admin identity to transfer vendor-only roles to **new dedicated Platform account** and remove old mixed privileges. No manual ULID and no migration. **Focused tests/build/browser unverified**; see [architecture handoff](docs/PLATFORM_TENANT_APPLICATION_SEPARATION.md). Production domains/MFA/GL/RLS remain pending.
+Frontend visual work must follow [PROJECT_UI_DESIGN_SYSTEM.md](PROJECT_UI_DESIGN_SYSTEM.md). It defines the canonical Theme & Appearance tokens, shared dropdown/button/modal components, overlay layering, state behavior, and the rule against page-local visual duplicates.

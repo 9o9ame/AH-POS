@@ -1,0 +1,50 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { fetchBranches, switchBranch } from '../../api/branches'
+import { ApiClientError } from '../../api/client'
+import type { AuthSession } from '../../types/auth'
+import { UiSelect } from '../ui/UiSelect'
+
+type BranchSwitcherProps = {
+  session: AuthSession
+}
+
+export function BranchSwitcher({ session }: BranchSwitcherProps) {
+  const queryClient = useQueryClient()
+  const branchesQuery = useQuery({
+    queryKey: ['branches'],
+    queryFn: fetchBranches,
+  })
+
+  const switchMutation = useMutation({
+    mutationFn: switchBranch,
+    onSuccess: (nextSession) => {
+      queryClient.setQueryData(['auth', 'me'], nextSession)
+      void queryClient.invalidateQueries({ predicate: (query) => query.queryKey[0] !== 'auth' })
+    },
+  })
+
+  const branches = branchesQuery.data ?? [session.branch]
+  const error = switchMutation.error instanceof ApiClientError ? switchMutation.error.message : null
+
+  return (
+    <label className="titlebar-meta">
+      <span>Branch</span>
+      <UiSelect
+        triggerClassName="titlebar-select"
+        aria-label="Active branch"
+        value={session.branch.ulid}
+        options={branches.map((branch) => ({
+          value: branch.ulid,
+          label: `${branch.code} — ${branch.name}`,
+        }))}
+        disabled={branchesQuery.isLoading || switchMutation.isPending}
+        onChange={(next) => {
+          if (next !== session.branch.ulid) {
+            void switchMutation.mutateAsync(next)
+          }
+        }}
+      />
+      {error ? <span className="text-red-700">{error}</span> : null}
+    </label>
+  )
+}

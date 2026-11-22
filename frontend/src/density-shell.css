@@ -1,0 +1,649 @@
+/*
+ * Apply density tokens to BluePOS shell + shared chrome.
+ * Imported LAST so it can override hard-coded px / !important sizing
+ * without changing layout order or skin/theme identities.
+ */
+
+/* ---------- Base text ---------- */
+
+body {
+  font-size: var(--ui-font-md);
+}
+
+/* ---------- Title bar ---------- */
+
+.titlebar {
+  height: var(--ui-header-h) !important;
+  min-height: var(--ui-header-h) !important;
+  gap: var(--ui-gap-md);
+  padding: 0 var(--ui-pad-md);
+  font-size: var(--ui-font-lg);
+}
+
+.titlebar-logo {
+  font-size: var(--ui-font-xl);
+}
+
+.titlebar-meta {
+  gap: var(--ui-gap-sm);
+}
+
+.titlebar-env {
+  font-size: var(--ui-font-xs);
+}
+
+.desktop-chrome-btn {
+  width: calc(var(--ui-control-h-sm) + 1px);
+  height: var(--ui-control-h-sm);
+}
+
+.desktop-chrome-install {
+  height: var(--ui-control-h-sm);
+  font-size: var(--ui-font-xs);
+}
+
+.appearance-menu-trigger {
+  width: calc(var(--ui-control-h-sm) + 3px);
+  height: var(--ui-control-h-sm);
+}
+
+.titlebar-select {
+  height: var(--ui-control-h-sm);
+  font-size: var(--ui-font-sm);
+}
+
+/* ---------- Ribbon tabs (HEADER 1) ---------- */
+
+.ribbon-tabs {
+  min-height: var(--ui-ribbon-tab-h) !important;
+  height: var(--ui-ribbon-tab-h) !important;
+  padding: 0 var(--ui-pad-sm);
+}
+
+.ribbon-tab {
+  min-height: var(--ui-ribbon-tab-h) !important;
+  height: var(--ui-ribbon-tab-h) !important;
+  min-width: auto !important;
+  padding: 0 12px !important;
+  gap: var(--ui-gap-sm) !important;
+  font-size: var(--ui-nav-font) !important;
+}
+
+.ribbon-tab-icon,
+.ribbon-tab-icon.has-custom-icon {
+  width: var(--ui-nav-icon) !important;
+  height: var(--ui-nav-icon) !important;
+  min-width: var(--ui-nav-icon) !important;
+  min-height: var(--ui-nav-icon) !important;
+  flex: 0 0 var(--ui-nav-icon) !important;
+}
+
+.ribbon-tab-icon svg,
+.ribbon-tab-icon.has-custom-icon img {
+  width: var(--ui-nav-icon) !important;
+  height: var(--ui-nav-icon) !important;
+  min-width: var(--ui-nav-icon) !important;
+  min-height: var(--ui-nav-icon) !important;
+}
+
+.ribbon-tab-text {
+  font-size: var(--ui-nav-font) !important;
+}
+
+/* ---------- Ribbon commands (HEADER 2) ---------- */
+
+.ribbon-body {
+  min-height: var(--ui-ribbon-body-h) !important;
+  height: auto;
+  padding-top: var(--ui-gap-xs);
+  padding-bottom: 0;
+}
+
+.ribbon-command {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  min-width: var(--ui-ribbon-command-min-w) !important;
+  max-width: var(--ui-ribbon-command-max-w) !important;
+  min-height: var(--ui-ribbon-command-h) !important;
+  padding: var(--ui-gap-xs) var(--ui-pad-sm) !important;
+  gap: 6px !important;
+  font-size: var(--ui-command-font) !important;
+  text-align: left !important;
+}
+
+.ribbon-command-label {
+  min-height: 0 !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  text-align: left !important;
+  font-size: var(--ui-command-font) !important;
+  line-height: 1.1 !important;
+}
+
+/* Daily Entries: keep the long ledger label inside its command tile. */
+.ribbon-command-ledger {
+  min-width: 150px !important;
+  max-width: 180px !important;
+}
+
+.ribbon-command-ledger .ribbon-command-label {
+  white-space: nowrap !important;
+}
+
+/* Definition laptop compact ribbon: keep Parties label inside the command tile. */
+.ribbon-command-parties {
+  min-width: 168px !important;
+  max-width: 196px !important;
+}
+
+.ribbon-command-parties .ribbon-command-label {
+  white-space: nowrap !important;
+}
+
+.ribbon-icon-tile {
+  width: var(--ui-ribbon-icon-tile) !important;
+  height: var(--ui-ribbon-icon-tile) !important;
+}
+
+.ribbon-icon-tile svg {
+  width: var(--ui-ribbon-icon) !important;
+  height: var(--ui-ribbon-icon) !important;
+}
+
+.ribbon-icon-tile.has-custom-icon img {
+  width: var(--ui-ribbon-icon-tile) !important;
+  height: var(--ui-ribbon-icon-tile) !important;
+}
+
+.ribbon-group-caption {
+  min-height: calc(var(--ui-font-sm) + 8px);
+  font-size: var(--ui-font-sm) !important;
+  padding-top: var(--ui-gap-xs);
+  padding-bottom: var(--ui-gap-xs);
+}
+
+.ribbon-menu button {
+  padding: var(--ui-pad-xs) var(--ui-pad-md);
+  font-size: var(--ui-font-lg);
+}
+
+/* ---------- Workspace tabs ---------- */
+
+.workspace-tabs {
+  min-height: var(--ui-workspace-tab-h) !important;
+  height: var(--ui-workspace-tab-h) !important;
+  padding-top: 2px;
+}
+
+.workspace-tab {
+  height: calc(var(--ui-workspace-tab-h) - 3px) !important;
+  font-size: var(--ui-font-md) !important;
+}
+
+.workspace-tab-close {
+  width: var(--ui-icon-md);
+  height: var(--ui-icon-md);
+  font-size: var(--ui-font-sm);
+}
+
+/* ---------- Status bar ---------- */
+
+.statusbar {
+  height: var(--ui-statusbar-h) !important;
+  min-height: var(--ui-statusbar-h) !important;
+  font-size: var(--ui-font-sm);
+  padding: 0 var(--ui-pad-md);
+}
+
+/* ---------- Shared desktop chrome ---------- */
+
+.desktop-toolbar {
+  min-height: calc(var(--ui-control-h-md) + 8px);
+  gap: var(--ui-gap-sm);
+  padding: var(--ui-pad-xs) var(--ui-pad-sm);
+}
+
+.desktop-toolbar input:not([type='checkbox']):not([type='radio']),
+.desktop-toolbar select,
+.desktop-toolbar button,
+.desktop-panel-footer button,
+.grid-pane-toolbar input:not([type='checkbox']):not([type='radio']),
+.grid-pane-toolbar select,
+.grid-pane-toolbar button,
+.grid-pane-footer button {
+  height: var(--ui-control-h-md);
+  min-height: var(--ui-control-h-md);
+  font-size: var(--ui-font-md);
+}
+
+.desktop-panel-title,
+.desktop-panel-header {
+  min-height: calc(var(--ui-font-lg) + 12px);
+  font-size: var(--ui-font-lg);
+}
+
+/* Shared form controls inside classic workspaces (height only) */
+.classic-workspace input:not([type='checkbox']):not([type='radio']):not([type='file']),
+.classic-workspace select,
+.pos-invoice input:not([type='checkbox']):not([type='radio']),
+.pos-invoice select,
+.admin-page input:not([type='checkbox']):not([type='radio']),
+.admin-page select {
+  height: var(--ui-control-h-md);
+  min-height: var(--ui-control-h-md);
+  font-size: var(--ui-font-md);
+}
+
+.classic-workspace label,
+.pos-invoice label,
+.admin-page label,
+.desktop-panel label {
+  font-size: var(--ui-font-sm);
+}
+
+/* Tables — keep hierarchy, scale gently */
+.classic-workspace table th,
+.pos-grid th,
+.desktop-panel table th {
+  font-size: var(--ui-font-sm);
+}
+
+.classic-workspace table td,
+.pos-grid td,
+.desktop-panel table td {
+  font-size: var(--ui-font-md);
+}
+
+/* Prevent page-level horizontal scroll on supported laptop/desktop sizes */
+@media (min-width: 1280px) {
+  .app-shell,
+  .platform-shell {
+    overflow-x: hidden;
+  }
+
+  .workspace-host,
+  .workspace-host-inner {
+    min-width: 0;
+    overflow-x: hidden;
+  }
+}
+
+
+/* ==========================================================================
+   GLOBAL RESPONSIVE MODULE DENSITY BRIDGE
+   Shared sizing is owned here. Module CSS should use media queries for
+   composition only (wrap/order/grid/width), not redefine common font/control
+   sizes that already belong to the global design system.
+   ========================================================================== */
+
+html[data-density] #root :where(
+  .product-reference-screen,
+  .parties-vca,
+  .purchase-reference-screen,
+  .purchase-entry-screen,
+  .purchase-return-screen,
+  .sales-reference-screen,
+  .sales-return-screen,
+  .quotation-estimate-page,
+  .purchase-order-page,
+  .bp-workspace
+) {
+  font-size: var(--ui-font-sm) !important;
+  line-height: var(--ui-line-normal);
+}
+
+/* Shared ordinary controls across migrated modules. */
+html[data-density] #root :where(
+  .product-reference-screen,
+  .parties-vca,
+  .purchase-reference-screen,
+  .purchase-entry-screen,
+  .purchase-return-screen,
+  .sales-reference-screen,
+  .sales-return-screen,
+  .quotation-estimate-page,
+  .purchase-order-page,
+  .bp-workspace
+) :where(
+  input:not([type='checkbox']):not([type='radio']):not([type='file']),
+  select,
+  .ui-button,
+  .ui-select-trigger,
+  .ui-select-combobox-trigger
+) {
+  min-height: var(--ui-control-h-md) !important;
+  font-size: var(--ui-font-md) !important;
+  line-height: var(--ui-line-tight) !important;
+}
+
+/* Shared input/select height is global responsive density. Buttons may keep
+   page-owned larger action geometry, but their minimum size remains global. */
+html[data-density] #root :where(
+  .product-reference-screen,
+  .parties-vca,
+  .purchase-reference-screen,
+  .purchase-entry-screen,
+  .purchase-return-screen,
+  .sales-reference-screen,
+  .sales-return-screen,
+  .quotation-estimate-page,
+  .purchase-order-page,
+  .bp-workspace
+) :where(
+  input:not([type='checkbox']):not([type='radio']):not([type='file']),
+  select,
+  .ui-select-trigger,
+  .ui-select-combobox-trigger
+) {
+  height: var(--ui-control-h-md) !important;
+}
+
+/* Do not force textarea height globally; only typography belongs here. */
+html[data-density] #root :where(
+  .product-reference-screen,
+  .parties-vca,
+  .purchase-reference-screen,
+  .purchase-entry-screen,
+  .purchase-return-screen,
+  .sales-reference-screen,
+  .sales-return-screen,
+  .quotation-estimate-page,
+  .purchase-order-page,
+  .bp-workspace
+) textarea {
+  font-size: var(--ui-font-md) !important;
+  line-height: var(--ui-line-normal) !important;
+}
+
+/* Shared labels, legends and table text. */
+html[data-density] #root :where(
+  .product-reference-screen,
+  .parties-vca,
+  .purchase-reference-screen,
+  .purchase-entry-screen,
+  .purchase-return-screen,
+  .sales-reference-screen,
+  .sales-return-screen,
+  .quotation-estimate-page,
+  .purchase-order-page,
+  .bp-workspace
+) :where(
+  label,
+  legend,
+  .field-label,
+  .desktop-field > span
+) {
+  font-size: var(--ui-font-sm) !important;
+  line-height: var(--ui-line-tight) !important;
+}
+
+html[data-density] #root :where(
+  .product-reference-screen,
+  .parties-vca,
+  .purchase-reference-screen,
+  .purchase-entry-screen,
+  .purchase-return-screen,
+  .sales-reference-screen,
+  .sales-return-screen,
+  .quotation-estimate-page,
+  .purchase-order-page,
+  .bp-workspace
+) :where(
+  table,
+  .pos-grid,
+  .pos-entry-grid
+) {
+  font-size: var(--ui-font-sm) !important;
+}
+
+html[data-density] #root :where(
+  .product-reference-screen,
+  .parties-vca,
+  .purchase-reference-screen,
+  .purchase-entry-screen,
+  .purchase-return-screen,
+  .sales-reference-screen,
+  .sales-return-screen,
+  .quotation-estimate-page,
+  .purchase-order-page,
+  .bp-workspace
+) :where(
+  .pos-grid th,
+  .pos-grid td,
+  .pos-entry-grid th,
+  .pos-entry-grid td
+) {
+  padding:
+    var(--ui-table-cell-pad-y)
+    var(--ui-table-cell-pad-x) !important;
+}
+
+html[data-density] #root :where(
+  .product-reference-screen,
+  .parties-vca,
+  .purchase-reference-screen,
+  .purchase-entry-screen,
+  .purchase-return-screen,
+  .sales-reference-screen,
+  .sales-return-screen,
+  .quotation-estimate-page,
+  .purchase-order-page,
+  .bp-workspace
+) :where(
+  .pos-grid th,
+  .pos-entry-grid th
+) {
+  height: var(--ui-table-header-h) !important;
+  min-height: var(--ui-table-header-h) !important;
+  font-size: var(--ui-font-sm) !important;
+}
+
+html[data-density] #root :where(
+  .product-reference-screen,
+  .parties-vca,
+  .purchase-reference-screen,
+  .purchase-entry-screen,
+  .purchase-return-screen,
+  .sales-reference-screen,
+  .sales-return-screen,
+  .quotation-estimate-page,
+  .purchase-order-page,
+  .bp-workspace
+) :where(
+  .pos-grid td,
+  .pos-entry-grid td
+) {
+  height: var(--ui-table-row-h) !important;
+  min-height: var(--ui-table-row-h) !important;
+  font-size: var(--ui-font-sm) !important;
+}
+
+html[data-density] #root :where(
+  .product-reference-screen,
+  .parties-vca,
+  .purchase-reference-screen,
+  .purchase-entry-screen,
+  .purchase-return-screen,
+  .sales-reference-screen,
+  .sales-return-screen,
+  .quotation-estimate-page,
+  .purchase-order-page,
+  .bp-workspace
+) :where(
+  .pos-entry-grid input,
+  .pos-entry-grid .ui-select-trigger
+) {
+  height: var(--ui-entry-control-h) !important;
+  min-height: var(--ui-entry-control-h) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Field-relative dropdown arrow geometry
+   Arrow size follows the rendered field height rather than a fixed pixel size.
+   A 2px inset is preserved on top, bottom and right so arrows remain centered
+   and visually balanced across responsive densities.
+   -------------------------------------------------------------------------- */
+
+/* Canonical non-search select: let the arrow stretch with the field row. */
+html[data-density] #root .ui-select-trigger {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 2px !important;
+}
+
+html[data-density] #root .ui-select-trigger > .ui-select-arrow {
+  align-self: stretch !important;
+  width: auto !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  aspect-ratio: 1 / 1;
+  margin: 2px 0 2px 0 !important;
+}
+
+/* Canonical searchable/simple dropdown: one square arrow chip inset inside
+   the trigger border. The child arrow surface fills that square. */
+html[data-density] #root .ui-select-combobox-trigger {
+  position: relative;
+}
+
+html[data-density] #root .ui-select-combobox-trigger > .ui-select-combobox-toggle {
+  position: absolute !important;
+  top: 2px !important;
+  right: 2px !important;
+  bottom: 2px !important;
+  width: auto !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  aspect-ratio: 1 / 1;
+  transform: none !important;
+  padding: 0 !important;
+}
+
+html[data-density] #root .ui-select-combobox-toggle > .ui-select-arrow {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+}
+
+/* Custom dropdown buttons used by migrated POS modules follow the same
+   field-relative 2px inset rule. */
+html[data-density] #root :where(
+  .sales-reference-inline-caret > .sales-reference-field-caret,
+  .sales-product-combo-toggle,
+  .quotation-product-combo-toggle,
+  .sales-return-sale-trigger,
+  .sales-return-product-combo .sales-product-combo-toggle,
+  .pie-supplier-combo-toggle,
+  .purchase-return-product-toggle
+) {
+  top: 2px !important;
+  right: 2px !important;
+  bottom: 2px !important;
+  width: auto !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  aspect-ratio: 1 / 1;
+  padding: 0 !important;
+  transform: none !important;
+}
+
+/* Sales customer field also owns a quick-add button. Keep the arrow square
+   directly before that button with the same small visual gap. */
+html[data-density] #root .sales-reference-to > .sales-reference-field-caret {
+  right: 25px !important;
+}
+
+/* Preserve open-state rotation for the custom arrow controls. */
+html[data-density] #root .sales-reference-inline-caret.is-open > .sales-reference-field-caret {
+  transform: rotate(180deg) !important;
+}
+
+html[data-density] #root :where(
+  .ui-select-arrow,
+  .ui-select-combobox-toggle,
+  .sales-reference-field-caret,
+  .sales-product-combo-toggle,
+  .quotation-product-combo-toggle,
+  .sales-return-sale-trigger,
+  .pie-supplier-combo-toggle,
+  .pie-product-combo-toggle,
+  .purchase-order-product-toggle,
+  .purchase-return-product-toggle
+) {
+  color: #fff !important;
+}
+
+html[data-density] #root :where(
+  .ui-select-arrow,
+  .ui-select-combobox-toggle,
+  .sales-reference-field-caret,
+  .sales-product-combo-toggle,
+  .quotation-product-combo-toggle,
+  .sales-return-sale-trigger,
+  .pie-supplier-combo-toggle,
+  .pie-product-combo-toggle,
+  .purchase-order-product-toggle,
+  .purchase-return-product-toggle
+) svg {
+  display: block !important;
+  width: clamp(8px, 58%, 11px) !important;
+  height: auto !important;
+  max-width: 72% !important;
+  max-height: 72% !important;
+  color: #fff !important;
+  stroke: #fff !important;
+  overflow: visible !important;
+}
+
+html[data-density] #root :where(
+  .ui-select-arrow,
+  .ui-select-combobox-toggle,
+  .sales-reference-field-caret,
+  .sales-product-combo-toggle,
+  .quotation-product-combo-toggle,
+  .purchase-order-product-toggle,
+  .purchase-return-product-toggle
+) svg path[fill='currentColor'] {
+  fill: #fff !important;
+}
+
+html[data-density] #root .sales-reference-field-caret svg {
+  width: clamp(9px, 66%, 12px) !important;
+  height: auto !important;
+  stroke: #fff !important;
+  stroke-width: 3.1 !important;
+}
+
+/* Inputs reserve only the responsive arrow footprint, not a fixed 25-28px. */
+html[data-density] #root :where(
+  .ui-simple-dropdown .ui-select-trigger-search,
+  .sales-reference-inline-caret > input,
+  .sales-product-combo .sales-pos-product-entry,
+  .quotation-product-combo .quotation-product-search-input,
+  .purchase-order-product-input,
+  .purchase-return-product-combo > input
+) {
+  padding-right: calc(var(--ui-control-h-md) + 3px) !important;
+}
+
+html[data-density] #root .ui-button {
+  gap: var(--ui-button-gap) !important;
+  min-height: var(--ui-control-h-md) !important;
+  font-size: var(--ui-font-md) !important;
+}
+
+/* Ribbon/common shell sizing is entirely token-driven. */
+.ribbon-group-caption {
+  min-height: calc(var(--ui-font-sm) + 6px) !important;
+  padding: 1px var(--ui-pad-sm) !important;
+  color: #fff !important;
+  font-size: var(--ui-font-sm) !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+}

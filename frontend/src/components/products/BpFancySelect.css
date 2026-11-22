@@ -1,0 +1,8 @@
+/*
+ * Compatibility stylesheet intentionally left minimal.
+ *
+ * BpFancySelect now delegates to the canonical UiSelect component in
+ * components/ui/UiSelect.tsx. UiSelect still emits the historical
+ * bp-fancy-select class names so existing page-level geometry selectors keep
+ * working, while all visual behavior comes from UiSelect.css.
+ */
