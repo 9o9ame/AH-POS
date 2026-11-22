@@ -56,7 +56,7 @@ export function ApplicationTitleBar({
       </div>
       <div className="titlebar-center ah-topbar-context">
         <span className="ah-topbar-kicker">ACTIVE WORKSPACE</span>
-        {active?.title ?? 'Home'} — {session.tenant.name}
+        {active?.title ?? 'Home'}
       </div>
       <div className="titlebar-meta titlebar-controls">
         <span className="ah-context-selector" title="Tenant context is established by the authenticated membership">

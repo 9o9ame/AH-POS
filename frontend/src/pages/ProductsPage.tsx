@@ -10,6 +10,7 @@ import {
   Plus,
   Printer,
   RefreshCw,
+  Search,
   Trash2,
   X,
 } from 'lucide-react'
@@ -57,11 +58,8 @@ import { refreshSuppliers } from '../data/catalogCache'
 import { useWorkspace, useWorkspaceHandlers } from '../features/workspace/WorkspaceProvider'
 import type { Product } from '../types/catalog'
 import type { OpeningBalance } from '../types/inventory'
-import './ProductsPage.reference.css'
-import './ProductsPage.theme.css'
-import './ProductsPage.functional.css'
-import './ProductsPage.modern.css'
-import './ProductsPage.responsive.css'
+import { ContentPanel, FormSection, PageActionBar, PageHeader, PageToolbar, ResponsiveSplitLayout } from '../components/ui/PageLayout'
+import './ProductsPage.ahpos.css'
 
 type ProductBarcodeDraft = {
   id: string
@@ -1016,13 +1014,56 @@ export function ProductsPage({
     }
   }
 
+  const productImageControl = (
+    <div className="product-image-card">
+      <div
+        className={`product-def-photo product-def-image-loader${productImagePreview ? ' has-image' : ''}`}
+        role="button"
+        tabIndex={canSave ? 0 : -1}
+        aria-label={productImagePreview ? 'Change product image' : 'Add product image'}
+        title={canSave ? (productImagePreview ? 'Click or right-click to replace product image' : 'Click or right-click to add product image') : 'Press Refresh for a new product, or select an editable product first'}
+        onClick={openImagePicker}
+        onContextMenu={(event) => { event.preventDefault(); openImagePicker() }}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openImagePicker() }
+        }}
+      >
+        <input
+          ref={imageInputRef}
+          type="file"
+          className="product-def-image-input"
+          accept="image/jpeg,image/png,image/webp"
+          tabIndex={-1}
+          aria-hidden="true"
+          onChange={(event) => onProductImageSelected(event.target.files?.[0] ?? null)}
+        />
+        {productImagePreview ? (
+          <img src={productImagePreview} alt={name ? `${name} product` : 'Product'} className="product-def-image-preview" />
+        ) : (
+          <span className="product-def-image-empty" aria-hidden="true"><ImagePlus size={24} strokeWidth={1.7} /></span>
+        )}
+        {productImagePreview && canSave ? (
+          <button
+            type="button"
+            className="product-def-image-remove"
+            title="Remove product image"
+            aria-label="Remove product image"
+            onClick={(event) => { event.stopPropagation(); void requestProductImageRemoval() }}
+          ><X size={14} strokeWidth={3} /></button>
+        ) : null}
+      </div>
+      <span>Product image</span>
+      <small>JPG, PNG or WebP</small>
+    </div>
+  )
+
   return (
     <>
       <form
         id="inline-product-form"
         className={[
           'product-def',
-          'product-reference-screen',
+          'product-management-page',
           embedded ? 'is-embedded' : '',
         ].filter(Boolean).join(' ')}
         onKeyDownCapture={(event) => {
@@ -1036,72 +1077,16 @@ export function ProductsPage({
         }}
         onSubmit={onSubmit}
       >
-        <aside className="product-def-rail" aria-label="Product actions">
-          <div
-            className={`product-def-photo product-def-image-loader${productImagePreview ? ' has-image' : ''}`}
-            role="button"
-            tabIndex={canSave ? 0 : -1}
-            aria-label={productImagePreview ? 'Change product image' : 'Add product image'}
-            title={
-              canSave
-                ? productImagePreview
-                  ? 'Click or right-click to replace product image'
-                  : 'Click or right-click to add product image'
-                : 'Press Refresh for a new product, or select an editable product first'
-            }
-            onClick={openImagePicker}
-            onContextMenu={(event) => {
-              event.preventDefault()
-              openImagePicker()
-            }}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault()
-                openImagePicker()
-              }
-            }}
-          >
-            <input
-              ref={imageInputRef}
-              type="file"
-              className="product-def-image-input"
-              accept="image/jpeg,image/png,image/webp"
-              tabIndex={-1}
-              aria-hidden="true"
-              onChange={(event) =>
-                onProductImageSelected(event.target.files?.[0] ?? null)
-              }
-            />
+        <PageHeader
+          eyebrow="CATALOG / DEFINITION"
+          title="Product Management"
+          description={selected ? `${selected.product_number} · ${selected.name}` : 'Create, find and maintain products, pricing and barcodes.'}
+          aside={<span className={`product-record-status${selected?.is_active === false ? ' is-inactive' : ''}`}>{creating ? 'New product' : selected?.is_active === false ? 'Discontinued' : 'Active record'}</span>}
+        />
 
-            {productImagePreview ? (
-              <img
-                src={productImagePreview}
-                alt={name ? `${name} product` : 'Product'}
-                className="product-def-image-preview"
-              />
-            ) : (
-              <span className="product-def-image-empty" aria-hidden="true">
-                <span className="product-def-image-icon">
-                  <ImagePlus size={28} strokeWidth={1.7} />
-                </span>
-              </span>
-            )}
-
-            {productImagePreview && canSave ? (
-              <button
-                type="button"
-                className="product-def-image-remove"
-                title="Remove product image"
-                aria-label="Remove product image"
-                onClick={(event) => {
-                  event.stopPropagation()
-                  void requestProductImageRemoval()
-                }}
-              >
-                <X size={14} strokeWidth={3} />
-              </button>
-            ) : null}
-          </div>
+        <PageToolbar className="product-commandbar">
+          <span className="product-commandbar-label">Record actions</span>
+          <PageActionBar className="product-commandbar-actions">
 
           <button
             type="button"
@@ -1142,7 +1127,15 @@ export function ProductsPage({
             <span>Current Print</span>
           </button>
 
-          <div className="product-def-rail-spacer" />
+          <button
+            type="button"
+            className="product-def-cmd is-new"
+            disabled={!canCreate}
+            onClick={startNewProduct}
+          >
+            <span className="product-def-cmd-icon"><Plus size={17} /></span>
+            <span className="product-def-cmd-text"><span className="product-def-cmd-label">New</span></span>
+          </button>
 
           <button type="submit" className="product-def-cmd is-save" disabled={!canSave || saveMutation.isPending}>
             <span className="product-def-cmd-icon is-green"><Check size={18} strokeWidth={3} /></span>
@@ -1272,14 +1265,17 @@ export function ProductsPage({
               <span className="product-def-cmd-key">[Esc]</span>
             </span>
           </button>
-        </aside>
+          </PageActionBar>
+        </PageToolbar>
 
-        <section className="product-def-form">
-          <h1 className="product-def-title">Products Definition</h1>
+        <ResponsiveSplitLayout className="product-management-layout">
+        <section className="product-def-form ui-content-panel">
+          <PageToolbar className="product-def-tabs">
 
-          <div className="product-def-tabs">
             <button
               type="button"
+              role="tab"
+              aria-selected={section === 'definition'}
               className={section === 'definition' ? 'is-active' : undefined}
               onClick={() => setSection('definition')}
             >
@@ -1287,6 +1283,8 @@ export function ProductsPage({
             </button>
             <button
               type="button"
+              role="tab"
+              aria-selected={section === 'opening'}
               className={section === 'opening' ? 'is-active' : undefined}
               disabled={!canOpeningView}
               title={canOpeningView ? 'Opening Balance' : 'No inventory permission'}
@@ -1295,12 +1293,12 @@ export function ProductsPage({
               Opening Balance (F1)
             </button>
             <button type="button" disabled title="Available in a later phase">Products To Be Used With This Product</button>
-          </div>
+          </PageToolbar>
 
           {error ? <div className="product-inline-error">{error}</div> : null}
 
           {section === 'opening' ? (
-            <div className="product-def-fields">
+            <div className="product-def-fields product-opening-panel">
               {creating || !selectedKey ? (
                 <p className="text-[12px] text-[var(--ui-text-muted)]">Save the product first, then enter opening stock.</p>
               ) : (
@@ -1369,7 +1367,10 @@ export function ProductsPage({
               )}
             </div>
           ) : (
-          <div className="product-def-fields">
+          <div className="product-def-fields product-detail-sections">
+            <FormSection title="Product identity" description="Catalog code, primary barcode and customer-facing descriptions." className="product-identity-section">
+              <div className="product-identity-layout">
+                <div className="product-identity-fields">
             <div className="pdf-row pdf-row-split">
               <label>Product #</label>
               <input className="pdf-input pdf-short" readOnly value={productNumber} />
@@ -1396,7 +1397,12 @@ export function ProductsPage({
                 onChange={(e) => setAlternateName(e.target.value)}
               />
             </div>
+                </div>
+                {productImageControl}
+              </div>
+            </FormSection>
 
+            <FormSection title="Classification" description="Assign product taxonomy, supplier and stock location." className="product-classification-section">
             <div className="pdf-row pdf-row-split">
               <label>Category</label>
               <div className="pdf-field-plus">
@@ -1587,7 +1593,9 @@ export function ProductsPage({
                 </button>
               </div>
             </div>
+            </FormSection>
 
+            <FormSection title="Units, pricing & inventory" description="Selling prices, reorder threshold and branch stock context." className="product-pricing-section">
             <div className="pdf-row pdf-row-rates">
               <label>Reorder Level</label>
               <input className="pdf-input pdf-num" value={reorderLevel} readOnly={!canSave} onChange={(e) => setReorderLevel(e.target.value)} />
@@ -1654,7 +1662,9 @@ export function ProductsPage({
                 onChange={(e) => setSupplierProductCode(e.target.value)}
               />
             </div>
+            </FormSection>
 
+            <FormSection title="Product settings" description="Tax treatment, discontinuation and packaging configuration." className="product-settings-section">
             <div className="pdf-row pdf-row-check">
               <label />
               <label className="pdf-check">
@@ -1691,7 +1701,9 @@ export function ProductsPage({
                 onChange={(e) => setMaxFreeQtyPerSale(e.target.value)}
               />
             </div>
+            </FormSection>
 
+            <FormSection title="Barcode management" description="Unit-specific barcodes and conversion factors." className="product-barcodes-section">
             <div className="pdf-barcode-box">
               <div className="pdf-barcode-title">Multi Barcode Entry</div>
               <div ref={barcodeTableScrollRef} className="pdf-barcode-table-scroll">
@@ -1853,11 +1865,16 @@ export function ProductsPage({
                 </button>
               </div>
             </div>
+            </FormSection>
           </div>
           )}
         </section>
 
-        <section className="product-def-grid">
+        <ContentPanel
+          title="Product catalog"
+          description="Search, filter and select a catalog record."
+          className="product-def-grid"
+        >
           <div className="product-def-filterbar">
             <div className="product-def-groupbar">
               <span className="product-def-groupbar-label">Category / Group</span>
@@ -1883,6 +1900,7 @@ export function ProductsPage({
 
             <div className="product-def-grid-top">
               <div className="product-def-grid-search">
+                <Search size={15} aria-hidden="true" />
                 <input
                   className="pdf-input"
                   placeholder="Search products..."
@@ -1946,7 +1964,8 @@ export function ProductsPage({
                 : 'All products loaded'}
             </span>
           </div>
-        </section>
+        </ContentPanel>
+        </ResponsiveSplitLayout>
       </form>
 
       {supplierModalOpen ? (

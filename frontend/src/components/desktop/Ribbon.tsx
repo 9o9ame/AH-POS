@@ -67,7 +67,13 @@ export function Ribbon({
     if (!normalizedQuery) {
       const selected = RIBBON_TABS.find((tab) => tab.id === ribbonTab)
       return selected
-        ? [{ tabId: selected.id, tabLabel: selected.label, groups: RIBBON_GROUPS[selected.id] }]
+        ? [{
+            tabId: selected.id,
+            tabLabel: selected.label,
+            groups: RIBBON_GROUPS[selected.id].filter((group) =>
+              !(selected.id === activeModule.ribbon && group.commands.some((command) => command.moduleKey === activeModule.key)),
+            ),
+          }]
         : []
     }
 
@@ -85,7 +91,7 @@ export function Ribbon({
         }))
         .filter((group) => group.commands.length > 0),
     })).filter((section) => section.groups.length > 0)
-  }, [normalizedQuery, ribbonTab])
+  }, [activeModule.key, activeModule.ribbon, normalizedQuery, ribbonTab])
 
   const openPath = (path: string, newInstance = false) => {
     openModule(path, { newInstance })

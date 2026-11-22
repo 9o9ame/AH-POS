@@ -486,3 +486,28 @@
   .ah-navigation-categories > button,
   .ah-navigation-search input { transition:none; }
 }
+
+/* Flat AH-POS control faces; theme and semantic meaning remain token-driven. */
+:root,
+:root[data-theme='dark'] {
+  --ui-control-face: var(--ui-surface);
+  --ui-control-border: var(--ui-border);
+  --ui-select-arrow-face: var(--ui-surface-subtle);
+  --ui-select-arrow-border: var(--ui-border);
+  --ui-select-selected-face: var(--ui-accent);
+  --ui-select-selected-text: var(--ui-surface);
+  --ui-button-primary-face: var(--ui-accent-soft);
+  --ui-button-success-face: var(--ui-success-soft);
+  --ui-button-warning-face: var(--ui-warning-soft);
+  --ui-button-danger-face: var(--ui-danger-soft);
+  --ui-button-info-face: var(--ui-info-soft);
+  --ui-panel-face: var(--ui-surface);
+  --ui-table-header: var(--ui-surface-subtle);
+}
+.ah-app-shell[data-navigation-collapsed='true'] .ah-app-layout { --ah-sidebar-width:68px; }
+@media(max-width:760px) {
+  .ah-app-shell .titlebar-center { display:none; }
+  .ah-app-shell .titlebar-controls > .titlebar-controls-window { display:flex; }
+  .ah-app-shell .titlebar-controls { min-width:0;max-width:100%;row-gap:6px; }
+  .ah-app-shell .titlebar-controls > * { flex:0 1 auto; }
+}

@@ -126,6 +126,44 @@ The existing code provides an authenticated branch switch API/UI. Tenant is fixe
 - `PROJECT_UI_DESIGN_SYSTEM.md`
 - `docs/AH_POS_DESIGN_MIGRATION.md`
 
+## Batch 04 / 2026-11-22 — shell and Products workspace correction
+
+### Findings from the rejected browser review
+- The prior shell had redundant tenant context in the active-workspace title, an expanded sidebar wider than requested when collapsed, and hid a titlebar control at the narrow breakpoint.
+- Products Definition still rendered a vertical image/action rail next to a narrow legacy form and an unbounded catalog area. Five successive page stylesheets layered conflicting visual overrides over that markup.
+
+### Structural changes
+- Tightened the application header to show the active workspace once, set the collapsed navigation rail to 68px, and restored the titlebar control at mobile widths. Sidebar command scrolling remains isolated from the workspace content scroll.
+- Removed duplicate presentation of the active module's command group: it remains in the contextual command bar while the sidebar keeps the other groups; navigation search still indexes the complete registry.
+- Replaced the Products Definition rail with a page header and a wrapping, horizontal action bar. Added a clear New action while keeping existing Save, Refresh, Delete/Activate, Close, Barcode Print, and Current Print handlers and shortcut hooks intact.
+- Rebuilt product content into a responsive editor/catalog split. Product Identity now includes the existing upload/preview/remove control; Classification, Units/Pricing/Inventory, Product Settings and Barcode Management are sectioned within the editor. The catalog has a headed panel, category/search filters, virtualized selectable rows, empty/loading states and its existing record count/sync status.
+- Added shared `PageLayout` primitives (`PageHeader`, `PageToolbar`, `ContentPanel`, `FormSection`, `ResponsiveSplitLayout`, `PageActionBar`) and used them in Products. These are compositional layout helpers; field state and business behavior remain in the product page.
+- Replaced the Products page's five imported legacy visual layers with `ProductsPage.ahpos.css`. Common button, dropdown, panel and table token faces now use flat surface values while retaining the selected AppearanceProvider theme, density and radius settings.
+
+### Preservation audit
+- Product identity/classification, supplier/company, units, location, barcode group, rates/margin, stock/reorder, supplier code, discontinued/tax/packaging/free quantity, multi-barcode, image upload/removal, opening balance and reserved product-usage tab remain present.
+- Existing product query/cache, row selection/double-click, lookup, validation, save/deactivate/reactivate, pricing/barcode save, scanner, image upload, printing, opening-balance draft/post, permission gates, route and API behavior are unchanged. F8/F9 workspace hooks and the existing F1 tab behavior remain; the action bar labels remain visible.
+- Tenant route registrations, command registry, APIs, backend, database and inventory/accounting rules are unchanged.
+
+### Verification and acceptance
+- `cd frontend && npm.cmd run typecheck` — PASS.
+- `cd frontend && npm.cmd run build` — PASS; Vite reported its existing dynamic-import and large-chunk warnings.
+- `cd frontend && npm.cmd run ui:check` — PASS.
+- `cd frontend && npm.cmd run ui:navigation-check` — PASS (deferred data, tab switching and bounded 10,000-row render cases).
+- `git diff --check` — PASS.
+- Static parity audit: route registrations, command registry, APIs and backend are unchanged. Old Products page stylesheets are no longer imported; the replacement page stylesheet is the sole Products-specific visual layer.
+- Browser screenshot review of the shell and Products workspace at desktop/tablet/mobile sizes remains pending owner acceptance; automated checks do not constitute visual approval.
+
+### Actual files edited
+- `frontend/src/ahpos-structural.css`
+- `frontend/src/components/desktop/ApplicationTitleBar.tsx`
+- `frontend/src/components/ui/PageLayout.tsx` (new)
+- `frontend/src/components/ui/PageLayout.css` (new)
+- `frontend/src/pages/ProductsPage.tsx`
+- `frontend/src/pages/ProductsPage.ahpos.css` (new)
+- `PROJECT_UI_DESIGN_SYSTEM.md`
+- `docs/AH_POS_DESIGN_MIGRATION.md`
+
 ## Batch 03 / 2026-11-22 — core POS workflows
 
 ### Module changes
