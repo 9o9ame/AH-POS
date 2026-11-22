@@ -9,7 +9,7 @@ export function PwaUpdateBanner() {
 
   return (
     <div className="pwa-update-banner" role="status" aria-live="polite">
-      <span>A new BluePOS version is ready.</span>
+      <span>A new AH-POS version is ready.</span>
       <div className="pwa-update-actions">
         <button type="button" className="pwa-update-btn is-primary" onClick={applyUpdate}>
           Refresh / Update
