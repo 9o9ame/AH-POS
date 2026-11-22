@@ -56,3 +56,28 @@ Then open tenant login and `/platform/login` with a hard refresh; compare all ta
 
 ## Remaining limitations
 The full visual conversion of every deep workflow is **not complete**. Initial CSS makes the outer shell and auth materially different, but some inherited internal BluePOS screens/assets still retain their original geometry. Follow-up design batches are necessary; never call this final acceptance.
+
+## Batch 02 / 2026-11-22 — shared shell and controls
+
+### Scope
+- Recompose the tenant shell as a branded utility header, a concise accessible ribbon navigation strip, a clearly bounded command workspace, document workspace tabs and a persistent information status bar. Preserve the existing workspace content box geometry for transaction screens.
+- Apply a shared token-driven treatment to buttons, text fields, selects, canonical dropdowns, standard tables, modal overlays/headers/footers, and focus/disabled states.
+- Refine Platform sidebar width, collapse transition, content padding and card-like navigation surface independently from tenant navigation.
+- Keep responsive ribbon scrolling, modal viewport sizing and narrow Platform navigation reachable.
+
+### Preservation
+- CSS-only visual changes in `frontend/src/ahpos-design.css`; route registry, ribbon command definitions, permission checks, component tree, API calls, schemas, business calculations and workflow event handlers are unchanged.
+- No controls or navigation items were hidden or removed. Existing inactive persistent document tab behavior and permission-filtered Platform links remain owned by their original components.
+- AppearanceProvider `--ui-*`, density, radius, shadow, and font tokens remain the styling source for shared components.
+
+### Verification
+- `npm.cmd run ui:check` — PASS.
+- `npm.cmd run typecheck` — PASS.
+- `npm.cmd run build` — PASS; Vite reported existing dynamic-import/chunk-size warnings.
+- `npm.cmd run ui:navigation-check` — PASS (pending-data switching and bounded 10,000-row render cases).
+- `git diff --check` — PASS.
+- Manual visual review of tenant and Platform screens remains for owner acceptance.
+
+### Actual files edited
+- `frontend/src/ahpos-design.css`
+- `docs/AH_POS_DESIGN_MIGRATION.md`

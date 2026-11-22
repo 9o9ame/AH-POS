@@ -12,7 +12,8 @@
 - Maintain a before/after registry audit of feature navigation as migration advances. CSS must not alter data or auth.
 
 ## Design progress
-**Batch 01 / 2026-11-22:** tenant/title/ribbon/tab/status chrome; independent Platform header/sidebar; tenant/Platform login visual geometry and brand texts; browser metadata/PWA banner; appearance defaults. **Code committed; frontend build, UI checks and browser acceptance unverified.** No functions removed. Legacy pages' deeper grids, toolbar geometry, icon assets, and report viewers remain unchanged for later controlled conversion.
+**Batch 01 / 2026-11-22:** tenant/title/ribbon/tab/status chrome; independent Platform header/sidebar; tenant/Platform login visual geometry and brand texts; browser metadata/PWA banner; appearance defaults. Code committed; initial commit notes marked build and browser acceptance unverified. No functions removed.
+**Batch 02 / 2026-11-22:** shared tenant shell composition, ribbon/workspace surfaces, status bar, token-driven shared control/table/modal appearance, and responsive Platform navigation refinement. Implementation and verification details are tracked in `docs/AH_POS_DESIGN_MIGRATION.md`. Deeper workflow composition, grids, report viewers, and platform pages remain for later batches.
 
 ---
 
