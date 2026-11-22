@@ -8,7 +8,7 @@ class MigrateSafeCommand extends Command
 {
     protected $signature = 'bluepos:migrate-safe {--force : Allow migrate on production}';
 
-    protected $description = 'Run migrations only against bluepos_dev or bluepos_test after printing connection details.';
+    protected $description = 'Run migrations only against approved local AH-POS PostgreSQL databases after printing connection details.';
 
     public function handle(): int
     {
@@ -20,10 +20,10 @@ class MigrateSafeCommand extends Command
         $this->line('DB_CONNECTION='.$connection);
         $this->line('DB_DATABASE='.$database);
 
-        $allowed = ['bluepos_dev', 'bluepos_test'];
+        $allowed = ['ahpos_test'];
 
         if ($connection !== 'pgsql' || ! in_array($database, $allowed, true)) {
-            $this->error('Refusing to migrate. Expected PostgreSQL database bluepos_dev or bluepos_test.');
+            $this->error('Refusing to migrate. Expected PostgreSQL database ahpos_test.');
 
             return self::FAILURE;
         }
