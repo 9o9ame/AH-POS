@@ -1,310 +1,211 @@
-import { Children, isValidElement, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
+  BarChart3,
   CircleHelp,
-  ClipboardList,
   FilePenLine,
-  FolderTree,
   Home,
-  List,
+  Search,
   Settings,
   Wrench,
   type LucideIcon,
 } from 'lucide-react'
-import { useAppearance } from '../../features/appearance/AppearanceProvider'
 import { useAuth } from '../../features/auth/AuthProvider'
 import { useWorkspace } from '../../features/workspace/WorkspaceProvider'
-import { RIBBON_GROUPS, RIBBON_TABS, WORKSPACE_MODULES } from '../../features/workspace/modules'
-import { RibbonCommand, RibbonGroup } from './RibbonCommand'
-import { resolveRibbonTabIcon } from '../../features/workspace/blueposIconMap'
+import {
+  RIBBON_GROUPS,
+  RIBBON_TABS,
+  WORKSPACE_MODULES,
+  type RibbonCommandDef,
+  type RibbonTabId,
+} from '../../features/workspace/modules'
+import { RibbonCommand } from './RibbonCommand'
 
-const RIBBON_TAB_ICONS: Record<string, LucideIcon> = {
-  Definition: Home,
-  'Daily Entries': FilePenLine,
-  Reports: ClipboardList,
-  Tools: Wrench,
-  Administration: Settings,
-  Help: CircleHelp,
+const RIBBON_TAB_ICONS: Record<RibbonTabId, LucideIcon> = {
+  definition: Home,
+  'daily-entries': FilePenLine,
+  reports: BarChart3,
+  tools: Wrench,
+  administration: Settings,
+  help: CircleHelp,
 }
 
 type RibbonProps = {
+  collapsed: boolean
+  onToggleCollapse: () => void
   onCalculator: () => void
   onSoftwareOptions: () => void
   onRecalculateStock: () => void
   onLock: () => void
 }
 
-export function Ribbon({ onCalculator, onSoftwareOptions, onRecalculateStock, onLock }: RibbonProps) {
+export function Ribbon({
+  collapsed,
+  onToggleCollapse,
+  onCalculator,
+  onSoftwareOptions,
+  onRecalculateStock,
+  onLock,
+}: RibbonProps) {
   const { ribbonTab, setRibbonTab, openModule, activeModule } = useWorkspace()
-  const { skin } = useAppearance()
   const { session } = useAuth()
+  const [query, setQuery] = useState('')
+  const searchRef = useRef<HTMLInputElement>(null)
+  const normalizedQuery = query.trim().toLocaleLowerCase()
 
-  const canUse = (permission?: string, entitlement?: string) => {
-    const permissionAllowed = !permission || Boolean(session?.permissions.includes(permission))
-    const features = session?.entitlements?.features
-    const entitlementAllowed = !entitlement || !features || features.includes(entitlement)
-    return permissionAllowed && entitlementAllowed
+  useEffect(() => {
+    const focusNavigationSearch = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        searchRef.current?.focus()
+      }
+    }
+    window.addEventListener('keydown', focusNavigationSearch)
+    return () => window.removeEventListener('keydown', focusNavigationSearch)
+  }, [])
+
+  const commandSections = useMemo(() => {
+    if (!normalizedQuery) {
+      const selected = RIBBON_TABS.find((tab) => tab.id === ribbonTab)
+      return selected
+        ? [{ tabId: selected.id, tabLabel: selected.label, groups: RIBBON_GROUPS[selected.id] }]
+        : []
+    }
+
+    return RIBBON_TABS.map((tab) => ({
+      tabId: tab.id,
+      tabLabel: tab.label,
+      groups: RIBBON_GROUPS[tab.id]
+        .map((group) => ({
+          ...group,
+          commands: group.commands.filter((command) =>
+            `${command.label} ${group.caption} ${tab.label} ${command.shortcut ?? ''} ${command.menu?.map((item) => item.label).join(' ') ?? ''}`
+              .toLocaleLowerCase()
+              .includes(normalizedQuery),
+          ),
+        }))
+        .filter((group) => group.commands.length > 0),
+    })).filter((section) => section.groups.length > 0)
+  }, [normalizedQuery, ribbonTab])
+
+  const openPath = (path: string, newInstance = false) => {
+    openModule(path, { newInstance })
   }
 
-  const openRibbonPath = (path: string) => {
-    const module = WORKSPACE_MODULES.find((row) => row.path === path)
-    openModule(path, { newInstance: module?.multiInstance === true })
+  const runCommand = (command: RibbonCommandDef) => {
+    if (command.action === 'calculator') {
+      onCalculator()
+      return
+    }
+    if (command.action === 'software-options') {
+      onSoftwareOptions()
+      return
+    }
+    if (command.action === 'recalculate-stock') {
+      onRecalculateStock()
+      return
+    }
+    if (command.action === 'lock') {
+      onLock()
+      return
+    }
+
+    const path = command.path ?? WORKSPACE_MODULES.find((module) => module.key === command.moduleKey)?.path
+    if (!path) return
+    const module = command.moduleKey
+      ? WORKSPACE_MODULES.find((row) => row.key === command.moduleKey)
+      : undefined
+    openPath(path, module?.multiInstance === true)
   }
-
-  const definitionProducts = RIBBON_GROUPS.definition
-    .find((group) => group.id === 'products')
-    ?.commands ?? []
-
-  const compactDefinitionPrimary = definitionProducts
-    .filter((command) => ['products', 'tabular', 'stock-taking'].includes(command.id))
-    .filter((command) => canUse(command.permission, command.entitlement))
-
-  const compactDefinitionMasters = definitionProducts
-    .filter((command) => ['categories', 'subcategories', 'brands', 'units', 'sale-schemes'].includes(command.id))
-    .filter((command) => canUse(command.permission, command.entitlement))
-    .map((command) => ({
-      label: command.label,
-      status: command.status,
-      path: command.path ?? WORKSPACE_MODULES.find((row) => row.key === command.moduleKey)?.path,
-    }))
-    .filter((item): item is { label: string; status: 'ready' | 'shell' | 'later'; path: string } => Boolean(item.path))
-
-  const compactDefinitionParties = RIBBON_GROUPS.definition
-    .find((group) => group.id === 'parties')
-    ?.commands
-    .find((command) => canUse(command.permission, command.entitlement))
-
-  const compactDefinitionLists = RIBBON_GROUPS.definition
-    .find((group) => group.id === 'later-catalog')
-    ?.commands
-    .filter((command) => canUse(command.permission, command.entitlement))
-    .map((command) => ({
-      label: command.label,
-      status: command.status,
-      path: command.path ?? WORKSPACE_MODULES.find((row) => row.key === command.moduleKey)?.path,
-    }))
-    .filter((item): item is { label: string; status: 'ready' | 'shell' | 'later'; path: string } => Boolean(item.path)) ?? []
-
-  const compactSalesMenu = RIBBON_GROUPS['daily-entries']
-    .find((group) => group.id === 'sales')
-    ?.commands
-    .filter((command) => canUse(command.permission, command.entitlement))
-    .map((command) => ({ label: command.label, status: command.status, path: command.path ?? WORKSPACE_MODULES.find((row) => row.key === command.moduleKey)?.path }))
-    .filter((item): item is { label: string; status: 'ready' | 'shell' | 'later'; path: string } => Boolean(item.path)) ?? []
-
-  const compactAdjustment = RIBBON_GROUPS['daily-entries']
-    .find((group) => group.id === 'purchases')
-    ?.commands
-    .find((command) => command.id === 'adjustments')
-
-  const compactPurchaseMenu = RIBBON_GROUPS['daily-entries']
-    .find((group) => group.id === 'purchases')
-    ?.commands
-    .filter((command) => command.id !== 'adjustments')
-    .filter((command) => canUse(command.permission, command.entitlement))
-    .map((command) => ({ label: command.label, status: command.status, path: command.path ?? WORKSPACE_MODULES.find((row) => row.key === command.moduleKey)?.path }))
-    .filter((item): item is { label: string; status: 'ready' | 'shell' | 'later'; path: string } => Boolean(item.path)) ?? []
 
   return (
-    <div className="ribbon">
-      <div className="ribbon-tabs" role="tablist" aria-label="Main ribbon">
+    <aside className="ah-sidebar" data-collapsed={collapsed} aria-label="Application navigation">
+      <div className="ah-sidebar-heading">
+        <div className="ah-sidebar-brand-mark" aria-hidden="true">AH</div>
+        <div className="ah-sidebar-brand-copy">
+          <strong>AH-POS</strong>
+          <span>Business workspace</span>
+        </div>
+        <button
+          type="button"
+          className="ah-sidebar-collapse"
+          aria-label={collapsed ? 'Expand navigation' : 'Collapse navigation'}
+          aria-expanded={!collapsed}
+          onClick={onToggleCollapse}
+        >
+          <span aria-hidden="true">{collapsed ? '›' : '‹'}</span>
+        </button>
+      </div>
+
+      <label className="ah-navigation-search">
+        <Search size={16} aria-hidden="true" />
+        <input
+          ref={searchRef}
+          type="search"
+          aria-label="Search all modules and commands"
+          placeholder={collapsed ? '' : 'Search navigation'}
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+        />
+        {!collapsed ? <kbd>⌘ K</kbd> : null}
+      </label>
+
+      <nav className="ah-navigation-categories" aria-label="Application areas">
         {RIBBON_TABS.map((tab) => {
-          const selected = tab.id === ribbonTab
+          const Icon = RIBBON_TAB_ICONS[tab.id]
+          const selected = tab.id === ribbonTab && !normalizedQuery
           return (
             <button
-              key={tab.id}
               type="button"
-              role="tab"
-              aria-selected={selected}
-              className={`ribbon-tab${selected ? ' is-active' : ''}`}
-              onClick={() => setRibbonTab(tab.id)}
+              key={tab.id}
+              className={selected ? 'is-active' : ''}
+              aria-label={tab.label}
+              aria-current={selected ? 'page' : undefined}
+              title={collapsed ? tab.label : undefined}
+              onClick={() => {
+                setQuery('')
+                setRibbonTab(tab.id)
+              }}
             >
-              {(() => {
-                const customIconSrc = resolveRibbonTabIcon(skin, tab.id)
-                const TabIcon = RIBBON_TAB_ICONS[tab.label] ?? CircleHelp
-                return (
-                  <>
-                    <span className={`ribbon-tab-icon${customIconSrc ? ' has-custom-icon' : ''}`} aria-hidden>
-                      {customIconSrc ? (
-                        <img src={customIconSrc} alt="" draggable={false} />
-                      ) : (
-                        <TabIcon />
-                      )}
-                    </span>
-                    <span className="ribbon-tab-text">{tab.label}</span>
-                  </>
-                )
-              })()}
+              <Icon size={17} strokeWidth={1.8} aria-hidden="true" />
+              <span>{tab.label}</span>
             </button>
           )
         })}
-      </div>
-      <div className="ribbon-body" role="tabpanel">
-        {ribbonTab === 'definition' ? (
-          <div className="ribbon-definition-compact" aria-label="Compact definition navigation">
-            <RibbonGroup caption="Definitions">
-              {compactDefinitionPrimary.map((command) => (
-                <RibbonCommand
-                  key={command.id}
-                  {...command}
-                  active={Boolean(command.moduleKey && command.moduleKey === activeModule.key)}
-                  onNavigate={openRibbonPath}
-                  onClick={() => {
-                    const path =
-                      command.path ??
-                      WORKSPACE_MODULES.find((module) => module.key === command.moduleKey)?.path
-                    if (path) openRibbonPath(path)
-                  }}
-                />
-              ))}
+      </nav>
 
-              {compactDefinitionMasters.length ? (
-                <RibbonCommand
-                  id="definition-masters-compact"
-                  label="Masters"
-                  icon={FolderTree}
-                  status="ready"
-                  tone="blue"
-                  hasMenu
-                  menu={compactDefinitionMasters}
-                  active={['categories', 'subcategories', 'brands', 'units', 'sale-schemes'].includes(activeModule.key)}
-                  onNavigate={openRibbonPath}
-                />
-              ) : null}
-            </RibbonGroup>
+      <div className="ah-sidebar-divider" />
 
-            {compactDefinitionParties ? (
-              <RibbonGroup caption="Parties">
-                <RibbonCommand
-                  {...compactDefinitionParties}
-                  active={compactDefinitionParties.moduleKey === activeModule.key}
-                  onNavigate={openRibbonPath}
-                  onClick={() => {
-                    const path =
-                      compactDefinitionParties.path ??
-                      WORKSPACE_MODULES.find((module) => module.key === compactDefinitionParties.moduleKey)?.path
-                    if (path) openRibbonPath(path)
-                  }}
-                />
-              </RibbonGroup>
-            ) : null}
-
-            {compactDefinitionLists.length ? (
-              <RibbonGroup caption="Printing / Lists">
-                <RibbonCommand
-                  id="definition-lists-compact"
-                  label="Lists"
-                  icon={List}
-                  status="ready"
-                  tone="teal"
-                  hasMenu
-                  menu={compactDefinitionLists}
-                  active={['opening-stock', 'barcode-printing', 'price-lists'].includes(activeModule.key)}
-                  onNavigate={openRibbonPath}
-                />
-              </RibbonGroup>
-            ) : null}
-          </div>
-        ) : null}
-
-        {ribbonTab === 'daily-entries' ? (
-          <div className="ribbon-daily-compact" aria-label="Compact daily entries navigation">
-            {compactSalesMenu.length ? (
-              <RibbonGroup caption="Sales">
-                <RibbonCommand
-                  id="sales-compact"
-                  label="Sales"
-                  icon={FilePenLine}
-                  status="ready"
-                  tone="blue"
-                  hasMenu
-                  menu={compactSalesMenu}
-                  active={['sales-invoice', 'quotation-estimate', 'sales-return'].includes(activeModule.key)}
-                  onNavigate={openRibbonPath}
-                />
-              </RibbonGroup>
-            ) : null}
-            {compactPurchaseMenu.length ? (
-              <RibbonGroup caption="Purchases">
-                <RibbonCommand
-                  id="purchase-compact"
-                  label="Purchase"
-                  icon={ClipboardList}
-                  status="ready"
-                  tone="gold"
-                  hasMenu
-                  menu={compactPurchaseMenu}
-                  active={['purchase-invoice', 'purchase-order', 'purchase-return'].includes(activeModule.key)}
-                  onNavigate={openRibbonPath}
-                />
-                {compactAdjustment && canUse(compactAdjustment.permission, compactAdjustment.entitlement) ? (
-                  <RibbonCommand
-                    {...compactAdjustment}
-                    active={compactAdjustment.moduleKey === activeModule.key}
-                    onNavigate={openRibbonPath}
-                    onClick={() => {
-                      const path = compactAdjustment.path ?? WORKSPACE_MODULES.find((row) => row.key === compactAdjustment.moduleKey)?.path
-                      if (path) openRibbonPath(path)
-                    }}
-                  />
-                ) : null}
-              </RibbonGroup>
-            ) : null}
-          </div>
-        ) : null}
-        {RIBBON_GROUPS[ribbonTab].map((group) => (
-          <VisibleRibbonGroup key={group.id} caption={group.caption} className={`ribbon-group-${group.id}`}>
-            {group.commands.map((command) => (
-              <RibbonCommand
-                key={command.id}
-                {...command}
-                active={Boolean(command.moduleKey && command.moduleKey === activeModule.key)}
-                onNavigate={(path) => openModule(path)}
-                onClick={() => {
-                  if (command.action === 'calculator') {
-                    onCalculator()
-                    return
-                  }
-                  if (command.action === 'software-options') {
-                    onSoftwareOptions()
-                    return
-                  }
-                  if (command.action === 'recalculate-stock') {
-                    onRecalculateStock()
-                    return
-                  }
-                  if (command.action === 'lock') {
-                    onLock()
-                    return
-                  }
-                  const path =
-                    command.path ??
-                    WORKSPACE_MODULES.find((module) => module.key === command.moduleKey)?.path
-                  if (path) {
-                    const module = command.moduleKey
-                      ? WORKSPACE_MODULES.find((row) => row.key === command.moduleKey)
-                      : undefined
-                    openModule(path, {
-                      newInstance: module?.multiInstance === true,
-                    })
-                  }
-                }}
-              />
+      <div className="ah-navigation-command-list" aria-label={normalizedQuery ? 'Search results' : 'Modules'}>
+        {commandSections.map((section) => (
+          <section className="ah-navigation-section" key={section.tabId}>
+            {normalizedQuery ? <h2>{section.tabLabel}</h2> : null}
+            {section.groups.map((group) => (
+              <div className="ah-navigation-group" key={`${section.tabId}-${group.id}`}>
+                <h3>{group.caption}</h3>
+                <div className="ah-navigation-commands">
+                  {group.commands.map((command) => (
+                    <RibbonCommand
+                      key={`${section.tabId}-${group.id}-${command.id}`}
+                      {...command}
+                      active={Boolean(command.moduleKey && command.moduleKey === activeModule.key)}
+                      onNavigate={(path) => openModule(path)}
+                      onClick={() => runCommand(command)}
+                    />
+                  ))}
+                </div>
+              </div>
             ))}
-          </VisibleRibbonGroup>
+          </section>
         ))}
+        {!commandSections.length ? (
+          <div className="ah-navigation-empty" role="status">No matching commands.</div>
+        ) : null}
       </div>
-    </div>
-  )
-}
 
-function VisibleRibbonGroup({ caption, children, className }: { caption: string; children: ReactNode; className?: string }) {
-  const visible = Children.toArray(children).some((child) => isValidElement(child))
-  if (!visible) {
-    return null
-  }
-  return (
-    <div className={className}>
-      <RibbonGroup caption={caption}>{children}</RibbonGroup>
-    </div>
+      <footer className="ah-sidebar-footer">
+        <span className={`ah-connection-dot${session ? ' is-online' : ''}`} />
+        <span>{session?.tenant.name ?? 'Tenant workspace'}</span>
+      </footer>
+    </aside>
   )
 }

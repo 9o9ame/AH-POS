@@ -1,5 +1,5 @@
 import { UiDatePicker } from '../components/ui/UiDatePicker'
-import { FileSearch, Plus, Printer, ReceiptText, RefreshCw, Save, X, XCircle } from 'lucide-react'
+import { Plus, Printer, ReceiptText, RefreshCw, Save, X, XCircle } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { ApiClientError } from '../api/client'
@@ -594,11 +594,14 @@ export function QuotationEstimatePage({ active = true }: { active?: boolean } = 
   }, [active])
 
   return (
-    <DesktopPanel
-      title="Quotation / Estimate"
-      className="quotation-estimate-page"
-      toolbar={
-        <>
+    <DesktopPanel className="quotation-estimate-page" flush>
+      <header className="ah-quotation-workspace-header">
+        <div className="ah-quotation-title-block">
+          <span>DAILY ENTRIES / SALES</span>
+          <h1>Quotation / Estimate</h1>
+          <p>{activeQuotation ? `Document ${activeQuotation.document_number}` : 'Prepare a customer quote without posting stock or payment.'}</p>
+        </div>
+        <div className="ah-quotation-actionbar" aria-label="Quotation actions">
           <DesktopButton icon={<Plus size={15} />} label="New" onClick={startNew} />
           <DesktopButton
             icon={<Save size={15} />}
@@ -608,23 +611,16 @@ export function QuotationEstimatePage({ active = true }: { active?: boolean } = 
             onClick={() => saveMutation.mutate()}
           />
           <DesktopButton
-            icon={<FileSearch size={15} />}
-            label="Search"
-            variant="info"
-            onClick={() => setTab('search')}
-          />
-          <DesktopButton
             icon={<Printer size={15} />}
             label="Print"
             variant="info"
             disabled={!activeQuotation || !session}
             onClick={() => {
               if (!activeQuotation || !session) return
-
               const opened = printSaleQuotation(activeQuotation, session)
               if (!opened) {
                 feedback.error(
-                  'The print window was blocked by the browser. Allow pop-ups for BluePOS and try again.',
+                  'The print window was blocked by the browser. Allow pop-ups for AH-POS and try again.',
                   'Quotation Print',
                 )
               }
@@ -637,9 +633,7 @@ export function QuotationEstimatePage({ active = true }: { active?: boolean } = 
             disabled={!activeQuotation}
             onClick={() => {
               if (!activeQuotation) return
-              openModule(
-                `/daily/sales?quotation=${encodeURIComponent(activeQuotation.document_number)}`,
-              )
+              openModule(`/daily/sales?quotation=${encodeURIComponent(activeQuotation.document_number)}`)
             }}
           />
           <DesktopButton
@@ -652,24 +646,29 @@ export function QuotationEstimatePage({ active = true }: { active?: boolean } = 
             }}
           />
           <DesktopButton icon={<X size={15} />} label="Close" variant="info" onClick={closeActiveTab} />
-        </>
-      }
-    >
+        </div>
+      </header>
+      <div className="ah-quotation-navigation-row">
       <div className="quotation-tabs" role="tablist" aria-label="Quotation workspace">
         <button
           type="button"
+          role="tab"
+          aria-selected={tab === 'entry'}
           className={tab === 'entry' ? 'is-active' : ''}
           onClick={() => setTab('entry')}
         >
-          Estimate
+          Create / Edit
         </button>
         <button
           type="button"
+          role="tab"
+          aria-selected={tab === 'search'}
           className={tab === 'search' ? 'is-active' : ''}
           onClick={() => setTab('search')}
         >
           Search
         </button>
+      </div>
       </div>
 
       {pendingQuotationLookupNumber ? (
@@ -714,7 +713,10 @@ export function QuotationEstimatePage({ active = true }: { active?: boolean } = 
       {tab === 'entry' ? (
         <div className="quotation-entry">
           <div className="quotation-entry-head">
-            <div className="quotation-header-grid">
+            <div className="ah-quotation-details-grid">
+            <section className="ah-quotation-detail-card is-document">
+              <div className="ah-quotation-section-heading"><span>01</span><h2>Document details</h2></div>
+              <div className="quotation-header-grid">
             <label className="is-number">
               <span>Quotation #</span>
               <input
@@ -741,6 +743,11 @@ export function QuotationEstimatePage({ active = true }: { active?: boolean } = 
                 onChange={(event) => setQuotationDate(event.target.value)}
               />
             </label>
+              </div>
+            </section>
+            <section className="ah-quotation-detail-card is-customer">
+              <div className="ah-quotation-section-heading"><span>02</span><h2>Customer & pricing</h2></div>
+              <div className="quotation-header-grid">
             <label className="is-customer">
               <span>Customer</span>
               <UiTableDropdown
@@ -792,8 +799,15 @@ export function QuotationEstimatePage({ active = true }: { active?: boolean } = 
               />
             </label>
             </div>
+            </section>
+            </div>
           </div>
 
+          <section className="ah-quotation-products-section">
+            <header className="ah-quotation-products-heading">
+              <div><span>ORDER COMPOSITION</span><h2>Product lines</h2></div>
+              <span className="ah-quotation-line-count">{cart.paidLines.length} lines</span>
+            </header>
           <PosEntryGrid
             className="quotation-lines-wrap"
             tableClassName="quotation-lines"
@@ -1178,32 +1192,42 @@ export function QuotationEstimatePage({ active = true }: { active?: boolean } = 
                 ) : null}
           </PosEntryGrid>
 
-          <div className="quotation-footer-grid">
-            <label>
-              <span>Notes / Remarks</span>
-              <textarea
-                className="desktop-input"
-                rows={2}
-                value={cart.notes}
-                disabled={readOnly}
-                onChange={(event) => cart.setNotes(event.target.value)}
-              />
-            </label>
+          </section>
 
-            <aside className="quotation-amount-options quotation-amount-options-footer" aria-label="Quotation amount options">
-              <strong className="quotation-amount-options-title">Amount Options</strong>
-              <div className="quotation-net-box">
-                <span>Net:</span>
-                <strong>{formatDecimal(cart.preview.grandTotal)}</strong>
+          <div className="ah-quotation-summary-row">
+            <section className="ah-quotation-notes-panel">
+              <div className="ah-quotation-section-heading"><span>03</span><h2>Notes</h2></div>
+              <label>
+                <span>Notes / Remarks</span>
+                <textarea
+                  className="desktop-input"
+                  rows={2}
+                  value={cart.notes}
+                  disabled={readOnly}
+                  onChange={(event) => cart.setNotes(event.target.value)}
+                />
+              </label>
+            </section>
+
+            <section className="ah-quotation-summary-panel" aria-label="Quotation totals">
+              <div className="ah-quotation-section-heading"><span>04</span><h2>Quote summary</h2></div>
+              <div className="quotation-footer-grid">
+                <aside className="quotation-amount-options quotation-amount-options-footer" aria-label="Quotation amount options">
+                  <strong className="quotation-amount-options-title">Amount Options</strong>
+                  <div className="quotation-net-box">
+                    <span>Net:</span>
+                    <strong>{formatDecimal(cart.preview.grandTotal)}</strong>
+                  </div>
+                </aside>
+
+                <div className="quotation-totals">
+                  <div><span>Subtotal</span><strong>{formatDecimal(cart.preview.subtotal)}</strong></div>
+                  <div><span>Discount</span><strong>{formatDecimal(cart.preview.discount)}</strong></div>
+                  <div><span>Tax</span><strong>{formatDecimal(cart.preview.tax)}</strong></div>
+                  <div className="is-grand"><span>Estimate Total</span><strong>{formatDecimal(cart.preview.grandTotal)}</strong></div>
+                </div>
               </div>
-            </aside>
-
-            <div className="quotation-totals">
-              <div><span>Subtotal</span><strong>{formatDecimal(cart.preview.subtotal)}</strong></div>
-              <div><span>Discount</span><strong>{formatDecimal(cart.preview.discount)}</strong></div>
-              <div><span>Tax</span><strong>{formatDecimal(cart.preview.tax)}</strong></div>
-              <div className="is-grand"><span>Estimate Total</span><strong>{formatDecimal(cart.preview.grandTotal)}</strong></div>
-            </div>
+            </section>
           </div>
 
           <div className="quotation-note">

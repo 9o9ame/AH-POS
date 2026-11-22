@@ -6,34 +6,37 @@ export function WorkspaceTabBar() {
   const { tabs, activeKey, pendingKey, openModule, closeTab } = useWorkspace()
 
   return (
-    <div className="workspace-tabs" role="tablist" aria-label="Workspace documents">
-      {tabs.map((tab) => {
-        const selected = tab.key === (pendingKey ?? activeKey)
-        return (
-          <div key={tab.key} className={`workspace-tab${selected ? ' is-active' : ''}`} data-voucher-type={voucherAppearance(tab.path)?.type}>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={selected}
-              className="workspace-tab-label"
-              onClick={() => openModule(tab.path)}
-            >
-              {tab.title}
-              {tab.dirty ? ' *' : ''}
-            </button>
-            {tab.closeable ? (
+    <section className="ah-document-tabbar" aria-label="Open workspace documents">
+      <div className="ah-document-tabbar-label">OPEN DOCUMENTS</div>
+      <div className="workspace-tabs" role="tablist" aria-label="Workspace documents">
+        {tabs.map((tab) => {
+          const selected = tab.key === (pendingKey ?? activeKey)
+          return (
+            <div key={tab.key} className={`workspace-tab${selected ? ' is-active' : ''}`} data-voucher-type={voucherAppearance(tab.path)?.type}>
               <button
                 type="button"
-                className="workspace-tab-close"
-                aria-label={`Close ${tab.title}`}
-                onClick={() => closeTab(tab.key)}
+                role="tab"
+                aria-selected={selected}
+                className="workspace-tab-label"
+                onClick={() => openModule(tab.path)}
               >
-                <X size={12} aria-hidden />
+                {tab.title}
+                {tab.dirty ? ' *' : ''}
               </button>
-            ) : null}
-          </div>
-        )
-      })}
-    </div>
+              {tab.closeable ? (
+                <button
+                  type="button"
+                  className="workspace-tab-close"
+                  aria-label={`Close ${tab.title}`}
+                  onClick={() => closeTab(tab.key)}
+                >
+                  <X size={12} aria-hidden />
+                </button>
+              ) : null}
+            </div>
+          )
+        })}
+      </div>
+    </section>
   )
 }

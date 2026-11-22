@@ -7,6 +7,7 @@ import { SoftwareOptionsDialog } from '../components/desktop/SoftwareOptionsDial
 import { Ribbon } from '../components/desktop/Ribbon'
 import { StatusBar } from '../components/desktop/StatusBar'
 import { WorkspaceTabBar } from '../components/desktop/WorkspaceTabBar'
+import { ModuleCommandBar } from '../components/desktop/ModuleCommandBar'
 import { SalesInvoicePage } from '../pages/SalesInvoicePage'
 import { QuotationEstimatePage } from '../pages/QuotationEstimatePage'
 import { SalesReturnsPage } from '../pages/SalesReturnsPage'
@@ -148,6 +149,7 @@ function AppShellFrame({
 }) {
   useWorkspaceShortcuts()
   useAppMode()
+  const [navigationCollapsed, setNavigationCollapsed] = useState(false)
 
   const location = useLocation()
   const { tabs, activeKey } = useWorkspace()
@@ -194,7 +196,7 @@ function AppShellFrame({
               : false
 
   return (
-    <div className="app-shell">
+    <div className="app-shell ah-app-shell" data-navigation-collapsed={navigationCollapsed}>
       <ApplicationTitleBar
         session={session}
         busy={loggingOut}
@@ -202,20 +204,35 @@ function AppShellFrame({
         onLogout={onLogout}
         onChangePassword={onChangePassword}
         onAccount={onAccount}
+        navigationCollapsed={navigationCollapsed}
+        onToggleNavigation={() => setNavigationCollapsed((collapsed) => !collapsed)}
       />
-      <Ribbon
-        onCalculator={() => {
-          if (!launchWindowsCalculator()) {
-            setCalculatorOpen(true)
-          }
-        }}
-        onSoftwareOptions={() => setSoftwareOptionsOpen(true)}
-        onRecalculateStock={() => setRecalculateStockOpen(true)}
-        onLock={onLock}
-      />
-      <WorkspaceTabBar />
-      <div className="workspace-host">
-        <div className="workspace-host-inner">
+      <div className="ah-app-layout">
+        <Ribbon
+          collapsed={navigationCollapsed}
+          onToggleCollapse={() => setNavigationCollapsed((collapsed) => !collapsed)}
+          onCalculator={() => {
+            if (!launchWindowsCalculator()) {
+              setCalculatorOpen(true)
+            }
+          }}
+          onSoftwareOptions={() => setSoftwareOptionsOpen(true)}
+          onRecalculateStock={() => setRecalculateStockOpen(true)}
+          onLock={onLock}
+        />
+        <main className="ah-workspace-column">
+          <ModuleCommandBar
+            onCalculator={() => {
+              if (!launchWindowsCalculator()) setCalculatorOpen(true)
+            }}
+            onSoftwareOptions={() => setSoftwareOptionsOpen(true)}
+            onRecalculateStock={() => setRecalculateStockOpen(true)}
+            onLock={onLock}
+          />
+          <div className="ah-document-workspace">
+            <WorkspaceTabBar />
+            <div className="workspace-host">
+              <div className="workspace-host-inner">
           {persistentTabs.map((tab) => {
             const baseKey = (tab.key.split(':')[0] ?? tab.key)
             const queryIndex = tab.path.indexOf('?')
@@ -262,7 +279,10 @@ function AppShellFrame({
             )
           })}
           {!activePersistentKey || !persistentRouteAllowed ? <Outlet /> : null}
-        </div>
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
       {showStatusBar ? <StatusBar session={session} online={online} /> : null}
       <CalculatorDialog open={calculatorOpen} onClose={() => setCalculatorOpen(false)} />

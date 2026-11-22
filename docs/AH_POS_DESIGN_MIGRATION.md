@@ -82,6 +82,50 @@ The full visual conversion of every deep workflow is **not complete**. Initial C
 - `frontend/src/ahpos-design.css`
 - `docs/AH_POS_DESIGN_MIGRATION.md`
 
+## Critical design correction / 2026-11-22
+
+### Browser review finding
+Owner screenshot review rejected Batches 01–03: they primarily layered CSS over the inherited ribbon and desktop-form composition, so the result remained too familiar to BluePOS. Those batches were implementation attempts, not accepted visual sign-off. The corrected shell and workflow structure below supersedes that presentation direction.
+
+### Structural changes
+- Replaced the tenant shell's ribbon tab strip with a collapsible left navigation built from the existing `RIBBON_TABS` and `RIBBON_GROUPS` registries. The sidebar searches module, group, shortcut, and nested-menu labels; it renders through the existing `RibbonCommand`, preserving permission/entitlement checks, menu behavior, action callbacks and multi-instance opening rules.
+- Added a context command bar from the active module's existing registry group; composed the current tenant, the existing authenticated branch switcher, current warehouse context, notification/account controls and document tabs into the new shell.
+- Reorganized the shell into top application bar, sidebar, contextual command bar, persistent workspace tab strip, content area and status bar. Responsive layout changes the sidebar into an in-flow compact navigation region.
+- Rebuilt the Sales Invoice parent layout with a document/status header and a distinct transaction region separating the existing sales entry/grid area from its existing payment summary. The business grid implementation, columns, calculations, Amounts controls, keyboard/scanner logic and action handlers are unchanged.
+- Rebuilt Quotation / Estimate composition with a document header/action bar, Create/Search navigation, separate document and customer/pricing cards, a product-lines workspace, and independent notes and quote-summary panels. Existing save/search/print/convert/refresh/close callbacks and entry grid are retained.
+- Added `frontend/src/ahpos-structural.css` after the earlier transition stylesheet; structural UI is now expressed in JSX wrappers and new shell components/classes, not only in `ahpos-design.css`.
+
+### Context selector boundary
+The existing code provides an authenticated branch switch API/UI. Tenant is fixed by the authenticated membership and no tenant-switch endpoint exists; the session warehouse is displayed as authorized context and there is no global warehouse-switch endpoint/component. These are intentionally contextual readouts; no disconnected tenant or warehouse selector was fabricated. Existing purchase/return document warehouse controls remain unchanged.
+
+### Preservation audit
+- `frontend/src/features/workspace/modules.ts`, route registrations, API modules and backend files are unchanged.
+- Navigation continues to use the full existing command registry and the original permission/entitlement-aware `RibbonCommand`; route and business handlers remain connected.
+- Existing `WorkspaceProvider` and `WorkspaceTabBar` tab identity, dirty state, close confirmation and multi-instance route identity remain in use.
+- Sales and quotation line entry continues to use the original data/grid components; only containing JSX and presentation have changed.
+
+### Verification and acceptance
+- `cd frontend && npm.cmd run typecheck` — PASS.
+- `cd frontend && npm.cmd run build` — PASS; Vite reported the existing dynamic-import/chunk-size warnings.
+- `cd frontend && npm.cmd run ui:check` — PASS.
+- `cd frontend && npm.cmd run ui:navigation-check` — PASS (pending-data switching and bounded 10,000-row render cases).
+- `git diff --check` — PASS (Git reported its normal LF-to-CRLF notice for `Ribbon.tsx`).
+- Static parity audit confirmed route registrations, command registry, API modules and backend files are unchanged. The only backend worktree difference is the pre-existing `backend/composer.lock` change, excluded from this batch.
+- Manual screenshot review of the new authenticated shell, Sales Invoice and Quotation at desktop/tablet/mobile sizes remains pending owner acceptance.
+
+### Actual files edited
+- `frontend/src/layouts/AppShell.tsx`
+- `frontend/src/components/desktop/Ribbon.tsx`
+- `frontend/src/components/desktop/ApplicationTitleBar.tsx`
+- `frontend/src/components/desktop/WorkspaceTabBar.tsx`
+- `frontend/src/components/desktop/ModuleCommandBar.tsx` (new)
+- `frontend/src/pages/SalesInvoicePage.tsx`
+- `frontend/src/pages/QuotationEstimatePage.tsx`
+- `frontend/src/ahpos-structural.css` (new)
+- `frontend/src/main.tsx`
+- `PROJECT_UI_DESIGN_SYSTEM.md`
+- `docs/AH_POS_DESIGN_MIGRATION.md`
+
 ## Batch 03 / 2026-11-22 — core POS workflows
 
 ### Module changes

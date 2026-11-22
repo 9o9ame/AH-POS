@@ -1792,6 +1792,26 @@ export function SalesInvoicePage({
     <div
       className={`sales-reference-screen${view !== 'pos' ? ' is-full-workspace-view' : ''}`}
     >
+      {view === 'pos' ? (
+        <header className="ah-sales-document-header">
+          <div className="ah-sales-heading">
+            <span>DAILY ENTRIES / SALES</span>
+            <h1>Sales Invoice</h1>
+            <p>Build the order, review payment, then save or post.</p>
+          </div>
+          <div className="ah-sales-document-facts">
+            <div><span>Document</span><strong>{displayedInvoiceValue || 'Next invoice number'}</strong></div>
+            <div><span>Customer</span><strong>{customerSearch || invoiceCustomerName || 'Select customer'}</strong></div>
+            <div><span>Lines</span><strong>{cart.paidLines.length}</strong></div>
+            <div><span>Order total</span><strong>{formatDecimal(cart.preview.grandTotal)}</strong></div>
+            <div className="ah-sales-document-status" data-state={isBusy ? 'saving' : savedSale ? 'saved' : amendingSale ? 'amending' : 'draft'}>
+              <span>Status</span>
+              <strong>{isBusy ? 'Saving' : savedSale ? (savedSale.status ?? 'Saved') : amendingSale ? 'Amending' : 'Draft'}</strong>
+            </div>
+          </div>
+        </header>
+      ) : null}
+      <div className={`ah-sales-transaction-layout${view === 'pos' ? ' is-pos' : ''}`}>
       <main className="sales-reference-main">
 
 
@@ -3444,6 +3464,7 @@ export function SalesInvoicePage({
           </div>
         </aside>
       ) : null}
+      </div>
 
       {pendingInvoiceLookupNumber ? (
         <UiModal

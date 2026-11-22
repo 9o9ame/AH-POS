@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { APP_NAME } from '../../config/app'
 import type { AuthSession } from '../../types/auth'
 import { useWorkspace } from '../../features/workspace/WorkspaceProvider'
@@ -15,6 +16,8 @@ type ApplicationTitleBarProps = {
   onLogout: () => void
   onChangePassword: () => void
   onAccount: () => void
+  navigationCollapsed: boolean
+  onToggleNavigation: () => void
 }
 
 export function ApplicationTitleBar({
@@ -24,6 +27,8 @@ export function ApplicationTitleBar({
   onLogout,
   onChangePassword,
   onAccount,
+  navigationCollapsed,
+  onToggleNavigation,
 }: ApplicationTitleBarProps) {
   const { tabs, activeKey, openModule } = useWorkspace()
   const [appearanceOpen, setAppearanceOpen] = useState(false)
@@ -31,6 +36,15 @@ export function ApplicationTitleBar({
 
   return (
     <header className="titlebar">
+      <button
+        type="button"
+        className="ah-navigation-toggle"
+        aria-label={navigationCollapsed ? 'Expand application navigation' : 'Collapse application navigation'}
+        aria-expanded={!navigationCollapsed}
+        onClick={onToggleNavigation}
+      >
+        {navigationCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+      </button>
       <div className="titlebar-brand">
         <button type="button" className="titlebar-logo" onClick={onHome} title="Home">
           {APP_NAME}
@@ -40,12 +54,17 @@ export function ApplicationTitleBar({
           {import.meta.env.DEV ? <span className="titlebar-env">DEV</span> : null}
         </div>
       </div>
-      <div className="titlebar-center">
+      <div className="titlebar-center ah-topbar-context">
+        <span className="ah-topbar-kicker">ACTIVE WORKSPACE</span>
         {active?.title ?? 'Home'} — {session.tenant.name}
       </div>
       <div className="titlebar-meta titlebar-controls">
+        <span className="ah-context-selector" title="Tenant context is established by the authenticated membership">
+          <small>Tenant</small><strong>{session.tenant.name}</strong>
+        </span>
         <BranchSwitcher session={session} />
-        <span className="titlebar-warehouse" title="Active warehouse">
+        <span className="titlebar-warehouse ah-context-selector" title="Active warehouse from the authenticated session">
+          <small>Warehouse</small>
           {session.warehouse.code} — {session.warehouse.name}
         </span>
         <DesktopChromeControls />
