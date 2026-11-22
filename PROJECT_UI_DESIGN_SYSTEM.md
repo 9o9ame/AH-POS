@@ -1,3 +1,21 @@
+# AH-POS — Independent Visual Design Contract
+
+**Current product is AH-POS.** This repository was intentionally sourced from the working BluePOS codebase; pre-existing component names, UI variables, route IDs and descriptions below are legacy implementation references, **not** permission to reproduce its old look. Preserve their technical meaning while converting the visual identity.
+
+## Mandatory preservation policy
+- No changes to the route registry, ribbon command arrays, registered workspace modules, required fields, API requests, tenant/platform auth, permission/entitlement guards or business workflow semantics merely to achieve a visual result.
+- **No hiding:** Never use `display:none`, `visibility:hidden`, `opacity:0`, zero dimensions, moved-offscreen positioning, removal of nav controls or changed permission checks to disguise legacy UI. Responsive behavior may reorganize controls but must retain reachability.
+- Keep multi-instance sales/purchase tabs, all existing actions, alerts, focus states, document controls, popovers and modal portals operational.
+- AH-POS look: deep ink business chrome, restrained teal accents, airy modern card surfaces, readable typography, compact operation density, independent dark Platform sidebar, rectangular editorial login—not BluePOS circular embossed login or grey Windows title chrome.
+- Use existing `--ui-*` variables and AppearanceProvider for runtime theme/density/primary accent compatibility. `frontend/src/ahpos-design.css` is the **scoped visual migration entrypoint**, imported last in `main.tsx`; do not add scattered per-page CSS overrides for common visual controls. This is a transition stylesheet and should be merged into canonical shell sources after acceptance.
+- Default new AH-POS users to advanced skin, Inter, teal primary; user-selected settings remain authoritative. Appearance local-storage prefix is AH-POS-specific (not BluePOS).
+- Maintain a before/after registry audit of feature navigation as migration advances. CSS must not alter data or auth.
+
+## Design progress
+**Batch 01 / 2026-11-22:** tenant/title/ribbon/tab/status chrome; independent Platform header/sidebar; tenant/Platform login visual geometry and brand texts; browser metadata/PWA banner; appearance defaults. **Code committed; frontend build, UI checks and browser acceptance unverified.** No functions removed. Legacy pages' deeper grids, toolbar geometry, icon assets, and report viewers remain unchanged for later controlled conversion.
+
+---
+
 # BluePOS Project UI Design System
 
 This file is the single source of truth for BluePOS frontend visual language and reusable UI behavior.
