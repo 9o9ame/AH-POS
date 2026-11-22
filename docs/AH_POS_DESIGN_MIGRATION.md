@@ -81,3 +81,31 @@ The full visual conversion of every deep workflow is **not complete**. Initial C
 ### Actual files edited
 - `frontend/src/ahpos-design.css`
 - `docs/AH_POS_DESIGN_MIGRATION.md`
+
+## Batch 03 / 2026-11-22 — core POS workflows
+
+### Module changes
+- **Sales Invoice:** gave the invoice header/options, scanner strip, footer navigation, action row, and payment surfaces the AH-POS token treatment. Preserved the approved editable sales grid geometry and Amounts layout.
+- **Purchase Invoice:** clarified supplier/invoice, GST, charges, items toolbar, totals, and payment panels using shared surfaces and semantic action tokens. Kept the specialized purchase entry grid and all column controls intact.
+- **Sales Returns:** restyled the view bar, source invoice chooser, return options, amount summary, editable rows, and settlement/action surfaces.
+- **Purchase Returns:** aligned source purchase, supplier/warehouse, amount summary, editable entry, search, and action surfaces with the same workflow language.
+- **Sales Quotations:** changed the entry/search view selector from a vertical rail to a horizontal, scrollable workspace bar and refreshed header/totals panels.
+- **Purchase Orders:** changed entry/search/status navigation to a horizontal workspace bar and refreshed options, search/status panels, footer, and totals.
+- Responsive rules retain access to every tab, field, column, shortcut, command, and action.
+
+### Preservation boundary
+- Batch 03 edits are scoped CSS plus this migration record. No React handlers, component markup, route definitions, requests, permissions, formulas, posting transitions, or tenant scoping were changed.
+- Multiple document instances continue to use the existing workspace-tab provider and route behavior.
+- Sales Invoice line grid column/row geometry and Amounts layout remain unchanged. Existing specialized Purchase Invoice entry geometry remains intact.
+
+### Verification
+- `npm.cmd run typecheck` — PASS.
+- `npm.cmd run build` — PASS; Vite reported existing dynamic-import/chunk-size warnings.
+- `npm.cmd run ui:check` — PASS.
+- `npm.cmd run ui:navigation-check` — PASS (pending-data switching and bounded 10,000-row render cases).
+- `git diff --check` — PASS.
+- Manual visual review of all six workflows remains pending owner acceptance.
+
+### Actual files edited
+- `frontend/src/ahpos-design.css`
+- `docs/AH_POS_DESIGN_MIGRATION.md`

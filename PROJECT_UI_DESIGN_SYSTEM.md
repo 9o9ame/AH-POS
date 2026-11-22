@@ -14,6 +14,7 @@
 ## Design progress
 **Batch 01 / 2026-11-22:** tenant/title/ribbon/tab/status chrome; independent Platform header/sidebar; tenant/Platform login visual geometry and brand texts; browser metadata/PWA banner; appearance defaults. Code committed; initial commit notes marked build and browser acceptance unverified. No functions removed.
 **Batch 02 / 2026-11-22:** shared tenant shell composition, ribbon/workspace surfaces, status bar, token-driven shared control/table/modal appearance, and responsive Platform navigation refinement. Implementation and verification details are tracked in `docs/AH_POS_DESIGN_MIGRATION.md`. Deeper workflow composition, grids, report viewers, and platform pages remain for later batches.
+**Batch 03 / 2026-11-22:** Sales Invoice, Purchase Invoice, Sales Returns, Purchase Returns, Quotations and Purchase Orders received scoped AH-POS workflow styling and responsive tab composition. Sales editable grid/Amounts geometry and specialized Purchase Invoice grid remain preserved. Implementation and verification details are tracked in `docs/AH_POS_DESIGN_MIGRATION.md`.
 
 ---
 
