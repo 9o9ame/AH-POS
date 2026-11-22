@@ -67,7 +67,7 @@ import { WorkspacePage } from '../pages/WorkspacePage'
 function Splash() {
   return (
     <div className="grid h-screen place-items-center bg-[var(--ui-bg)] text-sm text-[var(--ui-text)]">
-      <div className="w-72 max-w-full"><UiSkeleton label="Loading BluePOS…"/></div>
+      <div className="w-72 max-w-full"><UiSkeleton label="Loading AH-POS…"/></div>
     </div>
   )
 }
