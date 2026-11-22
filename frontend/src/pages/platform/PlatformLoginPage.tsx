@@ -89,7 +89,7 @@ export function PlatformLoginPage() {
       <div className="auth-showcase-ring">
       <div className="auth-showcase-form-card">
         <div className="auth-showcase-heading">
-          <div className="auth-brand">BLUEPOS PLATFORM</div>
+          <div className="auth-brand">AH-POS PLATFORM</div>
           {challengeUlid ? <span className="auth-otp-emblem" aria-hidden="true">✦</span> : null}
           <h1 className="auth-title">{challengeUlid ? 'Verify your account' : 'Sign in'}</h1>
           <p className="auth-showcase-subtitle">Platform Administration</p>
@@ -155,12 +155,12 @@ export function PlatformLoginPage() {
       </div>
       </div>
       </div>
-      <aside className="auth-showcase-promo" aria-label="BluePOS Platform information">
+      <aside className="auth-showcase-promo" aria-label="AH-POS Platform information">
         <div className="auth-showcase-promo-content">
-          <div className="auth-showcase-promo-mark">BP</div>
-          <p className="auth-showcase-eyebrow">BLUEPOS PLATFORM</p>
-          <h2>Manage your platform with clarity.</h2>
-          <p>Sign in to continue to your authorized BluePOS administration workspace.</p>
+          <div className="auth-showcase-promo-mark">AH</div>
+          <p className="auth-showcase-eyebrow">AH-POS PLATFORM</p>
+          <h2>One control plane. Every business.</h2>
+          <p>Manage organizations, access and security through the independent AH-POS control plane.</p>
           <div className="auth-showcase-decor" aria-hidden="true"><span /><span /><span /></div>
         </div>
       </aside>
