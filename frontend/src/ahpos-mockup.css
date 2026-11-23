@@ -15,8 +15,8 @@
   --ui-surface-subtle: #fffaf7;
   --ui-surface-muted: #f7f2ef;
   --ui-text: #232433;
-  --ui-text-muted: #767382;
-  --ui-border: #e9dedb;
+  --ui-text-muted: #625e6b;
+  --ui-border: #ded2ce;
   --ui-border-soft: #f0e7e2;
   --ui-panel-face: linear-gradient(145deg, #fffdfc, #fbf7f5);
   --ui-control-face: #fffdfc;
@@ -31,6 +31,59 @@
   --ui-selected-row: #fff2e3;
   --ui-control-shadow: var(--button-shadow);
   --ui-card-shadow: var(--panel-shadow);
+}
+
+/* Keep the tenant shell legible in every Appearance shadow mode. The 3D
+   preference controls control/panel depth; it must not wash out navigation. */
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-app-shell {
+  --ah-sidebar-bg: linear-gradient(155deg, #302c38 0%, #1d202c 74%, #403025 100%);
+  --ah-sidebar-fg: #f7f3f8;
+  --ah-sidebar-muted: #cbc5d0;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-app-shell > .titlebar {
+  background: linear-gradient(110deg, #191c29, #292632) !important;
+  border-bottom: 1px solid rgba(255,255,255,.14) !important;
+  color: #f7f3f8 !important;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-app-shell > .titlebar :is(.titlebar-meta, .titlebar-controls) {
+  color: #f1edf4 !important;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-app-shell .ah-context-selector {
+  border-color: rgba(255,255,255,.16) !important;
+  background: rgba(255,255,255,.09) !important;
+  color: #f7f3f8 !important;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-app-shell .ah-context-selector small {
+  color: #d0c9d5 !important;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-app-shell .ah-context-selector strong {
+  color: #fff !important;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-app-shell .ah-global-search {
+  border-color: rgba(255,255,255,.18);
+  background: rgba(255,255,255,.09);
+  color: #f2edf5;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-app-shell .ah-global-search kbd {
+  border-color: rgba(255,255,255,.2);
+  color: #d4ced8;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-sidebar {
+  border-color: rgba(255,255,255,.12) !important;
+  background: var(--ah-sidebar-bg) !important;
+  color: var(--ah-sidebar-fg) !important;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-sidebar .ribbon-command {
+  color: #e7e2eb;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-sidebar .ribbon-command:disabled {
+  opacity: .78;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-navigation-section > h2 {
+  color: #e0d9e4;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-navigation-group > h3 {
+  color: #c4bdca;
 }
 
 :root[data-button-scope='tenant'][data-shadow='3d'] {
@@ -425,9 +478,9 @@
 
 @media (max-width: 1200px) {
   :root[data-button-scope='tenant'] #root .ah-app-shell > .titlebar {
-    grid-template-columns: minmax(140px, 1fr) minmax(145px, 1fr) minmax(175px, 1.2fr) minmax(155px, 1.1fr) auto;
-    gap: 7px;
-    padding-inline: 11px;
+    grid-template-columns: minmax(135px, 1.05fr) minmax(130px, .9fr) minmax(150px, 1fr) minmax(140px, 1.1fr) auto;
+    gap: 8px;
+    padding-inline: 12px;
   }
 }
 @media (max-width: 760px) {

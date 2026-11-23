@@ -59,6 +59,11 @@
 - The notification dialog no longer opens just because the pointer passes over its trigger; click, Escape and outside-click behavior remain.
 - Files additionally changed: `frontend/src/components/desktop/NotificationBell.tsx` and `frontend/src/pages/SalesInvoicePage.tsx`.
 
+## Owner contrast and alignment correction / 2026-11-23
+- The follow-up owner screenshot showed the 3D shadow mode overriding the charcoal shell with translucent light surfaces, which reduced sidebar and topbar text contrast. The tenant shell is now explicitly kept charcoal in 3D mode; the preference still controls panel/control depth.
+- Increased muted text and border contrast, improved legibility of authorization-disabled navigation entries without changing their disabled state, and stabilized five-column topbar sizing at narrower desktop widths.
+- No route, component workflow, permission, API, or financial behavior changed. Live visual review after browser refresh remains pending.
+
 ## Files changed
 - `frontend/src/ahpos-3d.css` (new)
 - `frontend/src/ahpos-structural.css`
