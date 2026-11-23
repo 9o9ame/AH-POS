@@ -21,6 +21,7 @@ import './density-shell.css'
 import './ahpos-design.css'
 import './ahpos-structural.css'
 import './ahpos-3d.css'
+import './ahpos-mockup.css'
 
 applyAppDisplayMode()
 

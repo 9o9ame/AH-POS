@@ -1,0 +1,448 @@
+/*
+ * AH-POS tenant design from the owner's complete UI mockup library.
+ * Keep behavior, current AppearanceProvider accent/focus, dimensions and route
+ * ownership intact; this sheet defines the shared tenant visual language.
+ */
+:root[data-button-scope='tenant'] {
+  --ah-brand-amber: #d67e19;
+  --ah-brand-amber-strong: #a44c0c;
+  --ah-brand-amber-soft: #fff0df;
+  --ah-shell-ink: #191c29;
+  --ah-shell-nav: #211f29;
+  --ah-shell-warm: #443126;
+  --ui-bg: #f2edeb;
+  --ui-surface: #fffdfc;
+  --ui-surface-subtle: #fffaf7;
+  --ui-surface-muted: #f7f2ef;
+  --ui-text: #232433;
+  --ui-text-muted: #767382;
+  --ui-border: #e9dedb;
+  --ui-border-soft: #f0e7e2;
+  --ui-panel-face: linear-gradient(145deg, #fffdfc, #fbf7f5);
+  --ui-control-face: #fffdfc;
+  --ui-control-border: #e6dcda;
+  --ui-control-hover-bg: #fff7f0;
+  --ui-control-hover-border: color-mix(in srgb, var(--ah-brand-amber) 50%, var(--ui-border));
+  --ui-table-header: #f9eee6;
+  --ui-table-header-text: #6e4f3a;
+  --ui-table-border: #ebdfdd;
+  --ui-row-alt: #fffaf7;
+  --ui-row-hover: #fff9f3;
+  --ui-selected-row: #fff2e3;
+  --ui-control-shadow: var(--button-shadow);
+  --ui-card-shadow: var(--panel-shadow);
+}
+
+:root[data-button-scope='tenant'][data-shadow='3d'] {
+  --button-shadow: 0 2px 5px color-mix(in srgb, var(--ui-text) 8%, transparent), inset 0 1px 0 #ffffffb0;
+  --panel-shadow: 0 10px 30px color-mix(in srgb, #281b23 7%, transparent), 0 3px 9px color-mix(in srgb, #281b23 5%, transparent);
+}
+
+:root[data-button-scope='tenant'][data-theme='dark'] {
+  --ui-bg: #171820;
+  --ui-surface: #22232d;
+  --ui-surface-subtle: #292a35;
+  --ui-surface-muted: #343541;
+  --ui-text: #f2eef0;
+  --ui-text-muted: #bbb5c0;
+  --ui-border: #403d47;
+  --ui-border-soft: #34323c;
+  --ui-panel-face: linear-gradient(145deg, #252630, #20212a);
+  --ui-control-face: #292a35;
+  --ui-control-border: #494650;
+  --ui-control-hover-bg: #36303a;
+  --ui-table-header: #312d33;
+  --ui-table-header-text: #e5cdbb;
+  --ui-table-border: #3e3b44;
+  --ui-row-alt: #252630;
+  --ui-row-hover: #302a30;
+  --ui-selected-row: color-mix(in srgb, var(--ui-accent) 21%, #22232d);
+}
+:root[data-button-scope='tenant'][data-theme='dark'][data-shadow='3d'] {
+  --button-shadow: 0 3px 8px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.055);
+  --panel-shadow: 0 10px 28px rgba(0,0,0,.24), 0 2px 8px rgba(0,0,0,.16);
+}
+
+/* Preserve the user's chosen radius tier while bringing its proportions toward the reference. */
+:root[data-button-scope='tenant'][data-radius='small'] { --control-radius: 8px; --panel-radius: 12px; }
+:root[data-button-scope='tenant'][data-radius='medium'] { --control-radius: 11px; --panel-radius: 16px; }
+:root[data-button-scope='tenant'][data-radius='large'] { --control-radius: 14px; --panel-radius: 20px; }
+
+/* Compact dark glass workspace chrome. Tenant commands stay in the searchable sidebar. */
+:root[data-button-scope='tenant'] #root .ah-app-shell {
+  --ah-sidebar-bg: linear-gradient(155deg, #292632 0%, #191c28 72%, #443126 100%);
+  --ah-sidebar-fg: #eeeaf0;
+  --ah-sidebar-muted: #b6b0bb;
+  grid-template-rows: 70px minmax(0, 1fr) auto;
+  background: var(--ui-bg);
+}
+:root[data-button-scope='tenant'] #root .ah-app-shell > .titlebar {
+  display: grid;
+  grid-template-columns: minmax(150px, 1.05fr) minmax(150px, .88fr) minmax(190px, 1fr) minmax(210px, 1.25fr) auto;
+  min-height: 70px;
+  height: 70px;
+  gap: 12px;
+  padding: 9px clamp(14px, 1.5vw, 25px);
+  border-bottom: 1px solid rgba(255,255,255,.09);
+  background: linear-gradient(110deg, var(--ah-shell-ink), var(--ah-shell-nav));
+  color: #f1edf2;
+  box-shadow: 0 5px 18px rgba(12,10,19,.18);
+}
+:root[data-button-scope='tenant'] #root .ah-app-shell > .titlebar :is(.titlebar-meta, .titlebar-controls) {
+  color: #e9e3eb !important;
+}
+:root[data-button-scope='tenant'] #root .ah-context-selector {
+  min-width: 0;
+  max-width: none;
+  min-height: 43px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 12px;
+  background: rgba(255,255,255,.075);
+  color: #f2edf4;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.045);
+  font-size: 11px;
+}
+:root[data-button-scope='tenant'] #root .ah-context-selector small { color: #bbb4c1 !important; font-size: 9px; }
+:root[data-button-scope='tenant'] #root .ah-context-selector strong { color: #fff !important; }
+:root[data-button-scope='tenant'] #root .ah-app-shell > .titlebar > label.titlebar-meta {
+  display: grid;
+  min-width: 0;
+  align-content: center;
+  gap: 2px;
+  padding: 5px 11px;
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 12px;
+  background: rgba(255,255,255,.075);
+}
+:root[data-button-scope='tenant'] #root .ah-app-shell > .titlebar > label.titlebar-meta > span {
+  color: #bbb4c1;
+  font-size: 9px;
+}
+:root[data-button-scope='tenant'] #root .ah-app-shell > .titlebar > label.titlebar-meta .titlebar-select {
+  min-height: 23px;
+  color: #fff;
+}
+:root[data-button-scope='tenant'] #root .ah-app-shell .titlebar-meta > span { color: inherit; }
+:root[data-button-scope='tenant'] #root .ah-app-shell .titlebar-select,
+:root[data-button-scope='tenant'] #root .ah-app-shell .titlebar-select .ui-select-trigger {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+}
+:root[data-button-scope='tenant'] #root .ah-app-shell .titlebar-select .ui-select-trigger {
+  min-height: 24px;
+  border: 0 !important;
+  padding: 0;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #fff !important;
+  font-size: 12px;
+}
+:root[data-button-scope='tenant'] #root .ah-app-shell .titlebar-select .ui-select-trigger svg { color: #ded6e1; }
+:root[data-button-scope='tenant'] #root .ah-global-search {
+  display: flex;
+  min-width: 0;
+  height: 43px;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 13px;
+  background: rgba(255,255,255,.075);
+  color: #ded8e2;
+  text-align: left;
+  cursor: pointer;
+}
+:root[data-button-scope='tenant'] #root .ah-global-search > span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:root[data-button-scope='tenant'] #root .ah-global-search kbd { padding: 3px 6px; border: 1px solid rgba(255,255,255,.14); border-radius: 6px; color: #aaa4b2; font: inherit; font-size: 9px; }
+:root[data-button-scope='tenant'] #root .ah-global-search:hover { background: rgba(255,255,255,.12); color: #fff; }
+:root[data-button-scope='tenant'] #root .ah-app-shell .titlebar-controls { min-width: 0; gap: 9px; }
+:root[data-button-scope='tenant'] #root .ah-sidebar {
+  padding: 14px 11px 12px;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 0 0 0 0;
+  background: var(--ah-sidebar-bg);
+  color: var(--ah-sidebar-fg);
+  box-shadow: inset -1px 0 0 rgba(255,255,255,.035);
+  backdrop-filter: blur(16px);
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar-heading { min-height: 58px; padding: 0 6px 13px; border-bottom: 1px solid rgba(255,255,255,.11); }
+:root[data-button-scope='tenant'] #root .ah-sidebar-home {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: 11px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ah-sidebar-fg);
+  text-align: left;
+  cursor: pointer;
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar-brand-mark {
+  width: 39px;
+  height: 39px;
+  flex-basis: 39px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #f6b34f, var(--ah-brand-amber));
+  color: #362117;
+  font-size: 23px;
+  font-weight: 850;
+  box-shadow: 0 4px 12px rgba(214,126,25,.26);
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar-brand-copy { gap: 2px; }
+:root[data-button-scope='tenant'] #root .ah-sidebar-brand-copy strong { color: #fff; font-size: 17px; letter-spacing: -.035em; }
+:root[data-button-scope='tenant'] #root .ah-sidebar-brand-copy span { color: #bdb7c2; font-size: 10px; }
+:root[data-button-scope='tenant'] #root .ah-sidebar-collapse {
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 9px;
+  background: rgba(255,255,255,.07);
+  color: #e5dfe8;
+}
+:root[data-button-scope='tenant'] #root .ah-app-shell[data-navigation-collapsed='true'] .ah-sidebar-home {
+  flex: 0 0 auto;
+  justify-content: center;
+}
+:root[data-button-scope='tenant'] #root .ah-navigation-search {
+  min-height: 40px;
+  margin: 14px 2px 12px;
+  padding-inline: 11px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 11px;
+  background: rgba(255,255,255,.065);
+  color: #c1bac8;
+}
+:root[data-button-scope='tenant'] #root .ah-navigation-search input { color: #fff; font-size: 12px; }
+:root[data-button-scope='tenant'] #root .ah-navigation-search input::placeholder { color: #aaa3b1; }
+:root[data-button-scope='tenant'] #root .ah-navigation-search kbd { color: #a8a1ae; }
+:root[data-button-scope='tenant'] #root .ah-navigation-section { margin-bottom: 15px; }
+:root[data-button-scope='tenant'] #root .ah-navigation-section > h2 {
+  margin: 18px 9px 8px;
+  color: #a8a2ae;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+:root[data-button-scope='tenant'] #root .ah-navigation-group { margin-bottom: 7px; }
+:root[data-button-scope='tenant'] #root .ah-navigation-group > h3 {
+  margin: 13px 10px 5px;
+  color: #918b98;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar .ribbon-command {
+  min-height: 36px;
+  gap: 10px;
+  padding: 5px 10px;
+  border-radius: 10px;
+  color: #d8d3dc;
+  font-size: 11px;
+  font-weight: 550;
+  box-shadow: none !important;
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar .ribbon-command:hover:not(:disabled) {
+  border-color: rgba(255,255,255,.08);
+  background: rgba(255,255,255,.07);
+  color: #fff;
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar .ribbon-command.is-active {
+  border-color: color-mix(in srgb, var(--ah-brand-amber) 44%, #fff);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--ui-accent) 36%, var(--ah-brand-amber-strong)), var(--ah-brand-amber-strong));
+  box-shadow: 0 4px 12px rgba(125,68,19,.2) !important;
+  color: #fff;
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar .ribbon-icon-tile { color: #e3b57e; box-shadow: none !important; }
+:root[data-button-scope='tenant'] #root .ah-sidebar .ribbon-command.is-active .ribbon-icon-tile { color: #fff2df; }
+:root[data-button-scope='tenant'] #root .ah-sidebar-footer { border-top-color: rgba(255,255,255,.1); color: #c2bdc7; }
+
+/* Warm workspace canvas and shared headers across all tenant routes. */
+:root[data-button-scope='tenant'] #root .ah-workspace-column,
+:root[data-button-scope='tenant'] #root .ah-document-workspace,
+:root[data-button-scope='tenant'] #root .workspace-host,
+:root[data-button-scope='tenant'] #root .workspace-host-inner { background: var(--ui-bg); }
+:root[data-button-scope='tenant'] #root .ah-module-commandbar {
+  min-height: 52px;
+  gap: 14px;
+  padding: 6px 18px;
+  border-bottom-color: var(--ui-border);
+  background: var(--ui-surface);
+}
+:root[data-button-scope='tenant'] #root .ah-module-context-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: var(--ah-brand-amber-soft);
+  color: var(--ah-brand-amber-strong);
+}
+:root[data-button-scope='tenant'] #root .ah-module-context > div > span { color: var(--ui-text-muted); font-size: 9px; }
+:root[data-button-scope='tenant'] #root .ah-module-context strong { font-size: 12px; }
+:root[data-button-scope='tenant'] #root .ah-document-tabbar {
+  min-height: 38px;
+  gap: 10px;
+  padding: 3px 16px;
+  border-bottom-color: var(--ui-border);
+  background: var(--ui-surface-subtle);
+}
+:root[data-button-scope='tenant'] #root .ah-document-tabbar .workspace-tab {
+  min-height: 30px;
+  border-color: transparent;
+  border-radius: 9px;
+  background: transparent;
+}
+:root[data-button-scope='tenant'] #root .ah-document-tabbar .workspace-tab.is-active {
+  border-color: color-mix(in srgb, var(--ui-accent) 36%, var(--ui-border));
+  background: color-mix(in srgb, var(--ui-accent) 12%, var(--ah-brand-amber-soft));
+  box-shadow: inset 0 -2px 0 var(--ui-accent);
+}
+:root[data-button-scope='tenant'] #root .ah-document-tabbar .workspace-tab.is-active .workspace-tab-label { color: var(--ui-accent-strong); }
+:root[data-button-scope='tenant'] #root .ah-app-shell > .statusbar {
+  min-height: 30px;
+  background: var(--ui-surface);
+  color: var(--ui-text-muted);
+}
+
+/* Common B2B surfaces used by definitions, reports, account and settings screens. */
+:root[data-button-scope='tenant'] #root .workspace-host-inner :is(
+  .ui-content-panel,
+  .ui-form-section,
+  .desktop-panel,
+  .content-panel,
+  .form-section,
+  .product-management-page .product-def-editor,
+  .product-management-page .product-catalog-panel,
+  .ah-quotation-detail-card,
+  .ah-quotation-summary-panel,
+  .ah-quotation-notes-panel
+) {
+  border-color: var(--ui-border) !important;
+  border-radius: var(--panel-radius) !important;
+  background: var(--ui-panel-face) !important;
+  box-shadow: var(--ui-card-shadow) !important;
+}
+:root[data-button-scope='tenant'] #root .workspace-host-inner :is(.ui-content-panel-header, .ui-form-section > header) {
+  border-bottom-color: var(--ui-border-soft);
+}
+:root[data-button-scope='tenant'] #root .workspace-host-inner :is(.ui-page-header, .page-header) h1 { color: var(--ui-text); }
+:root[data-button-scope='tenant'] #root .workspace-host-inner :is(.ui-page-eyebrow, .page-eyebrow) { color: var(--ah-brand-amber-strong); }
+:root[data-button-scope='tenant'] #root .workspace-host-inner :is(.ui-page-toolbar, .page-toolbar) { gap: 8px; }
+:root[data-button-scope='tenant'] #root .workspace-host-inner :is(.ui-page-actionbar, .page-actionbar) {
+  border-color: var(--ui-border);
+  background: var(--ui-surface);
+}
+:root[data-button-scope='tenant'] #root .workspace-host-inner :is(.ui-content-panel-header h2, .ui-form-section h2, .ui-content-panel h2) {
+  color: var(--ui-text);
+}
+
+/* Consistent token surfaces for controls, data tables and portal UI. */
+:root[data-button-scope='tenant'] #root .workspace-host-inner :is(
+  .ui-button,
+  .desktop-btn,
+  .ui-select-trigger,
+  .ui-select-combobox-trigger,
+  .desktop-input,
+  .desktop-select,
+  .desktop-textarea
+) {
+  border-color: var(--ui-control-border) !important;
+  border-radius: var(--control-radius) !important;
+  background: var(--ui-control-face) !important;
+  color: var(--ui-text) !important;
+}
+:root[data-button-scope='tenant'] #root .workspace-host-inner :is(input:not([type='checkbox']):not([type='radio']):not([type='file']), textarea, select) {
+  border-color: var(--ui-control-border);
+  border-radius: var(--control-radius);
+  background-color: var(--ui-surface);
+  color: var(--ui-text);
+}
+:root[data-button-scope='tenant'] #root .workspace-host-inner :is(input, textarea, select, button, .ui-select-trigger):focus-visible {
+  outline-color: var(--appearance-accent);
+}
+:root[data-button-scope='tenant'] #root .workspace-host-inner :is(.pos-grid-wrap, .pos-data-grid-wrap, .pos-entry-grid-wrap, .ui-table-wrap, .table-wrap, .data-table-wrap) {
+  border-color: var(--ui-table-border);
+  border-radius: var(--panel-radius);
+  background: var(--ui-surface);
+  box-shadow: var(--ui-card-shadow);
+}
+:root[data-button-scope='tenant'] #root .workspace-host-inner :is(.pos-grid, .pos-data-grid, .pos-entry-grid, table) thead th {
+  border-color: var(--ui-table-border);
+  background: var(--ui-table-header);
+  color: var(--ui-table-header-text);
+  text-shadow: none;
+}
+:root[data-button-scope='tenant'] #root .workspace-host-inner :is(.pos-grid, .pos-data-grid, .pos-entry-grid, table) tbody td {
+  border-color: var(--ui-border-soft);
+  color: var(--ui-text);
+}
+:root[data-button-scope='tenant'] :is(.ui-modal, .ui-select-menu, .ui-multi-select-menu, .ui-date-picker) {
+  border-color: var(--ui-border);
+  border-radius: var(--panel-radius);
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  box-shadow: var(--ui-card-shadow);
+}
+
+/* The reference's warm brand is the tenant identity; chosen Appearance theme still drives focus/selection. */
+:root[data-button-scope='tenant'] #root .ah-app-shell :is(.ah-module-context-icon, .ah-sidebar-brand-mark) { color: var(--ah-brand-amber-strong); }
+:root[data-button-scope='tenant'] #root .ah-navigation-toggle:focus-visible,
+:root[data-button-scope='tenant'] #root .ah-sidebar-home:focus-visible,
+:root[data-button-scope='tenant'] #root .ah-sidebar-collapse:focus-visible,
+:root[data-button-scope='tenant'] #root .ah-global-search:focus-visible {
+  outline: 2px solid var(--appearance-accent);
+  outline-offset: 2px;
+}
+
+/* Tenant auth uses the same warm materials; Platform Admin selectors stay untouched. */
+#root .auth-showcase:not(.platform-auth-page) {
+  --ah-brand-amber: #d67e19;
+  --ah-brand-amber-strong: #a44c0c;
+  --ah-brand-amber-soft: #fff0df;
+  --ui-bg: #f2edeb;
+  --ui-surface: #fffdfc;
+  --ui-surface-subtle: #fffaf7;
+  --ui-text: #232433;
+  --ui-text-muted: #767382;
+  --ui-border: #e9dedb;
+}
+#root .auth-showcase:not(.platform-auth-page) .auth-showcase-promo {
+  background: linear-gradient(145deg, #211f29, #473326);
+}
+#root .auth-showcase:not(.platform-auth-page) .auth-showcase-promo-mark {
+  background: linear-gradient(135deg, #f6b34f, var(--ah-brand-amber));
+  color: #362117;
+}
+#root .auth-showcase:not(.platform-auth-page) .auth-showcase-form-card button[type='submit'] {
+  background: linear-gradient(135deg, var(--ui-accent-strong), var(--ui-accent));
+  color: #fff;
+}
+
+@media (max-width: 1200px) {
+  :root[data-button-scope='tenant'] #root .ah-app-shell > .titlebar {
+    grid-template-columns: minmax(140px, 1fr) minmax(145px, 1fr) minmax(175px, 1.2fr) minmax(155px, 1.1fr) auto;
+    gap: 7px;
+    padding-inline: 11px;
+  }
+}
+@media (max-width: 760px) {
+  :root[data-button-scope='tenant'] #root .ah-app-shell { grid-template-rows: auto minmax(0, 1fr) auto; }
+  :root[data-button-scope='tenant'] #root .ah-app-shell > .titlebar {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto auto;
+    height: auto;
+    min-height: 0;
+    padding: 9px 11px;
+  }
+  :root[data-button-scope='tenant'] #root .ah-app-shell > .titlebar > * { grid-column: 1; }
+  :root[data-button-scope='tenant'] #root .ah-app-shell .titlebar-controls { grid-column: 1; flex-wrap: wrap; justify-content: flex-start; }
+  :root[data-button-scope='tenant'] #root .ah-global-search { height: 38px; }
+  :root[data-button-scope='tenant'] #root .ah-context-selector { min-height: 38px; }
+  :root[data-button-scope='tenant'] #root .ah-sidebar-home .ah-sidebar-brand-copy { display: grid; }
+  :root[data-button-scope='tenant'] #root .ah-navigation-command-list { max-height: 150px; }
+}

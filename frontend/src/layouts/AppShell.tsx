@@ -200,16 +200,14 @@ function AppShellFrame({
       <ApplicationTitleBar
         session={session}
         busy={loggingOut}
-        onHome={onHome}
         onLogout={onLogout}
         onChangePassword={onChangePassword}
         onAccount={onAccount}
-        navigationCollapsed={navigationCollapsed}
-        onToggleNavigation={() => setNavigationCollapsed((collapsed) => !collapsed)}
       />
       <div className="ah-app-layout">
         <Ribbon
           collapsed={navigationCollapsed}
+          onHome={onHome}
           onToggleCollapse={() => setNavigationCollapsed((collapsed) => !collapsed)}
           onCalculator={() => {
             if (!launchWindowsCalculator()) {

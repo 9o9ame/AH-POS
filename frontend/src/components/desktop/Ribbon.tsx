@@ -1,14 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import {
-  BarChart3,
-  CircleHelp,
-  FilePenLine,
-  Home,
-  Search,
-  Settings,
-  Wrench,
-  type LucideIcon,
-} from 'lucide-react'
+import { Search } from 'lucide-react'
+import { APP_NAME } from '../../config/app'
 import { useAuth } from '../../features/auth/AuthProvider'
 import { useWorkspace } from '../../features/workspace/WorkspaceProvider'
 import {
@@ -16,21 +8,12 @@ import {
   RIBBON_TABS,
   WORKSPACE_MODULES,
   type RibbonCommandDef,
-  type RibbonTabId,
 } from '../../features/workspace/modules'
 import { RibbonCommand } from './RibbonCommand'
 
-const RIBBON_TAB_ICONS: Record<RibbonTabId, LucideIcon> = {
-  definition: Home,
-  'daily-entries': FilePenLine,
-  reports: BarChart3,
-  tools: Wrench,
-  administration: Settings,
-  help: CircleHelp,
-}
-
 type RibbonProps = {
   collapsed: boolean
+  onHome: () => void
   onToggleCollapse: () => void
   onCalculator: () => void
   onSoftwareOptions: () => void
@@ -40,13 +23,14 @@ type RibbonProps = {
 
 export function Ribbon({
   collapsed,
+  onHome,
   onToggleCollapse,
   onCalculator,
   onSoftwareOptions,
   onRecalculateStock,
   onLock,
 }: RibbonProps) {
-  const { ribbonTab, setRibbonTab, openModule, activeModule } = useWorkspace()
+  const { openModule, activeModule } = useWorkspace()
   const { session } = useAuth()
   const [query, setQuery] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
@@ -63,35 +47,30 @@ export function Ribbon({
     return () => window.removeEventListener('keydown', focusNavigationSearch)
   }, [])
 
-  const commandSections = useMemo(() => {
-    if (!normalizedQuery) {
-      const selected = RIBBON_TABS.find((tab) => tab.id === ribbonTab)
-      return selected
-        ? [{
-            tabId: selected.id,
-            tabLabel: selected.label,
-            groups: RIBBON_GROUPS[selected.id].filter((group) =>
-              !(selected.id === activeModule.ribbon && group.commands.some((command) => command.moduleKey === activeModule.key)),
-            ),
-          }]
-        : []
-    }
+  useEffect(() => {
+    const focusNavigationSearch = () => searchRef.current?.focus()
+    window.addEventListener('ahpos:focus-navigation-search', focusNavigationSearch)
+    return () => window.removeEventListener('ahpos:focus-navigation-search', focusNavigationSearch)
+  }, [])
 
+  const commandSections = useMemo(() => {
     return RIBBON_TABS.map((tab) => ({
       tabId: tab.id,
       tabLabel: tab.label,
       groups: RIBBON_GROUPS[tab.id]
         .map((group) => ({
           ...group,
-          commands: group.commands.filter((command) =>
-            `${command.label} ${group.caption} ${tab.label} ${command.shortcut ?? ''} ${command.menu?.map((item) => item.label).join(' ') ?? ''}`
-              .toLocaleLowerCase()
-              .includes(normalizedQuery),
-          ),
+          commands: normalizedQuery
+            ? group.commands.filter((command) =>
+                `${command.label} ${group.caption} ${tab.label} ${command.shortcut ?? ''} ${command.menu?.map((item) => item.label).join(' ') ?? ''}`
+                  .toLocaleLowerCase()
+                  .includes(normalizedQuery),
+              )
+            : group.commands,
         }))
         .filter((group) => group.commands.length > 0),
     })).filter((section) => section.groups.length > 0)
-  }, [activeModule.key, activeModule.ribbon, normalizedQuery, ribbonTab])
+  }, [normalizedQuery])
 
   const openPath = (path: string, newInstance = false) => {
     openModule(path, { newInstance })
@@ -126,11 +105,13 @@ export function Ribbon({
   return (
     <aside className="ah-sidebar" data-collapsed={collapsed} aria-label="Application navigation">
       <div className="ah-sidebar-heading">
-        <div className="ah-sidebar-brand-mark" aria-hidden="true">AH</div>
-        <div className="ah-sidebar-brand-copy">
-          <strong>AH-POS</strong>
-          <span>Business workspace</span>
-        </div>
+        <button type="button" className="ah-sidebar-home" onClick={onHome} aria-label="AH-POS home">
+          <span className="ah-sidebar-brand-mark" aria-hidden="true">A</span>
+          <span className="ah-sidebar-brand-copy">
+            <strong>{APP_NAME}</strong>
+            <span>Tenant Workspace</span>
+          </span>
+        </button>
         <button
           type="button"
           className="ah-sidebar-collapse"
@@ -155,36 +136,10 @@ export function Ribbon({
         {!collapsed ? <kbd>⌘ K</kbd> : null}
       </label>
 
-      <nav className="ah-navigation-categories" aria-label="Application areas">
-        {RIBBON_TABS.map((tab) => {
-          const Icon = RIBBON_TAB_ICONS[tab.id]
-          const selected = tab.id === ribbonTab && !normalizedQuery
-          return (
-            <button
-              type="button"
-              key={tab.id}
-              className={selected ? 'is-active' : ''}
-              aria-label={tab.label}
-              aria-current={selected ? 'page' : undefined}
-              title={collapsed ? tab.label : undefined}
-              onClick={() => {
-                setQuery('')
-                setRibbonTab(tab.id)
-              }}
-            >
-              <Icon size={17} strokeWidth={1.8} aria-hidden="true" />
-              <span>{tab.label}</span>
-            </button>
-          )
-        })}
-      </nav>
-
-      <div className="ah-sidebar-divider" />
-
       <div className="ah-navigation-command-list" aria-label={normalizedQuery ? 'Search results' : 'Modules'}>
         {commandSections.map((section) => (
           <section className="ah-navigation-section" key={section.tabId}>
-            {normalizedQuery ? <h2>{section.tabLabel}</h2> : null}
+            <h2>{section.tabLabel}</h2>
             {section.groups.map((group) => (
               <div className="ah-navigation-group" key={`${section.tabId}-${group.id}`}>
                 <h3>{group.caption}</h3>

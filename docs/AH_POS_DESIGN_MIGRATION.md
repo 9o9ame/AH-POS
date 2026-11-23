@@ -1,3 +1,38 @@
+# Complete tenant mockup direction / 2026-11-23
+
+## Reference use and current-code boundary
+- Inspected `AH_POS_Complete_Tenant_UI_Mockups.zip`: it contains 82 static proposals (70 route mappings and 12 dialog/component previews) plus 10 concept PNGs.
+- The archive README warns that sample fields, actions, numbers and route mappings may be illustrative/stale. They are visual references only; local route registries, business components, permissions and APIs remain authoritative. No demo content or disconnected controls were imported.
+- Platform Super Admin is intentionally excluded from the tenant style scope.
+
+## Implementation
+- Rebuilt the tenant shell composition: branding/home control is now part of the sidebar; the topbar is reserved for authenticated business context, branch/warehouse, real command search, notification, appearance and account controls.
+- The sidebar presents all existing command groups together in a scrollable searchable navigation. The existing command registry, handlers, authorization visibility and routes remain in use.
+- Added `frontend/src/ahpos-mockup.css` after canonical appearance and tenant styles. It provides the mockups' warm ivory business canvas, charcoal shell, amber brand surfaces, rounded panels, shared field/table treatment and dark-theme variants via existing AppearanceProvider attributes. The saved primary theme still drives focus and selected states; shadow, radius, density and font preferences remain active.
+- The topbar search button focuses the actual registry search through a DOM event; no global entity search endpoint or fake result screen was invented.
+- No API, backend, database, financial calculation, permission or posting behavior changed. Workspace tabs, contextual commands and the existing module page components are retained.
+
+## Verification
+- `cd frontend && npm.cmd run typecheck` — PASS.
+- `cd frontend && npm.cmd run build` — PASS; existing mixed dynamic/static import and large-chunk warnings remain.
+- `cd frontend && npm.cmd run ui:check` — PASS.
+- `cd frontend && npm.cmd run ui:navigation-check` — PASS (pending-data switching and bounded 10,000-row rendering).
+- `git diff --check` — PASS.
+- Manual visual review of the live tenant app at desktop, tablet, mobile, and dark theme remains pending.
+
+## Files changed
+- `frontend/src/ahpos-mockup.css` (new)
+- `frontend/src/main.tsx`
+- `frontend/src/components/desktop/ApplicationTitleBar.tsx`
+- `frontend/src/components/desktop/Ribbon.tsx`
+- `frontend/src/layouts/AppShell.tsx`
+- `PROJECT_UI_DESIGN_SYSTEM.md`
+- `docs/AH_POS_DESIGN_MIGRATION.md`
+- `PROJECT_UI_DESIGN_SYSTEM.md`
+- `docs/AH_POS_DESIGN_MIGRATION.md`
+
+---
+
 # Tenant 3D visual direction / 2026-11-23
 
 ## Reference interpretation
