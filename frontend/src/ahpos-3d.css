@@ -164,3 +164,346 @@
   animation: none !important;
   transition: none !important;
 }
+
+/* Screenshot-driven refinement: quieter application chrome and clearer focus. */
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-app-shell > .titlebar {
+  background: color-mix(in srgb, var(--ui-surface) 92%, transparent) !important;
+  border-bottom: 1px solid var(--ui-border-soft, var(--ui-border));
+  box-shadow: 0 5px 18px color-mix(in srgb, var(--ui-text) 7%, transparent);
+  color: var(--ui-text) !important;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-app-shell .titlebar-meta,
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-app-shell .titlebar-center,
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-app-shell .titlebar-controls {
+  color: var(--ui-text) !important;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-app-shell .titlebar-logo {
+  border-right-color: var(--ui-border) !important;
+  color: var(--ui-text) !important;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-app-shell .titlebar-logo::first-letter {
+  color: var(--ui-accent-strong);
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-context-selector {
+  min-height: 42px;
+  padding: 7px 11px;
+  border-color: color-mix(in srgb, var(--ui-border) 74%, var(--ui-surface));
+  background: var(--ui-surface);
+  box-shadow: 0 2px 7px color-mix(in srgb, var(--ui-text) 8%, transparent), inset 0 1px 0 #ffffffb0;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-context-selector small {
+  color: var(--ui-text-muted) !important;
+  font-size: 10px;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-context-selector strong {
+  color: var(--ui-text) !important;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-navigation-toggle,
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-sidebar-collapse {
+  border-color: color-mix(in srgb, var(--ui-border) 70%, var(--ui-surface));
+  background: var(--ui-surface);
+  box-shadow: 0 2px 7px color-mix(in srgb, var(--ui-text) 8%, transparent);
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-sidebar {
+  border-radius: 0;
+  box-shadow: inset -1px 0 0 color-mix(in srgb, var(--ui-border) 56%, transparent);
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-sidebar .ribbon-command,
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-sidebar .ribbon-command:hover:not(:disabled),
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-sidebar .ribbon-command.is-active,
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-sidebar .ribbon-icon-tile {
+  box-shadow: none !important;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-sidebar .ribbon-command {
+  min-height: 38px;
+  font-size: 12px;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-sidebar .ribbon-command.is-active {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--ui-accent) 12%, var(--ui-surface));
+  color: var(--ui-accent-strong);
+  box-shadow: inset 3px 0 0 var(--ui-accent) !important;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-sidebar .ribbon-icon-tile {
+  background: transparent;
+}
+
+/* Sales workspace: ease dense legacy controls without changing the grid geometry. */
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-sales-document-header {
+  min-height: 96px;
+  padding: 17px clamp(18px, 2vw, 30px);
+  background: var(--ui-surface);
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-sales-heading h1 {
+  font-size: clamp(23px, 2vw, 29px);
+  letter-spacing: -.035em;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-sales-heading p {
+  margin-top: 6px;
+  font-size: 12px;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-sales-document-facts > div {
+  min-width: 100px;
+  padding-inline: 16px;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-sales-transaction-layout > .sales-reference-main {
+  background: var(--ui-bg);
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-meta {
+  padding: 12px 16px;
+  border: 0;
+  background: var(--ui-bg);
+  box-shadow: none;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-options {
+  margin: 0;
+  padding: 12px 16px 15px;
+  border: 1px solid color-mix(in srgb, var(--ui-border) 62%, var(--ui-surface));
+  border-radius: calc(var(--panel-radius) + 2px);
+  background: var(--ui-surface);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--ui-text) 5%, transparent), inset 0 1px 0 #ffffffb0;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-options legend {
+  padding-inline: 8px;
+  color: var(--ui-text-muted);
+  font-size: 11px;
+  font-weight: 650;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-options-head {
+  min-height: 34px;
+  margin-bottom: 10px;
+  padding: 3px 8px;
+  border-radius: var(--control-radius);
+  background: var(--ui-surface-subtle);
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-options-head > label {
+  min-height: 28px;
+  padding-inline: 8px;
+  border-radius: var(--control-radius);
+  color: var(--ui-text);
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-options-head input[type='radio'] {
+  accent-color: var(--ui-accent-strong);
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-copy-from {
+  color: var(--ui-text-muted);
+  font-size: 11px;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-option-grid {
+  column-gap: 8px !important;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-option-grid > label {
+  color: var(--ui-text-muted) !important;
+  font-size: 10px;
+  font-weight: 650;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-screen :is(input:not([type='checkbox']):not([type='radio']), textarea, select, .ui-select-trigger, .sales-reference-input-button) {
+  border-color: color-mix(in srgb, var(--ui-border) 66%, var(--ui-surface)) !important;
+  border-radius: var(--control-radius) !important;
+  background: var(--ui-surface) !important;
+  box-shadow: inset 0 1px 2px color-mix(in srgb, var(--ui-text) 5%, transparent), 0 1px 3px color-mix(in srgb, var(--ui-text) 5%, transparent) !important;
+  color: var(--ui-text) !important;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-screen :is(input, textarea, select, .ui-select-trigger):focus-visible {
+  border-color: var(--ui-accent) !important;
+  box-shadow: var(--ui-focus-shadow) !important;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-entry-row {
+  min-height: 48px;
+  padding: 6px 10px;
+  border: 0;
+  border-top: 1px solid var(--ui-border-soft, var(--ui-border));
+  border-bottom: 1px solid var(--ui-border-soft, var(--ui-border));
+  background: var(--ui-surface);
+  box-shadow: none;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-sale-btn {
+  border: 0 !important;
+  border-radius: var(--control-radius) !important;
+  background: var(--ui-accent-strong) !important;
+  box-shadow: 0 3px 8px color-mix(in srgb, var(--ui-accent) 20%, transparent) !important;
+  color: #fff !important;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-grid-wrap {
+  border: 0;
+  border-radius: 0;
+  background: var(--ui-surface);
+  box-shadow: none;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-grid th {
+  height: 38px;
+  border-color: var(--ui-border-soft, var(--ui-border));
+  background: var(--ui-surface-subtle);
+  color: var(--ui-text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .035em;
+  text-transform: uppercase;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-grid-empty {
+  display: grid;
+  place-items: center;
+  min-height: 180px;
+  margin: 12px 16px;
+  border: 1px dashed color-mix(in srgb, var(--ui-border) 78%, var(--ui-surface));
+  border-radius: var(--panel-radius);
+  background: color-mix(in srgb, var(--ui-surface-subtle) 48%, var(--ui-surface));
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-sales-empty-state {
+  display: flex;
+  max-width: 520px;
+  align-items: center;
+  gap: 16px;
+  padding: 22px;
+  color: var(--ui-text);
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-sales-empty-icon {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  place-items: center;
+  border-radius: 15px;
+  background: var(--ui-accent-soft);
+  color: var(--ui-accent-strong);
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-sales-empty-state h2 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 700;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-sales-empty-state p,
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-sales-empty-state div > span {
+  margin: 0;
+  color: var(--ui-text-muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-sales-empty-state div > span {
+  display: block;
+  margin-top: 5px;
+  font-size: 11px;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-grid-totals {
+  min-height: 36px;
+  border-color: var(--ui-border-soft, var(--ui-border));
+  background: var(--ui-surface-subtle);
+  color: var(--ui-text);
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) auto minmax(0, 1fr);
+  min-height: 68px;
+  gap: 10px;
+  padding: 9px 14px;
+  border-top: 1px solid var(--ui-border);
+  background: var(--ui-surface);
+  box-shadow: 0 -4px 14px color-mix(in srgb, var(--ui-text) 5%, transparent);
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-subtabs-bottom {
+  gap: 4px;
+  min-width: 0;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-subtab {
+  min-height: 42px;
+  gap: 7px;
+  padding-inline: 10px;
+  border: 0;
+  border-radius: var(--control-radius);
+  background: transparent;
+  box-shadow: none !important;
+  color: var(--ui-text-muted);
+  font-weight: 600;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-subtab.is-active {
+  background: var(--ui-accent-soft);
+  color: var(--ui-accent-strong);
+  box-shadow: inset 0 -2px 0 var(--ui-accent) !important;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-actions-center {
+  gap: 6px;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-actions-center button {
+  min-height: 42px;
+  padding-inline: 12px;
+  border-color: var(--ui-border-soft, var(--ui-border)) !important;
+  border-radius: var(--control-radius) !important;
+  background: var(--ui-surface) !important;
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--ui-text) 7%, transparent) !important;
+  color: var(--ui-text) !important;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-actions-center button:has(.is-save):not(:disabled) {
+  border-color: color-mix(in srgb, var(--ui-success) 40%, var(--ui-border)) !important;
+  background: var(--ui-success-soft) !important;
+  color: color-mix(in srgb, var(--ui-success) 72%, var(--ui-text)) !important;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-actions-center button:has(.is-close) {
+  color: var(--ui-danger) !important;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-sales-transaction-layout .sales-reference-pay {
+  gap: 11px;
+  border-left: 1px solid var(--ui-border);
+  background: var(--ui-surface-subtle);
+  box-shadow: inset 6px 0 18px color-mix(in srgb, var(--ui-text) 4%, transparent);
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-retail-title {
+  min-height: 38px;
+  padding: 5px 2px 10px;
+  border-bottom-color: var(--ui-border);
+  color: var(--ui-accent-strong);
+  font-size: 11px;
+  font-weight: 750;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-amounts,
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-pay-options {
+  margin-inline: 0;
+  padding: 13px;
+  border-color: color-mix(in srgb, var(--ui-border) 65%, var(--ui-surface));
+  border-radius: calc(var(--panel-radius) + 2px);
+  background: var(--ui-surface);
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--ui-text) 5%, transparent);
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-total-block > div {
+  min-height: 58px;
+  padding: 12px 16px;
+  border-radius: calc(var(--panel-radius) + 2px);
+  background: linear-gradient(135deg, var(--ui-accent-strong), var(--ui-accent));
+  box-shadow: 0 5px 14px color-mix(in srgb, var(--ui-accent) 22%, transparent);
+  color: #fff;
+  font-size: 25px;
+  font-weight: 750;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-payment-method .ui-select-trigger,
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-received > input,
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-card,
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-balance {
+  min-height: 42px;
+  border: 1px solid color-mix(in srgb, var(--ui-border) 65%, var(--ui-surface)) !important;
+  border-radius: var(--control-radius) !important;
+  background: var(--ui-surface) !important;
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--ui-text) 6%, transparent) !important;
+  color: var(--ui-text) !important;
+}
+:root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-received > input {
+  width: 100% !important;
+  flex: 1 1 auto;
+}
+
+@media (max-width: 1440px) {
+  :root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  :root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-actions-center {
+    justify-content: flex-end;
+    overflow-x: auto;
+  }
+}
+@media (max-width: 760px) {
+  :root[data-button-scope='tenant'][data-shadow='3d'] #root .ah-sales-empty-state {
+    align-items: flex-start;
+    padding: 18px;
+  }
+  :root[data-button-scope='tenant'][data-shadow='3d'] #root .sales-reference-actions-center {
+    justify-content: flex-start;
+  }
+}

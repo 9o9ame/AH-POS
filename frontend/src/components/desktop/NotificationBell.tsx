@@ -194,7 +194,7 @@ export function NotificationBell({ session, onOpenDevices }: {
   const unread = notices.data?.unread_count ?? 0
   const unreadNotices = notices.data?.notifications.filter(notice => notice.read_at === null) ?? []
   return (
-    <div ref={root} className="bp-notification-root" onMouseEnter={() => setOpen(true)} onKeyDown={(event) => { if (event.key === 'Escape') setOpen(false) }}>
+    <div ref={root} className="bp-notification-root" onKeyDown={(event) => { if (event.key === 'Escape') setOpen(false) }}>
       <button
         type="button"
         className={'bp-notification-trigger bp-motion-bell' + (ring ? ' bp-notification-ring' : '')}

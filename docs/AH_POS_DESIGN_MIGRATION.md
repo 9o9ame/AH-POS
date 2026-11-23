@@ -18,6 +18,12 @@
 - `git diff --check` — PASS (Git reports its normal LF-to-CRLF notice for `ahpos-structural.css`).
 - Manual owner review of the running tenant shell, authentication, and representative pages in light/dark and responsive sizes remains pending.
 
+## Screenshot refinement / 2026-11-23
+- The owner-provided Sales Invoice screenshot showed pale low-contrast topbar metadata, elevated sidebar commands, heavily framed transaction controls and a large unexplained empty table area. The newest tenant stylesheet rules correct those surfaces while preserving the existing entry-grid column/financial geometry.
+- The Sales empty-cart area now gives a concise scan/search instruction. It is informational and does not add a disconnected control.
+- The notification dialog no longer opens just because the pointer passes over its trigger; click, Escape and outside-click behavior remain.
+- Files additionally changed: `frontend/src/components/desktop/NotificationBell.tsx` and `frontend/src/pages/SalesInvoicePage.tsx`.
+
 ## Files changed
 - `frontend/src/ahpos-3d.css` (new)
 - `frontend/src/ahpos-structural.css`

@@ -3037,7 +3037,18 @@ export function SalesInvoicePage({
                 ) : null}
               </div>
 
-              <div className="sales-reference-grid-empty" />
+              <div className="sales-reference-grid-empty">
+                {cart.lines.length === 0 ? (
+                  <section className="ah-sales-empty-state" aria-label="Empty invoice">
+                    <span className="ah-sales-empty-icon"><Grid3X3 size={21} aria-hidden="true" /></span>
+                    <div>
+                      <h2>Start your invoice</h2>
+                      <p>Scan a barcode or search for a product in the first row of the table.</p>
+                      <span>Items and totals will appear here as you build the order.</span>
+                    </div>
+                  </section>
+                ) : null}
+              </div>
 
               <div className="sales-reference-grid-totals">
                 <div />
