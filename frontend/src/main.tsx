@@ -20,6 +20,7 @@ import './density.css'
 import './density-shell.css'
 import './ahpos-design.css'
 import './ahpos-structural.css'
+import './ahpos-3d.css'
 
 applyAppDisplayMode()
 

@@ -34,7 +34,7 @@ const DEFAULT_PREFERENCES: AppearancePreferences = {
   primaryTheme: 'teal',
   density: 'comfortable',
   radius: 'medium',
-  shadow: 'soft',
+  shadow: '3d',
   animations: true,
 }
 

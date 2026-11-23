@@ -1,3 +1,33 @@
+# Tenant 3D visual direction / 2026-11-23
+
+## Reference interpretation
+- The supplied videos are visual references for soft 3D/neumorphic surfaces, a raised/inset verification form and glass-like navigation. Text visible in the recordings is reference content, not project instructions.
+- The treatment applies to tenant pages and tenant sign-in only. Platform Admin retains its independent appearance.
+
+## Implementation
+- Added `frontend/src/ahpos-3d.css`, loaded after the canonical theme and AH-POS styles. It composes existing AppearanceProvider `--ui-*` tokens into raised controls/panels, inset entry fields, a glass-like collapsible sidebar, floating shell bars, refined document tabs, portalled menus/dialogs and tenant sign-in/OTP surfaces.
+- Existing radius, density, selected theme, light/dark and animation settings still drive the interface. Fresh appearance profiles default to the existing 3D shadow option; persisted appearance choices are not overwritten.
+- Scoped the prior flat shared-face override in `ahpos-structural.css` to authenticated tenant scope, so it no longer changes Platform Admin or conflicts with tenant authentication styling.
+- No React business screens, routes, API calls, permission checks, financial calculations, posting behavior, backend or database were changed.
+
+## Verification
+- `cd frontend && npm.cmd run typecheck` — PASS.
+- `cd frontend && npm.cmd run build` — PASS; existing mixed dynamic/static import and large-chunk warnings remain.
+- `cd frontend && npm.cmd run ui:check` — PASS.
+- `cd frontend && npm.cmd run ui:navigation-check` — PASS (pending-data switching and bounded 10,000-row rendering).
+- `git diff --check` — PASS (Git reports its normal LF-to-CRLF notice for `ahpos-structural.css`).
+- Manual owner review of the running tenant shell, authentication, and representative pages in light/dark and responsive sizes remains pending.
+
+## Files changed
+- `frontend/src/ahpos-3d.css` (new)
+- `frontend/src/ahpos-structural.css`
+- `frontend/src/features/appearance/AppearanceProvider.tsx`
+- `frontend/src/main.tsx`
+- `PROJECT_UI_DESIGN_SYSTEM.md`
+- `docs/AH_POS_DESIGN_MIGRATION.md`
+
+---
+
 # AH-POS Design Migration — Batch 01 (2026-11-22)
 
 ## Basis and boundary

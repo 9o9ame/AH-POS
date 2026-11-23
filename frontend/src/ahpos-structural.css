@@ -488,8 +488,8 @@
 }
 
 /* Flat AH-POS control faces; theme and semantic meaning remain token-driven. */
-:root,
-:root[data-theme='dark'] {
+:root[data-button-scope='tenant'],
+:root[data-button-scope='tenant'][data-theme='dark'] {
   --ui-control-face: var(--ui-surface);
   --ui-control-border: var(--ui-border);
   --ui-select-arrow-face: var(--ui-surface-subtle);
