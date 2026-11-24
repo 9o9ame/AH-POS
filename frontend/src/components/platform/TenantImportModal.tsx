@@ -28,7 +28,7 @@ export function TenantImportModal({ tenant, onClose }: { tenant: PlatformTenant;
     queryKey: ['platform', 'tenant-import-progress', tenant.ulid, batchUlid],
     queryFn: () => fetchTenantImportProgress(tenant.ulid, batchUlid!),
     enabled: Boolean(batchUlid),
-    refetchInterval: (query) => query.state.data?.status === 'completed' ? false : 2000,
+    refetchInterval: (query) => query.state.data?.status === 'completed' || query.state.data?.processing_mode === 'local_chunked' ? false : 2000,
   })
   // Local-only, bounded one-chunk-per-request runner. Production continues to
   // poll the existing worker queue and never invokes this endpoint.
@@ -36,7 +36,7 @@ export function TenantImportModal({ tenant, onClose }: { tenant: PlatformTenant;
     queryKey: ['platform', 'tenant-import-local-advance', tenant.ulid, batchUlid],
     queryFn: () => advanceLocalTenantImport(tenant.ulid, batchUlid!),
     enabled: Boolean(batchUlid) && result?.processing_mode === 'local_chunked' && result.status === 'processing',
-    refetchInterval: (query) => query.state.data?.status === 'completed' ? false : 750,
+    refetchInterval: (query) => query.state.data?.status === 'completed' ? false : 1800,
     retry: false,
   })
   useEffect(() => {
