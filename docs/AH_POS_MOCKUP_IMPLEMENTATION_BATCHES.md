@@ -78,3 +78,8 @@ GitHub connector can write/check source but cannot run user's authenticated fron
 
 ### Next
 Owner browser acceptance first, then remaining Definition masters and follow-up UI consistency. Do not treat untouched pages as complete.
+
+## Batch 08 — Permanent duplicate-heading removal (2026-11-24)
+- JSX structural cleanup (not CSS-only): `CatalogMasterWorkspace.tsx` for Categories/Brands/Units, `SubcategoriesPage.tsx`, `SaleSchemesPage.tsx`, `PriceListsPage.tsx`. All in-card directory titles and decorative subtitles removed. Existing search/filter/status chips/PosDataGrid/FAB/modal/API logic remain.
+- Separate shell fix `fix/tenant-context-bar-left-nav-07` renders module command strip LEFT and active tab title RIGHT and scopes persistent layout via `ahpos-context-bar.css`. Merge both branches only after existing local `docs/AH_POS_DESIGN_MIGRATION.md` merge conflict is resolved.
+- Typecheck and authenticated browser approval UNVERIFIED by GitHub connector. Previous user typecheck success was against stale local code while merge was unresolved; repeat after applying both changes.
