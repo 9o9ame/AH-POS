@@ -15,6 +15,7 @@ import { useFeedback } from '../feedback/FeedbackProvider'
 import type { Product } from '../types/catalog'
 import './ProductTabularViewPage.css'
 import './ProductGridWorkspaces.css'
+import './ProductTabularClarity.css'
 
 type BulkField = 'reorder_level' | 'wholesale_price' | 'minimum_sale_price' | 'retail_price'
 type PriceBulkField = Exclude<BulkField, 'reorder_level'>
