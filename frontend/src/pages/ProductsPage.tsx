@@ -1989,6 +1989,7 @@ export function ProductsPage({
             <UiModal open={editorOpen} size="xl" className="product-definition-modal"
               ariaLabel={creating ? "Add product" : "Edit product"}
               title={creating ? 'New Product' : <span className="product-editor-title">Edit Product · {selected?.product_number ?? ''} <small>{selected?.is_active === false ? 'Discontinued' : 'Active record'}</small></span>}
+              closeOnEscape={!supplierModalOpen && quickEditor === null}
               onClose={() => setEditorOpen(false)}>
               <form id="inline-product-form" className="product-management-page product-definition-modal-form"
                 onSubmit={onSubmit}>
@@ -2003,6 +2004,7 @@ export function ProductsPage({
       {supplierModalOpen ? (
         <PartyModal
           partyType="vendor"
+          zIndex={editorOpen && !embedded ? UI_LAYER.nestedModal : UI_LAYER.modal}
           onClose={() => setSupplierModalOpen(false)}
           onSaved={(party: Party) => {
             const supplierUlid =
@@ -2024,6 +2026,7 @@ export function ProductsPage({
       ) : null}
 
       <CatalogQuickEditorModal
+        zIndex={editorOpen && !embedded ? UI_LAYER.nestedModal : UI_LAYER.modal}
         kind={quickEditor}
         open={quickEditor !== null}
         parentCategoryUlid={categoryUlid}
