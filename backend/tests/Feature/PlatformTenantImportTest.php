@@ -400,6 +400,62 @@ class PlatformTenantImportTest extends TestCase
             (string) $batch->fresh()->last_error);
     }
 
+    public function test_local_async_import_advances_without_queue_and_replays_safely(): void
+    {
+        Storage::fake('local');
+        Queue::fake();
+        $this->app->detectEnvironment(fn () => 'local');
+        config(['queue.default' => 'sync']);
+
+        $tenant = $this->readyTenant('imp-local-chunks');
+        $other = $this->readyTenant('imp-local-other');
+        $this->signInPlatformAdmin('imp-local-chunks-admin');
+        $upload = '/api/platform/tenants/'.$tenant->ulid.'/imports/async';
+        $result = $this->post($upload, ['file' => $this->accounts()])
+            ->assertStatus(202)->assertJsonPath('processing_mode', 'local_chunked')
+            ->assertJsonPath('processed', 0);
+        Queue::assertNothingPushed();
+
+        $advance = '/api/platform/tenants/'.$tenant->ulid.'/imports/'.$result->json('ulid').'/advance-local';
+        $this->postJson($advance)->assertOk()
+            ->assertJsonPath('status', 'completed')->assertJsonPath('created', 1);
+        $this->postJson($advance)->assertOk()
+            ->assertJsonPath('status', 'completed')->assertJsonPath('created', 1);
+        $this->post($upload, ['file' => $this->accounts()])
+            ->assertStatus(202)->assertJsonPath('replayed', true);
+        Queue::assertNothingPushed();
+        $this->assertSame(1, Supplier::query()->forTenant($tenant->id)->count());
+        $this->assertSame(1, TenantImportRow::query()->count());
+        $this->assertSame(0, Supplier::query()->forTenant($other->id)->count());
+        $this->postJson('/api/platform/tenants/'.$other->ulid.'/imports/'.$result->json('ulid').'/advance-local')
+            ->assertNotFound();
+    }
+
+    public function test_local_product_import_posts_opening_stock_only_once(): void
+    {
+        Storage::fake('local');
+        Queue::fake();
+        $this->app->detectEnvironment(fn () => 'local');
+        config(['queue.default' => 'sync']);
+
+        $tenant = $this->readyTenant('imp-local-stock');
+        $warehouse = Warehouse::query()->forTenant($tenant->id)->firstOrFail();
+        $this->signInPlatformAdmin('imp-local-stock-admin');
+        $upload = '/api/platform/tenants/'.$tenant->ulid.'/imports/async';
+        $result = $this->post($upload, [
+            'file' => $this->products(), 'warehouse_ulid' => $warehouse->ulid,
+        ])->assertStatus(202)->assertJsonPath('processed', 0);
+        $advance = '/api/platform/tenants/'.$tenant->ulid.'/imports/'.$result->json('ulid').'/advance-local';
+        $this->postJson($advance)->assertOk()
+            ->assertJsonPath('status', 'completed')->assertJsonPath('stock.posted', 1);
+        $this->post($upload, [
+            'file' => $this->products(), 'warehouse_ulid' => $warehouse->ulid,
+        ])->assertStatus(202)->assertJsonPath('replayed', true);
+        $this->assertSame(3, Product::query()->forTenant($tenant->id)->count());
+        $this->assertSame(1, StockMovement::query()->forTenant($tenant->id)->count());
+        Queue::assertNothingPushed();
+    }
+
     public function test_async_endpoint_refuses_sync_queue_instead_of_blocking_http(): void
     {
         $tenant = $this->readyTenant('imp-async-sync');
