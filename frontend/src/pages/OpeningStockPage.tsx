@@ -25,6 +25,7 @@ import { useFeedback } from '../feedback/FeedbackProvider'
 import type { Product } from '../types/catalog'
 import type { OpeningBalance, OpeningBalanceLine } from '../types/inventory'
 import './OpeningStockPage.css'
+import './InventoryDocumentWorkspaces.css'
 
 function todayIso() {
   return new Date().toISOString().slice(0, 10)
@@ -261,7 +262,7 @@ export function OpeningStockPage() {
     const selectedDocument = (listQuery.data ?? []).find((row) => row.ulid === selectedListKey) ?? null
 
     return (
-      <section className="opening-stock-page">
+      <section className="opening-stock-page ah-inventory-workspace ah-inventory-list">
         <div className="opening-stock-toolbar">
           <div className="opening-stock-toolbar-left">
             <UiSelect
@@ -276,13 +277,6 @@ export function OpeningStockPage() {
               placeholder="Warehouse"
               aria-label="Warehouse for new Opening Stock"
             />
-            <UiButton
-              variant="primary"
-              onClick={() => createDocument.mutate()}
-              disabled={!canCreate || !newWarehouseUlid || createDocument.isPending}
-            >
-              <Plus size={15} /> New
-            </UiButton>
             <UiSelect
               className="opening-stock-status-filter"
               value={statusFilter}
@@ -310,7 +304,27 @@ export function OpeningStockPage() {
             />
           </div>
 
-          <div className="opening-stock-toolbar-right">
+        </div>
+
+        <div className="opening-stock-grid-card">
+          <PosDataGrid
+            columns={listColumns}
+            rows={listQuery.data ?? []}
+            rowKey={(row) => row.ulid}
+            selectedKey={selectedListKey}
+            onSelect={(row) => setSelectedListKey(row.ulid)}
+            onActivate={(row) => {
+              setDocumentUlid(row.ulid)
+              setMode('editor')
+            }}
+            emptyMessage="No Opening Stock documents found."
+            loading={listQuery.isFetching}
+            loadingLabel="Loading Opening Stock…"
+          />
+          <footer className="ah-inventory-list-status"><strong>{(listQuery.data ?? []).length} documents</strong><span>Opening Stock · Select a row or double-click to open</span></footer>
+        </div>
+        <nav className="ah-inventory-dock" aria-label="Opening Stock actions">
+
             <UiButton variant="info" onClick={() => void listQuery.refetch()}>
               <RefreshCw size={15} /> Refresh
             </UiButton>
@@ -339,31 +353,20 @@ export function OpeningStockPage() {
             <UiButton variant="info" onClick={closeActiveTab}>
               <X size={15} /> Close
             </UiButton>
-          </div>
-        </div>
-
-        <div className="opening-stock-grid-card">
-          <PosDataGrid
-            columns={listColumns}
-            rows={listQuery.data ?? []}
-            rowKey={(row) => row.ulid}
-            selectedKey={selectedListKey}
-            onSelect={(row) => setSelectedListKey(row.ulid)}
-            onActivate={(row) => {
-              setDocumentUlid(row.ulid)
-              setMode('editor')
-            }}
-            emptyMessage="No Opening Stock documents found."
-            loading={listQuery.isFetching}
-            loadingLabel="Loading Opening Stock…"
-          />
-        </div>
+            <UiButton
+              variant="primary"
+              onClick={() => createDocument.mutate()}
+              disabled={!canCreate || !newWarehouseUlid || createDocument.isPending}
+            >
+              <Plus size={15} /> New
+            </UiButton>
+        </nav>
       </section>
     )
   }
 
   return (
-    <section className="opening-stock-page">
+    <section className="opening-stock-page ah-inventory-workspace ah-inventory-editor">
       <div className="opening-stock-toolbar">
         <div className="opening-stock-toolbar-left">
           <UiButton variant="info" onClick={() => void backToList()}>
@@ -378,39 +381,6 @@ export function OpeningStockPage() {
           </span>
         </div>
 
-        <div className="opening-stock-toolbar-right">
-          <UiButton
-            variant="success"
-            onClick={() => saveHeader.mutate()}
-            disabled={!editable || !headerDirty || saveHeader.isPending}
-          >
-            <Save size={15} /> Save
-          </UiButton>
-          <UiButton
-            variant="success"
-            onClick={async () => {
-              if (!document || !canPost || document.status !== 'draft') return
-              if (headerDirty) {
-                feedback.info('Save the document header before posting.', 'Opening Stock')
-                return
-              }
-              if (!await feedback.confirm(`Post ${document.document_number}? Posted opening stock cannot be edited.`)) return
-              postDocument.mutate()
-            }}
-            disabled={!document || document.status !== 'draft' || !canPost || postDocument.isPending}
-          >
-            <Send size={15} /> Post
-          </UiButton>
-          <UiButton variant="info" onClick={() => void documentQuery.refetch()}>
-            <RefreshCw size={15} /> Refresh
-          </UiButton>
-          <UiButton variant="info" onClick={async () => {
-            if (!await confirmDiscardDraftInputs()) return
-            closeActiveTab()
-          }}>
-            <X size={15} /> Close
-          </UiButton>
-        </div>
       </div>
 
       <div className="opening-stock-header-card">
@@ -561,13 +531,46 @@ export function OpeningStockPage() {
           loading={documentQuery.isFetching}
           loadingLabel="Loading Opening Stock lines…"
         />
-      </div>
-
       <footer className="opening-stock-footer">
         <span>{document?.lines?.length ?? 0} line(s)</span>
         <span>{document?.warehouse ? `${document.warehouse.code} — ${document.warehouse.name}` : 'No warehouse'}</span>
         {document?.posted_at ? <span>Posted: {new Date(document.posted_at).toLocaleString()}</span> : null}
       </footer>
+      </div>
+      <nav className="ah-inventory-dock ah-inventory-editor-dock" aria-label="Opening Stock document actions">
+
+          <UiButton
+            variant="success"
+            onClick={() => saveHeader.mutate()}
+            disabled={!editable || !headerDirty || saveHeader.isPending}
+          >
+            <Save size={15} /> Save
+          </UiButton>
+          <UiButton
+            variant="success"
+            onClick={async () => {
+              if (!document || !canPost || document.status !== 'draft') return
+              if (headerDirty) {
+                feedback.info('Save the document header before posting.', 'Opening Stock')
+                return
+              }
+              if (!await feedback.confirm(`Post ${document.document_number}? Posted opening stock cannot be edited.`)) return
+              postDocument.mutate()
+            }}
+            disabled={!document || document.status !== 'draft' || !canPost || postDocument.isPending}
+          >
+            <Send size={15} /> Post
+          </UiButton>
+          <UiButton variant="info" onClick={() => void documentQuery.refetch()}>
+            <RefreshCw size={15} /> Refresh
+          </UiButton>
+          <UiButton variant="info" onClick={async () => {
+            if (!await confirmDiscardDraftInputs()) return
+            closeActiveTab()
+          }}>
+            <X size={15} /> Close
+          </UiButton>
+      </nav>
     </section>
   )
 }
