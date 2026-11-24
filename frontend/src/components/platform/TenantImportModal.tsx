@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { ApiClientError } from '../../api/client'
-import { fetchTenantImportWarehouses, fetchActiveTenantImport, fetchTenantImportProgress, startTenantImport, type TenantImportResult } from '../../api/platform'
+import { fetchTenantImportWarehouses, fetchActiveTenantImport, fetchTenantImportProgress, startTenantImport, advanceLocalTenantImport, type TenantImportResult } from '../../api/platform'
 import { usePlatformAuth } from '../../features/platform/PlatformAuthProvider'
 import type { PlatformTenant } from '../../types/platform'
 import { UiSelect } from '../ui/UiSelect'
@@ -30,6 +30,18 @@ export function TenantImportModal({ tenant, onClose }: { tenant: PlatformTenant;
     enabled: Boolean(batchUlid),
     refetchInterval: (query) => query.state.data?.status === 'completed' ? false : 2000,
   })
+  // Local-only, bounded one-chunk-per-request runner. Production continues to
+  // poll the existing worker queue and never invokes this endpoint.
+  const localAdvance = useQuery({
+    queryKey: ['platform', 'tenant-import-local-advance', tenant.ulid, batchUlid],
+    queryFn: () => advanceLocalTenantImport(tenant.ulid, batchUlid!),
+    enabled: Boolean(batchUlid) && result?.processing_mode === 'local_chunked' && result.status === 'processing',
+    refetchInterval: (query) => query.state.data?.status === 'completed' ? false : 750,
+    retry: false,
+  })
+  useEffect(() => {
+    if (localAdvance.data) setResult(localAdvance.data)
+  }, [localAdvance.data])
   useEffect(() => {
     if (!batchUlid && active.data?.ulid) setBatchUlid(active.data.ulid)
   }, [active.data?.ulid, batchUlid])
@@ -135,9 +147,11 @@ export function TenantImportModal({ tenant, onClose }: { tenant: PlatformTenant;
         {result?.status === 'processing' ? (
           <p role="status">
             {result.total > 0
-              ? `Background import: ${result.processed} / ${result.total} rows processed.`
+              ? `${result.processing_mode === 'local_chunked' ? 'Local chunk import' : 'Background import'}: ${result.processed} / ${result.total} rows processed.`
               : `Previous import: ${result.processed} rows already saved.`}
-            {' '}You may close this dialog and reopen to check progress.
+            {' '}{result.processing_mode === 'local_chunked'
+              ? 'Keep this dialog open while local chunks are running. Closing it pauses processing; reopening resumes safely.'
+              : 'You may close this dialog and reopen to check progress.'}
             {' '}Re-selecting the identical source file safely resumes an unfinished legacy import.
           </p>
         ) : null}
@@ -146,6 +160,9 @@ export function TenantImportModal({ tenant, onClose }: { tenant: PlatformTenant;
             {result.worker_message ?? 'Import worker needs attention.'}
           </p>
         ) : null}
+        {localAdvance.isError ? <p role="alert" className="text-[var(--ui-danger)]">
+          Local import chunk failed or was interrupted. Saved rows are safe. Close and reopen this dialog to resume, or retry the SAME file.
+        </p> : null}
         {progress.isError ? <p role="alert" className="text-[var(--ui-danger)]">
           Unable to refresh progress. Completed rows remain saved; reopen this dialog to check again.
         </p> : null}
