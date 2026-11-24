@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { X } from 'lucide-react'
+import { createPortal } from 'react-dom'
 import type { Party } from '../../api/parties'
 import { PartiesPlaceholderPage } from '../../pages/PartiesPlaceholderPage'
 import { UI_LAYER } from '../ui/uiLayers'
@@ -21,10 +22,12 @@ export function PartyModal({
   onClose,
   onSaved,
   partyType = 'customer',
+  zIndex = UI_LAYER.modal,
 }: {
   onClose: () => void
   onSaved: (party: Party) => void
   partyType?: 'customer' | 'vendor'
+  zIndex?: number
 }) {
   const [position, setPosition] = useState<Point>(() => initialPosition())
   const dragRef = useRef<{ pointerId: number; offsetX: number; offsetY: number } | null>(null)
@@ -87,8 +90,8 @@ export function PartyModal({
     }
   }
 
-  return (
-    <div className="party-modal-layer" style={{ zIndex: UI_LAYER.modal }} aria-hidden={false}>
+  return createPortal(
+    <div className="party-modal-layer" style={{ zIndex }} aria-hidden={false}>
       <div
         ref={windowRef}
         className="party-modal-window"
@@ -126,6 +129,7 @@ export function PartyModal({
           />
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
