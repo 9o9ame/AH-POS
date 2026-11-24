@@ -633,3 +633,239 @@
     overflow-y:auto; /* Never clip content on shorter screens */
   }
 }
+
+
+/* Batch 13 — single-surface Product editor; size to CONTENT instead of
+   forcing a 96vh empty rectangle. Existing fields remain in place. */
+:root[data-button-scope='tenant'] .product-definition-modal.ui-modal {
+  width:min(1300px,94vw)!important;
+  max-width:94vw!important;
+  height:auto!important;
+  max-height:calc(100dvh - 34px)!important;
+  min-height:0!important;
+  border:1px solid #91a7c0;
+  background:#fff;
+  border-radius:13px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .ui-modal-header {
+  min-height:40px;
+  padding:7px 15px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .ui-modal-body {
+  display:flex;
+  flex:0 1 auto!important;
+  height:auto!important;
+  max-height:calc(100dvh - 76px);
+  min-height:0;
+  overflow:hidden;
+  padding:0!important;
+  background:#fff;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-definition-modal-form {
+  display:flex;
+  flex-direction:column;
+  flex:0 1 auto!important;
+  width:100%;
+  min-height:0;
+  height:auto!important;
+  max-height:100%;
+  overflow:hidden;
+  background:#fff;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-def-form {
+  flex:0 1 auto!important;
+  display:flex;
+  flex-direction:column;
+  height:auto!important;
+  min-height:0;
+  background:#fff;
+  overflow:hidden;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-def-tabs {
+  flex:0 0 auto;
+  padding:5px 13px;
+  background:#f7f9fc;
+  border-bottom:1px solid #d4dfea;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-def-fields {
+  display:grid;
+  flex:0 1 auto!important;
+  min-height:0;
+  max-height:calc(100dvh - 174px);
+  overflow-y:auto;
+  overflow-x:hidden;
+  padding:8px 11px 10px;
+  gap:0 12px;
+  background:#fff;
+  scrollbar-width:thin;
+  scrollbar-color:#b8c9d9 transparent;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-detail-sections {
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  align-content:start;
+  gap:0 12px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-detail-sections .ui-form-section {
+  min-width:0;
+  border:0!important;
+  border-bottom:1px solid #d9e3ee!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  padding:9px 10px!important;
+  margin:0!important;
+  background:transparent!important;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-detail-sections .ui-form-section > header {
+  margin:0 0 6px!important;
+  padding:0;
+  background:transparent;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-detail-sections .ui-form-section > header h2 {
+  font-size:11px;
+  font-weight:850;
+  color:#1b3652;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-identity-section {
+  grid-column:1/-1;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-classification-section,
+:root[data-button-scope='tenant'] .product-definition-modal .product-settings-section {
+  border-right:1px solid #e2eaf2!important;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-identity-layout {
+  grid-template-columns:minmax(0,1fr) 88px;
+  align-items:start;
+  gap:10px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-identity-fields {
+  gap:4px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-image-card {
+  gap:2px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-def-photo,
+:root[data-button-scope='tenant'] .product-definition-modal .product-def-image-loader {
+  width:82px;
+  min-height:66px;
+  height:66px;
+  max-height:66px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .pdf-row {
+  gap:5px 7px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .pdf-input,
+:root[data-button-scope='tenant'] .product-definition-modal .pdf-barcode-input,
+:root[data-button-scope='tenant'] .product-definition-modal .product-dropdown .ui-select-trigger {
+  min-height:30px;
+  height:30px;
+  font-size:11px;
+  color:#172f47;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .pdf-row > label {
+  font-size:10px;
+  line-height:1.22;
+  color:#253c54;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .pdf-plus-button {
+  min-height:29px;
+  height:29px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .pdf-barcode-table-scroll {
+  max-height:115px;
+  overflow-y:auto;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-commandbar {
+  order:2;
+  display:flex;
+  justify-content:flex-end;
+  flex:0 0 auto;
+  min-height:49px;
+  max-height:70px;
+  padding:7px 12px;
+  gap:8px;
+  background:#f6f8fb;
+  border-top:1px solid #cad7e5;
+  overflow-x:auto;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-commandbar-actions {
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:7px;
+  flex-wrap:nowrap;
+  min-width:max-content;
+  width:max-content;
+  margin:0 0 0 auto;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-commandbar .product-def-rail-btn,
+:root[data-button-scope='tenant'] .product-definition-modal .product-commandbar .product-def-cmd {
+  display:inline-flex;
+  align-items:center;
+  flex-direction:row;
+  gap:6px;
+  flex:0 0 auto;
+  min-height:34px!important;
+  height:34px!important;
+  padding:0 11px!important;
+  border:1px solid #b5c6d8;
+  border-radius:8px;
+  background:#fff;
+  color:#1c3651;
+  font-size:11px;
+  font-weight:750;
+  box-shadow:none;
+  white-space:nowrap;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-commandbar .product-def-cmd-icon {
+  display:inline-grid;
+  width:17px;
+  height:18px;
+  color:inherit;
+  place-items:center;
+  background:none!important;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-commandbar .product-def-cmd-icon svg {
+  width:15px;height:15px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-commandbar .product-def-cmd-text {
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-commandbar .product-def-cmd-label {
+  font-size:11px!important;
+  font-weight:800;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-commandbar .product-def-cmd-key {
+  font-size:9px!important;
+  opacity:.75;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-commandbar .product-def-cmd.is-save {
+  color:#fff!important;
+  border-color:#a7600e!important;
+  background:#b86a0f!important;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-commandbar .product-def-cmd.is-delete {
+  color:#a63137!important;
+  border-color:#e0b9bb!important;
+  background:#fff8f8!important;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-commandbar button:disabled {
+  opacity:.43;
+  cursor:not-allowed;
+}
+@media(max-width:1050px){
+  :root[data-button-scope='tenant'] .product-definition-modal .product-detail-sections {
+    grid-template-columns:1fr;
+  }
+  :root[data-button-scope='tenant'] .product-definition-modal .product-classification-section,
+  :root[data-button-scope='tenant'] .product-definition-modal .product-settings-section {
+    border-right:0!important;
+  }
+}
+@media(max-height:690px){
+  :root[data-button-scope='tenant'] .product-definition-modal .product-def-fields {
+    overflow-y:auto;
+    max-height:calc(100dvh - 145px);
+  }
+}
