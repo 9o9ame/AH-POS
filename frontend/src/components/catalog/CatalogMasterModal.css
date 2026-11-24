@@ -1,0 +1,55 @@
+/* Master data: list-first CRUD, modal-only forms and a floating action rail. */
+:root[data-button-scope='tenant'] #root .ah-master--list-only{position:relative;min-height:100%;padding:15px 20px 105px;background:#edf1f6}
+:root[data-button-scope='tenant'] #root .ah-master--list-only .ah-master__header{margin-bottom:13px}
+:root[data-button-scope='tenant'] #root .ah-master__header-total{display:grid;min-width:114px;justify-items:end;gap:1px;color:#45546a}
+:root[data-button-scope='tenant'] #root .ah-master__header-total strong{font-size:24px;color:#172a43;font-variant-numeric:tabular-nums}
+:root[data-button-scope='tenant'] #root .ah-master__header-total span{font-size:11px;font-weight:700}
+:root[data-button-scope='tenant'] #root .ah-master--list-only .ah-master__list{width:100%;min-height:0;padding:18px 20px}
+:root[data-button-scope='tenant'] #root .ah-master--list-only .ah-master__section-heading{padding-bottom:14px}
+:root[data-button-scope='tenant'] #root .ah-master__compact-stats{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+:root[data-button-scope='tenant'] #root .ah-master__compact-stats span{padding:6px 10px;border:1px solid #ccd7e5;border-radius:8px;background:#f2f6fa;color:#30435a;font-size:11px;font-weight:800}
+:root[data-button-scope='tenant'] #root .ah-master--list-only .ah-master__grid{height:clamp(290px,52vh,660px);min-height:250px;max-height:none}
+:root[data-button-scope='tenant'] #root .ah-master--list-only .ah-master__filter{flex:0 0 180px}
+:root[data-button-scope='tenant'] #root .ah-master--list-only .ah-master__filter-category{flex-basis:240px}
+:root[data-button-scope='tenant'] #root .ah-master--list-only .ah-master__filters{gap:10px;align-items:center}
+:root[data-button-scope='tenant'] #root .ah-master--list-only .ah-master__filter .ui-select{min-width:0}
+:root[data-button-scope='tenant'] #root .ah-master--list-only .ah-master__filter .ui-select-trigger{display:grid;grid-template-columns:minmax(0,1fr) 20px;gap:8px;align-items:center;min-height:39px;padding:3px 9px 3px 12px;background:#fff !important;color:#1c3049 !important;border:1px solid #aebfd2 !important;border-radius:9px !important;box-shadow:none!important}
+:root[data-button-scope='tenant'] #root .ah-master--list-only .ah-master__filter .ui-select-value{color:#1c3049;font-size:12px}
+:root[data-button-scope='tenant'] #root .ah-master--list-only .ah-master__filter .ui-select-arrow{width:19px;height:19px;padding:0;border:0;border-radius:5px;background:#dce8f5 !important;color:#233b5a !important;box-shadow:none !important}
+:root[data-button-scope='tenant'] #root .ah-master__row-edit{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid #d6aa72;border-radius:7px;background:#fff4e4;color:#92510e;font-size:11px;font-weight:750}
+:root[data-button-scope='tenant'] #root .ah-master__row-edit:hover{background:#ffe6c0}
+:root[data-button-scope='tenant'] #root .ah-master__fab{position:sticky;bottom:16px;z-index:15;display:flex;justify-content:flex-end;align-items:center;gap:8px;width:max-content;max-width:100%;margin:18px 0 0 auto;padding:8px;background:#1b2a3e;border:1px solid #354b65;border-radius:16px;box-shadow:0 9px 27px #11213755}
+:root[data-button-scope='tenant'] #root .ah-master__fab button{width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;padding:0;background:#31455e;border:1px solid #4a637d;border-radius:10px;color:#f9fbfe;box-shadow:none}
+:root[data-button-scope='tenant'] #root .ah-master__fab button:disabled{opacity:.36}
+:root[data-button-scope='tenant'] #root .ah-master__fab button:not(:disabled):hover{background:#3e5875}
+:root[data-button-scope='tenant'] #root .ah-master__fab .ah-master__fab-primary{width:auto;min-width:132px;padding:0 15px;gap:8px;background:#b8690f;color:#fff;border-color:#de9c48;font-size:12px;font-weight:800;white-space:nowrap}
+:root[data-button-scope='tenant'] #root .ah-master__fab .ah-master__fab-primary:hover{background:#ce7b19}
+:root[data-button-scope='tenant'] .ah-master-modal.ui-modal{border:1px solid #afc0d3;border-radius:17px;background:#fff;box-shadow:0 25px 90px #101e3680;overflow:visible}
+:root[data-button-scope='tenant'] .ah-master-modal .ui-modal-header{background:#19283d;color:#fff;border-radius:16px 16px 0 0;padding:16px 22px}
+:root[data-button-scope='tenant'] .ah-master-modal .ui-modal-title{font-weight:800;font-size:19px;color:#fff}
+:root[data-button-scope='tenant'] .ah-master-modal .ui-modal-header .ui-modal-close{color:#fff}
+:root[data-button-scope='tenant'] .ah-master-modal .ui-modal-body{padding:23px 24px;background:#fff}
+:root[data-button-scope='tenant'] .ah-master-modal .ui-modal-footer{display:flex;justify-content:flex-end;gap:10px;background:#f0f4f9;border-radius:0 0 16px 16px;padding:13px 24px}
+:root[data-button-scope='tenant'] .ah-master-modal__form{display:grid;gap:17px}
+:root[data-button-scope='tenant'] .ah-master-modal__form>label:not(.ah-master-modal__check){display:grid;gap:7px;color:#20324c;font-size:13px;font-weight:750}
+:root[data-button-scope='tenant'] .ah-master-modal__form input:not([type=checkbox]){width:100%;height:43px;padding:0 13px;background:#fff;color:#17283e;border:1px solid #afc0d3;border-radius:9px;font:inherit;font-size:13px}
+:root[data-button-scope='tenant'] .ah-master-modal__form .ui-select-trigger{min-height:43px;border:1px solid #afc0d3;border-radius:9px;background:#fff;color:#17283e}
+:root[data-button-scope='tenant'] .ah-master-modal__form .ui-select-arrow{border:0;background:#dce8f5;color:#1e4161}
+:root[data-button-scope='tenant'] .ah-master-modal__check{display:flex;gap:10px;align-items:center;font-weight:650;color:#25374e}
+:root[data-button-scope='tenant'] .ah-master-modal__check input{width:17px;height:17px;accent-color:#b8690f}
+:root[data-button-scope='tenant'] .ah-master-modal .ui-modal-footer button{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 17px;border-radius:9px;border:1px solid #bbc9d6;background:#fff;color:#20314a;font-size:12px;font-weight:800}
+:root[data-button-scope='tenant'] .ah-master-modal .ui-modal-footer .ah-master-modal__save{color:#fff;background:#ae620d;border-color:#92500a}
+:root[data-button-scope='tenant'] .ah-master-modal .ui-modal-footer button:disabled{opacity:.5}
+:root[data-button-scope='tenant'] .ah-master-modal .ui-modal-footer kbd{font-size:10px;opacity:.8}
+
+/* Targeted top-bar controls: avoid translucent SVG circles/overlapping icons. */
+:root[data-button-scope='tenant'] #root .ah-app-shell > .titlebar{grid-template-columns:minmax(175px,1fr) minmax(170px,.85fr) minmax(190px,1fr) minmax(180px,1.1fr) auto!important;gap:10px!important;align-items:center}
+:root[data-button-scope='tenant'] #root .ah-app-shell > .titlebar .titlebar-meta{min-width:0;max-width:100%}
+:root[data-button-scope='tenant'] #root .ah-app-shell > .titlebar .titlebar-controls{display:flex;align-items:center;justify-content:flex-end;gap:7px;min-width:0;background:transparent!important;border:0!important;box-shadow:none!important}
+:root[data-button-scope='tenant'] #root .ah-app-shell > .titlebar .titlebar-controls > *{flex:0 0 auto}
+:root[data-button-scope='tenant'] #root .ah-app-shell > .titlebar .titlebar-select .ui-select-trigger{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;min-height:24px!important;max-height:none;padding:0 3px 0 0!important;background:transparent!important;color:#fff!important;border:0!important;box-shadow:none!important}
+:root[data-button-scope='tenant'] #root .ah-app-shell > .titlebar .titlebar-select .ui-select-value{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;color:#fff!important}
+:root[data-button-scope='tenant'] #root .ah-app-shell > .titlebar .titlebar-select .ui-select-arrow{flex:0 0 18px;width:18px;height:18px;color:#fff!important;border:1px solid #748399!important;border-radius:5px;background:#40526c!important;box-shadow:none!important}
+:root[data-button-scope='tenant'] #root .ah-app-shell > .titlebar .titlebar-controls button{min-width:30px;min-height:30px}
+@media(max-width:1050px){:root[data-button-scope='tenant'] #root .ah-app-shell > .titlebar{grid-template-columns:minmax(110px,1fr) minmax(120px,1fr) minmax(120px,1fr) auto!important}:root[data-button-scope='tenant'] #root .ah-app-shell > .titlebar .ah-global-search{display:none}}
+@media(max-width:720px){:root[data-button-scope='tenant'] #root .ah-master--list-only{padding:12px 10px 95px}:root[data-button-scope='tenant'] #root .ah-master__fab{gap:4px;padding:6px}:root[data-button-scope='tenant'] #root .ah-master__fab button{width:32px;height:34px}:root[data-button-scope='tenant'] #root .ah-master__fab .ah-master__fab-primary{min-width:0;padding:0 9px}:root[data-button-scope='tenant'] #root .ah-master__fab .ah-master__fab-primary span{display:none}:root[data-button-scope='tenant'] #root .ah-master--list-only .ah-master__filter{flex:1 1 140px}:root[data-button-scope='tenant'] #root .ah-master__compact-stats{display:none}}
