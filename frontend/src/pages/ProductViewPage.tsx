@@ -13,6 +13,7 @@ import {
 } from '../features/productView/productViewCache'
 import type { Product, ProductBarcode, ProductPrice } from '../types/catalog'
 import './ProductViewPage.css'
+import './ProductGridWorkspaces.css'
 
 type ProductViewRow = {
   key: string
@@ -590,7 +591,7 @@ export function ProductViewPage() {
   }).format(new Date())
 
   return (
-    <section className="product-view-page" aria-label="Product View">
+    <section className="product-view-page ah-product-directory ah-product-directory--view" aria-label="Product View">
       <header className="product-view-print-header" aria-hidden="true">
         <div>
           <h1>Product View</h1>
@@ -605,13 +606,7 @@ export function ProductViewPage() {
       </header>
 
       <div className="product-view-toolbar">
-        <UiButton
-          variant="info"
-          icon={<RefreshCw size={15} />}
-          label={isSyncing ? 'Refreshing…' : 'Refresh'}
-          disabled={isSyncing}
-          onClick={() => void refreshProducts()}
-        />
+
 
         <label className="product-view-filter">
           <input
@@ -674,12 +669,7 @@ export function ProductViewPage() {
           />
         </label>
 
-        <UiButton
-          variant="info"
-          icon={<Eye size={15} />}
-          label="Preview"
-          onClick={previewPrint}
-        />
+
       </div>
 
       <div className="product-view-workspace">
@@ -759,6 +749,13 @@ export function ProductViewPage() {
           <span>{products.length} products cached locally</span>
         </div>
       </footer>
+      <nav className="ah-product-directory__fab" aria-label="Product View actions">
+        <UiButton variant="info" icon={<RefreshCw size={15} />}
+          label={isSyncing ? 'Refreshing…' : 'Refresh'}
+          disabled={isSyncing} onClick={() => void refreshProducts()} />
+        <UiButton variant="primary" icon={<Eye size={15} />}
+          label="Print Preview" onClick={previewPrint} />
+      </nav>
     </section>
   )
 }
