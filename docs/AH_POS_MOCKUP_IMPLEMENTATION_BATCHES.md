@@ -38,3 +38,11 @@ git diff --check
 
 ## Next batch
 Subcategories, Sale Schemes and Price Lists; inspect the actual handler/field contracts before grouping them into reusable layouts.
+
+
+## Batch 02 — Master CRUD dialogs and floating actions (2026-11-24)
+- Converts Categories, Brands, Units and Subcategories to list-first pages. Add/Edit forms moved into the existing `UiModal`, with prominent fixed floating action toolbar.
+- Subcategories retain parent category selection and existing query/mutations. Categories/Brands/Units retain the shared `useCatalogMasterEditor` API and RBAC.
+- Adds targeted high-contrast titlebar/BranchSwitcher dropdown styling, correcting visible chevrons without altering switch behavior. Uses `UI_LAYER.modalDropdown` for category dropdown inside the modal.
+- No backend, database, finance, routes or API changes.
+- Not verified in authenticated browser by the GitHub connector. Local validation: `npm run typecheck`, `npm run ui:check`, `npm run ui:navigation-check`. Validate modal Add/Edit/Cancel, row select/double-click, filters, activate/deactivate, shortcuts F9/F8 and responsive position.
