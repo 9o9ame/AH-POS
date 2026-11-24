@@ -607,3 +607,6 @@ The standalone Definition/Products catalog list should extend to the bottom of t
 - Use high-contrast text and surfaces: navy header, dark table header with white labels, white/blue-white alternating rows, visible steel-blue borders, strong blue focused inputs, amber Draft, green Posted. Avoid light-on-light low readability.
 - Modal product lookup is portal-backed and must use `UI_LAYER.modalDropdown` to open above parent. Preserve original default lookup z-index elsewhere. Close modal via existing discard confirmation, keep list/active tab visible in the background.
 - `frontend/src/pages/StockTakingModal.css` governs this editor only. Require authenticated browser verification before visual approval.
+
+### Stock Taking combobox and density rule — Batch 18
+Never style `input.ui-select-trigger-search` as a full standalone field inside `.ui-select-combobox-trigger`. The trigger is the only visible outlined surface; nested input must be transparent, borderless, occupy available width and leave room for the toggler. Preserve outer focus ring, keyboard search/Enter and portalled dropdown above document modal. In Stock Taking editor use compact 29px fields, ~33px saved rows, ~39px entry row; avoid oversized padding. Source: `StockTakingModal.css`, branch `fix/stock-taking-row-dropdown-18`.
