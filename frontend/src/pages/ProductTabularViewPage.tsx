@@ -581,9 +581,7 @@ export function ProductTabularViewPage() {
           loading={localProducts.isLoading}
           loadingLabel="Loading cached products…"
         />
-      </div>
-
-      <footer className="product-tabular-footer">
+        <footer className="product-tabular-footer">
         <span className="product-tabular-pager">
           {localProducts.isBackgroundRefreshing
             ? 'Syncing all products…'
@@ -596,7 +594,8 @@ export function ProductTabularViewPage() {
           {selected.size} selected · {stagedCount} staged ·
           Stock: {formatDecimal(String(stockTotal), 6)}
         </span>
-      </footer>
+        </footer>
+      </div>
       <nav className="ah-product-directory__fab" aria-label="Product tabular actions">
           <div className="ah-product-directory__fab-actions">
             <UiButton
