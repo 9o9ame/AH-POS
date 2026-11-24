@@ -64,3 +64,8 @@ The full visual conversion of every deep workflow is **not complete**. Initial C
 - Implementation branch `design/tenant-schemes-pricelists-06` starts from `design/master-list-scroll-cleanup-03`. The owner has also merged `fix/sidebar-slow-transition-ts-05` locally; these branches are expected to merge non-destructively.
 - GitHub source changes committed; local TypeScript, guards and authenticated browser visual/functional acceptance remain **UNVERIFIED** until owner reports results.
 - Session handoff: `docs/AH_POS_SESSION_HANDOFF.md`.
+
+## 2026-11-24 — Header consistency correction / batch 07
+Owner screenshot review rejected repeated titles inside Sale Schemes and Price Lists card and inconsistent contextual command ordering. New permanent tenant rule: left = existing module commands; right = current active tab/module title + breadcrumb context; no duplicate decorative titles inside content cards.
+Implementation code is on `fix/tenant-context-bar-left-nav-07`, based on structural `redesign/ahpos-complete-ui`, with DOM order fixed in `ModuleCommandBar.tsx` and tenant-scoped `ahpos-context-bar.css` ensuring fixed visual order and appropriate directory title cleanup. This documentation branch `docs/tenant-header-handoff-07` inherits Sale Schemes/Price Lists and master directory changes and records the single-title design contract.
+No functional navigation registry, backend, APIs, tenant isolation, financial flows or workspace tab actions are changed. Validation against user's merged local branch and authenticated browser remains pending.
