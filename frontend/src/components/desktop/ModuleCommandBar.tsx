@@ -3,6 +3,7 @@ import { Command, Layers3 } from 'lucide-react'
 import { useWorkspace } from '../../features/workspace/WorkspaceProvider'
 import { RIBBON_GROUPS, RIBBON_TABS, WORKSPACE_MODULES, type RibbonCommandDef } from '../../features/workspace/modules'
 import { RibbonCommand } from './RibbonCommand'
+import '../../ahpos-context-bar.css'
 
 type ModuleCommandBarProps = {
   onCalculator: () => void
@@ -34,13 +35,6 @@ export function ModuleCommandBar({ onCalculator, onSoftwareOptions, onRecalculat
 
   return (
     <section className="ah-module-commandbar" aria-label="Contextual module commands">
-      <div className="ah-module-context">
-        <span className="ah-module-context-icon"><Layers3 size={16} aria-hidden="true" /></span>
-        <div>
-          <span>{context.tabLabel}{context.group ? ` / ${context.group.caption}` : ''}</span>
-          <strong>{activeModule.title}</strong>
-        </div>
-      </div>
       <div className="ah-module-commands">
         {context.group?.commands.map((command) => (
           <RibbonCommand
@@ -52,6 +46,14 @@ export function ModuleCommandBar({ onCalculator, onSoftwareOptions, onRecalculat
           />
         ))}
         {!context.group ? <span className="ah-module-context-hint"><Command size={14} /> Current module</span> : null}
+      </div>
+
+      <div className="ah-module-context">
+        <span className="ah-module-context-icon"><Layers3 size={16} aria-hidden="true" /></span>
+        <div>
+          <span>{context.tabLabel}{context.group ? ` / ${context.group.caption}` : ''}</span>
+          <strong>{activeModule.title}</strong>
+        </div>
       </div>
     </section>
   )

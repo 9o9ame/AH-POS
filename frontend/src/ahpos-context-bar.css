@@ -1,0 +1,119 @@
+/* AH-POS permanent tenant navigation policy — 2026-11-24.
+   One title only: in the right contextual command bar.
+   All actual module commands stay visible/reachable on the left. */
+:root[data-button-scope='tenant'] #root .ah-workspace-column > .ah-module-commandbar {
+  display:flex !important;
+  flex-direction:row !important;
+  justify-content:space-between !important;
+  align-items:center !important;
+  flex-wrap:nowrap !important;
+  gap:12px !important;
+  width:100%;
+  min-width:0;
+  max-width:100%;
+  overflow:visible;
+  padding-inline:12px !important;
+}
+:root[data-button-scope='tenant'] #root .ah-workspace-column > .ah-module-commandbar > .ah-module-commands {
+  order:0 !important;
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  max-width:100%;
+  display:flex !important;
+  justify-content:flex-start !important;
+  align-items:center;
+  gap:5px;
+  overflow-x:auto !important;
+  overflow-y:hidden;
+  overscroll-behavior-inline:contain;
+  scrollbar-width:thin;
+  scrollbar-color:#a6b4c6 transparent;
+}
+:root[data-button-scope='tenant'] #root .ah-workspace-column > .ah-module-commandbar > .ah-module-context,
+:root[data-button-scope='tenant'] #root .ah-workspace-column:has(.ah-master--list-only) > .ah-module-commandbar > .ah-module-context {
+  order:1 !important;
+  flex:0 0 auto !important;
+  display:flex !important;
+  justify-content:flex-end !important;
+  align-items:center !important;
+  text-align:right !important;
+  margin-left:auto !important;
+  min-width:140px !important;
+  max-width:min(270px,32vw) !important;
+  padding:4px 0 4px 12px;
+  border-left:1px solid var(--ui-border);
+  background:transparent !important;
+}
+:root[data-button-scope='tenant'] #root .ah-workspace-column > .ah-module-commandbar > .ah-module-context > div {
+  display:grid;
+  justify-items:end;
+  min-width:0;
+  max-width:100%;
+}
+:root[data-button-scope='tenant'] #root .ah-workspace-column > .ah-module-commandbar > .ah-module-context strong {
+  display:block;
+  width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:var(--ui-text);
+  font-size:13px;
+  font-weight:800;
+}
+:root[data-button-scope='tenant'] #root .ah-workspace-column > .ah-module-commandbar > .ah-module-context > div > span {
+  display:block;
+  max-width:100%;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+  color:var(--ui-text-muted);
+  font-size:10px;
+}
+:root[data-button-scope='tenant'] #root .ah-workspace-column > .ah-module-commandbar > .ah-module-context-icon {
+  display:none;
+}
+:root[data-button-scope='tenant'] #root .ah-workspace-column > .ah-module-commandbar > .ah-module-context > .ah-module-context-icon {
+  display:none !important;
+}
+/* The right title must not disappear just because the opened module uses a
+   master-list workspace (old layout patches used a :has() rule to hide it). */
+:root[data-button-scope='tenant'] #root .ah-workspace-column:has(.ah-master--list-only) > .ah-module-commandbar > .ah-module-context {
+  visibility:visible !important;
+  opacity:1 !important;
+}
+/* Current Definition masters: keep status chips/filter/search, not duplicate
+   headings inside their list card. Their titles live above at the right. */
+:root[data-button-scope='tenant'] #root .ah-master--list-only .ah-master__header,
+:root[data-button-scope='tenant'] #root .ah-master--list-only .ah-master__header-total {
+  display:none !important;
+}
+:root[data-button-scope='tenant'] #root .ah-master--list-only .ah-master__section-heading > div:first-child {
+  display:none !important;
+}
+:root[data-button-scope='tenant'] #root .ah-master--list-only .ah-master__section-heading {
+  justify-content:flex-end;
+  padding-bottom:8px;
+}
+:root[data-button-scope='tenant'] #root .ah-master--list-only .ah-master__section-heading:not(:has(.ah-master__compact-stats)) {
+  display:none;
+}
+/* Sale Schemes and Price Lists: remove duplicated decorative in-card header,
+   preserve search/filter controls, counts elsewhere, table, pagination, FAB. */
+:root[data-button-scope='tenant'] #root .ah-directory-page .ah-directory-heading {
+  display:none !important;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-page .ah-directory-toolbar {
+  margin-top:0;
+}
+/* Restrict to tenant; Platform Admin and transaction toolbars unaffected. */
+@media(max-width:800px) {
+  :root[data-button-scope='tenant'] #root .ah-workspace-column > .ah-module-commandbar {gap:7px!important;padding-inline:8px!important}
+  :root[data-button-scope='tenant'] #root .ah-workspace-column > .ah-module-commandbar > .ah-module-context {
+    min-width:98px!important;max-width:145px!important;padding-left:7px;
+  }
+  :root[data-button-scope='tenant'] #root .ah-workspace-column > .ah-module-commandbar > .ah-module-context strong {font-size:11px}
+  :root[data-button-scope='tenant'] #root .ah-workspace-column > .ah-module-commandbar > .ah-module-context > div > span {font-size:9px}
+}
+@media(max-width:480px){
+  :root[data-button-scope='tenant'] #root .ah-workspace-column > .ah-module-commandbar > .ah-module-context{min-width:78px!important;max-width:100px!important}
+}
