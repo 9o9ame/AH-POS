@@ -560,3 +560,10 @@ Motion must respect `[data-animations="off"]` and `prefers-reduced-motion: reduc
 - Contextual module navigation always LEFT; active workspace/tab title + relevant context always RIGHT, sourced from existing workspace state. CSS/layout must not switch their positions between modules. Implementation: `frontend/src/components/desktop/ModuleCommandBar.tsx` and `frontend/src/ahpos-context-bar.css` on complementary shell branch `fix/tenant-context-bar-left-nav-07`.
 - No redundant page/module title or decorative subtitle inside Definition directory/list cards. Categories, Subcategories, Brands, Units, Sale Schemes, Price Lists must begin with functional list controls and data, not another header. Remove duplicate JSX, not just visually hide with CSS. Preserve status chips, search, filters, document identifiers, modal form field labels, actions and table.
 - Keep this invariant for all future tenant screen batches; update `docs/AH_POS_SESSION_HANDOFF.md` with acceptance status. Platform Admin remains separate.
+
+## Product information grids — AH-POS approved migration pattern (Batch 10)
+- List-heavy Definition screens are a **single filter toolbar/card, a main record grid with internal scroll and a compact metrics footer**, with floating action controls instead of legacy button bands. No duplicated in-card module/page title; shell owns active tab title.
+- Product View retains special print-only header and generated report metadata (these are meaningful hardcopy data, not duplicate screen headers). Sorting/filtering and stock permissions stay intact.
+- Product Tabular View's editable grid must keep exact bulk-update formula/Set semantics, unsaved-draft Save and Close confirmation, cached catalog and export behavior; only surrounding layout changes.
+- Always preserve original handlers, registered commands, keyboard flow, authorization and report rendering, with no fake controls or cross-tenant client trust.
+- Batch reference: `frontend/src/pages/ProductGridWorkspaces.css`; source implementation must be tested in authenticated browser before visual approval.
