@@ -28,7 +28,7 @@ final class TenantImportService
         return $parsed;
     }
 
-    public function execute(Tenant $tenant, PlatformUser $actor, UploadedFile $file, ?string $warehouseUlid, ?array $parsedOverride = null, bool $background = false): array
+    public function execute(Tenant $tenant, PlatformUser $actor, UploadedFile $file, ?string $warehouseUlid, ?array $parsedOverride = null, bool $background = false, bool $localChunk = false): array
     {
         $parsed = $parsedOverride ?? $this->parser->parse($file->getRealPath(), strtolower($file->getClientOriginalExtension()));
         $warehouse = null;
@@ -74,7 +74,7 @@ final class TenantImportService
 
             // Keep platform imports safely below typical reverse-proxy/FPM request budgets.
             // Each row commits independently; re-uploading the same source resumes progress.
-            $chunk = array_slice($pending, 0, $background ? 120 : 20);
+            $chunk = array_slice($pending, 0, $background ? ($localChunk ? 20 : 120) : 20);
             $requestStartedAt = microtime(true);
             $importer = $parsed['format'] === 'accounts'
                 ? new AccountsImporter($tenant, app(PartyLeafAccountSync::class)) : new ProductsImporter($tenant, $warehouse, $chunk, $actor);
@@ -82,7 +82,7 @@ final class TenantImportService
             foreach ($chunk as $row) {
                 // Never interrupt an active row transaction. Stop *between* rows
                 // so the next identical request can resume with no duplicate writes.
-                if (microtime(true) - $requestStartedAt >= ($background ? 40 : 10)) {
+                if (microtime(true) - $requestStartedAt >= ($background ? ($localChunk ? 8 : 40) : 10)) {
                     break;
                 }
                 DB::transaction(function () use ($tenant, $batch, $row, $importer, $conflicts) {
