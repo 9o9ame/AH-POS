@@ -133,3 +133,9 @@ Branch `fix/product-modal-tabular-density-12` based on `fix/products-tabular-str
 
 ## Batch 18 — Stock Taking compact input row (2026-11-24)
 CSS-only correction on `fix/stock-taking-row-dropdown-18`: remove nested Product dropdown's second visible input outline caused by broad modal rules; use single 29px combobox trigger with right-side arrow, 29px counted/notes inputs and compact table row padding. Existing search/selection/Enter, variance calculations, Save/Post, permissions and feedback unchanged. Check authenticated browser appearance before approval.
+
+## Batch 19 — Global feedback visual/audio correction (2026-11-24)
+- Branch `fix/global-feedback-tones-sounds-19`. User complained Error and Success toaster looked identical and error sound was absent in Stock Taking.
+- Shared FeedbackProvider now supports severity-typed warning along with success/error/info and short Web Audio cues per type; unlock on pointer/keyboard gesture, throttle duplicate rapid tones, remain resilient when autoplay prevented. No external audio fetch required. Toast CSS restores strong green/red/amber/blue surfaces and accessible contrast even after existing high-specificity migration overrides, including dark mode.
+- Stock Taking client validation alerts become Warning instead of neutral Info. No posting, RBAC, tenant, API or backend changes.
+- Browser audio/screenshot acceptance and npm typecheck still pending.
