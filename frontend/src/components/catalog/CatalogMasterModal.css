@@ -58,3 +58,7 @@
 :root[data-button-scope='tenant'] #root .ah-app-shell > .titlebar .ui-select-trigger.titlebar-select{display:grid!important;grid-template-columns:minmax(0,1fr) 20px!important;gap:8px!important;align-items:center;min-height:28px!important;width:100%!important;padding:0 5px!important;background:#263145!important;color:#fff!important;border:1px solid #465773!important;border-radius:7px!important;box-shadow:none!important}
 :root[data-button-scope='tenant'] #root .ah-app-shell > .titlebar .ui-select-trigger.titlebar-select .ui-select-value{color:#fff!important;font-weight:700!important;opacity:1!important}
 :root[data-button-scope='tenant'] #root .ah-app-shell > .titlebar .ui-select-trigger.titlebar-select .ui-select-arrow{display:grid!important;place-items:center;width:19px!important;height:19px!important;background:#405675!important;color:#fff!important;border:0!important;border-radius:5px!important;box-shadow:none!important}
+
+/* Keep floating controls visible independent of list scroll position. */
+:root[data-button-scope='tenant'] #root .ah-master__fab{position:fixed;bottom:44px;right:26px;margin:0;z-index:60}
+@media(max-width:720px){:root[data-button-scope='tenant'] #root .ah-master__fab{right:10px;bottom:36px}}
