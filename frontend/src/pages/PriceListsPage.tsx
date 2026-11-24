@@ -251,14 +251,6 @@ export function PriceListsPage() {
   return (
     <main className="ah-directory-page ah-price-directory" aria-label="Price Lists">
       <section className="ah-directory-card">
-        <header className="ah-directory-heading">
-          <div>
-            <span className="ah-directory-kicker">DEFINITION / PRODUCT PRICING</span>
-            <h1>Price Lists</h1>
-            <p>View product pricing and export filtered price lists.</p>
-          </div>
-          <div className="ah-directory-count"><strong>{meta?.total ?? 0}</strong><span>products</span></div>
-        </header>
         <div className="ah-directory-toolbar">
           <label className="ah-directory-search">
             <Search size={17} aria-hidden="true" />
