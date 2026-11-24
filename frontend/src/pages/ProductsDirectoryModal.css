@@ -688,7 +688,6 @@
   border-bottom:1px solid #d4dfea;
 }
 :root[data-button-scope='tenant'] .product-definition-modal .product-def-fields {
-  display:grid;
   flex:0 1 auto!important;
   min-height:0;
   max-height:calc(100dvh - 174px);
