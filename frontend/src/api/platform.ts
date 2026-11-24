@@ -5,6 +5,7 @@ export type TenantImportResult = {
   format: string
   replayed: boolean
   status: 'processing' | 'completed'
+  processing_mode?: 'queue' | 'local_chunked'
   attention_required?: boolean
   worker_message?: string | null
   processed: number
@@ -32,6 +33,13 @@ export function startTenantImport(tenantUlid: string, file: File, warehouseUlid:
   return apiFetch<TenantImportResult>(`/api/platform/tenants/${tenantUlid}/imports/async`, {
     method: 'POST', body, busy: 'none',
   })
+}
+
+export function advanceLocalTenantImport(tenantUlid: string, importUlid: string) {
+  return apiFetch<TenantImportResult>(
+    `/api/platform/tenants/${tenantUlid}/imports/${importUlid}/advance-local`,
+    { method: 'POST', busy: 'none' },
+  )
 }
 
 export function fetchActiveTenantImport(tenantUlid: string) {

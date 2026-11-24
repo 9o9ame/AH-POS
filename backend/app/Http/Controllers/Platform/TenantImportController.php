@@ -33,9 +33,23 @@ class TenantImportController extends Controller
         $tenant = Tenant::query()->where('ulid', $tenantUlid)->firstOrFail();
 
         return response()->json(
-            $service->start($tenant, $context->user(), $request->file('file'), $request->validated('warehouse_ulid')),
+            $service->start($tenant, $context->user(), $request->file('file'), $request->validated('warehouse_ulid'), app()->environment('local')),
             202
         );
+    }
+
+    public function advanceLocal(string $tenantUlid, string $importUlid,
+        PlatformContext $context, AsyncTenantImportService $service, TenantImportService $importer): JsonResponse
+    {
+        if (! app()->environment('local')) {
+            abort(404);
+        }
+        $tenant = Tenant::query()->where('ulid', $tenantUlid)->firstOrFail();
+        Gate::forUser($context->user())->authorize('importData', $tenant);
+        $batch = TenantImport::query()->where('tenant_id', $tenant->id)
+            ->where('ulid', $importUlid)->firstOrFail();
+
+        return response()->json($service->advanceLocal($tenant, $batch, $importer));
     }
 
     public function active(string $tenantUlid, PlatformContext $context,

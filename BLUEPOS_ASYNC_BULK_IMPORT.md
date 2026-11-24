@@ -68,3 +68,9 @@ The migrate command is additive and test-DB only, **never run it against `bluepo
 Added: `AsyncTenantImportService.php`, `ProcessTenantImport.php`, `2026_11_05_180000_add_async_fields_to_platform_tenant_imports.php`.
 
 Changed: `TenantImportService.php`, `TenantImportController.php`, `routes/platform.php`, `frontend/src/api/platform.ts`, `frontend/src/components/platform/TenantImportModal.tsx`, `PlatformTenantImportTest.php`.
+
+## AH-POS local import fallback — 2026-11-24
+
+The legacy queue-worker design above remains mandatory for production. AH-POS adds local-only, client-paced import chunks when application environment is explicitly `local`. One source upload is staged privately and matched by tenant + content fingerprint. A platform-authenticated POST advances 20 rows/8 seconds max, using the **same** `TenantImportService` and checkpoint tables. Browser resumes by polling/advancing after reopening the tenant's Import Data modal. Existing product/account code and normalized-name checks prevent duplicate creates, and inventory ledger posting is unchanged.
+
+No database migration, queue-configuration modification or production endpoint behavior change is needed. Local frontend calls the advancement endpoint only when response includes `processing_mode: local_chunked`. A repeated identical source is a replay rather than a second import. See `docs/PLATFORM_TENANT_IMPORT_DESIGN.md` and `docs/AH_POS_LOCAL_IMPORT_SESSION_HANDOFF.md`.
