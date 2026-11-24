@@ -90,3 +90,10 @@ Owner browser acceptance first, then remaining Definition masters and follow-up 
 - Product Tabular View: full-height virtualized product grid with consistent filter/bulk-update surface; original Save/Export/Close handlers relocated to floating actions. Existing draft changes, pricing permissions, formula Set, bulk API mutation, local cache refresh and export retained.
 - New `frontend/src/pages/ProductGridWorkspaces.css` uses tenant-only selectors and print overrides to avoid showing floating actions on hardcopy. No functional service/API/schema change.
 - Follow-up acceptance: typecheck, UI guard, navigation guard, product data visual review, Set (without Save) staged count, Save permissions, Export correctness, Preview print appearance, scroll with many rows and no duplicate heading. Pending manual browser review.
+
+## Batch 11 — Product visual rejection correction (2026-11-24)
+- Actual screenshots showed a broken Products three-column composition and cramped Product Tabular listing despite passing guards. Batch 10 was **NOT visually approved**.
+- This batch corrects **Products** `/definition/products` structurally: list-only catalog + floating Add/Edit/Refresh/Close; product identity, classification, pricing, stock, barcode and image controls moved together into a real UiModal, keeping same mutation handlers and optional embedded product editor flow. Preserve duplicate prevention and permissions.
+- Corrects **Product Tabular** `/definition/product-view` with readable filter and formula controls, high-contrast virtualized table, scroll within grid, preserved Save/Export/Close and stock visibility. `ProductViewPage.tsx` is NOT this route.
+- Files: `ProductsPage.tsx`, `ProductsDirectoryModal.css`, `ProductTabularViewPage.tsx`, `ProductTabularClarity.css` and handoff/design docs. No backend or DB source touched.
+- Visual approval + local TypeScript/guard tests pending. Both screens must be browser-reviewed before more Definition/Inventory screens are advanced.
