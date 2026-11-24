@@ -7,7 +7,6 @@ import {
   X,
   Edit3,
   Search,
-  FolderTree,
 } from 'lucide-react'
 import {
   useMutation,
@@ -280,13 +279,6 @@ export function SubcategoriesPage() {
 
   return (
     <main className="ah-master ah-master--list-only" aria-label="Subcategories workspace">
-      <header className="ah-master__header">
-        <div className="ah-master__heading">
-          <span className="ah-master__hero-icon"><FolderTree size={23}/></span>
-          <div><span className="ah-master__eyebrow">DEFINITION / MASTER DATA</span><h1>Subcategories</h1><p>Manage product subcategories under their parent categories.</p></div>
-        </div>
-        <div className="ah-master__header-total"><strong>{rows.length}</strong><span>Total records</span></div>
-      </header>
       {!modalOpen && error ? <div className="ah-master__error" role="alert">{error}</div> : null}
       <section className="ah-master__card ah-master__list" aria-label="Subcategories list">
         <div className="ah-master__section-heading"><div><h2>Subcategories directory</h2><p>Search, select or double-click a record to edit</p></div>
