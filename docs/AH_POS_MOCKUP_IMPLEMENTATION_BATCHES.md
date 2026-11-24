@@ -116,3 +116,10 @@ Branch `fix/product-modal-tabular-density-12` based on `fix/products-tabular-str
 - Implemented only the Product modal composition in `frontend/src/pages/ProductApprovedMockup.css`, loaded last via `ProductsPage.tsx`. Product Identity spans full width; Classification + Pricing share row two; Settings + Barcode Management share row three; footer buttons consistently sized with visible labels. Dense but readable field design and consolidated barcode table.
 - Reuses all existing Product Form React controls, images, popup layers, editable values and action handlers; no API/backend/DB/business changes. Small screens allow localized scroll. No duplicated card/page title added.
 - Verification gate: source committed, owner local `typecheck`, UI/navigation checks and browser screenshot comparison outstanding. Only progress to other screens after visual approval.
+
+## Batch 16 — Inventory document lists and editors (2026-11-24)
+- Base after owner approved Products list Batch 15. Branch `design/tenant-inventory-documents-16`.
+- Opening Stock and Stock Taking: full-height single-card document lists, compact warehouse/status filters, real floating New/Open/Refresh/Delete draft/Close actions and in-card record counts. Document editor stays full workspace for potentially hundreds of counted/product lines and immutable posting—rather than moving a complex financial/stock grid into a small modal.
+- Document editor has meaningful document number, status/warehouse/date context, full-height line grid, integrated lines/warehouse/posted totals footer and floating Save/Post/Refresh/Close. All pre-existing handler semantics, authorization and save-before-post conditions remain unchanged.
+- Shared styling `InventoryDocumentWorkspaces.css`; TSX changes purely relocate existing live buttons and footer markup, no dummy actions, backend, API or database modifications.
+- Local typecheck, UI navigation guards and browser acceptance pending; never claim visual PASS from a source-only commit.
