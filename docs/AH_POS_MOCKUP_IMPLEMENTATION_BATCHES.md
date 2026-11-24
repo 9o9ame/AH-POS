@@ -97,3 +97,10 @@ Owner browser acceptance first, then remaining Definition masters and follow-up 
 - Corrects **Product Tabular** `/definition/product-view` with readable filter and formula controls, high-contrast virtualized table, scroll within grid, preserved Save/Export/Close and stock visibility. `ProductViewPage.tsx` is NOT this route.
 - Files: `ProductsPage.tsx`, `ProductsDirectoryModal.css`, `ProductTabularViewPage.tsx`, `ProductTabularClarity.css` and handoff/design docs. No backend or DB source touched.
 - Visual approval + local TypeScript/guard tests pending. Both screens must be browser-reviewed before more Definition/Inventory screens are advanced.
+
+## Batch 12 — Product modal density + Tabular viewport (2026-11-24)
+Branch `fix/product-modal-tabular-density-12` based on `fix/products-tabular-structural-11`. This is a screenshot-guided correction, not new business features.
+- Product Add/Edit `ProductsDirectoryModal.css`: compact 28px fields, reduced gaps/cards, genuine full-canvas modal, 2-column operational sections, image picker control visually cleansed, actions stabilized at bottom. Keep barcode management and settings fully accessible; small screens use scroll fallback.
+- Product View `ProductTabularViewPage.tsx` moves the existing progress/total footer into the *same* `product-tabular-grid` card. `ProductTabularClarity.css` aligns all existing filters/actions into a single row on roomy desktop, conserves vertical pixels, and lets list extend to near status bar. Responsive wrap and horizontal table scroll remain.
+- No duplicate content headings; navigation-left/title-right invariant intact. No functional handlers/permissions/data APIs changed.
+- Local typecheck, UI/navigation guards and desktop/mobile browser acceptance **pending**.
