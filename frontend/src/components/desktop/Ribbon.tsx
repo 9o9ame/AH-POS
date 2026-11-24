@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Search } from 'lucide-react'
+import { ChartColumnIncreasing, CircleHelp, FolderTree, ReceiptText, Search, Settings, Wrench } from 'lucide-react'
 import { APP_NAME } from '../../config/app'
 import { useAuth } from '../../features/auth/AuthProvider'
 import { useWorkspace } from '../../features/workspace/WorkspaceProvider'
@@ -15,6 +15,8 @@ type RibbonProps = {
   collapsed: boolean
   onHome: () => void
   onToggleCollapse: () => void
+  onHoverExpand: () => void
+  onHoverCollapse: () => void
   onCalculator: () => void
   onSoftwareOptions: () => void
   onRecalculateStock: () => void
@@ -25,6 +27,8 @@ export function Ribbon({
   collapsed,
   onHome,
   onToggleCollapse,
+  onHoverExpand,
+  onHoverCollapse,
   onCalculator,
   onSoftwareOptions,
   onRecalculateStock,
@@ -33,6 +37,8 @@ export function Ribbon({
   const { openModule, activeModule } = useWorkspace()
   const { session } = useAuth()
   const [query, setQuery] = useState('')
+  const [hoveredSection, setHoveredSection] = useState<string | null>(null)
+  const sectionIcons = { definition: FolderTree, 'daily-entries': ReceiptText, reports: ChartColumnIncreasing, tools: Wrench, administration: Settings, help: CircleHelp }
   const searchRef = useRef<HTMLInputElement>(null)
   const normalizedQuery = query.trim().toLocaleLowerCase()
 
@@ -103,7 +109,12 @@ export function Ribbon({
   }
 
   return (
-    <aside className="ah-sidebar" data-collapsed={collapsed} aria-label="Application navigation">
+    <aside className="ah-sidebar ah-sidebar--hover" data-collapsed={collapsed} aria-label="Application navigation"
+      onPointerEnter={event => { if (event.pointerType !== "touch") onHoverExpand() }}
+      onPointerLeave={event => { if (event.pointerType !== "touch") { setHoveredSection(null); onHoverCollapse() } }}
+      onFocusCapture={onHoverExpand}
+      onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) { setHoveredSection(null); onHoverCollapse() } }}
+      onKeyDown={event => { if (event.key === "Escape" && !event.defaultPrevented) { setHoveredSection(null); onHoverCollapse() } }}>
       <div className="ah-sidebar-heading">
         <button type="button" className="ah-sidebar-home" onClick={onHome} aria-label="AH-POS home">
           <span className="ah-sidebar-brand-mark" aria-hidden="true">A</span>
@@ -137,27 +148,44 @@ export function Ribbon({
       </label>
 
       <div className="ah-navigation-command-list" aria-label={normalizedQuery ? 'Search results' : 'Modules'}>
-        {commandSections.map((section) => (
-          <section className="ah-navigation-section" key={section.tabId}>
-            <h2>{section.tabLabel}</h2>
-            {section.groups.map((group) => (
-              <div className="ah-navigation-group" key={`${section.tabId}-${group.id}`}>
-                <h3>{group.caption}</h3>
-                <div className="ah-navigation-commands">
-                  {group.commands.map((command) => (
-                    <RibbonCommand
-                      key={`${section.tabId}-${group.id}-${command.id}`}
-                      {...command}
-                      active={Boolean(command.moduleKey && command.moduleKey === activeModule.key)}
-                      onNavigate={(path) => openModule(path)}
-                      onClick={() => runCommand(command)}
-                    />
-                  ))}
-                </div>
+        {commandSections.map((section) => {
+          const SectionIcon = sectionIcons[section.tabId]
+          const expanded = Boolean(normalizedQuery) || hoveredSection === section.tabId
+          return (
+            <section className={`ah-navigation-section ah-navigation-dropdown${expanded ? ' is-expanded' : ''}`} key={section.tabId}
+              onPointerEnter={event => { if (event.pointerType !== 'touch') setHoveredSection(section.tabId) }}
+              onPointerLeave={event => { if (event.pointerType !== 'touch') setHoveredSection(current => current === section.tabId ? null : current) }}
+              onFocusCapture={() => setHoveredSection(section.tabId)}
+              onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setHoveredSection(current => current === section.tabId ? null : current) }}>
+              <button type="button" className="ah-navigation-section-trigger" aria-expanded={expanded}
+                aria-label={section.tabLabel} aria-controls={`ah-nav-section-${section.tabId}`}
+                onClick={() => { onHoverExpand(); setHoveredSection(current => current === section.tabId ? null : section.tabId) }}>
+                <SectionIcon size={18} aria-hidden="true" />
+                <span>{section.tabLabel}</span>
+                <span className="ah-navigation-chevron" aria-hidden="true">⌄</span>
+              </button>
+              <div className="ah-navigation-section-content" id={`ah-nav-section-${section.tabId}`}
+                aria-hidden={!expanded} inert={!expanded}>
+                {section.groups.map((group) => (
+                  <div className="ah-navigation-group" key={`${section.tabId}-${group.id}`}>
+                    <h3>{group.caption}</h3>
+                    <div className="ah-navigation-commands">
+                      {group.commands.map((command) => (
+                        <RibbonCommand
+                          key={`${section.tabId}-${group.id}-${command.id}`}
+                          {...command}
+                          active={Boolean(command.moduleKey && command.moduleKey === activeModule.key)}
+                          onNavigate={(path) => openModule(path)}
+                          onClick={() => runCommand(command)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </section>
-        ))}
+            </section>
+          )
+        })}
         {!commandSections.length ? (
           <div className="ah-navigation-empty" role="status">No matching commands.</div>
         ) : null}
