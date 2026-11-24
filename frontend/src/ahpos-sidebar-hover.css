@@ -1,0 +1,147 @@
+/* AH-POS tenant hover navigation.
+   No route/command registry changes, support pointer, focus and touch toggles.
+   Scoped to the real tenant navigation; Platform sidebar is untouched. */
+:root[data-button-scope='tenant'] #root .ah-app-shell .ah-app-layout {
+  transition: grid-template-columns 260ms cubic-bezier(.2,.75,.2,1) !important;
+}
+:root[data-button-scope='tenant'] #root .ah-app-shell .ah-sidebar--hover {
+  transition: background-color 240ms ease, border-color 240ms ease;
+  overflow:hidden;
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ah-navigation-command-list {
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+  overflow-y:auto;
+  overflow-x:hidden;
+  gap:4px;
+  padding:4px 2px 12px;
+  scrollbar-width:thin;
+  scrollbar-color:#54627a transparent;
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ah-navigation-section {
+  flex:0 0 auto;
+  margin:0 !important;
+  border-radius:11px;
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ah-navigation-section-trigger {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  width:100%;
+  min-height:40px;
+  padding:8px 10px;
+  color:#e6edf6;
+  border:1px solid transparent;
+  border-radius:10px;
+  background:transparent;
+  text-align:left;
+  cursor:pointer;
+  font:inherit;
+  font-size:12px;
+  font-weight:750;
+  transition:color 200ms ease,background-color 200ms ease,border-color 200ms ease;
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ah-navigation-section-trigger > svg {
+  flex:0 0 19px;
+  color:#ddab67;
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ah-navigation-section-trigger span:nth-child(2) {
+  flex:1;min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ah-navigation-section-trigger:hover,
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ah-navigation-dropdown.is-expanded > .ah-navigation-section-trigger {
+  color:#fff;
+  background:#34465f;
+  border-color:#516784;
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ah-navigation-section-trigger:focus-visible {
+  outline:2px solid #f0ac50;outline-offset:2px;
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ah-navigation-chevron {
+  flex:0 0 auto;
+  color:#b9c8dc;
+  transition:transform 230ms cubic-bezier(.2,.75,.2,1);
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ah-navigation-dropdown.is-expanded .ah-navigation-chevron {
+  transform:rotate(180deg);
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ah-navigation-section-content {
+  display:block;
+  visibility:hidden;
+  opacity:0;
+  max-height:0;
+  overflow:hidden;
+  transform:translateY(-5px);
+  padding:0 0 0 8px;
+  pointer-events:none;
+  transition:max-height 260ms cubic-bezier(.2,.75,.2,1),opacity 170ms ease,transform 210ms ease,visibility 0s linear 260ms;
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ah-navigation-dropdown.is-expanded > .ah-navigation-section-content {
+  visibility:visible;
+  opacity:1;
+  max-height:2400px;
+  overflow:visible;
+  transform:translateY(0);
+  padding-bottom:9px;
+  pointer-events:auto;
+  transition:max-height 290ms cubic-bezier(.2,.75,.2,1),opacity 200ms ease,transform 220ms ease,visibility 0s;
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ah-navigation-group {
+  padding:2px 0;
+  margin:0 !important;
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ah-navigation-group > h3 {
+  margin:11px 11px 6px;
+  color:#c6d2e2;
+  font-size:10px;
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ah-navigation-commands {
+  gap:2px;
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ribbon-command {
+  min-height:35px;
+  padding:5px 8px;
+  font-size:11px;
+  transition:background-color 170ms ease,color 170ms ease,border-color 170ms ease;
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ribbon-menu {
+  border:1px solid #738099;
+  border-radius:12px;
+  box-shadow:0 15px 40px #10162566;
+  transition:opacity 160ms ease,transform 180ms ease,visibility 180ms ease;
+}
+/* No navigation label or group content may appear in the collapsed rail. */
+:root[data-button-scope='tenant'] #root .ah-app-shell[data-navigation-collapsed='true'] .ah-sidebar--hover .ah-navigation-section-trigger {
+  justify-content:center;
+  padding:8px 0;
+  min-height:42px;
+}
+:root[data-button-scope='tenant'] #root .ah-app-shell[data-navigation-collapsed='true'] .ah-sidebar--hover .ah-navigation-section-trigger > span,
+:root[data-button-scope='tenant'] #root .ah-app-shell[data-navigation-collapsed='true'] .ah-sidebar--hover .ah-navigation-section-content {
+  display:none !important;
+}
+:root[data-button-scope='tenant'] #root .ah-app-shell[data-navigation-collapsed='true'] .ah-sidebar--hover .ah-navigation-section-trigger > svg {
+  flex:0 0 19px;
+}
+:root[data-button-scope='tenant'] #root .ah-app-shell[data-navigation-collapsed='true'] .ah-sidebar--hover .ah-navigation-command-list {
+  padding-left:0;padding-right:0;
+}
+:root[data-button-scope='tenant'] #root .ah-app-shell[data-navigation-collapsed='true'] .ah-sidebar--hover .ah-sidebar-footer,
+:root[data-button-scope='tenant'] #root .ah-app-shell[data-navigation-collapsed='true'] .ah-sidebar--hover .ah-navigation-search {
+  justify-content:center;
+}
+/* Sidebar flyout remains hoverable between command and its menu. */
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ribbon-command-wrap:has(.ribbon-menu[data-open='true']) {
+  position:relative;
+}
+@media (prefers-reduced-motion:reduce){
+  :root[data-button-scope='tenant'] #root .ah-app-shell .ah-app-layout,
+  :root[data-button-scope='tenant'] #root .ah-sidebar--hover .ah-navigation-section-content,
+  :root[data-button-scope='tenant'] #root .ah-sidebar--hover .ah-navigation-section-trigger,
+  :root[data-button-scope='tenant'] #root .ah-sidebar--hover .ah-navigation-chevron,
+  :root[data-button-scope='tenant'] #root .ah-sidebar--hover .ribbon-menu {transition:none!important;}
+}
