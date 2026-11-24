@@ -1,0 +1,389 @@
+/* AH-POS Products — structurally list-first, real UiModal editor (Batch 11).
+   Embedded Product editor remains compatible with existing callers. */
+:root[data-button-scope='tenant'] #root .workspace-host-inner:has(> .product-definition-directory) {
+  height:100%;
+  min-height:0;
+  overflow:hidden!important;
+}
+:root[data-button-scope='tenant'] #root .product-definition-directory:not(.is-embedded) {
+  display:flex;
+  flex-direction:column;
+  height:100%;
+  min-height:0;
+  width:100%;
+  padding:12px 14px 70px;
+  overflow:hidden;
+  background:#edf1f6;
+}
+:root[data-button-scope='tenant'] #root .product-directory-list {
+  flex:1 1 auto;
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  min-height:0;
+  overflow:hidden;
+  border:1px solid #cbd7e5;
+  border-radius:14px;
+  box-shadow:0 4px 15px #13284015;
+  background:#fff;
+}
+:root[data-button-scope='tenant'] #root .product-directory-list .product-def-grid {
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  min-height:0;
+  flex:1 1 auto;
+  border:0;
+  background:#fff;
+}
+:root[data-button-scope='tenant'] #root .product-directory-list .ui-content-panel-header {
+  display:none!important;
+}
+:root[data-button-scope='tenant'] #root .product-directory-list .ui-content-panel-body {
+  display:flex;
+  flex-direction:column;
+  flex:1 1 auto;
+  min-height:0;
+  padding:0;
+  overflow:hidden;
+}
+:root[data-button-scope='tenant'] #root .product-directory-list .product-def-filterbar {
+  flex:0 0 auto;
+  display:flex;
+  gap:14px;
+  padding:14px;
+  background:#fff;
+  border-bottom:1px solid #d5deea;
+  align-items:center;
+}
+:root[data-button-scope='tenant'] #root .product-directory-list .product-def-groupbar {
+  display:flex;
+  flex:0 1 330px;
+  gap:8px;
+  align-items:center;
+}
+:root[data-button-scope='tenant'] #root .product-directory-list .product-def-groupbar-label {
+  color:#24374c;
+  font-size:12px;
+  font-weight:750;
+}
+:root[data-button-scope='tenant'] #root .product-directory-list .product-def-groupbar-select {
+  flex:1 1 auto;
+  min-width:0;
+}
+:root[data-button-scope='tenant'] #root .product-directory-list .product-def-grid-top {
+  flex:1 1 auto;
+  max-width:none;
+}
+:root[data-button-scope='tenant'] #root .product-directory-list .product-def-grid-search .pdf-input {
+  height:43px;
+  padding-left:39px;
+  border:1px solid #bac9db;
+  border-radius:10px;
+  background:#fff;
+  font-size:13px;
+  color:#1c3149;
+}
+:root[data-button-scope='tenant'] #root .product-directory-list .product-def-grid-search > svg {
+  left:14px;
+  color:#526c86;
+}
+:root[data-button-scope='tenant'] #root .product-directory-list .product-dropdown .ui-select-trigger {
+  min-height:43px;
+  height:43px;
+  border:1px solid #bac9db;
+  border-radius:10px;
+  color:#19334e;
+  background:#fff;
+  box-shadow:none;
+  font-size:13px;
+}
+:root[data-button-scope='tenant'] #root .product-directory-list .ui-select-arrow {
+  flex:0 0 21px;
+  width:21px;
+  height:21px;
+  padding:0;
+  background:#e1e9f3;
+  border:0;
+  color:#213b56;
+  border-radius:6px;
+  box-shadow:none;
+}
+:root[data-button-scope='tenant'] #root .product-directory-list .pos-grid-wrap {
+  flex:1 1 auto;
+  height:100%;
+  min-height:0;
+  width:100%;
+  overflow:auto!important;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+}
+:root[data-button-scope='tenant'] #root .product-directory-list .pos-grid {
+  width:100%;
+  min-width:600px;
+  table-layout:auto;
+}
+:root[data-button-scope='tenant'] #root .product-directory-list .pos-grid th {
+  position:sticky;
+  top:0;
+  padding:12px!important;
+  background:#e8eef6!important;
+  border-bottom:1px solid #b5c7da!important;
+  color:#213852!important;
+  font-size:12px!important;
+  font-weight:800;
+  z-index:2;
+}
+:root[data-button-scope='tenant'] #root .product-directory-list .pos-grid td {
+  padding:9px 12px!important;
+  border-bottom:1px solid #e4eaf1;
+  background:#fff;
+  color:#24354c;
+  font-size:12px!important;
+}
+:root[data-button-scope='tenant'] #root .product-directory-list .pos-grid tbody tr:hover td {
+  background:#f2f7fc!important;
+}
+:root[data-button-scope='tenant'] #root .product-directory-list .pos-grid tbody tr.is-selected td {
+  background:#fff1d9!important;
+}
+:root[data-button-scope='tenant'] #root .product-directory-list .product-def-grid-foot {
+  flex:0 0 auto;
+  min-height:44px;
+  padding:0 16px;
+  border-top:1px solid #d5dfeb;
+  background:#f9fbfe;
+  font-size:12px;
+  font-weight:700;
+  color:#42556d;
+}
+:root[data-button-scope='tenant'] #root .product-directory-floating-actions {
+  position:fixed;
+  display:flex;
+  gap:7px;
+  align-items:center;
+  padding:8px;
+  bottom:43px;
+  right:23px;
+  z-index:50;
+  border-radius:15px;
+  border:1px solid #455b75;
+  background:#1b2b42;
+  box-shadow:0 10px 30px #0f203a66;
+}
+:root[data-button-scope='tenant'] #root .product-directory-floating-actions button {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  min-height:38px;
+  padding:0 12px;
+  border-radius:9px;
+  border:1px solid #506783;
+  background:#30475f;
+  color:#f9fbff;
+  font-size:12px;
+  font-weight:800;
+}
+:root[data-button-scope='tenant'] #root .product-directory-floating-actions button.is-primary {
+  background:#b56a13;
+  border-color:#d89843;
+}
+:root[data-button-scope='tenant'] #root .product-directory-floating-actions button:disabled {
+  opacity:.43;
+  cursor:not-allowed;
+}
+
+/* Product editor is a real portal-backed UiModal, not a squeezed page column. */
+:root[data-button-scope='tenant'] .product-definition-modal.ui-modal {
+  display:flex;
+  flex-direction:column;
+  width:min(1250px,96vw);
+  max-width:96vw;
+  height:min(90vh,940px);
+  max-height:90vh;
+  min-height:0;
+  overflow:hidden;
+  border-radius:17px;
+  border:1px solid #b3c4d6;
+  box-shadow:0 28px 95px #101d3970;
+  background:#fff;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .ui-modal-header {
+  flex:0 0 auto;
+  padding:14px 20px;
+  background:#182c43;
+  color:#fff;
+  border-bottom:0;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .ui-modal-title {
+  font-size:17px;
+  font-weight:850;
+  color:#fff;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .ui-modal-close {
+  color:#fff;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .ui-modal-body {
+  flex:1 1 auto;
+  min-height:0;
+  padding:0;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  background:#eef2f7;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-definition-modal-form {
+  display:flex;
+  flex-direction:column;
+  flex:1 1 auto;
+  min-height:0;
+  height:100%;
+  overflow:hidden;
+  border:0;
+  background:#eef2f7;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-commandbar {
+  order:2;
+  flex:0 0 auto;
+  justify-content:flex-end;
+  padding:11px 17px;
+  min-height:61px;
+  border-top:1px solid #c8d6e5;
+  background:#fff;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-commandbar-label {display:none}
+:root[data-button-scope='tenant'] .product-definition-modal .product-commandbar-actions {
+  width:100%;
+  flex-wrap:wrap;
+  gap:7px;
+  justify-content:flex-end;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-def-form {
+  order:1;
+  display:flex;
+  flex:1 1 auto;
+  min-height:0;
+  width:100%;
+  overflow:hidden;
+  border:0;
+  border-radius:0;
+  background:#eef2f7;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-def-tabs {
+  flex:0 0 auto;
+  padding:9px 19px;
+  border-bottom:1px solid #cbd7e3;
+  background:#fff;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-def-tabs button {
+  min-height:37px;
+  padding:0 15px;
+  border-radius:9px;
+  font-size:12px;
+  color:#30435b;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-def-tabs button.is-active {
+  background:#fff0da;
+  border:1px solid #d8a363;
+  color:#8d5010;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-def-fields {
+  flex:1 1 auto;
+  min-height:0;
+  padding:16px 21px 25px;
+  overflow:auto;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+  background:#eef2f7;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-detail-sections {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:13px;
+  align-content:start;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-detail-sections .ui-form-section {
+  min-width:0;
+  background:#fff;
+  border:1px solid #cbd7e3;
+  border-radius:12px;
+  box-shadow:0 2px 9px #1c304c10;
+  padding:14px 16px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-identity-section,
+:root[data-button-scope='tenant'] .product-definition-modal .product-barcodes-section {
+  grid-column:1/-1;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .pdf-row > label {
+  font-size:11px;
+  font-weight:750;
+  color:#2b3f57;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .pdf-input,
+:root[data-button-scope='tenant'] .product-definition-modal .pdf-barcode-input {
+  min-height:37px;
+  height:37px;
+  border:1px solid #b6c6d8;
+  border-radius:8px;
+  color:#20364d;
+  background:#fff;
+  font-size:12px;
+  box-shadow:none;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-dropdown .ui-select-trigger {
+  min-height:37px;
+  height:37px;
+  border:1px solid #b6c6d8;
+  border-radius:8px;
+  background:#fff;
+  color:#20364d;
+  box-shadow:none;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-dropdown .ui-select-arrow {
+  width:20px;height:20px;
+  padding:0;
+  border:0;
+  border-radius:5px;
+  background:#dce7f3;
+  color:#233951;
+  box-shadow:none;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .pdf-barcode-table-scroll {
+  max-height:210px;
+  overflow:auto;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-def-cmd.is-save {
+  background:#b76a10;
+  color:#fff;
+  border-color:#97520b;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-def-cmd.is-save:hover:not(:disabled) {
+  background:#cd7d1a;
+}
+@media(max-width:900px) {
+  :root[data-button-scope='tenant'] .product-definition-modal .product-detail-sections {
+    grid-template-columns:1fr;
+  }
+  :root[data-button-scope='tenant'] .product-definition-modal .product-identity-section,
+  :root[data-button-scope='tenant'] .product-definition-modal .product-barcodes-section {
+    grid-column:auto;
+  }
+  :root[data-button-scope='tenant'] .product-definition-modal.ui-modal {
+    width:98vw;
+    max-width:98vw;
+    height:94vh;
+    max-height:94vh;
+  }
+}
+@media(max-width:600px) {
+  :root[data-button-scope='tenant'] #root .product-definition-directory:not(.is-embedded) {padding:8px 8px 64px}
+  :root[data-button-scope='tenant'] #root .product-directory-list .product-def-filterbar {flex-wrap:wrap;padding:9px}
+  :root[data-button-scope='tenant'] #root .product-directory-list .product-def-groupbar,
+  :root[data-button-scope='tenant'] #root .product-directory-list .product-def-grid-top {flex:1 1 100%}
+  :root[data-button-scope='tenant'] #root .product-directory-floating-actions {bottom:35px;right:7px;padding:5px;gap:4px}
+  :root[data-button-scope='tenant'] #root .product-directory-floating-actions button {padding:0 8px;min-height:33px}
+  :root[data-button-scope='tenant'] .product-definition-modal .product-def-fields {padding:9px}
+  :root[data-button-scope='tenant'] .product-definition-modal .product-commandbar {padding:8px;overflow-x:auto}
+  :root[data-button-scope='tenant'] .product-definition-modal .product-commandbar-actions {flex-wrap:nowrap;width:max-content}
+}
