@@ -394,7 +394,10 @@
     grid-template-columns:1fr auto;
   }
   :root[data-button-scope='tenant'] #root .ah-product-directory--tabular .product-tabular-summary {
-    display:none; /* aggregate still preserved in data, not an action; mobile footer remains readable */
+    display:block;
+    grid-column:1/-1;
+    justify-self:start;
+    font-size:10px;
   }
 }
 @media(max-width:540px) {
