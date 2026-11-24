@@ -3,6 +3,7 @@ import { CheckCircle2, FolderTree, Layers3, Plus, RefreshCw, Ruler, Save, Search
 import { ApiClientError } from '../../api/client'
 import { useCatalogMasterEditor } from './useCatalogMasterEditor'
 import { PosDataGrid } from '../desktop/PosDataGrid'
+import { UiSelect } from '../ui/UiSelect'
 import { askConfirm } from '../../feedback/FeedbackProvider'
 import { useWorkspace, useWorkspaceHandlers } from '../../features/workspace/WorkspaceProvider'
 import './CatalogMasterWorkspace.css'
@@ -110,11 +111,17 @@ export function CatalogMasterWorkspace({ kind }: { kind: MasterKind }) {
             </label>
             <label className="ah-master__filter">
               <span className="sr-only">Status</span>
-              <select value={status} onChange={(e) => setStatus(e.target.value as typeof status)}>
-                <option value="all">All statuses</option>
-                <option value="active">Active</option>
-                <option value="archived">Archived</option>
-              </select>
+              <UiSelect
+                value={status}
+                aria-label="Record status"
+                searchable={false}
+                options={[
+                  { value: 'all', label: 'All statuses' },
+                  { value: 'active', label: 'Active' },
+                  { value: 'archived', label: 'Archived' },
+                ]}
+                onChange={(value) => setStatus(value as typeof status)}
+              />
             </label>
           </div>
           <div className="ah-master__grid">
