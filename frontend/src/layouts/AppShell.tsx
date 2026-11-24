@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { ApplicationTitleBar } from '../components/desktop/ApplicationTitleBar'
 import { CalculatorDialog } from '../components/desktop/CalculatorDialog'
@@ -149,7 +149,26 @@ function AppShellFrame({
 }) {
   useWorkspaceShortcuts()
   useAppMode()
-  const [navigationCollapsed, setNavigationCollapsed] = useState(false)
+  const [navigationCollapsed, setNavigationCollapsed] = useState(true)
+  const sidebarLeaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => () => {
+    if (sidebarLeaveTimer.current) clearTimeout(sidebarLeaveTimer.current)
+  }, [])
+
+  function expandNavigation() {
+    if (sidebarLeaveTimer.current) clearTimeout(sidebarLeaveTimer.current)
+    sidebarLeaveTimer.current = null
+    setNavigationCollapsed(false)
+  }
+
+  function collapseNavigationSoon() {
+    if (sidebarLeaveTimer.current) clearTimeout(sidebarLeaveTimer.current)
+    sidebarLeaveTimer.current = setTimeout(() => {
+      setNavigationCollapsed(true)
+      sidebarLeaveTimer.current = null
+    }, 180)
+  }
 
   const location = useLocation()
   const { tabs, activeKey } = useWorkspace()
@@ -209,6 +228,8 @@ function AppShellFrame({
           collapsed={navigationCollapsed}
           onHome={onHome}
           onToggleCollapse={() => setNavigationCollapsed((collapsed) => !collapsed)}
+          onHoverExpand={expandNavigation}
+          onHoverCollapse={collapseNavigationSoon}
           onCalculator={() => {
             if (!launchWindowsCalculator()) {
               setCalculatorOpen(true)
