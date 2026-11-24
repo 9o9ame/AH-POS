@@ -48,6 +48,7 @@ import { CatalogQuickEditorModal, type QuickEditorKind } from '../components/cat
 import { loadBarcodePrintSettings, printBarcodeLabels } from '../components/products/barcodePrint'
 import { UiSelect, UiSimpleDropdown, UiTableDropdown } from '../components/ui/UiSelect'
 import { UiModal } from '../components/ui/UiModal'
+import { UI_LAYER } from '../components/ui/uiLayers'
 import { StockValueBadge } from '../components/ui/StockValueBadge'
 import { PartyModal } from '../components/parties/PartyModal'
 import type { Party } from '../api/parties'
@@ -145,6 +146,7 @@ function PdfSelect({
       options={options}
       disabled={disabled}
       className={['product-dropdown', className].filter(Boolean).join(' ')}
+      menuZIndex={UI_LAYER.nestedDropdown}
       title={title}
       aria-label={ariaLabel}
       onFocus={onFocus ? (event) => onFocus(event as unknown as FocusEvent<HTMLSelectElement>) : undefined}
@@ -1459,6 +1461,7 @@ export function ProductsPage({
               <label>Supplier</label>
               <div className="pdf-field-plus">
                 <UiTableDropdown
+                  menuZIndex={UI_LAYER.nestedDropdown}
                   value={primarySupplierUlid}
                   disabled={!canSave}
                   className="product-dropdown"
@@ -1983,7 +1986,7 @@ export function ProductsPage({
               <button type="button" className="is-primary" disabled={!canCreate} onClick={startNewProduct} title="Add new product"><Plus size={19}/> Add Product</button>
             </nav>
             <UiModal open={editorOpen} size="xl" className="product-definition-modal"
-              title={creating ? 'New Product' : `Edit Product · ${selected?.product_number ?? ''}`}
+              title={creating ? 'New Product' : <span className="product-editor-title">Edit Product · {selected?.product_number ?? ''} <small>{selected?.is_active === false ? 'Discontinued' : 'Active record'}</small></span>}
               onClose={() => setEditorOpen(false)}>
               <form id="inline-product-form" className="product-management-page product-definition-modal-form"
                 onSubmit={onSubmit}>
