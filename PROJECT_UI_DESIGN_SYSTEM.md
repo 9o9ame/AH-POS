@@ -610,3 +610,8 @@ The standalone Definition/Products catalog list should extend to the bottom of t
 
 ### Stock Taking combobox and density rule — Batch 18
 Never style `input.ui-select-trigger-search` as a full standalone field inside `.ui-select-combobox-trigger`. The trigger is the only visible outlined surface; nested input must be transparent, borderless, occupy available width and leave room for the toggler. Preserve outer focus ring, keyboard search/Enter and portalled dropdown above document modal. In Stock Taking editor use compact 29px fields, ~33px saved rows, ~39px entry row; avoid oversized padding. Source: `StockTakingModal.css`, branch `fix/stock-taking-row-dropdown-18`.
+
+### Global feedback contract — Batch 19 (2026-11-24)
+- Every action outcome must be communicated through shared `useFeedback()` by **semantic tone**, not one neutral toast: Success green/check; Error red/cross; Warning amber/triangle (e.g. missing required field); Info blue/information. Background, text, border, icon must be distinguishable in light/dark modes; avoid generic `!important` overrides erasing tones.
+- Play a unique **short, non-startling** locally generated sound for each tone. Audio respects browser gesture/autoplay restrictions; never let failed audio stop UI or business actions. Avoid repetition storms via sound cooldown. ARIA text/visual color/icon must always work even when sound is blocked. New `feedback.warning` is available for form warnings.
+- Don't use error sound for neutral routine statuses or success for invalid inputs. Use existing `feedback.fromApiError` for backend failures. Never Post/Save stock just to test sound in non-disposable tenant. Code lives in `frontend/src/feedback/feedbackSounds.ts`, FeedbackProvider and feedback.css.
