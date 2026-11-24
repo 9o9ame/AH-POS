@@ -59,7 +59,7 @@ import { refreshSuppliers } from '../data/catalogCache'
 import { useWorkspace, useWorkspaceHandlers } from '../features/workspace/WorkspaceProvider'
 import type { Product } from '../types/catalog'
 import type { OpeningBalance } from '../types/inventory'
-import { ContentPanel, FormSection, PageActionBar, PageHeader, PageToolbar, ResponsiveSplitLayout } from '../components/ui/PageLayout'
+import { ContentPanel, FormSection, PageActionBar, PageToolbar, ResponsiveSplitLayout } from '../components/ui/PageLayout'
 import './ProductsPage.ahpos.css'
 import './ProductsDirectoryModal.css'
 
