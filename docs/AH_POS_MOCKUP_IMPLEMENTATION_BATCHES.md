@@ -109,3 +109,10 @@ Branch `fix/product-modal-tabular-density-12` based on `fix/products-tabular-str
 - Branch `fix/product-editor-compact-overlay-13`. Screenshot feedback: previous edit/create modal wasted vertical space and buttons were unreadable. Replaced forced-height multi-card appearance with content-sized light surface and section separators, slightly taller 30px fields, more usable full-width form and proper 34px icon-label action buttons. Screen-height-dependent internal scroll remains as an accessibility fallback.
 - Supplier and catalog quick-create popups now use actual nested overlay stacking. `PartyModal` is portal-backed with configurable default-preserving z-index, and product caller opts into nested layer. Product modal's Escape close is suspended while a nested popup is active.
 - No product/inventory/vendor/stock transaction handlers, tenant permissions, APIs or DB schema modified. Typecheck/visual testing pending.
+
+## Batch 14 — Product Add/Edit approved visual design (2026-11-24)
+- Approved visual reference: user-approved generated mockup on 2026-11-24 (not a source image committed to Git; do not use rendered screenshot as production asset).
+- Branch: `design/approved-product-modal-mockup-14`, based on `fix/product-editor-compact-overlay-13`.
+- Implemented only the Product modal composition in `frontend/src/pages/ProductApprovedMockup.css`, loaded last via `ProductsPage.tsx`. Product Identity spans full width; Classification + Pricing share row two; Settings + Barcode Management share row three; footer buttons consistently sized with visible labels. Dense but readable field design and consolidated barcode table.
+- Reuses all existing Product Form React controls, images, popup layers, editable values and action handlers; no API/backend/DB/business changes. Small screens allow localized scroll. No duplicated card/page title added.
+- Verification gate: source committed, owner local `typecheck`, UI/navigation checks and browser screenshot comparison outstanding. Only progress to other screens after visual approval.
