@@ -335,3 +335,123 @@
     bottom:11px!important;
   }
 }
+
+
+/* Batch 18 — fix screenshot regression in Stock Taking entry row.
+   Previous broad input rule painted the inner combobox input as a SECOND
+   bordered field inside its trigger. Keep a single outlined control. */
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-entry-grid tbody tr td {
+  box-sizing:border-box;
+  height:33px!important;
+  padding:3px 7px!important;
+  vertical-align:middle;
+  font-size:11px!important;
+  line-height:1.2;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-entry-grid tbody tr.is-entry-row td {
+  height:39px!important;
+  padding:4px 6px!important;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-entry-grid thead th {
+  height:33px!important;
+  padding:7px 8px!important;
+  line-height:1.15;
+  font-size:11px!important;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-entry-grid tr.is-entry-row > td > input {
+  box-sizing:border-box;
+  height:29px!important;
+  min-height:29px!important;
+  padding:0 8px!important;
+  border:1px solid #91abc6!important;
+  border-radius:6px!important;
+  background:#fff!important;
+  font-size:11px!important;
+}
+/* One combobox shell: outer trigger owns border, inner input owns only text. */
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-entry-grid .ui-table-dropdown {
+  box-sizing:border-box;
+  width:100%;
+  min-width:0;
+  height:29px;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-entry-grid .ui-table-dropdown .ui-select-combobox-trigger {
+  position:relative;
+  display:flex!important;
+  align-items:center;
+  box-sizing:border-box;
+  width:100%;
+  height:29px!important;
+  min-height:29px!important;
+  padding:0!important;
+  gap:0!important;
+  border:1px solid #91abc6!important;
+  border-radius:6px!important;
+  background:#fff!important;
+  box-shadow:none!important;
+  overflow:hidden;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-entry-grid .ui-table-dropdown input.ui-select-trigger-search,
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-entry-grid .ui-table-dropdown input.ui-select-trigger-search:focus-visible {
+  box-sizing:border-box;
+  display:block;
+  flex:1 1 auto;
+  width:100%!important;
+  min-width:0;
+  height:100%!important;
+  min-height:0!important;
+  max-height:100%!important;
+  margin:0!important;
+  padding:0 31px 0 9px!important;
+  border:0!important;
+  border-radius:0!important;
+  outline:0!important;
+  box-shadow:none!important;
+  background:transparent!important;
+  color:#18344f!important;
+  font-size:11px!important;
+  font-weight:650;
+  line-height:normal;
+  appearance:none;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-entry-grid .ui-table-dropdown .ui-select-combobox-toggle {
+  position:absolute;
+  right:2px;
+  top:50%;
+  display:grid;
+  place-items:center;
+  flex:0 0 25px;
+  width:25px!important;
+  min-width:25px!important;
+  height:24px!important;
+  min-height:24px!important;
+  padding:0!important;
+  margin:0!important;
+  transform:translateY(-50%);
+  border:0!important;
+  background:transparent!important;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-entry-grid .ui-table-dropdown .ui-select-arrow {
+  display:grid;
+  place-items:center;
+  width:20px!important;
+  height:20px!important;
+  border:0!important;
+  border-radius:5px!important;
+  background:#e0ebf6!important;
+  color:#164a77!important;
+  box-shadow:none!important;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-entry-grid .ui-table-dropdown.is-open .ui-select-combobox-trigger,
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-entry-grid .ui-table-dropdown:focus-within .ui-select-combobox-trigger {
+  border-color:#236cb0!important;
+  outline:2px solid #80b9ef!important;
+  outline-offset:0;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-entry-grid .stock-taking-delete-row {
+  width:23px;
+  min-height:23px;
+  height:23px;
+  padding:0;
+  border-radius:6px;
+}
