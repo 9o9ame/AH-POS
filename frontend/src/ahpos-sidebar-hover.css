@@ -145,3 +145,47 @@
   :root[data-button-scope='tenant'] #root .ah-sidebar--hover .ah-navigation-chevron,
   :root[data-button-scope='tenant'] #root .ah-sidebar--hover .ribbon-menu {transition:none!important;}
 }
+
+/* Nested command menus live in the same scrollable sidebar instead of spilling
+   outside its clipped boundary. Hover leave closes smoothly, and all buttons
+   retain their existing authorization, onNavigate and disabled behavior. */
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ribbon-command-wrap > .ribbon-menu {
+  position:relative !important;
+  top:auto !important;
+  left:auto !important;
+  width:calc(100% - 7px) !important;
+  min-width:0 !important;
+  max-height:0;
+  margin:0 0 0 7px;
+  padding:0;
+  border-width:0;
+  overflow:hidden;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transform:translateY(-5px);
+  clip-path:none;
+  transition:max-height 240ms cubic-bezier(.2,.75,.2,1),opacity 175ms ease,transform 200ms ease,visibility 0s linear 240ms;
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ribbon-command-wrap > .ribbon-menu[data-open='true'] {
+  max-height:320px;
+  padding:4px;
+  margin-top:4px;
+  margin-bottom:6px;
+  border-width:1px;
+  overflow:auto;
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  transform:translateY(0);
+  clip-path:none;
+  transition:max-height 260ms cubic-bezier(.2,.75,.2,1),opacity 185ms ease,transform 220ms ease,visibility 0s;
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ribbon-menu button[role='menuitem'] {
+  font-size:11px;min-height:32px;
+}
+@media(prefers-reduced-motion:reduce){
+  :root[data-button-scope='tenant'] #root .ah-sidebar--hover .ribbon-command-wrap > .ribbon-menu {
+    transition:none!important;
+  }
+}
