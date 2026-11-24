@@ -189,3 +189,52 @@
     transition:none!important;
   }
 }
+
+/* Owner-requested slower, deliberate transitions (2026-11-24).
+   Keep duration consistent in both directions, with reduced-motion respected. */
+:root[data-button-scope='tenant'] #root .ah-app-shell .ah-app-layout {
+  transition: grid-template-columns 720ms cubic-bezier(.22,1,.36,1) !important;
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ah-navigation-section-content {
+  transition:
+    max-height 650ms cubic-bezier(.22,1,.36,1),
+    opacity 500ms ease,
+    transform 580ms cubic-bezier(.22,1,.36,1),
+    visibility 0s linear 650ms;
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ah-navigation-dropdown.is-expanded > .ah-navigation-section-content {
+  transition:
+    max-height 650ms cubic-bezier(.22,1,.36,1),
+    opacity 530ms ease,
+    transform 580ms cubic-bezier(.22,1,.36,1),
+    visibility 0s;
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ah-navigation-section-trigger {
+  transition: color 400ms ease, background-color 450ms ease, border-color 450ms ease;
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ah-navigation-chevron {
+  transition: transform 560ms cubic-bezier(.22,1,.36,1);
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ribbon-command-wrap > .ribbon-menu {
+  transition:
+    max-height 520ms cubic-bezier(.22,1,.36,1),
+    opacity 400ms ease,
+    transform 470ms cubic-bezier(.22,1,.36,1),
+    visibility 0s linear 520ms;
+}
+:root[data-button-scope='tenant'] #root .ah-sidebar--hover .ribbon-command-wrap > .ribbon-menu[data-open='true'] {
+  transition:
+    max-height 520ms cubic-bezier(.22,1,.36,1),
+    opacity 420ms ease,
+    transform 470ms cubic-bezier(.22,1,.36,1),
+    visibility 0s;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-button-scope='tenant'] #root .ah-app-shell .ah-app-layout,
+  :root[data-button-scope='tenant'] #root .ah-sidebar--hover .ah-navigation-section-content,
+  :root[data-button-scope='tenant'] #root .ah-sidebar--hover .ah-navigation-section-trigger,
+  :root[data-button-scope='tenant'] #root .ah-sidebar--hover .ah-navigation-chevron,
+  :root[data-button-scope='tenant'] #root .ah-sidebar--hover .ribbon-command-wrap > .ribbon-menu {
+    transition:none!important;
+  }
+}
