@@ -201,14 +201,6 @@ export function SaleSchemesPage() {
   return (
     <main className="ah-directory-page" aria-label="Sale schemes directory">
       <section className="ah-directory-card">
-        <header className="ah-directory-heading">
-          <div>
-            <span className="ah-directory-kicker">DEFINITION / CUSTOMER OFFERS</span>
-            <h1>Customer Sale Schemes</h1>
-            <p>Maintain free-product rewards and eligibility rules.</p>
-          </div>
-          <div className="ah-directory-count"><strong>{rows.length}</strong><span>schemes</span></div>
-        </header>
         <div className="ah-directory-toolbar">
           <label className="ah-directory-search">
             <Search size={17} aria-hidden="true" />
