@@ -24,6 +24,7 @@ import { useFeedback } from '../feedback/FeedbackProvider'
 import type { Product } from '../types/catalog'
 import type { StockTake, StockTakeLine } from '../types/inventory'
 import './StockTakingPage.css'
+import './InventoryDocumentWorkspaces.css'
 
 function todayIso() {
   return new Date().toISOString().slice(0, 10)
@@ -416,7 +417,7 @@ export function StockTakingPage() {
     const selectedDocument = (listQuery.data ?? []).find((row) => row.ulid === selectedListKey) ?? null
 
     return (
-      <section className="stock-taking-page">
+      <section className="stock-taking-page ah-inventory-workspace ah-inventory-list">
         <div className="stock-taking-toolbar">
           <div className="stock-taking-toolbar-left">
             <UiSimpleDropdown
@@ -431,13 +432,6 @@ export function StockTakingPage() {
               placeholder="Warehouse"
               aria-label="Warehouse for new Stock Take"
             />
-            <UiButton
-              variant="primary"
-              onClick={() => createDocument.mutate()}
-              disabled={!canAdjust || !newWarehouseUlid || createDocument.isPending}
-            >
-              <Plus size={15} /> New
-            </UiButton>
             <UiSimpleDropdown
               className="stock-taking-status-filter"
               value={statusFilter}
@@ -464,7 +458,25 @@ export function StockTakingPage() {
             />
           </div>
 
-          <div className="stock-taking-toolbar-right">
+        </div>
+
+        <div className="stock-taking-grid-card">
+          <PosDataGrid loading={listQuery.isLoading}
+            columns={listColumns}
+            rows={listQuery.data ?? []}
+            rowKey={(row) => row.ulid}
+            selectedKey={selectedListKey}
+            onSelect={(row) => setSelectedListKey(row.ulid)}
+            onActivate={(row) => {
+              setDocumentUlid(row.ulid)
+              setMode('editor')
+            }}
+            emptyMessage={listQuery.isLoading ? 'Loading Stock Takes…' : 'No Stock Taking documents found.'}
+          />
+          <footer className="ah-inventory-list-status"><strong>{(listQuery.data ?? []).length} documents</strong><span>Stock Taking · Select a row or double-click to open</span></footer>
+        </div>
+        <nav className="ah-inventory-dock" aria-label="Stock Taking actions">
+
             <UiButton variant="info" onClick={() => void listQuery.refetch()}>
               <RefreshCw size={15} /> Refresh
             </UiButton>
@@ -492,29 +504,20 @@ export function StockTakingPage() {
             <UiButton variant="info" onClick={closeActiveTab}>
               <X size={15} /> Close
             </UiButton>
-          </div>
-        </div>
-
-        <div className="stock-taking-grid-card">
-          <PosDataGrid loading={listQuery.isLoading}
-            columns={listColumns}
-            rows={listQuery.data ?? []}
-            rowKey={(row) => row.ulid}
-            selectedKey={selectedListKey}
-            onSelect={(row) => setSelectedListKey(row.ulid)}
-            onActivate={(row) => {
-              setDocumentUlid(row.ulid)
-              setMode('editor')
-            }}
-            emptyMessage={listQuery.isLoading ? 'Loading Stock Takes…' : 'No Stock Taking documents found.'}
-          />
-        </div>
+            <UiButton
+              variant="primary"
+              onClick={() => createDocument.mutate()}
+              disabled={!canAdjust || !newWarehouseUlid || createDocument.isPending}
+            >
+              <Plus size={15} /> New
+            </UiButton>
+        </nav>
       </section>
     )
   }
 
   return (
-    <section className="stock-taking-page">
+    <section className="stock-taking-page ah-inventory-workspace ah-inventory-editor">
       <div className="stock-taking-toolbar">
         <div className="stock-taking-toolbar-left">
           <UiButton variant="info" onClick={() => void backToList()}>
@@ -550,41 +553,6 @@ export function StockTakingPage() {
           </label>
         </div>
 
-        <div className="stock-taking-toolbar-right">
-          <UiButton
-            variant="success"
-            onClick={saveCurrentDraft}
-            disabled={!editable || (!headerDirty && !draftDirty && !lineDirty) || saveDraft.isPending}
-          >
-            <Save size={15} /> Save
-          </UiButton>
-          <UiButton
-            variant="success"
-            onClick={async () => {
-              if (!document || !canPost || document.status !== 'draft') return
-              if (headerDirty || draftDirty || lineDirty) {
-                feedback.info('Save the Stock Take draft before posting.', 'Stock Taking')
-                return
-              }
-              if (!await feedback.confirm(
-                `Post ${document.document_number}? The server will re-read live stock and post the final variance. Posted stock takes cannot be edited.`,
-              )) return
-              postDocument.mutate()
-            }}
-            disabled={!document || document.status !== 'draft' || !canPost || postDocument.isPending}
-          >
-            <Send size={15} /> Post
-          </UiButton>
-          <UiButton variant="info" onClick={() => void documentQuery.refetch()}>
-            <RefreshCw size={15} /> Refresh
-          </UiButton>
-          <UiButton variant="info" onClick={async () => {
-            if (!await confirmDiscardDraftInputs()) return
-            closeActiveTab()
-          }}>
-            <X size={15} /> Close
-          </UiButton>
-        </div>
       </div>
 
       <div className="stock-taking-line-card">
@@ -760,13 +728,48 @@ export function StockTakingPage() {
             <td />
           </tr>
         </PosEntryGrid>
-      </div>
-
       <footer className="stock-taking-footer">
         <span>{draftLines.length} line(s)</span>
         <span>{document?.warehouse ? `${document.warehouse.code} — ${document.warehouse.name}` : 'No warehouse'}</span>
         {document?.posted_at ? <span>Posted: {new Date(document.posted_at).toLocaleString()}</span> : null}
       </footer>
+      </div>
+      <nav className="ah-inventory-dock ah-inventory-editor-dock" aria-label="Stock Taking document actions">
+
+          <UiButton
+            variant="success"
+            onClick={saveCurrentDraft}
+            disabled={!editable || (!headerDirty && !draftDirty && !lineDirty) || saveDraft.isPending}
+          >
+            <Save size={15} /> Save
+          </UiButton>
+          <UiButton
+            variant="success"
+            onClick={async () => {
+              if (!document || !canPost || document.status !== 'draft') return
+              if (headerDirty || draftDirty || lineDirty) {
+                feedback.info('Save the Stock Take draft before posting.', 'Stock Taking')
+                return
+              }
+              if (!await feedback.confirm(
+                `Post ${document.document_number}? The server will re-read live stock and post the final variance. Posted stock takes cannot be edited.`,
+              )) return
+              postDocument.mutate()
+            }}
+            disabled={!document || document.status !== 'draft' || !canPost || postDocument.isPending}
+          >
+            <Send size={15} /> Post
+          </UiButton>
+          <UiButton variant="info" onClick={() => void documentQuery.refetch()}>
+            <RefreshCw size={15} /> Refresh
+          </UiButton>
+          <UiButton variant="info" onClick={async () => {
+            if (!await confirmDiscardDraftInputs()) return
+            closeActiveTab()
+          }}>
+            <X size={15} /> Close
+          </UiButton>
+      </nav>
     </section>
   )
 }
