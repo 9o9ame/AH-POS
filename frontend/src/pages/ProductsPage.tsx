@@ -64,6 +64,7 @@ import type { OpeningBalance } from '../types/inventory'
 import { ContentPanel, FormSection, PageActionBar, PageToolbar, ResponsiveSplitLayout } from '../components/ui/PageLayout'
 import './ProductsPage.ahpos.css'
 import './ProductsDirectoryModal.css'
+import './ProductApprovedMockup.css'
 
 type ProductBarcodeDraft = {
   id: string
