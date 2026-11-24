@@ -10,6 +10,7 @@ import {
   type RibbonCommandDef,
 } from '../../features/workspace/modules'
 import { RibbonCommand } from './RibbonCommand'
+import '../../ahpos-sidebar-hover.css'
 
 type RibbonProps = {
   collapsed: boolean
