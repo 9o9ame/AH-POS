@@ -80,3 +80,20 @@ Local verification pending: `npm run typecheck`, `npm run ui:check`, `npm run ui
 - Permanent approved shell rule applies: left contextual navigation, right active tab title, no second duplicate title inside card. Do not add page-level scroll; table/grid itself handles overflow. All commands must remain keyboard/reachability accessible.
 - **Validation owed:** GitHub source committed, local TypeScript/navigation guards and authenticated browser behavior not executed by connector. Owner to merge branch and run `npm run typecheck`, `npm run ui:check`, `npm run ui:navigation-check`; no need `npm run dev` (already running) or routine `npm run build`. Test filters, column sort, selection, prices, stock permission, export file, bulk Set/Save, Refresh, Close, print preview, mobile/desktop, horizontal table scrolling.
 - Next select two related Definition screens based on live repo after owner approval; print safety and no lost functionality remain hard acceptance gates.
+
+## 2026-11-24 — Product UI visual rejection + structural correction (Batch 11)
+
+**User screenshots rejected the previous Batch 10 design.** Two actual routes reported:
+- `/definition/products`: Products editor compressed into a narrow region, giant blank central panel, catalog on far right. The standalone screen should be a full-width catalog with an Add/Edit **real modal** and floating actions.
+- `/definition/product-view`: renders `ProductTabularViewPage` (despite route title `Product View`); tiny blue-legacy grid, squashed dropdowns and weak spacing. Do NOT confuse with the separate `ProductViewPage.tsx` component. Prior batch reviewed the wrong route mapping; new changes target the actual loaded component.
+
+**Branch:** `fix/products-tabular-structural-11` based on `design/tenant-product-grids-10`. The owner has already fast-forward merged Batch 10 locally and reports `typecheck`, `ui:check`, `ui:navigation-check` PASS on that older (visually rejected) code.
+
+**Implementation:**
+- `ProductsPage.tsx`: reuse one shared JSX editor, actions and product list; on standalone route show full-width catalog only with category/search, selected-row edit, floating Add/Edit/Refresh/Close and real portal-backed `UiModal` for all existing product sections. Preserve embedded mode for workflows that embed the product editor. Save success closes standalone modal; existing product APIs, barcode scanner and domain inventory flows unmodified. Original product status retained in dialog title. Nested dropdowns use `UI_LAYER.nestedDropdown` to remain visible above the modal. Product list row double-click opens Edit; single click selects.
+- `ProductsDirectoryModal.css`: independent list card, internal grid scroll, modal with responsive full-width two-column field sections and sticky modal action area; no duplicated page header.
+- `ProductTabularViewPage.tsx` + `ProductTabularClarity.css`: improve actual route grid readability, search, bulk Set, filters, drop arrows, row height, header, footer and floating Save/Export/Close. Keep virtualized rows, selection/dirty staging, RBAC, formulas and existing export.
+- `ProductViewPage.tsx` from previous Batch 10 intentionally not changed by this correction; verify its route separately when requested.
+- No API/backend/migration/queue/financial changes.
+
+**Local tests still owed:** GitHub code editing cannot execute user's Windows npm/authorized browser. After merging run `npm run typecheck`, `npm run ui:check`, `npm run ui:navigation-check`; owner will check Create/Edit modal, image selector, nested category/supplier/unit dropdowns, barcode rows, stock opening tab, Save/Cancel, permissions, keyboard shortcuts, product list rows, Tabular Set/Save/Export, large virtualized scrolling. If type errors or display regressions, fix in a focused follow-up commit before starting next modules. No `npm run dev` (already running); no routine `npm run build`.
