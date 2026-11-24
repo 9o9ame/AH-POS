@@ -46,3 +46,35 @@ Subcategories, Sale Schemes and Price Lists; inspect the actual handler/field co
 - Adds targeted high-contrast titlebar/BranchSwitcher dropdown styling, correcting visible chevrons without altering switch behavior. Uses `UI_LAYER.modalDropdown` for category dropdown inside the modal.
 - No backend, database, finance, routes or API changes.
 - Not verified in authenticated browser by the GitHub connector. Local validation: `npm run typecheck`, `npm run ui:check`, `npm run ui:navigation-check`. Validate modal Add/Edit/Cancel, row select/double-click, filters, activate/deactivate, shortcuts F9/F8 and responsive position.
+
+## Batch 06 — Sale Schemes and Price Lists (2026-11-24)
+
+### Sale Schemes
+- Converted into a tenant-only list-first directory with a single scrollable records grid; moved all existing Add/Edit fields to `UiModal`.
+- Preserved existing mutation payload, activation state, deactivation confirmation, RBAC checks, reward-product lookup, apply mode, min sale amount, max free qty, optional date range and stackability.
+- Reused `UI_LAYER.modalDropdown` for portalled reward/mode dropdowns and F9/F8 handlers.
+- Floating actions: Add, Edit selected, Deactivate selected, Refresh, Close. No fake Activate action was added.
+
+### Price Lists
+- This is an existing read-only directory, NOT a price editor. It remains list-only with the original server-backed search, brand/category/active-only filters, pagination, CSV export, refresh and close behavior.
+- CSV filename now uses AH-POS branding. Floating actions: Refresh, Export CSV, Close.
+- No Add/Edit modal or permission bypass invented.
+
+### Scope / files
+- `frontend/src/pages/SaleSchemesPage.tsx`
+- `frontend/src/pages/PriceListsPage.tsx`
+- `frontend/src/pages/TenantDirectoryPages.css`
+- Documentation: UI design contract, migration record, handoff.
+- No backend, DB migrations, tenant isolation, accounting, financial posting, API or route registry changes.
+
+### Validation gate
+GitHub connector can write/check source but cannot run user's authenticated frontend or Windows build. Pending locally: `npm run typecheck`, `npm run ui:check`, `npm run ui:navigation-check`, manual test on both routes. Test:
+1. Sale Scheme Add → choose free product + apply mode → enter amounts → dates + stackable → Save → list appears.
+2. Select row → Edit modal prefilled → Save → refreshed list. Cancel should not mutate server data; refresh should restore latest persisted values.
+3. Deactivate selected with confirmation and permissions; no editable controls for read-only users.
+4. Price Lists category/brand/active-only filters, search, Previous/Next, Export CSV (check file and row contents).
+5. Scroll only within table; fixed FAB accessible; no duplicate page title. Desktop and mobile.
+6. Hover sidebar behavior is a separate branch merged locally by owner; do not overwrite.
+
+### Next
+Owner browser acceptance first, then remaining Definition masters and follow-up UI consistency. Do not treat untouched pages as complete.
