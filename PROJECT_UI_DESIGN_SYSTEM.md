@@ -539,3 +539,10 @@ Motion must respect `[data-animations="off"]` and `prefers-reduced-motion: reduc
   Run `npm run ui:navigation-check` to verify tab navigation with a deliberately
   unresolved data request and a 10,000-row cache (requires Edge/Chrome/Chromium;
   `BLUEPOS_TEST_BROWSER` can specify its executable).
+
+## Tenant directory pattern — 2026-11-24 implementation contract
+- Definition masters with existing Create/Edit logic must use a **list-only main screen**, existing `UiModal` for Add/Edit and an accessible floating action toolbar; all required form fields remain available only inside the modal, not removed.
+- Pure read-only directories (Price Lists) must NOT invent Add/Edit APIs or fake dialogs. Preserve real search/filter/pagination/export behavior and place existing quick actions in a floating toolbar.
+- Keep only one page title within a workspace; avoid duplicate contextual heading. The `PosDataGrid` owns record scrolling; the workspace itself should not gain an extra outer scrollbar. Ensure modal dropdowns layer above modal with canonical `UI_LAYER`.
+- Shared tenant directory look is implemented in `frontend/src/pages/TenantDirectoryPages.css`, with Categories/Brands/Units/Subcategories using existing catalog master workspace CSS. Never turn this into a global Platform Admin override.
+- For each implementation batch update `docs/AH_POS_MOCKUP_IMPLEMENTATION_BATCHES.md`, `docs/AH_POS_DESIGN_MIGRATION.md`, and `docs/AH_POS_SESSION_HANDOFF.md`. Record branch, exact modules, preserved functions and what is still unverified. Avoid claiming complete until owner browser acceptance.
