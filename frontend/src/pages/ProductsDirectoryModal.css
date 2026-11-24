@@ -417,3 +417,219 @@
   font-size:10px;
   font-weight:750;
 }
+
+
+/* Batch 12 — Compact full-canvas Product Add/Edit dialog.
+   At normal desktop heights all four functional sections + barcode table
+   fit together. On smaller viewports use section-local overflow instead
+   of clipping inputs or hiding business functionality. */
+:root[data-button-scope='tenant'] .product-definition-modal.ui-modal {
+  width:min(1460px,98vw);
+  max-width:98vw;
+  height:min(96dvh,980px);
+  max-height:96dvh;
+  border-radius:12px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .ui-modal-header {
+  min-height:38px;
+  padding:6px 15px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .ui-modal-body,
+:root[data-button-scope='tenant'] .product-definition-modal .product-definition-modal-form {
+  min-height:0;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-def-tabs {
+  padding:5px 13px;
+  gap:6px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-def-tabs button {
+  min-height:29px;
+  height:29px;
+  padding:0 12px;
+  font-size:11px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-def-fields {
+  flex:1 1 auto;
+  min-height:0;
+  padding:9px 12px 10px;
+  overflow-y:auto;
+  overflow-x:hidden;
+  scrollbar-width:thin;
+  scrollbar-color:#b7c6d6 transparent;
+  scrollbar-gutter:auto;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-detail-sections {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:8px 10px;
+  align-content:start;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-detail-sections .ui-form-section {
+  min-width:0;
+  margin:0;
+  padding:8px 11px 9px;
+  border-radius:9px;
+  box-shadow:0 1px 5px #1c304c0c;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-detail-sections .ui-form-section > header {
+  margin:0 0 6px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-detail-sections .ui-form-section > header h2 {
+  font-size:11px;
+  font-weight:850;
+  line-height:1.25;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-detail-sections .ui-form-section > header p {
+  display:none; /* Decorative copy, not an operational field */
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-identity-section {
+  grid-column:1/-1;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-barcodes-section {
+  grid-column:auto;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-identity-layout {
+  grid-template-columns:minmax(0,1fr) 104px;
+  gap:10px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-identity-fields {
+  gap:5px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .pdf-row {
+  row-gap:4px;
+  column-gap:7px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .pdf-row > label {
+  font-size:10px;
+  line-height:1.2;
+  font-weight:750;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .pdf-input,
+:root[data-button-scope='tenant'] .product-definition-modal .pdf-barcode-input {
+  height:28px;
+  min-height:28px;
+  padding:0 8px;
+  border-radius:7px;
+  font-size:11px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-dropdown .ui-select-trigger {
+  height:28px;
+  min-height:28px;
+  padding-inline:8px;
+  border-radius:7px;
+  font-size:11px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .pdf-plus-button {
+  width:27px;
+  min-width:27px;
+  height:27px;
+  flex-basis:27px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-dropdown .ui-select-arrow {
+  width:17px;
+  height:17px;
+  flex:0 0 17px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-image-card {
+  gap:3px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-def-photo,
+:root[data-button-scope='tenant'] .product-definition-modal .product-def-image-loader {
+  height:79px;
+  min-height:79px;
+  max-height:79px;
+  width:96px;
+  border-radius:8px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal input.product-def-image-input {
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  padding:0!important;
+  margin:-1px!important;
+  overflow:hidden!important;
+  clip-path:inset(50%)!important;
+  border:0!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-image-card > span {
+  font-size:10px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-image-card > small {
+  font-size:9px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-barcodes-section .pdf-barcode-title {
+  padding:5px 8px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .pdf-barcode-table-scroll {
+  max-height:93px;
+  overflow:auto;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .pdf-barcode-table th {
+  padding:4px 6px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .pdf-barcode-table td {
+  padding:2px 5px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .pdf-barcode-table .ui-select-trigger {
+  min-height:26px;
+  height:26px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .pdf-barcode-nav {
+  padding:4px 6px;
+  gap:4px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .pdf-barcode-nav button {
+  width:25px;
+  height:23px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-commandbar {
+  min-height:48px;
+  padding:5px 11px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  scrollbar-width:thin;
+  justify-content:flex-end;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-commandbar-actions {
+  display:flex;
+  width:max-content;
+  min-width:max-content;
+  flex-wrap:nowrap;
+  gap:5px;
+  margin-left:auto;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-commandbar .product-def-rail-btn,
+:root[data-button-scope='tenant'] .product-definition-modal .product-commandbar .product-def-cmd {
+  min-height:30px;
+  height:30px;
+  padding:0 9px;
+  font-size:10px;
+  border-radius:8px;
+  white-space:nowrap;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-commandbar .product-def-cmd-label {
+  font-size:10px;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-commandbar .product-def-cmd-key {
+  font-size:9px;
+}
+@media (max-width:1050px) {
+  :root[data-button-scope='tenant'] .product-definition-modal .product-detail-sections {
+    grid-template-columns:1fr;
+  }
+  :root[data-button-scope='tenant'] .product-definition-modal .product-identity-section,
+  :root[data-button-scope='tenant'] .product-definition-modal .product-barcodes-section {
+    grid-column:auto;
+  }
+}
+@media (max-height:690px) {
+  :root[data-button-scope='tenant'] .product-definition-modal.ui-modal {
+    height:calc(100dvh - 14px);
+    max-height:calc(100dvh - 14px);
+  }
+  :root[data-button-scope='tenant'] .product-definition-modal .product-def-fields {
+    overflow-y:auto; /* Never clip content on shorter screens */
+  }
+}
