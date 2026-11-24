@@ -47,6 +47,7 @@ import { PosDataGrid } from '../components/desktop/PosDataGrid'
 import { CatalogQuickEditorModal, type QuickEditorKind } from '../components/catalog/CatalogQuickEditorModal'
 import { loadBarcodePrintSettings, printBarcodeLabels } from '../components/products/barcodePrint'
 import { UiSelect, UiSimpleDropdown, UiTableDropdown } from '../components/ui/UiSelect'
+import { UiModal } from '../components/ui/UiModal'
 import { StockValueBadge } from '../components/ui/StockValueBadge'
 import { PartyModal } from '../components/parties/PartyModal'
 import type { Party } from '../api/parties'
@@ -60,6 +61,7 @@ import type { Product } from '../types/catalog'
 import type { OpeningBalance } from '../types/inventory'
 import { ContentPanel, FormSection, PageActionBar, PageHeader, PageToolbar, ResponsiveSplitLayout } from '../components/ui/PageLayout'
 import './ProductsPage.ahpos.css'
+import './ProductsDirectoryModal.css'
 
 type ProductBarcodeDraft = {
   id: string
@@ -184,6 +186,7 @@ export function ProductsPage({
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
   const [listCategoryUlid, setListCategoryUlid] = useState('')
   const [creating, setCreating] = useState(embedded)
+  const [editorOpen, setEditorOpen] = useState(embedded)
   const [section, setSection] = useState<'definition' | 'opening' | 'related'>('definition')
   const [error, setError] = useState<string | null>(null)
   const [quickEditor, setQuickEditor] = useState<QuickEditorKind | null>(null)
@@ -502,6 +505,7 @@ export function ProductsPage({
   function startNewProduct() {
     if (!canCreate) return
     setCreating(true)
+    setEditorOpen(true)
     setSelectedKey(null)
     resetForm()
     setSection('definition')
@@ -598,6 +602,7 @@ export function ProductsPage({
     priority: embedded ? 100 : 50,
     enabled:
       canSave &&
+      (embedded || editorOpen) &&
       canBarcodes &&
       section === 'definition' &&
       !supplierModalOpen &&
@@ -917,6 +922,7 @@ export function ProductsPage({
       clearPendingImageState()
       setCreating(false)
       setSelectedKey(saved.ulid)
+      if (!embedded) setEditorOpen(false)
       queryClient.setQueryData(['product', saved.ulid], saved)
       await localProducts.refreshFromServer()
       await queryClient.invalidateQueries({ queryKey: ['product', saved.ulid] })
@@ -945,11 +951,16 @@ export function ProductsPage({
 
   useWorkspaceHandlers({
     save: () => {
+      if (!editorOpen) {
+        if (selectedKey && canEdit) setEditorOpen(true)
+        else if (canCreate) startNewProduct()
+        return
+      }
       ; (document.getElementById('inline-product-form') as HTMLFormElement | null)?.requestSubmit()
     },
     refresh: () => {
       void localProducts.refreshFromServer()
-      if (canCreate) {
+      if (embedded && canCreate) {
         startNewProduct()
       } else if (selectedKey) {
         void productQuery.refetch()
@@ -1059,32 +1070,14 @@ export function ProductsPage({
 
   return (
     <>
-      <form
-        id="inline-product-form"
-        className={[
-          'product-def',
-          'product-management-page',
-          embedded ? 'is-embedded' : '',
-        ].filter(Boolean).join(' ')}
-        onKeyDownCapture={(event) => {
-          if (!embedded || event.key !== 'Enter') return
-          if (event.target instanceof HTMLButtonElement) return
-
-          // Embedded Product Definition is frequently used with keyboard-wedge
-          // scanners. Never let a scanner suffix (or Enter inside a field)
-          // implicitly submit/create the product.
-          event.preventDefault()
-        }}
-        onSubmit={onSubmit}
-      >
-        <PageHeader
-          eyebrow="CATALOG / DEFINITION"
-          title="Product Management"
-          description={selected ? `${selected.product_number} · ${selected.name}` : 'Create, find and maintain products, pricing and barcodes.'}
-          aside={<span className={`product-record-status${selected?.is_active === false ? ' is-inactive' : ''}`}>{creating ? 'New product' : selected?.is_active === false ? 'Discontinued' : 'Active record'}</span>}
-        />
-
-        <PageToolbar className="product-commandbar">
+      <div className={['product-management-page','product-definition-directory', embedded ? 'is-embedded' : ''].filter(Boolean).join(' ')}>
+        {embedded ? (
+          <form id="inline-product-form" className="product-embedded-editor" onSubmit={onSubmit}
+            onKeyDownCapture={event => {
+              if (event.key !== 'Enter' || event.target instanceof HTMLButtonElement) return
+              event.preventDefault()
+            }}>
+                    <PageToolbar className="product-commandbar">
           <span className="product-commandbar-label">Record actions</span>
           <PageActionBar className="product-commandbar-actions">
 
@@ -1257,7 +1250,7 @@ export function ProductsPage({
           <button
             type="button"
             className="product-def-cmd is-close"
-            onClick={embedded ? onClose : closeActiveTab}
+            onClick={embedded ? onClose : () => setEditorOpen(false)}
           >
             <span className="product-def-cmd-icon is-red-circle"><X size={15} strokeWidth={3.2} /></span>
             <span className="product-def-cmd-text">
@@ -1267,9 +1260,8 @@ export function ProductsPage({
           </button>
           </PageActionBar>
         </PageToolbar>
-
-        <ResponsiveSplitLayout className="product-management-layout">
-        <section className="product-def-form ui-content-panel">
+            <ResponsiveSplitLayout className="product-management-layout">
+                      <section className="product-def-form ui-content-panel" aria-label="Product editor">
           <PageToolbar className="product-def-tabs">
 
             <button
@@ -1869,10 +1861,9 @@ export function ProductsPage({
           </div>
           )}
         </section>
-
-        <ContentPanel
-          title="Product catalog"
-          description="Search, filter and select a catalog record."
+                      <ContentPanel
+          title=""
+          description=""
           className="product-def-grid"
         >
           <div className="product-def-filterbar">
@@ -1950,6 +1941,7 @@ export function ProductsPage({
             onActivate={(row) => {
               setCreating(false)
               setSelectedKey(row.ulid)
+              setEditorOpen(true)
             }}
             emptyMessage="No products found."
             loading={localProducts.isLoading}
@@ -1965,8 +1957,907 @@ export function ProductsPage({
             </span>
           </div>
         </ContentPanel>
-        </ResponsiveSplitLayout>
-      </form>
+            </ResponsiveSplitLayout>
+          </form>
+        ) : (
+          <>
+            <div className="product-directory-list">
+                      <ContentPanel
+          title=""
+          description=""
+          className="product-def-grid"
+        >
+          <div className="product-def-filterbar">
+            <div className="product-def-groupbar">
+              <span className="product-def-groupbar-label">Category / Group</span>
+              <PdfSelect
+                simple
+                className="product-def-groupbar-select"
+                value={listCategoryUlid}
+                aria-label="Filter products by category"
+                onChange={(e) => {
+                  setListCategoryUlid(e.target.value)
+                }}
+              >
+                <option value="">All Products</option>
+                {(categories.data ?? [])
+                  .filter((row) => row.is_active || row.ulid === listCategoryUlid)
+                  .map((row) => (
+                    <option key={row.ulid} value={row.ulid}>
+                      {row.name}
+                    </option>
+                  ))}
+              </PdfSelect>
+            </div>
+
+            <div className="product-def-grid-top">
+              <div className="product-def-grid-search">
+                <Search size={15} aria-hidden="true" />
+                <input
+                  className="pdf-input"
+                  placeholder="Search products..."
+                  value={q}
+                  onChange={(e) => {
+                    setQ(e.target.value)
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <PosDataGrid
+            virtualize
+            columns={[
+              { key: 'no', header: 'No', width: 56, render: (row: Product) => row.product_number },
+              { key: 'name', header: 'Name', width: 190, render: (row: Product) => row.name },
+              {
+                key: 'stock',
+                header: 'In Stock',
+                width: 72,
+                align: 'right',
+                render: (row: Product) => {
+                  if (!canViewStock) {
+                    return <span className="stock-na" title="Inventory view permission required">—</span>
+                  }
+
+                  const stock = compactDecimal(row.sales_lookup?.in_stock ?? '0.0')
+                  const numericStock = Number(row.sales_lookup?.in_stock ?? '0')
+
+                  return (
+                    <StockValueBadge
+                      value={numericStock}
+                      displayValue={stock}
+                    />
+                  )
+                },
+              },
+            ]}
+            rows={gridRows}
+            rowKey={(row) => row.ulid}
+            selectedKey={creating ? null : selectedKey}
+            onSelect={(row) => {
+              setCreating(false)
+              setSelectedKey(row.ulid)
+            }}
+            onActivate={(row) => {
+              setCreating(false)
+              setSelectedKey(row.ulid)
+              setEditorOpen(true)
+            }}
+            emptyMessage="No products found."
+            loading={localProducts.isLoading}
+            loadingLabel="Loading cached products…"
+          />
+
+          <div className="product-def-grid-foot">
+            <span>{total} Products</span>
+            <span className="product-def-pager">
+              {localProducts.isBackgroundRefreshing
+                ? 'Syncing in background…'
+                : 'All products loaded'}
+            </span>
+          </div>
+        </ContentPanel>
+            </div>
+            <nav className="product-directory-floating-actions" aria-label="Product directory actions">
+              <button type="button" onClick={() => void localProducts.refreshFromServer()} title="Refresh catalog"><RefreshCw size={17}/> Refresh</button>
+              <button type="button" disabled={!selectedKey || !canEdit} onClick={() => { setCreating(false); setEditorOpen(true) }} title="Edit selected product"><Check size={17}/> Edit</button>
+              <button type="button" onClick={closeActiveTab} title="Close products page"><X size={17}/> Close</button>
+              <button type="button" className="is-primary" disabled={!canCreate} onClick={startNewProduct} title="Add new product"><Plus size={19}/> Add Product</button>
+            </nav>
+            <UiModal open={editorOpen} size="xl" className="product-definition-modal"
+              title={creating ? 'New Product' : `Edit Product · ${selected?.product_number ?? ''}`}
+              onClose={() => setEditorOpen(false)}>
+              <form id="inline-product-form" className="product-management-page product-definition-modal-form"
+                onSubmit={onSubmit}>
+                        <PageToolbar className="product-commandbar">
+          <span className="product-commandbar-label">Record actions</span>
+          <PageActionBar className="product-commandbar-actions">
+
+          <button
+            type="button"
+            className="product-def-rail-btn"
+            disabled={
+              creating ||
+              !selectedKey ||
+              printableBarcodes.length === 0
+            }
+            title={
+              creating
+                ? 'Save the product first'
+                : printableBarcodes.length > 0
+                  ? 'Open full barcode printing workspace'
+                  : 'Add a barcode first'
+            }
+            onClick={() => {
+              if (!selectedKey) return
+              openModule(`/definition/barcode-printing/${selectedKey}`)
+            }}
+          >
+            <Barcode size={18} />
+            <span>Barcode Print</span>
+          </button>
+
+          <button
+            type="button"
+            className="product-def-rail-btn"
+            disabled={!currentPrintableBarcode}
+            title={
+              currentPrintableBarcode
+                ? `Print one label for ${currentPrintableBarcode.barcode}`
+                : 'Select or add a barcode first'
+            }
+            onClick={printCurrentBarcode}
+          >
+            <Printer size={18} />
+            <span>Current Print</span>
+          </button>
+
+          <button
+            type="button"
+            className="product-def-cmd is-new"
+            disabled={!canCreate}
+            onClick={startNewProduct}
+          >
+            <span className="product-def-cmd-icon"><Plus size={17} /></span>
+            <span className="product-def-cmd-text"><span className="product-def-cmd-label">New</span></span>
+          </button>
+
+          <button type="submit" className="product-def-cmd is-save" disabled={!canSave || saveMutation.isPending}>
+            <span className="product-def-cmd-icon is-green"><Check size={18} strokeWidth={3} /></span>
+            <span className="product-def-cmd-text">
+              <span className="product-def-cmd-label">{creating ? 'Create' : 'Save'}</span>
+              <span className="product-def-cmd-key">[F9]</span>
+            </span>
+          </button>
+
+          <button
+            type="button"
+            className="product-def-cmd is-refresh"
+            title={canCreate ? 'Refresh list and start a new product' : 'Refresh product list'}
+            onClick={() => {
+              void localProducts.refreshFromServer()
+
+              if (canCreate) {
+                startNewProduct()
+              } else if (selectedKey) {
+                void productQuery.refetch()
+              }
+            }}
+          >
+            <span className="product-def-cmd-icon is-blue"><RefreshCw size={17} strokeWidth={2.6} /></span>
+            <span className="product-def-cmd-text">
+              <span className="product-def-cmd-label">Refresh</span>
+              <span className="product-def-cmd-key">[F8]</span>
+            </span>
+          </button>
+
+          <button
+            type="button"
+            className={`product-def-cmd ${selected && !selected.is_active ? 'is-refresh' : 'is-delete'}`}
+            disabled={
+              creating ||
+              !selected ||
+              (
+                selected.is_active
+                  ? !canDelete
+                  : !canEdit
+              )
+            }
+            onClick={() => {
+              if (!selectedKey || !selected) {
+                return
+              }
+
+              // ACTIVE PRODUCT -> DEACTIVATE
+              if (selected.is_active) {
+                void (async () => {
+                  if (!(await askConfirm(`Deactivate ${selected.name}?`))) {
+                    return
+                  }
+                  void deactivateProduct(selectedKey)
+                    .then(async () => {
+                      await localProducts.refreshFromServer()
+
+                      await queryClient.invalidateQueries({
+                        queryKey: ['product', selectedKey],
+                      })
+                    })
+                    .catch((err) => {
+                      setError(
+                        err instanceof ApiClientError
+                          ? err.message
+                          : 'Unable to deactivate product.',
+                      )
+                    })
+                })()
+                return
+              }
+
+              // DISCONTINUED PRODUCT -> ACTIVATE
+              void updateProduct(
+                selectedKey,
+                {
+                  is_active: true,
+                },
+              )
+                .then(async () => {
+                  await localProducts.refreshFromServer()
+
+                  await queryClient.invalidateQueries({
+                    queryKey: ['product', selectedKey],
+                  })
+                })
+                .catch((err) => {
+                  setError(
+                    err instanceof ApiClientError
+                      ? err.message
+                      : 'Unable to activate product.',
+                  )
+                })
+            }}
+          >
+            <span
+              className={
+                selected && !selected.is_active
+                  ? 'product-def-cmd-icon is-blue'
+                  : 'product-def-cmd-icon is-red'
+              }
+            >
+              {selected && !selected.is_active ? (
+                <RefreshCw size={17} strokeWidth={2.6} />
+              ) : (
+                <X size={18} strokeWidth={3.2} />
+              )}
+            </span>
+            <span className="product-def-cmd-text">
+              <span className="product-def-cmd-label">
+                {selected && !selected.is_active
+                  ? 'Activate'
+                  : 'Delete'}
+              </span>
+              <span className="product-def-cmd-key">[F7]</span>
+            </span>
+          </button>
+
+          <button
+            type="button"
+            className="product-def-cmd is-close"
+            onClick={embedded ? onClose : () => setEditorOpen(false)}
+          >
+            <span className="product-def-cmd-icon is-red-circle"><X size={15} strokeWidth={3.2} /></span>
+            <span className="product-def-cmd-text">
+              <span className="product-def-cmd-label">Close</span>
+              <span className="product-def-cmd-key">[Esc]</span>
+            </span>
+          </button>
+          </PageActionBar>
+        </PageToolbar>
+                        <section className="product-def-form ui-content-panel" aria-label="Product editor">
+          <PageToolbar className="product-def-tabs">
+
+            <button
+              type="button"
+              role="tab"
+              aria-selected={section === 'definition'}
+              className={section === 'definition' ? 'is-active' : undefined}
+              onClick={() => setSection('definition')}
+            >
+              Definition of Product
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={section === 'opening'}
+              className={section === 'opening' ? 'is-active' : undefined}
+              disabled={!canOpeningView}
+              title={canOpeningView ? 'Opening Balance' : 'No inventory permission'}
+              onClick={() => setSection('opening')}
+            >
+              Opening Balance (F1)
+            </button>
+            <button type="button" disabled title="Available in a later phase">Products To Be Used With This Product</button>
+          </PageToolbar>
+
+          {error ? <div className="product-inline-error">{error}</div> : null}
+
+          {section === 'opening' ? (
+            <div className="product-def-fields product-opening-panel">
+              {creating || !selectedKey ? (
+                <p className="text-[12px] text-[var(--ui-text-muted)]">Save the product first, then enter opening stock.</p>
+              ) : (
+                <>
+                  <div className="pdf-row">
+                    <label>Warehouse</label>
+                    <PdfSelect
+                      value={openingWarehouseUlid}
+                      disabled={openingPosted || openingBusy}
+                      onChange={(e) => setOpeningWarehouseUlid(e.target.value)}
+                    >
+                      {(warehouses.data ?? []).map((row) => (
+                        <option key={row.ulid} value={row.ulid}>
+                          {row.code} — {row.name}
+                        </option>
+                      ))}
+                    </PdfSelect>
+                  </div>
+                  <div className="pdf-row pdf-row-rates">
+                    <label>Opening Qty</label>
+                    <input
+                      className="pdf-input pdf-num"
+                      value={openingQty}
+                      readOnly={openingPosted || openingBusy}
+                      onChange={(e) => setOpeningQty(e.target.value)}
+                    />
+                    <label>Unit Cost</label>
+                    <input
+                      className="pdf-input pdf-num"
+                      value={openingUnitCost}
+                      readOnly={openingPosted || openingBusy}
+                      onChange={(e) => setOpeningUnitCost(e.target.value)}
+                    />
+                    <label>Total Cost</label>
+                    <input className="pdf-input pdf-num pdf-readonly" readOnly value={openingLine?.total_cost ?? openingTotal} />
+                  </div>
+                  <div className="pdf-row pdf-row-split">
+                    <label>Document Status</label>
+                    <input
+                      className="pdf-input pdf-readonly"
+                      readOnly
+                      value={openingDocument?.status === 'posted' ? `Posted (${openingDocument.document_number})` : openingDocument ? `Draft (${openingDocument.document_number})` : 'No draft'}
+                    />
+                    <label className="pdf-right-label">In Stock</label>
+                    <input className="pdf-input pdf-num pdf-readonly" readOnly value={canViewStock ? inStockDisplay : '—'} />
+                  </div>
+                  <div className="pdf-row" style={{ gap: 8, marginTop: 8 }}>
+                    <button
+                      type="button"
+                      className="desktop-btn"
+                      disabled={openingPosted || openingBusy || (!canOpeningCreate && !canOpeningEdit) || !openingQty}
+                      onClick={() => void saveOpeningDraft()}
+                    >
+                      Save Draft
+                    </button>
+                    <button
+                      type="button"
+                      className="desktop-btn"
+                      disabled={openingPosted || openingBusy || !canOpeningPost || (!openingDocument && !openingQty)}
+                      onClick={() => void postOpeningDraft()}
+                    >
+                      Post Opening Balance
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          ) : (
+          <div className="product-def-fields product-detail-sections">
+            <FormSection title="Product identity" description="Catalog code, primary barcode and customer-facing descriptions." className="product-identity-section">
+              <div className="product-identity-layout">
+                <div className="product-identity-fields">
+            <div className="pdf-row pdf-row-split">
+              <label>Product #</label>
+              <input className="pdf-input pdf-short" readOnly value={productNumber} />
+              <label className="pdf-right-label">Barcode</label>
+              <input
+                className="pdf-input"
+                value={barcodeRows[0]?.barcode ?? ''}
+                readOnly={!canSave || !canBarcodes}
+                onChange={(e) => onPrimaryBarcodeChange(e.target.value)}
+              />
+            </div>
+
+            <div className="pdf-row">
+              <label>Description</label>
+              <input className="pdf-input" value={name} readOnly={!canSave} required onChange={(e) => setName(e.target.value)} />
+            </div>
+
+            <div className="pdf-row">
+              <label>Alternate Desc</label>
+              <input
+                className="pdf-input"
+                value={alternateName}
+                readOnly={!canSave}
+                onChange={(e) => setAlternateName(e.target.value)}
+              />
+            </div>
+                </div>
+                {productImageControl}
+              </div>
+            </FormSection>
+
+            <FormSection title="Classification" description="Assign product taxonomy, supplier and stock location." className="product-classification-section">
+            <div className="pdf-row pdf-row-split">
+              <label>Category</label>
+              <div className="pdf-field-plus">
+                <PdfSelect
+                  simple
+                  value={categoryUlid}
+                  disabled={!canSave}
+                  onChange={(e) => {
+                    setCategoryUlid(e.target.value)
+                    setSubcategoryUlid('')
+                  }}
+                >
+                  <option value="">—</option>
+                  {(categories.data ?? []).filter((row) => row.is_active || row.ulid === categoryUlid).map((row) => (
+                    <option key={row.ulid} value={row.ulid}>{row.name}</option>
+                  ))}
+                </PdfSelect>
+                <button
+                  type="button"
+                  className="pdf-plus-button"
+                  title="Edit / Define Categories"
+                  aria-label="Edit or define categories"
+                  onClick={() => setQuickEditor('category')}
+                >
+                  <Plus size={15} strokeWidth={3} />
+                </button>
+              </div>
+
+              <label className="pdf-right-label">Subcategory</label>
+              <div className="pdf-field-plus">
+                <PdfSelect
+                  simple
+                  value={subcategoryUlid}
+                  disabled={!canSave || !categoryUlid}
+                  onChange={(e) => setSubcategoryUlid(e.target.value)}
+                >
+                  <option value="">—</option>
+                  {(subcategories.data ?? [])
+                    .filter(
+                      (row) =>
+                        row.is_active ||
+                        row.ulid === subcategoryUlid,
+                    )
+                    .map((row) => (
+                      <option key={row.ulid} value={row.ulid}>
+                        {row.name}
+                      </option>
+                    ))}
+                </PdfSelect>
+                <button
+                  type="button"
+                  className="pdf-plus-button"
+                  title={
+                    categoryUlid
+                      ? 'Edit / Define Subcategories'
+                      : 'Select a category first'
+                  }
+                  aria-label="Edit or define subcategories"
+                  disabled={!canSave || !categoryUlid}
+                  onClick={() => setQuickEditor('subcategory')}
+                >
+                  <Plus size={15} strokeWidth={3} />
+                </button>
+              </div>
+            </div>
+
+            <div className="pdf-row">
+              <label>Supplier</label>
+              <div className="pdf-field-plus">
+                <UiTableDropdown
+                  value={primarySupplierUlid}
+                  disabled={!canSave}
+                  className="product-dropdown"
+                  aria-label="Supplier"
+                  placeholder="—"
+                  menuMinWidth={440}
+                  menuColumns={[
+                    { header: 'Code', width: '90px' },
+                    { header: 'Supplier', width: 'minmax(180px, 1fr)' },
+                    { header: 'Phone', width: '120px' },
+                  ]}
+                  options={[
+                    { value: '', label: '—', columns: ['—', '—', '—'] },
+                    ...supplierRows
+                      .filter((row) => {
+                        if (creating) return row.is_active
+                        return row.is_active || row.ulid === primarySupplierUlid
+                      })
+                      .map((row) => ({
+                        value: row.ulid,
+                        label: row.name,
+                        columns: [row.code, row.name, row.mobile ?? row.phone ?? ''],
+                      })),
+                  ]}
+                  onChange={setPrimarySupplierUlid}
+                />
+                <button
+                  type="button"
+                  className="pdf-plus-button"
+                  title="Edit / Define Supplier"
+                  aria-label="Edit or define supplier"
+                  disabled={!canSave}
+                  onClick={() => setSupplierModalOpen(true)}
+                >
+                  <Plus size={15} strokeWidth={3} />
+                </button>
+              </div>
+            </div>
+
+            <div className="pdf-row">
+              <label>Company</label>
+              <div className="pdf-field-plus">
+                <PdfSelect
+                  simple
+                  value={brandUlid}
+                  disabled={!canSave}
+                  onChange={(e) => setBrandUlid(e.target.value)}
+                >
+                  <option value="">—</option>
+                  {(brands.data ?? []).filter((row) => row.is_active || row.ulid === brandUlid).map((row) => (
+                    <option key={row.ulid} value={row.ulid}>{row.name}</option>
+                  ))}
+                </PdfSelect>
+                <button
+                  type="button"
+                  className="pdf-plus-button"
+                  title="Edit / Define Manufacture"
+                  aria-label="Edit or define manufacture"
+                  onClick={() => setQuickEditor('brand')}
+                >
+                  <Plus size={15} strokeWidth={3} />
+                </button>
+              </div>
+            </div>
+
+            <div className="pdf-row pdf-row-split">
+              <label>Location</label>
+              <input className="pdf-input" value={rackLocation} readOnly={!canSave} onChange={(e) => setRackLocation(e.target.value)} />
+
+              <label className="pdf-right-label">Bar.Grp</label>
+              <div className="pdf-field-plus">
+                <PdfSelect
+                  simple
+                  value={barcodeGroupUlid}
+                  disabled={!canSave}
+                  onChange={(e) => setBarcodeGroupUlid(e.target.value)}
+                >
+                  <option value="">—</option>
+                  {(barcodeGroups.data ?? [])
+                    .filter((row) => row.is_active || row.ulid === barcodeGroupUlid)
+                    .map((row) => (
+                      <option key={row.ulid} value={row.ulid}>{row.name}</option>
+                    ))}
+                </PdfSelect>
+                <button
+                  type="button"
+                  className="pdf-plus-button"
+                  title="Edit / Define Barcode Groups"
+                  aria-label="Edit or define barcode groups"
+                  onClick={() => setQuickEditor('barcode_group')}
+                >
+                  <Plus size={15} strokeWidth={3} />
+                </button>
+              </div>
+            </div>
+
+            <div className="pdf-row">
+              <label>Measure Unit</label>
+              <div className="pdf-field-plus">
+                <PdfSelect
+                  simple
+                  value={baseUnitUlid || units.data?.[0]?.ulid || ''}
+                  disabled={!canSave}
+                  onChange={(e) => onBaseUnitChange(e.target.value)}
+                >
+                  {(units.data ?? []).filter((unit) => unit.is_active || unit.ulid === baseUnitUlid).map((unit) => (
+                    <option key={unit.ulid} value={unit.ulid}>{unit.code} — {unit.name}</option>
+                  ))}
+                </PdfSelect>
+                <button
+                  type="button"
+                  className="pdf-plus-button"
+                  title="Edit / Define Units"
+                  aria-label="Edit or define units"
+                  onClick={() => setQuickEditor('unit')}
+                >
+                  <Plus size={15} strokeWidth={3} />
+                </button>
+              </div>
+            </div>
+            </FormSection>
+
+            <FormSection title="Units, pricing & inventory" description="Selling prices, reorder threshold and branch stock context." className="product-pricing-section">
+            <div className="pdf-row pdf-row-rates">
+              <label>Reorder Level</label>
+              <input className="pdf-input pdf-num" value={reorderLevel} readOnly={!canSave} onChange={(e) => setReorderLevel(e.target.value)} />
+              <label>Purchase Rate</label>
+              <input
+                className="pdf-input pdf-num"
+                value={purchaseRate}
+                readOnly={!canSave || !canPrices}
+                onChange={(e) => onPurchaseRateChange(e.target.value)}
+                onBlur={() => setPurchaseRate((value) => compactDecimal(value))}
+                title="Reference purchase rate. Stock average cost remains inventory-controlled."
+              />
+              <label>Margin %</label>
+              <input
+                className="pdf-input pdf-num pdf-readonly"
+                readOnly
+                value={marginDisplay}
+                title="(Sale Rate − Purchase Rate) ÷ Sale Rate × 100"
+              />
+            </div>
+
+            <div className="pdf-row pdf-row-rates">
+              <label>Sale Rate</label>
+              <input
+                className="pdf-input pdf-num"
+                value={retail}
+                readOnly={!canSave || !canPrices}
+                onChange={(e) => onSaleRateChange(e.target.value)}
+                onBlur={() => setRetail((value) => compactDecimal(value))}
+              />
+              <label>Whole Sale</label>
+              <input
+                className="pdf-input pdf-num"
+                value={wholesale}
+                readOnly={!canSave || !canPrices}
+                onChange={(e) => setWholesale(e.target.value)}
+                onBlur={() => setWholesale((value) => compactDecimal(value))}
+                title="Auto: Sale − 25% of (Sale − Purchase). Editable."
+              />
+              <label>Min Sale</label>
+              <input
+                className="pdf-input pdf-num"
+                value={minimumSale}
+                readOnly={!canSave || !canPrices}
+                onChange={(e) => setMinimumSale(e.target.value)}
+                onBlur={() => setMinimumSale((value) => compactDecimal(value))}
+                title="Auto: Sale − 50% of (Sale − Purchase). Editable."
+              />
+            </div>
+
+            <div className="pdf-row pdf-row-split">
+              <label>In Stock</label>
+              <input
+                className="pdf-input pdf-num pdf-readonly"
+                readOnly
+                value={creating || !selectedKey || !canViewStock ? '—' : inStockDisplay}
+                title={canViewStock ? 'Active warehouse stock balance' : 'Inventory view permission required'}
+              />
+              <label className="pdf-right-label">Supplier Code</label>
+              <input
+                className="pdf-input"
+                value={supplierProductCode}
+                readOnly={!canSave}
+                onChange={(e) => setSupplierProductCode(e.target.value)}
+              />
+            </div>
+            </FormSection>
+
+            <FormSection title="Product settings" description="Tax treatment, discontinuation and packaging configuration." className="product-settings-section">
+            <div className="pdf-row pdf-row-check">
+              <label />
+              <label className="pdf-check">
+                <input type="checkbox" disabled checked={selected ? !selected.is_active : false} readOnly />
+                Discontinued
+              </label>
+              <label className="pdf-right-label">Tax %</label>
+              <input
+                className="pdf-input pdf-num"
+                value={taxPercent}
+                readOnly={!canSave}
+                onChange={(e) => setTaxPercent(e.target.value)}
+                onBlur={() => setTaxPercent((value) => compactDecimal(value))}
+              />
+            </div>
+
+            <div className="pdf-row pdf-row-check">
+              <label />
+              <label className="pdf-check">
+                <input
+                  type="checkbox"
+                  disabled={!canSave}
+                  checked={isPackaging}
+                  onChange={(e) => setIsPackaging(e.target.checked)}
+                />
+                Packaging (bag / box / free-issue)
+              </label>
+              <label className="pdf-right-label">Max free/sale</label>
+              <input
+                className="pdf-input pdf-num"
+                value={maxFreeQtyPerSale}
+                readOnly={!canSave || !isPackaging}
+                placeholder={isPackaging ? 'e.g. 3' : '—'}
+                onChange={(e) => setMaxFreeQtyPerSale(e.target.value)}
+              />
+            </div>
+            </FormSection>
+
+            <FormSection title="Barcode management" description="Unit-specific barcodes and conversion factors." className="product-barcodes-section">
+            <div className="pdf-barcode-box">
+              <div className="pdf-barcode-title">Multi Barcode Entry</div>
+              <div ref={barcodeTableScrollRef} className="pdf-barcode-table-scroll">
+                <table className="pdf-barcode-table">
+                  <thead>
+                  <tr>
+                    <th>Barcode</th>
+                    <th>Unit</th>
+                    <th>Factor</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {barcodeRows.length === 0 ? (
+                    <tr>
+                      <td colSpan={3} className="pdf-barcode-empty">
+                        {canSave && canBarcodes
+                          ? 'Click + to add a barcode'
+                          : 'No barcode entries'}
+                      </td>
+                    </tr>
+                  ) : (
+                    barcodeRows.map((row) => (
+                      <tr
+                        key={row.id}
+                        data-barcode-row-id={row.id}
+                        className={
+                          row.id === selectedBarcodeId
+                            ? 'is-selected'
+                            : undefined
+                        }
+                        onClick={() => setSelectedBarcodeId(row.id)}
+                      >
+                        <td>
+                          <input
+                            className="pdf-barcode-input"
+                            value={row.barcode}
+                            readOnly={!canSave || !canBarcodes}
+                            placeholder="Barcode"
+                            onFocus={() => setSelectedBarcodeId(row.id)}
+                            onChange={(e) =>
+                              updateBarcodeRow(row.id, {
+                                barcode: e.target.value,
+                              })
+                            }
+                          />
+                        </td>
+                        <td>
+                          <PdfSelect
+                            simple
+                            className="product-barcode-unit-dropdown"
+                            value={row.unit_ulid}
+                            disabled={!canSave || !canBarcodes}
+                            onFocus={() => setSelectedBarcodeId(row.id)}
+                            onChange={(e) =>
+                              updateBarcodeRow(row.id, {
+                                unit_ulid: e.target.value,
+                              })
+                            }
+                          >
+                            <option value="">—</option>
+                            {(units.data ?? [])
+                              .filter(
+                                (unit) =>
+                                  unit.is_active ||
+                                  unit.ulid === row.unit_ulid,
+                              )
+                              .map((unit) => (
+                                <option key={unit.ulid} value={unit.ulid}>
+                                  {unit.code}
+                                </option>
+                              ))}
+                          </PdfSelect>
+                        </td>
+                        <td>
+                          <input
+                            className="pdf-barcode-input pdf-barcode-factor"
+                            value={row.conversion_factor}
+                            readOnly={!canSave || !canBarcodes}
+                            inputMode="decimal"
+                            onFocus={() => setSelectedBarcodeId(row.id)}
+                            onChange={(e) =>
+                              updateBarcodeRow(row.id, {
+                                conversion_factor: e.target.value,
+                              })
+                            }
+                            onBlur={() =>
+                              updateBarcodeRow(row.id, {
+                                conversion_factor: compactDecimal(row.conversion_factor, '1.0'),
+                              })
+                            }
+                          />
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="pdf-barcode-nav">
+                <button
+                  type="button"
+                  title="First barcode"
+                  disabled={barcodeRows.length === 0 || selectedBarcodeIndex <= 0}
+                  onClick={() => selectBarcodeAt(0)}
+                >
+                  <ChevronFirst size={14} />
+                </button>
+                <button
+                  type="button"
+                  title="Previous barcode"
+                  disabled={barcodeRows.length === 0 || selectedBarcodeIndex <= 0}
+                  onClick={() => selectBarcodeAt(selectedBarcodeIndex - 1)}
+                >
+                  <ChevronLeft size={14} />
+                </button>
+                <span>
+                  Record {selectedBarcodeIndex >= 0 ? selectedBarcodeIndex + 1 : 0} of {barcodeRows.length}
+                </span>
+                <button
+                  type="button"
+                  title="Next barcode"
+                  disabled={
+                    barcodeRows.length === 0 ||
+                    selectedBarcodeIndex < 0 ||
+                    selectedBarcodeIndex >= barcodeRows.length - 1
+                  }
+                  onClick={() => selectBarcodeAt(selectedBarcodeIndex + 1)}
+                >
+                  <ChevronRight size={14} />
+                </button>
+                <button
+                  type="button"
+                  title="Last barcode"
+                  disabled={
+                    barcodeRows.length === 0 ||
+                    selectedBarcodeIndex < 0 ||
+                    selectedBarcodeIndex >= barcodeRows.length - 1
+                  }
+                  onClick={() => selectBarcodeAt(barcodeRows.length - 1)}
+                >
+                  <ChevronLast size={14} />
+                </button>
+                <button
+                  type="button"
+                  title="Add barcode"
+                  disabled={!canSave || !canBarcodes}
+                  onClick={addBarcodeRow}
+                >
+                  <Plus size={14} />
+                </button>
+                <button
+                  type="button"
+                  title="Delete selected barcode"
+                  disabled={!canSave || !canBarcodes || !selectedBarcodeId}
+                  onClick={deleteSelectedBarcode}
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            </div>
+            </FormSection>
+          </div>
+          )}
+        </section>
+              </form>
+            </UiModal>
+          </>
+        )}
+      </div>
 
       {supplierModalOpen ? (
         <PartyModal
