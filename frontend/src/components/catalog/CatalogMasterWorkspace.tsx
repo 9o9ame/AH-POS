@@ -7,6 +7,7 @@ import { UiSelect } from '../ui/UiSelect'
 import { askConfirm } from '../../feedback/FeedbackProvider'
 import { useWorkspace, useWorkspaceHandlers } from '../../features/workspace/WorkspaceProvider'
 import './CatalogMasterWorkspace.css'
+import '../../ahpos-clarity.css'
 
 type MasterKind = 'category' | 'brand' | 'unit'
 
