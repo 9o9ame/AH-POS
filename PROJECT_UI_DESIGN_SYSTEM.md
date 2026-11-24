@@ -548,10 +548,3 @@ Motion must respect `[data-animations="off"]` and `prefers-reduced-motion: reduc
   Run `npm run ui:navigation-check` to verify tab navigation with a deliberately
   unresolved data request and a 10,000-row cache (requires Edge/Chrome/Chromium;
   `BLUEPOS_TEST_BROWSER` can specify its executable).
-
-## Tenant contextual bar and one-title policy — permanent requirement (2026-11-24)
-- At every tenant route, the *contextual module navigation/command buttons* are always LEFT aligned. They may horizontally scroll inside their own left region on narrow screens; they must never jump to the right when active modules or workspace tabs change.
-- The *active workspace/tab title and breadcrumb context* are always pinned RIGHT in the same bar, sourced from existing `activeModule` and ribbon group registry. Active tab identity is not a new duplicated title or custom route state.
-- Inside content/list cards, do **not** render a second `h1`/`h2` page/module title, redundant subtitle, title stats or decorative header. Retain necessary search, filters, paging, status chips and business action/validation labels. For transaction pages preserve meaningful document identifiers and form section labels.
-- Avoid global hiding selectors that might suppress functional actions or form labels. Keep `ahpos-context-bar.css` specific to tenant shell and known decorative directory headings; when migrating any new module, remove redundant JSX header instead of adding a new CSS band-aid.
-- This policy supersedes prior mockups that show headings inside both shell and card. Platform Admin remains independent.
