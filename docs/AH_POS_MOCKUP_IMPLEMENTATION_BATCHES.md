@@ -104,3 +104,8 @@ Branch `fix/product-modal-tabular-density-12` based on `fix/products-tabular-str
 - Product View `ProductTabularViewPage.tsx` moves the existing progress/total footer into the *same* `product-tabular-grid` card. `ProductTabularClarity.css` aligns all existing filters/actions into a single row on roomy desktop, conserves vertical pixels, and lets list extend to near status bar. Responsive wrap and horizontal table scroll remain.
 - No duplicate content headings; navigation-left/title-right invariant intact. No functional handlers/permissions/data APIs changed.
 - Local typecheck, UI/navigation guards and desktop/mobile browser acceptance **pending**.
+
+## Batch 13 — Product editor single canvas and true nested popups
+- Branch `fix/product-editor-compact-overlay-13`. Screenshot feedback: previous edit/create modal wasted vertical space and buttons were unreadable. Replaced forced-height multi-card appearance with content-sized light surface and section separators, slightly taller 30px fields, more usable full-width form and proper 34px icon-label action buttons. Screen-height-dependent internal scroll remains as an accessibility fallback.
+- Supplier and catalog quick-create popups now use actual nested overlay stacking. `PartyModal` is portal-backed with configurable default-preserving z-index, and product caller opts into nested layer. Product modal's Escape close is suspended while a nested popup is active.
+- No product/inventory/vendor/stock transaction handlers, tenant permissions, APIs or DB schema modified. Typecheck/visual testing pending.
