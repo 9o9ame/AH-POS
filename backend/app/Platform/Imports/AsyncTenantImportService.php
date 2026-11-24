@@ -13,6 +13,7 @@ use App\Models\Tenant;
 use App\Models\Warehouse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
@@ -24,9 +25,9 @@ final class AsyncTenantImportService
 {
     public function __construct(private readonly WorkbookParser $parser, private readonly TenantImportService $imports) {}
 
-    public function start(Tenant $tenant, PlatformUser $actor, UploadedFile $file, ?string $warehouseUlid): array
+    public function start(Tenant $tenant, PlatformUser $actor, UploadedFile $file, ?string $warehouseUlid, bool $localChunks = false): array
     {
-        if (! in_array(config('queue.default'), ['database', 'redis', 'sqs', 'beanstalkd'], true)) {
+        if (! $localChunks && ! in_array(config('queue.default'), ['database', 'redis', 'sqs', 'beanstalkd'], true)) {
             throw new ApiException('IMPORT_QUEUE_UNAVAILABLE',
                 'Background import requires a running database or Redis queue worker.', 503);
         }
@@ -73,10 +74,63 @@ final class AsyncTenantImportService
             $batch->total_rows = count($parsed['rows']);
             $batch->last_error = null;
             $batch->save();
-            ProcessTenantImport::dispatch($batch->id)->onQueue('imports');
+            if (! $localChunks) {
+                ProcessTenantImport::dispatch($batch->id)->onQueue('imports');
+            }
         }
 
         return $this->progress($tenant, $batch->refresh());
+    }
+
+
+    /**
+     * Local development fallback: one bounded HTTP chunk per authenticated POST.
+     * Never enabled in staging/production. No queue worker, cron or sync-dispatch.
+     * Existing tenant locks, fingerprints, source-row checkpoints and stock
+     * protections remain in TenantImportService.
+     */
+    public function advanceLocal(Tenant $tenant, TenantImport $batch, TenantImportService $importer): array
+    {
+        if (! app()->environment('local')) {
+            throw new ApiException('NOT_FOUND', 'Not found.', 404);
+        }
+        if ((int) $batch->tenant_id !== (int) $tenant->id) {
+            throw new ApiException('NOT_FOUND', 'Import not found.', 404);
+        }
+        if ($batch->status === 'completed') {
+            return $this->progress($tenant, $batch);
+        }
+
+        $lock = Cache::lock('local-tenant-import-'.$batch->id, 45);
+        if (! $lock->get()) {
+            throw new ApiException('IMPORT_BUSY', 'An import chunk is already running. Please retry shortly.', 409);
+        }
+        try {
+            $batch->refresh();
+            if ($batch->status === 'completed') {
+                return $this->progress($tenant, $batch);
+            }
+            if (! $batch->source_path || ! Storage::disk('local')->exists($batch->source_path)) {
+                throw new ApiException('IMPORT_SOURCE_MISSING', 'Source file is missing. Re-upload the identical file to resume safely.', 409);
+            }
+            $parsed = json_decode(Storage::disk('local')->get($batch->source_path), true, 512, JSON_THROW_ON_ERROR);
+            $actor = PlatformUser::query()->findOrFail($batch->platform_user_id);
+            $warehouse = $batch->warehouse_id
+                ? Warehouse::query()->forTenant($tenant->id)->findOrFail($batch->warehouse_id) : null;
+            $file = new UploadedFile(
+                Storage::disk('local')->path($batch->source_path),
+                $batch->source_name, null, null, true
+            );
+            $importer->execute($tenant, $actor, $file, $warehouse?->ulid, $parsed, true, true);
+            $batch->refresh();
+            if ($batch->status === 'completed') {
+                Storage::disk('local')->delete($batch->source_path);
+            }
+
+            return $this->progress($tenant, $batch);
+        } finally {
+            $lock->release();
+        }
     }
 
     public function process(int $batchId, TenantImportService $importer): void
@@ -142,6 +196,7 @@ final class AsyncTenantImportService
         return [
             'ulid' => $batch->ulid, 'tenant_ulid' => $tenant->ulid,
             'format' => $batch->format, 'status' => $batch->status,
+            'processing_mode' => app()->environment('local') ? 'local_chunked' : 'queue',
             'processed' => (int) (clone $query)->count(),
             'total' => (int) ($batch->total_rows ?? ($batch->status === 'completed'
                 ? (clone $query)->count() : 0)),
