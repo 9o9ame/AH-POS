@@ -1,0 +1,277 @@
+/* AH-POS Product Grids — visual implementation batch 10.
+   Tenant Definition only; preserve existing table architecture, handlers and print styles. */
+:root[data-button-scope='tenant'] #root .workspace-host-inner:has(> .ah-product-directory) {
+  min-height:0;
+  height:100%;
+  overflow:hidden!important;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory {
+  --ah-pg-line:#cbd6e3;
+  --ah-pg-ink:#192b43;
+  --ah-pg-muted:#516176;
+  box-sizing:border-box;
+  height:100%;
+  min-height:0;
+  min-width:0;
+  padding:12px 14px 72px;
+  background:#edf1f6;
+  color:var(--ah-pg-ink);
+  overflow:hidden;
+  gap:10px;
+  font-family:Inter,system-ui,sans-serif;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-view-toolbar,
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-tabular-toolbar {
+  flex:0 0 auto;
+  border:1px solid var(--ah-pg-line);
+  border-radius:13px;
+  background:#fff;
+  box-shadow:0 3px 12px #18315111;
+  padding:12px 14px;
+  gap:11px;
+  color:#1b3048;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-view-toolbar {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  justify-content:flex-start;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-view-filter {
+  min-height:36px;
+  padding:0 11px;
+  background:#f1f5f9;
+  border:1px solid #dbe3ec;
+  border-radius:9px;
+  font-size:12px;
+  font-weight:700;
+  white-space:normal;
+  color:#26394e;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-view-filter input,
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-tabular-filters input {
+  accent-color:#bc7119;
+  width:15px;height:15px;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-view-search {
+  flex:1 1 280px;
+  min-width:180px;
+  max-width:none;
+  margin-left:0;
+  order:-1;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-view-search input,
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-tabular-search input,
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-tabular-set-text input {
+  min-height:39px;
+  height:39px;
+  padding:0 12px;
+  border-radius:9px;
+  border:1px solid #aec0d3;
+  box-shadow:none;
+  background:#fff;
+  color:#172b42;
+  font-size:12px;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-view-search input::placeholder,
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-tabular-search input::placeholder {
+  color:#68798c;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-view-workspace {
+  flex:1 1 auto;
+  min-height:0;
+  overflow:hidden;
+  gap:11px;
+  grid-template-columns:minmax(0,1fr) clamp(230px,20vw,290px);
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-view-grid,
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-tabular-grid {
+  min-width:0;
+  min-height:0;
+  flex:1 1 auto;
+  padding:0;
+  border:1px solid var(--ah-pg-line);
+  border-radius:12px;
+  overflow:hidden;
+  background:#fff;
+  box-shadow:0 3px 12px #18315112;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-view-grid .pos-grid-wrap,
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-tabular-grid .pos-grid-wrap {
+  height:100%;
+  overflow:auto!important;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+  background:#fff;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory .pos-grid thead th {
+  background:#e4ebf4!important;
+  color:#233b55!important;
+  border-bottom:1px solid #b9c9da!important;
+  font-size:11px;
+  font-weight:800;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory .pos-grid td {
+  background:#fff;
+  color:#213348;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory .pos-grid tbody tr:hover td {
+  background:#f4f8fc!important;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory .pos-grid tbody tr.is-selected td {
+  background:#fff2de!important;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-view-side {
+  gap:10px;
+  padding:0;
+  border:0;
+  background:transparent;
+  overflow:auto;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-view-side-card {
+  border:1px solid var(--ah-pg-line);
+  border-radius:12px;
+  background:#fff;
+  box-shadow:0 3px 10px #18315111;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-view-side-card h3 {
+  padding:12px;
+  background:#1e3047;
+  border:0;
+  color:#fff;
+  font-size:12px;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-view-mini-head {
+  padding:8px;
+  color:#4e6175;
+  background:#eff3f8;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-view-mini-row > span,
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-view-mini-row > strong {
+  padding:10px 8px;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-view-store {padding:13px;}
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-view-footer,
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-tabular-footer {
+  display:flex;
+  gap:12px;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  padding:10px 16px;
+  background:#fff;
+  border:1px solid var(--ah-pg-line);
+  border-radius:10px;
+  color:#304158;
+  font-size:11px;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-tabular-primary-row {
+  grid-template-columns:minmax(190px,1fr) minmax(180px,.9fr) minmax(235px,1.3fr) auto;
+  gap:9px;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-tabular-set-combo {
+  min-width:0;
+  height:39px;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-tabular-field-trigger {
+  min-height:39px;
+  height:39px;
+  border:1px solid #aec0d3;
+  border-radius:9px;
+  background:#fff;
+  box-shadow:none;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-tabular-filters {
+  grid-column:1/-1;
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  padding:0;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory .product-tabular-filters label {
+  min-height:32px;
+  padding:5px 9px;
+  border:1px solid #d6e0eb;
+  background:#f1f5f9;
+  border-radius:8px;
+  color:#26394e;
+  font-size:11px;
+  font-weight:700;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory__fab {
+  position:fixed;
+  bottom:44px;
+  right:25px;
+  z-index:60;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px;
+  border-radius:14px;
+  border:1px solid #465a73;
+  background:#1d2c42;
+  box-shadow:0 9px 27px #12203955;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory__fab-actions {
+  display:flex;
+  gap:7px;
+  align-items:center;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory__fab :is(.ui-button,button) {
+  border-radius:9px;
+  min-height:37px;
+  font-weight:800;
+}
+:root[data-button-scope='tenant'] #root .ah-product-directory__fab :is(.ui-button,button):focus-visible {
+  outline:2px solid #ffc56d;
+  outline-offset:2px;
+}
+@media (max-width:1100px) {
+  :root[data-button-scope='tenant'] #root .ah-product-directory .product-view-workspace {
+    grid-template-columns:minmax(0,1fr);
+    grid-template-rows:minmax(0,1fr) auto;
+  }
+  :root[data-button-scope='tenant'] #root .ah-product-directory .product-view-side {
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:8px;
+    max-height:150px;
+    overflow:auto;
+  }
+  :root[data-button-scope='tenant'] #root .ah-product-directory .product-tabular-primary-row {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  :root[data-button-scope='tenant'] #root .ah-product-directory .product-tabular-set-text,
+  :root[data-button-scope='tenant'] #root .ah-product-directory .product-tabular-filters {
+    grid-column:1/-1;
+  }
+}
+@media (max-width:690px) {
+  :root[data-button-scope='tenant'] #root .ah-product-directory {
+    padding:8px 8px 65px;
+  }
+  :root[data-button-scope='tenant'] #root .ah-product-directory .product-view-toolbar,
+  :root[data-button-scope='tenant'] #root .ah-product-directory .product-tabular-toolbar {
+    padding:10px;
+  }
+  :root[data-button-scope='tenant'] #root .ah-product-directory .product-tabular-primary-row {
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+  }
+  :root[data-button-scope='tenant'] #root .ah-product-directory .product-tabular-primary-row > * {width:100%;}
+  :root[data-button-scope='tenant'] #root .ah-product-directory .product-view-side {grid-template-columns:1fr;}
+  :root[data-button-scope='tenant'] #root .ah-product-directory__fab {right:8px;bottom:36px;padding:5px;gap:4px;}
+}
+@media print {
+  /* Existing Product View print stylesheet is authoritative: floating actions
+     and modern workspace chrome never appear on printed reports. */
+  :root[data-product-view-print='true'] #root .ah-product-directory__fab {display:none!important}
+  :root[data-product-view-print='true'] #root .ah-product-directory {padding:0!important;background:#fff!important}
+  :root[data-product-view-print='true'] #root .ah-product-directory .product-view-grid,
+  :root[data-product-view-print='true'] #root .ah-product-directory .product-view-workspace {
+    box-shadow:none!important;border:0!important;background:#fff!important;
+  }
+}
+@media(prefers-reduced-motion:reduce) {
+  :root[data-button-scope='tenant'] #root .ah-product-directory * {transition:none!important;}
+}
