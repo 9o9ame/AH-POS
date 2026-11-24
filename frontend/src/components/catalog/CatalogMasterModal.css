@@ -62,3 +62,70 @@
 /* Keep floating controls visible independent of list scroll position. */
 :root[data-button-scope='tenant'] #root .ah-master__fab{position:fixed;bottom:44px;right:26px;margin:0;z-index:60}
 @media(max-width:720px){:root[data-button-scope='tenant'] #root .ah-master__fab{right:10px;bottom:36px}}
+
+/* Batch 03: master-data directories own their viewport; only their grid scrolls.
+   This is scoped using :has() so every other tenant module retains its scroll behavior. */
+:root[data-button-scope='tenant'] #root .workspace-host-inner:has(.ah-master--list-only),
+:root[data-button-scope='tenant'] #root .ah-document-workspace .workspace-host-inner:has(.ah-master--list-only) {
+  height:100%;
+  min-height:0;
+  overflow:hidden!important;
+  overscroll-behavior:none;
+}
+:root[data-button-scope='tenant'] #root .ah-workspace-column:has(.ah-master--list-only) .ah-module-context {
+  display:none!important;
+}
+:root[data-button-scope='tenant'] #root .ah-workspace-column:has(.ah-master--list-only) .ah-module-commandbar {
+  min-height:51px;
+  padding-block:6px;
+}
+:root[data-button-scope='tenant'] #root .ah-master--list-only {
+  display:flex!important;
+  flex-direction:column;
+  height:100%!important;
+  min-height:0!important;
+  max-height:100%;
+  overflow:hidden!important;
+  padding:12px 16px 12px!important;
+}
+:root[data-button-scope='tenant'] #root .ah-master--list-only .ah-master__list {
+  display:flex!important;
+  flex-direction:column;
+  flex:1 1 auto;
+  min-height:0!important;
+  height:auto;
+  max-height:100%;
+  padding:15px 17px;
+}
+:root[data-button-scope='tenant'] #root .ah-master--list-only .ah-master__section-heading,
+:root[data-button-scope='tenant'] #root .ah-master--list-only .ah-master__filters,
+:root[data-button-scope='tenant'] #root .ah-master--list-only .ah-master__list-footer {
+  flex-shrink:0;
+}
+:root[data-button-scope='tenant'] #root .ah-master--list-only .ah-master__grid {
+  flex:1 1 auto!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:hidden!important;
+}
+:root[data-button-scope='tenant'] #root .ah-master--list-only .ah-master__grid > .pos-grid-wrap {
+  display:block;
+  width:100%;
+  height:100%!important;
+  min-height:0!important;
+  overflow:auto!important;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+}
+:root[data-button-scope='tenant'] #root .ah-master--list-only .ah-master__fab {
+  position:fixed;
+  right:26px;
+  bottom:44px;
+  margin:0;
+}
+@media(max-width:720px){
+  :root[data-button-scope='tenant'] #root .ah-master--list-only { padding:9px!important; }
+  :root[data-button-scope='tenant'] #root .ah-master--list-only .ah-master__list {padding:11px;}
+  :root[data-button-scope='tenant'] #root .ah-master--list-only .ah-master__fab {right:10px;bottom:36px;}
+}
