@@ -120,10 +120,10 @@ export function CatalogMasterWorkspace({ kind }: { kind: MasterKind }) {
           <div className="ah-master__grid">
             <PosDataGrid
               columns={[
-                { key: 'code', header: 'Code', width: 130, render: (row) => row.code },
-                { key: 'name', header: info.singular + ' name', render: (row) => row.name },
+                { key: 'code', header: 'Code', width: 130, render: (row: (typeof editor.rows)[number]) => row.code },
+                { key: 'name', header: info.singular + ' name', render: (row: (typeof editor.rows)[number]) => row.name },
                 ...(kind === 'unit' ? [{ key: 'symbol', header: 'Symbol', width: 94, render: (row: (typeof editor.rows)[number]) => 'symbol' in row ? row.symbol : '' }] : []),
-                { key: 'status', header: 'Status', width: 104, render: (row) => row.is_active ? 'Active' : 'Archived' },
+                { key: 'status', header: 'Status', width: 104, render: (row: (typeof editor.rows)[number]) => row.is_active ? 'Active' : 'Archived' },
               ]}
               rows={filteredRows}
               rowKey={(row) => row.ulid}
@@ -161,7 +161,7 @@ export function CatalogMasterWorkspace({ kind }: { kind: MasterKind }) {
               <div className="ah-master__note"><ShieldCheck size={18}/><span>{editor.selected ? 'Changes will use existing catalog validation and permission checks.' : 'Codes are assigned by the existing catalog service when you save.'}</span></div>
               <div className="ah-master__editor-actions">
                 <button type="submit" className="ah-master__primary" disabled={!editor.canSave || editor.isSaving}><Save size={16}/> Save {info.singular}</button>
-                <button type="button" onClick={editor.startNew} disabled={!editor.canCreate}><Plus size={16}/> Save & New is available after saving</button>
+                <button type="button" onClick={editor.startNew} disabled={!editor.canCreate}><Plus size={16}/> New record</button>
               </div>
             </form>
           ) : <p className="ah-master__readonly">You have read-only access to these records.</p>}
