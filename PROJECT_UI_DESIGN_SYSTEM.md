@@ -567,3 +567,10 @@ Motion must respect `[data-animations="off"]` and `prefers-reduced-motion: reduc
 - Product Tabular View's editable grid must keep exact bulk-update formula/Set semantics, unsaved-draft Save and Close confirmation, cached catalog and export behavior; only surrounding layout changes.
 - Always preserve original handlers, registered commands, keyboard flow, authorization and report rendering, with no fake controls or cross-tenant client trust.
 - Batch reference: `frontend/src/pages/ProductGridWorkspaces.css`; source implementation must be tested in authenticated browser before visual approval.
+
+## Product Definition / Tabular View hard rule (2026-11-24)
+- `/definition/products` is a *list-only standalone page*. Add/Edit must show the complete product editor in a **real modal**; do not split a 3-column page into skinny editor + blank gap + catalog. Modal requires every existing field, barcode/image, linked category/supplier/price/stock interaction and action/keyboard handler. Preserve embedded Product editor flows that other modules invoke.
+- `/definition/product-view` is **ProductTabularViewPage**, a dense bulk-update product spreadsheet. Do not confuse it with `ProductViewPage`. Maintain checked selections, formula Set, dirty drafts/Save, permissions, export and large-row virtualization; improve legibility and layout rather than hiding columns.
+- Search and filters immediately above a full-width directory, floating actions at bottom-right, table scroll only within its own card, header navigation left/active tab title right. No second in-card page title.
+- Use `UI_LAYER.nestedDropdown` for portalled selects within product editor modal. Never leave dropdowns behind the modal or hide business controls to obtain a screenshot.
+- Batch 11 implementation: `ProductsDirectoryModal.css`, `ProductTabularClarity.css`. Authenticated browser acceptance remains mandatory.
