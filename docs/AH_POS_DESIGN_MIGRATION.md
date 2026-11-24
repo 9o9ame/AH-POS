@@ -56,3 +56,11 @@ Then open tenant login and `/platform/login` with a hard refresh; compare all ta
 
 ## Remaining limitations
 The full visual conversion of every deep workflow is **not complete**. Initial CSS makes the outer shell and auth materially different, but some inherited internal BluePOS screens/assets still retain their original geometry. Follow-up design batches are necessary; never call this final acceptance.
+
+## 2026-11-24 — Tenant mockup implementation: Sale Schemes / Price Lists
+- New list-first Sale Schemes workspace with modal-only Add/Edit. Existing rewards logic, validations, mutation functions, permissions, F9/F8 and deactivation kept.
+- Price Lists remains intentionally read-only: full-height data grid, filter bar, pagination and floating CSV export. All existing query/export semantics kept; output filename uses AH-POS.
+- Scoped shared CSS added in `frontend/src/pages/TenantDirectoryPages.css`. Scroll is owned by each grid, not outer page; modal dropdown overlays use canonical UI layer.
+- Implementation branch `design/tenant-schemes-pricelists-06` starts from `design/master-list-scroll-cleanup-03`. The owner has also merged `fix/sidebar-slow-transition-ts-05` locally; these branches are expected to merge non-destructively.
+- GitHub source changes committed; local TypeScript, guards and authenticated browser visual/functional acceptance remain **UNVERIFIED** until owner reports results.
+- Session handoff: `docs/AH_POS_SESSION_HANDOFF.md`.
