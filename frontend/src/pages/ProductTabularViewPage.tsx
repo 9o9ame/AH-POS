@@ -14,6 +14,7 @@ import { useWorkspace } from '../features/workspace/WorkspaceProvider'
 import { useFeedback } from '../feedback/FeedbackProvider'
 import type { Product } from '../types/catalog'
 import './ProductTabularViewPage.css'
+import './ProductGridWorkspaces.css'
 
 type BulkField = 'reorder_level' | 'wholesale_price' | 'minimum_sale_price' | 'retail_price'
 type PriceBulkField = Exclude<BulkField, 'reorder_level'>
@@ -437,7 +438,7 @@ export function ProductTabularViewPage() {
   }
 
   return (
-    <section className="product-tabular-page" aria-label="Product Tabular View">
+    <section className="product-tabular-page ah-product-directory ah-product-directory--tabular" aria-label="Product Tabular View">
       <div className="product-tabular-toolbar">
         <div className="product-tabular-primary-row">
           <label className="product-tabular-search">
@@ -563,33 +564,7 @@ export function ProductTabularViewPage() {
             </label>
           </div>
 
-          <div className="product-tabular-actions">
-            <UiButton
-              variant="success"
-              icon={<Save size={16} />}
-              label={saveMutation.isPending ? 'Saving…' : 'Save'}
-              onClick={() => saveMutation.mutate()}
-              disabled={saveMutation.isPending || Object.keys(drafts).length === 0}
-            />
-            <UiButton
-              variant="info"
-              icon={<Download size={16} />}
-              label="Export"
-              feedback="download"
-              onAction={exportFilteredProducts}
-            />
-            <UiButton
-              variant="info"
-              icon={<X size={16} />}
-              label="Close"
-              onClick={() => {
-                void (async () => {
-                  if (!await confirmDiscardIfNeeded()) return
-                  closeActiveTab()
-                })()
-              }}
-            />
-          </div>
+
         </div>
       </div>
 
@@ -621,6 +596,35 @@ export function ProductTabularViewPage() {
           Stock: {formatDecimal(String(stockTotal), 6)}
         </span>
       </footer>
+      <nav className="ah-product-directory__fab" aria-label="Product tabular actions">
+          <div className="ah-product-directory__fab-actions">
+            <UiButton
+              variant="success"
+              icon={<Save size={16} />}
+              label={saveMutation.isPending ? 'Saving…' : 'Save'}
+              onClick={() => saveMutation.mutate()}
+              disabled={saveMutation.isPending || Object.keys(drafts).length === 0}
+            />
+            <UiButton
+              variant="info"
+              icon={<Download size={16} />}
+              label="Export CSV"
+              feedback="download"
+              onAction={exportFilteredProducts}
+            />
+            <UiButton
+              variant="info"
+              icon={<X size={16} />}
+              label="Close"
+              onClick={() => {
+                void (async () => {
+                  if (!await confirmDiscardIfNeeded()) return
+                  closeActiveTab()
+                })()
+              }}
+            />
+          </div>
+      </nav>
     </section>
   )
 }
