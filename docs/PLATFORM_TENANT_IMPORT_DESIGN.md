@@ -182,3 +182,15 @@ processing. Review skipped/failed row warnings before making financial correctio
 Main remains at 840af93; sales-ui-fixes remains at 864b4fa. No Sales Invoice, Sales
 API/feature files, product UI, shell/ribbon, or unrelated modules were modified. No
 merge, push or PR was performed. Commit hash is supplied in the completion message.
+
+## Local testing without a queue worker — 2026-11-24
+
+**Production remains queue-only.** When `APP_ENV=local`, the existing authenticated platform import upload endpoint stages the original file using the unchanged fingerprint and tenant/warehouse validation but does **not** dispatch a queue job. The browser detects `processing_mode=local_chunked` and makes authenticated `POST /api/platform/tenants/{tenantUlid}/imports/{importUlid}/advance-local` requests until complete.
+
+Each local request calls the **existing import domain service** for at most 20 rows and 8 seconds, with a cache lock per import and independently committed row checkpoints. It reuses exact-file fingerprints, same-code/name collision prevention, tenant-scoped locks, stock opening-balance domain actions and row outcomes. On completion the private staged file is deleted. Reopening the Platform import dialog resumes the incomplete batch; re-uploading an identical file is idempotent. No new database schema, imports table, parallel business logic or duplicate stock posting path is introduced.
+
+The new advancement method exists **only in local environment** and returns 404 elsewhere; authorization and recent-MFA middleware on import operations stay enforced. `APP_ENV=production`, staging or any non-local environment still dispatches `ProcessTenantImport` onto the dedicated `imports` queue and uses the existing worker.
+
+Local steps: keep app server already running; confirm backend `APP_ENV=local`, `php artisan config:clear` after changing env, then Super Admin → tenant → Import Data. Upload XLSX product or CSV/XLSX account file once, keep dialog open and watch Created/Reused/Skipped/Failed and processed/total; if browser closes, reopen to continue. No `queue:work` and no `QUEUE_CONNECTION=sync` required. Do not edit production .env. Repeating the same file does not repost opening stock.
+
+Focused PHP regression tests were added but **not executed remotely**. Run only with a separate verified guarded test DB; never run migrations/feature tests against `ahpos_test` while it contains testing data. Source parse/upload is still synchronous and files over existing limits are out of scope. The HTTP chunk fallback is development-only and is not a production import scaling strategy.
