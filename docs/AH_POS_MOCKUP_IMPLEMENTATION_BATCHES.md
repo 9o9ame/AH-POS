@@ -83,3 +83,10 @@ Owner browser acceptance first, then remaining Definition masters and follow-up 
 - JSX structural cleanup (not CSS-only): `CatalogMasterWorkspace.tsx` for Categories/Brands/Units, `SubcategoriesPage.tsx`, `SaleSchemesPage.tsx`, `PriceListsPage.tsx`. All in-card directory titles and decorative subtitles removed. Existing search/filter/status chips/PosDataGrid/FAB/modal/API logic remain.
 - Separate shell fix `fix/tenant-context-bar-left-nav-07` renders module command strip LEFT and active tab title RIGHT and scopes persistent layout via `ahpos-context-bar.css`. Merge both branches only after existing local `docs/AH_POS_DESIGN_MIGRATION.md` merge conflict is resolved.
 - Typecheck and authenticated browser approval UNVERIFIED by GitHub connector. Previous user typecheck success was against stale local code while merge was unresolved; repeat after applying both changes.
+
+## Batch 10 — Product View + Product Tabular View (2026-11-24)
+- Branch: `design/tenant-product-grids-10`, created from synchronized UI redesign commit `fd9c5df`.
+- Product View: operational UI moved to compact filter card and detailed list + sidebar, floating Refresh and Print Preview. Existing print view, column sorting/filtering, barcode single-row toggle, stock details, warehouse cache, report totals and permissions preserved.
+- Product Tabular View: full-height virtualized product grid with consistent filter/bulk-update surface; original Save/Export/Close handlers relocated to floating actions. Existing draft changes, pricing permissions, formula Set, bulk API mutation, local cache refresh and export retained.
+- New `frontend/src/pages/ProductGridWorkspaces.css` uses tenant-only selectors and print overrides to avoid showing floating actions on hardcopy. No functional service/API/schema change.
+- Follow-up acceptance: typecheck, UI guard, navigation guard, product data visual review, Set (without Save) staged count, Save permissions, Export correctness, Preview print appearance, scroll with many rows and no duplicate heading. Pending manual browser review.
