@@ -457,3 +457,75 @@
     transition:none!important;
   }
 }
+
+/* Batch 15 — Products directory fills the workspace down to the real
+   application status footer. The action dock shares the same card footer,
+   without reserving an obsolete 70px blank strip under the list. */
+:root[data-button-scope='tenant'] #root .product-definition-directory:not(.is-embedded) {
+  position:relative;
+  box-sizing:border-box;
+  height:100%;
+  min-height:0;
+  padding:8px 10px 8px !important;
+  overflow:hidden;
+}
+:root[data-button-scope='tenant'] #root .product-definition-directory:not(.is-embedded) > .product-directory-list {
+  flex:1 1 auto;
+  height:auto;
+  min-height:0;
+  margin:0;
+  overflow:hidden;
+}
+:root[data-button-scope='tenant'] #root .product-directory-list .product-def-grid,
+:root[data-button-scope='tenant'] #root .product-directory-list .ui-content-panel-body {
+  flex:1 1 auto;
+  min-height:0;
+  overflow:hidden;
+}
+:root[data-button-scope='tenant'] #root .product-directory-list .pos-grid-wrap {
+  flex:1 1 auto;
+  min-height:0;
+  height:auto !important;
+  overflow-y:auto !important;
+  overflow-x:auto !important;
+}
+:root[data-button-scope='tenant'] #root .product-directory-list .product-def-grid-foot {
+  box-sizing:border-box;
+  flex:0 0 50px;
+  min-height:50px;
+  padding:0 335px 0 15px !important;
+  align-items:center;
+  border-top:1px solid #cbd8e6;
+  background:#f8fafc;
+}
+:root[data-button-scope='tenant'] #root .product-definition-directory:not(.is-embedded) > .product-directory-floating-actions {
+  position:absolute !important;
+  bottom:15px !important;
+  right:18px !important;
+  z-index:50;
+  margin:0;
+  padding:5px;
+  gap:5px;
+  border-radius:11px;
+  box-shadow:0 4px 13px #102c4250;
+}
+:root[data-button-scope='tenant'] #root .product-definition-directory:not(.is-embedded) > .product-directory-floating-actions button {
+  min-height:32px;
+  height:32px;
+  padding:0 9px;
+  font-size:11px;
+}
+@media(max-width:660px) {
+  :root[data-button-scope='tenant'] #root .product-directory-list .product-def-grid-foot {
+    min-height:77px;
+    flex-basis:77px;
+    align-items:flex-start;
+    padding:7px 10px 42px !important;
+  }
+  :root[data-button-scope='tenant'] #root .product-definition-directory:not(.is-embedded) > .product-directory-floating-actions {
+    right:13px !important;
+    bottom:13px !important;
+    max-width:calc(100% - 26px);
+    overflow-x:auto;
+  }
+}
