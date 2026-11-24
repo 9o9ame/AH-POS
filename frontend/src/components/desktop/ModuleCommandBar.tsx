@@ -54,6 +54,7 @@ export function ModuleCommandBar({ onCalculator, onSoftwareOptions, onRecalculat
           <span>{context.tabLabel}{context.group ? ` / ${context.group.caption}` : ''}</span>
           <strong>{activeModule.title}</strong>
         </div>
-      </div>    </section>
+      </div>
+    </section>
   )
 }
