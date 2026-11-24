@@ -14,6 +14,8 @@ import {
 import { PosDataGrid, type PosGridColumn } from '../components/desktop/PosDataGrid'
 import { PosEntryGrid, type PosEntryGridColumn } from '../components/desktop/PosEntryGrid'
 import { UiButton } from '../components/ui/UiButton'
+import { UiModal } from '../components/ui/UiModal'
+import { UI_LAYER } from '../components/ui/uiLayers'
 import { UiSimpleDropdown } from '../components/ui/UiSelect'
 import { useAuth } from '../features/auth/AuthProvider'
 import { useCan } from '../features/auth/useCan'
@@ -25,6 +27,7 @@ import type { Product } from '../types/catalog'
 import type { StockTake, StockTakeLine } from '../types/inventory'
 import './StockTakingPage.css'
 import './InventoryDocumentWorkspaces.css'
+import './StockTakingModal.css'
 
 function todayIso() {
   return new Date().toISOString().slice(0, 10)
@@ -413,10 +416,9 @@ export function StockTakingPage() {
     selectedDraftKey,
   ])
 
-  if (mode === 'list') {
-    const selectedDocument = (listQuery.data ?? []).find((row) => row.ulid === selectedListKey) ?? null
+  const selectedDocument = (listQuery.data ?? []).find((row) => row.ulid === selectedListKey) ?? null
 
-    return (
+  const listWorkspace = (
       <section className="stock-taking-page ah-inventory-workspace ah-inventory-list">
         <div className="stock-taking-toolbar">
           <div className="stock-taking-toolbar-left">
@@ -514,10 +516,8 @@ export function StockTakingPage() {
         </nav>
       </section>
     )
-  }
-
-  return (
-    <section className="stock-taking-page ah-inventory-workspace ah-inventory-editor">
+  const editorWorkspace = (
+    <section className="stock-taking-page ah-inventory-workspace ah-inventory-editor ah-stock-modal-editor">
       <div className="stock-taking-toolbar">
         <div className="stock-taking-toolbar-left">
           <UiButton variant="info" onClick={() => void backToList()}>
@@ -682,6 +682,7 @@ export function StockTakingPage() {
                     priceType="retail"
                     themed
                     portalAnchorRef={productLookupAnchorRef}
+                    portalZIndex={UI_LAYER.modalDropdown}
                     selectedUlid={productUlid || null}
                     onRequestClose={() => setProductLookupOpen(false)}
                     onSelect={(product) => {
@@ -771,5 +772,23 @@ export function StockTakingPage() {
           </UiButton>
       </nav>
     </section>
+  )
+
+
+  return (
+    <>
+      {listWorkspace}
+      <UiModal
+        open={mode === 'editor'}
+        title={document?.document_number ? `Stock Taking · ${document.document_number}` : 'Stock Taking Document'}
+        ariaLabel="Stock Taking document editor"
+        className="stock-taking-document-modal"
+        size="xl"
+        closeOnEscape={!productLookupOpen}
+        onClose={() => { void backToList() }}
+      >
+        {editorWorkspace}
+      </UiModal>
+    </>
   )
 }
