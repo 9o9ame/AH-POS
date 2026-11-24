@@ -288,20 +288,20 @@ export function StockTakingPage() {
 
   function buildEntryDraftLine(): StockTakeDraftLine | null {
     if (!productUlid) {
-      feedback.info('Select a product.', 'Stock Taking')
+      feedback.warning('Select a product.', 'Stock Taking')
       focusEntryField('product')
       return null
     }
 
     if (!/^(?:0|[1-9]\d*)(?:\.\d{0,6})?$/.test(countedQuantity.trim())) {
-      feedback.info('Enter a valid counted quantity.', 'Stock Taking')
+      feedback.warning('Enter a valid counted quantity.', 'Stock Taking')
       focusEntryField('counted')
       return null
     }
 
     const product = localProducts.data?.find((row) => row.ulid === productUlid)
     if (!product) {
-      feedback.info('Selected product is no longer available in the local catalogue.', 'Stock Taking')
+      feedback.warning('Selected product is no longer available in the local catalogue.', 'Stock Taking')
       focusEntryField('product')
       return null
     }
