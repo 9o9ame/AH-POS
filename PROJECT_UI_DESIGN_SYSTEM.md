@@ -595,3 +595,9 @@ Motion must respect `[data-animations="off"]` and `prefers-reduced-motion: reduc
 
 ### Products directory bottom-edge rule — Batch 15
 The standalone Definition/Products catalog list should extend to the bottom of the workspace immediately above the application status bar, with no 70px artificial blank gap. Grid scrolling is internal; product totals and status are inside the catalog card's footer. Floating actions occupy reserved right footer space and may not obscure product counts or rows. Compact viewport must preserve scrolling and all actions. See `ProductApprovedMockup.css` Batch 15.
+
+## Batch 16 — Inventory document master/detail pattern
+- For tenant inventory **document** modules (Opening Stock, Stock Taking), the main list is a full-height single-card directory: compact real warehouse/status filters, no duplicate module heading, internal grid scroll, record totals inside same card and a dock with genuine authorized New/Open/Refresh/Delete draft/Close actions.
+- Operational document editing with a large line-entry grid and irreversible posting is **not** a simple master-data form. Preserve a full-height document workspace for entry, product lookup/scanner, quantity/cost, drafts and posting. Keep document number/status/warehouse/date readable, with integrated line footer and floating Save/Post/Refresh/Close. Do not hide authorizations, stale-stock checks, save-before-post guard or posted immutability.
+- Use existing `UiButton`, `PosDataGrid` and `PosEntryGrid` rather than creating parallel data/financial flows. Scroll within the record grid only where possible; responsive narrower widths must preserve all actions, including Post confirmation. Shared CSS is tenant-scoped `InventoryDocumentWorkspaces.css`.
+- User has approved Products Batch 15; Batch 16 is source committed only and must undergo authenticated browser review before being called visually accepted.
