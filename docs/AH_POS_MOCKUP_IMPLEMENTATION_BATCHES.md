@@ -123,3 +123,10 @@ Branch `fix/product-modal-tabular-density-12` based on `fix/products-tabular-str
 - Document editor has meaningful document number, status/warehouse/date context, full-height line grid, integrated lines/warehouse/posted totals footer and floating Save/Post/Refresh/Close. All pre-existing handler semantics, authorization and save-before-post conditions remain unchanged.
 - Shared styling `InventoryDocumentWorkspaces.css`; TSX changes purely relocate existing live buttons and footer markup, no dummy actions, backend, API or database modifications.
 - Local typecheck, UI navigation guards and browser acceptance pending; never claim visual PASS from a source-only commit.
+
+## Batch 17 — Stock Taking editor corrective modal (2026-11-24)
+- Baseline Batch 16. User accepted the document list but requested an almost full-screen modal for New/Edit Stock Taking and much stronger contrast.
+- Existing document editor moved to canonical `UiModal` over the persistent list, preserving full line grid, date, warehouse, document number, notes, counted quantity, draft lifecycle and Save/Post confirm logic. CSS is scoped to `stock-taking-document-modal`, no color or header changes to unrelated tenant modules.
+- Product lookup now optionally accepts `portalZIndex` and Stock Taking passes modal-dropdown layer; default unchanged for other uses.
+- Strong deep-navy document title/table header, bright white row backgrounds and selected/entry highlights, dark labels/field text and clear disabled states. Document footer is integrated with grid; modal actions remain real existing buttons.
+- Local typecheck / UI guards / authenticated browser testing pending. No production stock posting should be performed solely for visual review.
