@@ -26,6 +26,7 @@ import { askConfirm } from '../feedback/FeedbackProvider'
 import { PosDataGrid } from '../components/desktop/PosDataGrid'
 import { UiSelect } from '../components/ui/UiSelect'
 import { UiModal } from '../components/ui/UiModal'
+import { UI_LAYER } from '../components/ui/uiLayers'
 import { useCan } from '../features/auth/useCan'
 import {
   useWorkspace,
@@ -339,7 +340,7 @@ export function SubcategoriesPage() {
           <form id="subcategory-form" className="ah-master-modal__form" onSubmit={e=>void onSubmit(e)}>
             {selected ? <label><span>Code</span><input value={selected.code} readOnly/></label> : null}
             <label><span>Category *</span>
-              <UiSelect value={categoryUlid||defaultCategoryUlid} aria-label="Parent category" searchable
+              <UiSelect value={categoryUlid||defaultCategoryUlid} aria-label="Parent category" searchable menuZIndex={UI_LAYER.modalDropdown}
                 options={(categories.data??[]).map(category=>({value:category.ulid,label:`${category.code} — ${category.name}`}))}
                 onChange={setCategoryUlid}/>
             </label>
