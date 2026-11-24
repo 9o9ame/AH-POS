@@ -267,3 +267,9 @@ The existing code provides an authenticated branch switch API/UI. Tenant is fixe
 ### Actual files edited
 - `frontend/src/ahpos-design.css`
 - `docs/AH_POS_DESIGN_MIGRATION.md`
+
+## Tenant UI — Product Grids batch 10 (2026-11-24)
+- After `redesign/ahpos-complete-ui` synchronized with imported platform fixes (`fd9c5df`), implemented two existing Definition pages: Product View and Product Tabular View.
+- Both use grid-first, high-contrast, scroll-owned card presentation and tenant-scoped `ProductGridWorkspaces.css`; top filters and data grids are visually distinct from inherited BluePOS. Floating action bars preserve live handlers, not placeholders.
+- Product View retains print-only header, per-column product filtering/sorting, stock price and supply summaries; Tabular View retains bulk Set/Save/Export, required RBAC gates and dirty-state Close confirmation. No backend/data/API changes.
+- Header navigation/title policy persists. No duplicate decorative heading was introduced. Screenshot and functional browser acceptance pending.
