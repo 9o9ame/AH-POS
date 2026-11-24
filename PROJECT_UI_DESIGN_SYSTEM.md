@@ -574,3 +574,10 @@ Motion must respect `[data-animations="off"]` and `prefers-reduced-motion: reduc
 - Search and filters immediately above a full-width directory, floating actions at bottom-right, table scroll only within its own card, header navigation left/active tab title right. No second in-card page title.
 - Use `UI_LAYER.nestedDropdown` for portalled selects within product editor modal. Never leave dropdowns behind the modal or hide business controls to obtain a screenshot.
 - Batch 11 implementation: `ProductsDirectoryModal.css`, `ProductTabularClarity.css`. Authenticated browser acceptance remains mandatory.
+
+## Product density and list-card footer rule — Batch 12
+- Standard desktop Product Add/Edit modal should exploit usable width/height. Compact form controls and multi-column sections rather than forcing a vertical scrollbar when screen has available room; **never remove or clip fields** merely to achieve no scrollbar. On short/narrow screens, allow local scrolling.
+- Product photo must be initiated through the accessible product-image trigger; native hidden file input should not appear next to the preview icon. Original validation/removal, barcode, prices, opening stock and permission checks remain untouched.
+- Product Tabular View search, bulk update selector, Set Text, Refresh/Set and four checkbox filters share **one row when desktop width permits**. Use responsive wrap when necessary rather than hiding actions or overlapping controls.
+- The tabular product status footer ('All products loaded', counts, staged/selection/stock summary) belongs structurally within the same list card and list reaches near bottom status bar. Floating Save/Export/Close must remain visible and must not obscure the table or aggregate information.
+- Keep render/handlers and virtualized rows unmodified by layout work. Branch `fix/product-modal-tabular-density-12`; local browser review and tests pending.
