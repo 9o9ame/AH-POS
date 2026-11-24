@@ -49,3 +49,15 @@ Test create, edit, save, cancel, reward-product dropdown above modal, date range
 - No GitHub connector ability to execute local frontend checks or authenticated browser tests. Commit confirmed but local typecheck, UI guards and browser acceptance are pending.
 - Review owner's logs/screenshots; fix bugs on own GitHub branch and give merge instructions.
 - Next: pick 2–4 **actual** remaining tenant screens by inspecting current route registry/components, prioritize Definition masters. Do not call read-only price lists editable, and do not assume old BluePOS docs are current AH-POS truth.
+
+
+## 2026-11-24 — Permanent header/navigation correction (pending owner browser acceptance)
+Owner reported regression in screenshots: Sale Schemes/Price Lists again gained decorative in-card titles, and contextual module commands sometimes appeared on right instead of left. Owner confirmed permanent rule for **every tenant module**:
+1. Module command buttons/navigation always LEFT in contextual bar (scroll only within left commands region if needed).
+2. Current active workspace/tab title and its module/breadcrumb context always RIGHT, using existing workspace state/registry.
+3. No redundant module/page titles, description, decorative counts or duplicated headers inside list/content cards. Keep meaningful form labels, date/document identifiers, filters, toolbars and status/action controls.
+4. All future screen batches must follow the one-title contract and must update this handoff file alongside design docs.
+5. Do not hide functional elements to achieve layout; CSS should only suppress known decorative duplicate headings and pages should be updated structurally when migrated.
+Implementation: `fix/tenant-context-bar-left-nav-07` branches from the current structural shell `redesign/ahpos-complete-ui`, updates `ModuleCommandBar.tsx` to render commands first, context last and adds `ahpos-context-bar.css` with constrained flex ordering and known master directory deduplication. That code branch contains no Sale Schemes/Price Lists implementation; user already merged `design/tenant-schemes-pricelists-06` locally.
+Handoff documentation fix is on this separate branch `docs/tenant-header-handoff-07`, based on `design/tenant-schemes-pricelists-06`. User must merge both non-destructively into local `redesign/ahpos-complete-ui`. Do not reset, cherry-pick or overwrite local unpublished code.
+Local verification pending: `npm run typecheck`, `npm run ui:check`, `npm run ui:navigation-check` and browser tabs Categories, Sale Schemes, Price Lists, Stock Taking; confirm left module commands, right context title, no duplicates in card, no lost actions. No authenticated browser verified through GitHub connector.
