@@ -57,6 +57,7 @@ export function ProductLookupGrid({
   onSelect,
   portalAnchorRef,
   themed = false,
+  portalZIndex = UI_LAYER.dropdown,
   selectedUlid,
   mode = 'sale',
   onRequestClose,
@@ -71,6 +72,7 @@ export function ProductLookupGrid({
   onSelect: (product: Product) => void
   portalAnchorRef?: RefObject<HTMLElement | null>
   themed?: boolean
+  portalZIndex?: number
   selectedUlid?: string | null
   mode?: 'sale' | 'purchase'
   onRequestClose?: () => void
@@ -207,7 +209,7 @@ export function ProductLookupGrid({
               left: portalStyle.left,
               width: portalStyle.width,
               maxWidth: 'none',
-              zIndex: UI_LAYER.dropdown,
+              zIndex: portalZIndex,
             }
           : undefined
       }
