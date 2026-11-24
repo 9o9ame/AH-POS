@@ -44,6 +44,8 @@ Route::prefix('platform')->group(function () {
             ->middleware(['platform.can:platform.tenants.import', 'platform.recent-mfa']);
         Route::post('/tenants/{tenantUlid}/imports/async', [TenantImportController::class, 'start'])
             ->middleware(['platform.can:platform.tenants.import', 'platform.recent-mfa']);
+        Route::post('/tenants/{tenantUlid}/imports/{importUlid}/advance-local', [TenantImportController::class, 'advanceLocal'])
+            ->middleware(['platform.can:platform.tenants.import', 'platform.recent-mfa']);
         Route::get('/tenants/{tenantUlid}/imports/active', [TenantImportController::class, 'active'])
             ->middleware('platform.can:platform.tenants.import');
         Route::get('/tenants/{tenantUlid}/imports/{importUlid}', [TenantImportController::class, 'progress'])
