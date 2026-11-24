@@ -1,0 +1,352 @@
+/* AH-POS Tenant Inventory Documents — Batch 16.
+   One dense record card, floating actions, internal scroll, no duplicate title.
+   Transaction documents remain dedicated workspaces to keep the full editable
+   grid, keyboard controls, draft safety checks and immutable posting visible. */
+:root[data-button-scope='tenant'] #root .workspace-host-inner:has(> .ah-inventory-workspace) {
+  height:100%;
+  min-height:0;
+  overflow:hidden!important;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace {
+  --inventory-ink:#1b3047;
+  --inventory-quiet:#4c6078;
+  --inventory-line:#cbd8e6;
+  box-sizing:border-box;
+  position:relative;
+  display:flex;
+  height:100%;
+  min-width:0;
+  min-height:0;
+  flex-direction:column;
+  gap:8px;
+  padding:9px 11px!important;
+  overflow:hidden;
+  background:#edf2f7;
+  color:var(--inventory-ink);
+  font-family:Inter,system-ui,sans-serif;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace .opening-stock-toolbar,
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace .stock-taking-toolbar {
+  display:flex;
+  flex:0 0 auto;
+  align-items:center;
+  justify-content:flex-start;
+  gap:10px;
+  min-height:52px;
+  padding:8px 12px;
+  border:1px solid var(--inventory-line);
+  border-radius:11px;
+  box-shadow:none;
+  background:#fff;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace :is(.opening-stock-toolbar-left,.stock-taking-toolbar-left) {
+  display:flex;
+  flex:1 1 auto;
+  min-width:0;
+  align-items:center;
+  gap:9px;
+  flex-wrap:wrap;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace :is(.opening-stock-toolbar-left,.stock-taking-toolbar-left) > .ui-select {
+  flex:0 1 auto;
+  min-width:110px;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace :is(.opening-stock-new-warehouse,.stock-taking-new-warehouse) {
+  width:min(260px,26vw)!important;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace :is(.opening-stock-warehouse-filter,.stock-taking-warehouse-filter) {
+  width:min(260px,26vw)!important;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace :is(.opening-stock-status-filter,.stock-taking-status-filter) {
+  width:155px!important;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace .ui-select-trigger {
+  min-height:35px;
+  border:1px solid #bacadb;
+  border-radius:8px;
+  box-shadow:none;
+  background:#fff;
+  color:#213950;
+  font-size:12px;
+  font-weight:700;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace .ui-select-arrow {
+  width:22px;
+  height:22px;
+  border:0;
+  border-radius:6px;
+  box-shadow:none;
+  background:#e1ebf5;
+  color:#244a70;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace :is(.opening-stock-grid-card,.stock-taking-grid-card) {
+  display:flex;
+  flex:1 1 auto;
+  flex-direction:column;
+  min-height:0;
+  min-width:0;
+  padding:0;
+  margin:0;
+  overflow:hidden;
+  border:1px solid var(--inventory-line);
+  border-radius:12px;
+  box-shadow:0 3px 12px #19345010;
+  background:#fff;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace :is(.opening-stock-grid-card,.stock-taking-grid-card) > .pos-grid-wrap {
+  flex:1 1 auto;
+  min-width:0;
+  min-height:0;
+  height:auto!important;
+  overflow:auto!important;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace .pos-grid thead th {
+  background:#e7eef6!important;
+  color:#1d3650!important;
+  padding:10px 12px!important;
+  border-bottom:1px solid #b7c9da!important;
+  font-size:12px;
+  font-weight:850;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace .pos-grid tbody td {
+  padding:10px 12px!important;
+  border-bottom:1px solid #e7edf4!important;
+  color:#253951;
+  font-size:12px;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace .pos-grid tbody tr:hover td {
+  background:#f1f7fe!important;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace .pos-grid tbody tr.is-selected td {
+  background:#fff0d6!important;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace .ah-inventory-list-status {
+  box-sizing:border-box;
+  display:flex;
+  flex:0 0 53px;
+  min-height:53px;
+  align-items:center;
+  gap:14px;
+  padding:0 420px 0 15px;
+  border-top:1px solid var(--inventory-line);
+  background:#f8fafd;
+  color:#41576e;
+  font-size:11px;
+  white-space:nowrap;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace .ah-inventory-list-status strong {
+  color:#1c3652;
+  font-size:12px;
+  font-variant-numeric:tabular-nums;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace .ah-inventory-dock {
+  position:absolute;
+  right:18px;
+  bottom:20px;
+  z-index:45;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:6px;
+  min-height:41px;
+  padding:5px;
+  border:1px solid #38526d;
+  border-radius:11px;
+  box-shadow:0 6px 20px #12263e36;
+  background:#192d44;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace .ah-inventory-dock .ui-button {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  flex:0 0 auto;
+  min-height:33px;
+  padding:0 11px;
+  border:1px solid #476580;
+  border-radius:8px;
+  background:#304961;
+  color:#fff;
+  box-shadow:none;
+  font-size:11px;
+  font-weight:800;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace .ah-inventory-dock .ui-button:disabled {
+  opacity:.42;
+  cursor:not-allowed;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace .ah-inventory-dock .ui-button:focus-visible {
+  outline:2px solid #ffd084;
+  outline-offset:2px;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace .ah-inventory-dock .ui-button--primary,
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace .ah-inventory-dock .ui-button--success {
+  border-color:#d28e35;
+  background:#ba6b10;
+  color:#fff;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace .ah-inventory-dock .ui-button--danger {
+  border-color:#9f6570;
+  color:#ffdde0;
+}
+/* Document mode keeps operational context and dates, not a duplicate module
+   heading; the real document number is an essential record identifier. */
+:root[data-button-scope='tenant'] #root .ah-inventory-editor :is(.opening-stock-title,.stock-taking-title) {
+  font-size:14px;
+  font-weight:850;
+  color:#193753;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-editor :is(.opening-stock-status,.stock-taking-status) {
+  min-height:25px;
+  display:inline-flex;
+  align-items:center;
+  padding:3px 10px;
+  border:1px solid #dcae6f;
+  border-radius:999px;
+  background:#fff2e0;
+  color:#93530d;
+  font-size:10px;
+  font-weight:850;
+  letter-spacing:.03em;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-editor :is(.opening-stock-status.is-posted,.stock-taking-status.is-posted) {
+  border-color:#a7d8bd;
+  background:#e6f8ed;
+  color:#147444;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-editor :is(.opening-stock-header-card,.opening-stock-line-card,.stock-taking-line-card) {
+  min-width:0;
+  box-shadow:0 2px 10px #19345010;
+  border:1px solid var(--inventory-line);
+  border-radius:11px;
+  background:#fff;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-editor .opening-stock-header-card {
+  flex:0 0 auto;
+  padding:11px 13px;
+  grid-template-columns:minmax(160px,1fr) 175px minmax(200px,1.5fr);
+  gap:10px;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-editor :is(.opening-stock-header-card,.opening-stock-line-entry,.stock-taking-toolbar-field) input {
+  min-height:35px;
+  height:35px;
+  border:1px solid #bdccdd;
+  border-radius:8px;
+  background:#fff;
+  color:#1d3650;
+  box-shadow:none;
+  font-size:12px;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-editor :is(.opening-stock-header-card,.opening-stock-line-entry) label > span {
+  font-size:11px;
+  font-weight:750;
+  color:#304a64;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-editor .opening-stock-line-entry {
+  flex:0 0 auto;
+  grid-template-columns:minmax(140px,1.25fr) minmax(165px,1.5fr) 115px 115px minmax(120px,.85fr) auto;
+  align-items:end;
+  gap:8px;
+  padding:9px 10px;
+  border-bottom:1px solid #e3eaf3;
+  background:#f9fbfe;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-editor :is(.opening-stock-line-card,.stock-taking-line-card) {
+  display:flex;
+  flex:1 1 auto;
+  flex-direction:column;
+  gap:0;
+  min-height:0;
+  overflow:hidden;
+  padding:0;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-editor .opening-stock-line-card > .pos-grid-wrap,
+:root[data-button-scope='tenant'] #root .ah-inventory-editor .stock-taking-entry-grid {
+  flex:1 1 auto;
+  height:auto!important;
+  min-height:0;
+  overflow:auto;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-editor :is(.opening-stock-footer,.stock-taking-footer) {
+  display:flex;
+  flex:0 0 52px;
+  align-items:center;
+  gap:14px;
+  min-height:52px;
+  padding:0 410px 0 15px;
+  border:0;
+  border-top:1px solid #cbd8e6;
+  border-radius:0;
+  background:#f8fafd;
+  color:#344d66;
+  font-size:11px;
+  font-weight:700;
+  white-space:nowrap;
+  box-shadow:none;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-editor .ah-inventory-dock {
+  bottom:20px;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-editor .stock-taking-toolbar-field {
+  margin:0;
+  display:flex;
+  gap:6px;
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-editor .stock-taking-toolbar-warehouse input {
+  width:min(215px,19vw);
+}
+:root[data-button-scope='tenant'] #root .ah-inventory-editor .stock-taking-toolbar-date input {
+  width:128px;
+}
+/* Width and height constraints preserve every control and allow localized
+   scrolling on smaller screens rather than truncating transaction fields. */
+@media(max-width:1150px) {
+  :root[data-button-scope='tenant'] #root .ah-inventory-workspace .ah-inventory-list-status,
+  :root[data-button-scope='tenant'] #root .ah-inventory-editor :is(.opening-stock-footer,.stock-taking-footer) {
+    padding-right:410px;
+    gap:7px;
+  }
+  :root[data-button-scope='tenant'] #root .ah-inventory-editor .opening-stock-line-entry {
+    grid-template-columns:repeat(2,minmax(0,1fr)) 100px 100px;
+  }
+  :root[data-button-scope='tenant'] #root .ah-inventory-editor .opening-stock-line-notes,
+  :root[data-button-scope='tenant'] #root .ah-inventory-editor .opening-stock-line-actions {grid-column:span 2;}
+}
+@media(max-width:810px) {
+  :root[data-button-scope='tenant'] #root .ah-inventory-workspace {
+    padding:6px!important;
+  }
+  :root[data-button-scope='tenant'] #root .ah-inventory-workspace :is(.opening-stock-toolbar,.stock-taking-toolbar) {
+    padding:7px;
+  }
+  :root[data-button-scope='tenant'] #root .ah-inventory-workspace :is(.opening-stock-new-warehouse,.stock-taking-new-warehouse,.opening-stock-warehouse-filter,.stock-taking-warehouse-filter) {
+    width:min(45vw,250px)!important;
+  }
+  :root[data-button-scope='tenant'] #root .ah-inventory-editor .opening-stock-header-card {
+    grid-template-columns:minmax(0,1fr) 145px;
+  }
+  :root[data-button-scope='tenant'] #root .ah-inventory-editor .opening-stock-notes-field {grid-column:1/-1;}
+  :root[data-button-scope='tenant'] #root .ah-inventory-workspace .ah-inventory-list-status,
+  :root[data-button-scope='tenant'] #root .ah-inventory-editor :is(.opening-stock-footer,.stock-taking-footer) {
+    flex-wrap:wrap;
+    align-content:flex-start;
+    min-height:88px;
+    flex-basis:88px;
+    padding:8px 12px 48px;
+    white-space:normal;
+  }
+  :root[data-button-scope='tenant'] #root .ah-inventory-workspace .ah-inventory-dock {
+    max-width:calc(100% - 26px);
+    right:12px;
+    bottom:12px;
+    overflow-x:auto;
+  }
+}
+@media(max-width:610px) {
+  :root[data-button-scope='tenant'] #root .ah-inventory-editor .opening-stock-header-card,
+  :root[data-button-scope='tenant'] #root .ah-inventory-editor .opening-stock-line-entry {grid-template-columns:minmax(0,1fr);}
+  :root[data-button-scope='tenant'] #root .ah-inventory-editor .opening-stock-line-notes,
+  :root[data-button-scope='tenant'] #root .ah-inventory-editor .opening-stock-line-actions {grid-column:1;}
+  :root[data-button-scope='tenant'] #root .ah-inventory-editor .stock-taking-toolbar-warehouse input {width:min(195px,42vw)}
+}
