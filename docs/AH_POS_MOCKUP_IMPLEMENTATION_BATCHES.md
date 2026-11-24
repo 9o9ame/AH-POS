@@ -139,3 +139,9 @@ CSS-only correction on `fix/stock-taking-row-dropdown-18`: remove nested Product
 - Shared FeedbackProvider now supports severity-typed warning along with success/error/info and short Web Audio cues per type; unlock on pointer/keyboard gesture, throttle duplicate rapid tones, remain resilient when autoplay prevented. No external audio fetch required. Toast CSS restores strong green/red/amber/blue surfaces and accessible contrast even after existing high-specificity migration overrides, including dark mode.
 - Stock Taking client validation alerts become Warning instead of neutral Info. No posting, RBAC, tenant, API or backend changes.
 - Browser audio/screenshot acceptance and npm typecheck still pending.
+
+## Batch 20 — Stock Taking post completion, document/line notes, notification audio
+- Verified existing backend supports both StockTake.notes (document-level) and StockTakeLine.notes (product row). List used document-level while UI entered per-line note; removed ambiguous Notes column from Stock Taking directory, not the editor's line Notes.
+- Stock Taking editor automatically returns to list after confirmed successful posting, with posted document selected. Failed post keeps modal open.
+- Global feedback cue source `feedbackSounds.ts` now attempts verified bundled local MP3s for Success/Error/Warning/Info, falling back to higher-volume synthesized cues if playback is rejected. Does not bypass browser mute/gesture restrictions.
+- Branch `fix/stock-take-post-notes-audio-20`; no business/backend changes; owner local typecheck and browser verification pending.
