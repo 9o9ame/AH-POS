@@ -27,7 +27,6 @@ export function CatalogMasterWorkspace({ kind }: { kind: MasterKind }) {
   const [status, setStatus] = useState<'all' | 'active' | 'archived'>('all')
   const [actionError, setActionError] = useState<string | null>(null)
   const info = DISPLAY[kind]
-  const Icon = info.icon
   const formId = `ahpos-${kind}-modal-form`
   const filteredRows = useMemo(() => {
     const q = search.trim().toLocaleLowerCase()
@@ -79,17 +78,6 @@ export function CatalogMasterWorkspace({ kind }: { kind: MasterKind }) {
 
   return (
     <main className="ah-master ah-master--list-only" aria-label={`${info.title} workspace`}>
-      <header className="ah-master__header">
-        <div className="ah-master__heading">
-          <span className="ah-master__hero-icon"><Icon size={23} aria-hidden="true" /></span>
-          <div>
-            <span className="ah-master__eyebrow">DEFINITION / MASTER DATA</span>
-            <h1>{info.title}</h1>
-            <p>{info.subtitle}</p>
-          </div>
-        </div>
-        <div className="ah-master__header-total"><strong>{editor.rows.length}</strong><span>Total records</span></div>
-      </header>
       {(actionError || (!open && editor.error)) ? <p className="ah-master__error" role="alert">{actionError || editor.error}</p> : null}
       <section className="ah-master__card ah-master__list" aria-label={`${info.title} list`}>
         <div className="ah-master__section-heading">
