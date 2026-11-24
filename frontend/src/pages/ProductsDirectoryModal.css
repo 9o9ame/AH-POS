@@ -387,3 +387,33 @@
   :root[data-button-scope='tenant'] .product-definition-modal .product-commandbar {padding:8px;overflow-x:auto}
   :root[data-button-scope='tenant'] .product-definition-modal .product-commandbar-actions {flex-wrap:nowrap;width:max-content}
 }
+
+/* Embedded product editors (e.g. product quick creation) retain original
+   handlers and split layout without inheriting the standalone dialog. */
+:root[data-button-scope='tenant'] #root .product-definition-directory.is-embedded .product-embedded-editor {
+  display:flex;
+  flex:1 1 auto;
+  flex-direction:column;
+  min-width:0;
+  min-height:0;
+  overflow:hidden;
+}
+:root[data-button-scope='tenant'] #root .product-definition-directory.is-embedded .product-management-layout {
+  flex:1 1 auto;
+  min-height:0;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-editor-title {
+  display:inline-flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:11px;
+  color:#fff;
+}
+:root[data-button-scope='tenant'] .product-definition-modal .product-editor-title small {
+  padding:4px 8px;
+  border:1px solid #7890a9;
+  border-radius:999px;
+  background:#304a64;
+  font-size:10px;
+  font-weight:750;
+}
