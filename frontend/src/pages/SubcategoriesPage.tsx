@@ -5,6 +5,9 @@ import {
   Save,
   Trash2,
   X,
+  Edit3,
+  Search,
+  FolderTree,
 } from 'lucide-react'
 import {
   useMutation,
@@ -20,21 +23,19 @@ import {
 } from '../api/catalog'
 import { ApiClientError } from '../api/client'
 import { askConfirm } from '../feedback/FeedbackProvider'
-import {
-  DesktopButton,
-  DesktopPanel,
-  Field,
-  FormGroup,
-} from '../components/desktop/DesktopPanel'
 import { PosDataGrid } from '../components/desktop/PosDataGrid'
-import { UiSimpleDropdown } from '../components/ui/UiSelect'
+import { UiSelect } from '../components/ui/UiSelect'
+import { UiModal } from '../components/ui/UiModal'
+import { UI_LAYER } from '../components/ui/uiLayers'
 import { useCan } from '../features/auth/useCan'
 import {
   useWorkspace,
   useWorkspaceHandlers,
 } from '../features/workspace/WorkspaceProvider'
 import type { Subcategory } from '../types/catalog'
-import './SubcategoriesPage.css'
+import '../components/catalog/CatalogMasterWorkspace.css'
+import '../components/catalog/CatalogMasterModal.css'
+import '../ahpos-clarity.css'
 
 export function SubcategoriesPage() {
   const queryClient = useQueryClient()
@@ -80,8 +81,11 @@ export function SubcategoriesPage() {
   const [name, setName] =
     useState('')
 
-  const [error, setError] =
-    useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [search, setSearch] = useState('')
+  const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'archived'>('all')
+  const [filterCategory, setFilterCategory] = useState('all')
 
   const selected =
     rows.find(
@@ -98,22 +102,14 @@ export function SubcategoriesPage() {
     ''
 
   const filteredRows = useMemo(() => {
-    if (selected) return rows
-
-    const nameQuery = name.trim().toLocaleLowerCase()
-    const categoryFilter = categoryUlid || defaultCategoryUlid
-
-    return rows.filter((row) => {
-      const categoryMatches =
-        !categoryFilter ||
-        (row.category?.ulid ?? row.category_ulid ?? '') === categoryFilter
-      const nameMatches =
-        !nameQuery ||
-        row.name.toLocaleLowerCase().includes(nameQuery)
-
-      return categoryMatches && nameMatches
+    const q = search.trim().toLocaleLowerCase()
+    return rows.filter(row => {
+      if (filterStatus === 'active' && !row.is_active) return false
+      if (filterStatus === 'archived' && row.is_active) return false
+      if (filterCategory !== 'all' && (row.category?.ulid ?? row.category_ulid ?? '') !== filterCategory) return false
+      return !q || [row.code, row.name, row.category?.name ?? ''].some(s => s.toLocaleLowerCase().includes(q))
     })
-  }, [categoryUlid, defaultCategoryUlid, name, rows, selected])
+  }, [rows, search, filterStatus, filterCategory])
 
   const canSave =
     selectedKey
@@ -249,6 +245,7 @@ export function SubcategoriesPage() {
 
     try {
       await saveMutation.mutateAsync()
+      setModalOpen(false)
     } catch (err) {
       setError(
         err instanceof ApiClientError
@@ -259,207 +256,98 @@ export function SubcategoriesPage() {
   }
 
   useWorkspaceHandlers({
-    save: () =>
-      (
-        document.getElementById(
-          'subcategory-form',
-        ) as HTMLFormElement | null
-      )?.requestSubmit(),
+    save: () => {
+      if (modalOpen) (document.getElementById('subcategory-form') as HTMLFormElement | null)?.requestSubmit()
+      else if (canCreate) { startNew(); setModalOpen(true) }
+    },
 
     refresh: () =>
       void query.refetch(),
   })
 
+  function openNew() { if (!canCreate) return; startNew(); setModalOpen(true) }
+  function openEdit(row: Subcategory) { if (!canEdit) return; select(row); setModalOpen(true) }
+  async function deactivate() {
+    if (!selected || !canDelete || !selected.is_active || !(await askConfirm(`Deactivate ${selected.name}?`))) return
+    try { await deactivateMutation.mutateAsync() }
+    catch (err) { setError(err instanceof ApiClientError ? err.message : 'Unable to deactivate subcategory.') }
+  }
+  async function activate() {
+    if (!selected || !canEdit || selected.is_active) return
+    try { await activateMutation.mutateAsync() }
+    catch (err) { setError(err instanceof ApiClientError ? err.message : 'Unable to activate subcategory.') }
+  }
+
   return (
-    <DesktopPanel
-      className="subcategories-page"
-      title="Subcategories"
-      toolbar={
-        <>
-          <DesktopButton
-            icon={<Plus size={13} />}
-            label="New"
-            disabled={!canCreate}
-            onClick={startNew}
-          />
+    <main className="ah-master ah-master--list-only" aria-label="Subcategories workspace">
+      <header className="ah-master__header">
+        <div className="ah-master__heading">
+          <span className="ah-master__hero-icon"><FolderTree size={23}/></span>
+          <div><span className="ah-master__eyebrow">DEFINITION / MASTER DATA</span><h1>Subcategories</h1><p>Manage product subcategories under their parent categories.</p></div>
+        </div>
+        <div className="ah-master__header-total"><strong>{rows.length}</strong><span>Total records</span></div>
+      </header>
+      {!modalOpen && error ? <div className="ah-master__error" role="alert">{error}</div> : null}
+      <section className="ah-master__card ah-master__list" aria-label="Subcategories list">
+        <div className="ah-master__section-heading"><div><h2>Subcategories directory</h2><p>Search, select or double-click a record to edit</p></div>
+          <div className="ah-master__compact-stats"><span>{rows.filter(r => r.is_active).length} Active</span><span>{rows.filter(r => !r.is_active).length} Archived</span></div>
+        </div>
+        <div className="ah-master__filters">
+          <label className="ah-master__search"><Search size={17}/><span className="sr-only">Search subcategories</span>
+            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search subcategories by category, name or code…"/>
+          </label>
+          <div className="ah-master__filter ah-master__filter-category">
+            <UiSelect value={filterCategory} searchable={true} aria-label="Filter by category"
+              options={[{value:'all',label:'All categories'},...(categories.data ?? []).map(item => ({value:item.ulid,label:item.name}))]}
+              onChange={setFilterCategory}/>
+          </div>
+          <div className="ah-master__filter">
+            <UiSelect value={filterStatus} searchable={false} aria-label="Record status"
+              options={[{value:'all',label:'All statuses'},{value:'active',label:'Active'},{value:'archived',label:'Archived'}]}
+              onChange={v=>setFilterStatus(v as typeof filterStatus)}/>
+          </div>
+        </div>
+        <div className="ah-master__grid">
+          <PosDataGrid
+            columns={[
+              {key:'category',header:'Category',render:(row:Subcategory)=>row.category?.name ?? categories.data?.find(c=>c.ulid===row.category_ulid)?.name ?? '—'},
+              {key:'code',header:'Code',width:150,render:(row:Subcategory)=>row.code},
+              {key:'name',header:'Subcategory',render:(row:Subcategory)=>row.name},
+              {key:'status',header:'Status',width:110,render:(row:Subcategory)=>row.is_active?'Active':'Archived'},
+              {key:'action',header:'Action',width:90,render:(row:Subcategory)=><button type="button" className="ah-master__row-edit" disabled={!canEdit} onClick={()=>openEdit(row)}><Edit3 size={13}/> Edit</button>},
+            ]}
+            rows={filteredRows} rowKey={row=>row.ulid} selectedKey={selectedKey}
+            onSelect={select} onActivate={openEdit} emptyMessage="No matching subcategories."/>
+        </div>
+        <footer className="ah-master__list-footer">Showing {filteredRows.length} of {rows.length} records</footer>
+      </section>
+      <nav className="ah-master__fab" aria-label="Subcategories floating actions">
+        <button type="button" title="Refresh" aria-label="Refresh records" onClick={()=>void query.refetch()}><RefreshCw size={19}/></button>
+        <button type="button" title="Edit selected" aria-label="Edit selected" disabled={!selected||!canEdit} onClick={()=>{if(selected)openEdit(selected)}}><Edit3 size={19}/></button>
+        <button type="button" title="Deactivate selected" aria-label="Deactivate selected" disabled={!selected?.is_active||!canDelete||deactivateMutation.isPending} onClick={()=>void deactivate()}><Trash2 size={19}/></button>
+        <button type="button" title="Activate selected" aria-label="Activate selected" disabled={!selected||selected.is_active||!canEdit||activateMutation.isPending} onClick={()=>void activate()}><RefreshCw size={19}/></button>
+        <button type="button" title="Close page" aria-label="Close page" onClick={closeActiveTab}><X size={19}/></button>
+        <button type="button" className="ah-master__fab-primary" title="Add subcategory" aria-label="Add subcategory" disabled={!canCreate} onClick={openNew}><Plus size={24}/><span>Add Subcategory</span></button>
+      </nav>
 
-          <DesktopButton
-            icon={<Save size={13} />}
-            label="Save"
-            shortcut="F9"
-            disabled={
-              !canSave ||
-              saveMutation.isPending
-            }
-            onClick={() =>
-              (
-                document.getElementById(
-                  'subcategory-form',
-                ) as HTMLFormElement | null
-              )?.requestSubmit()
-            }
-          />
-
-          <DesktopButton
-            icon={<Trash2 size={13} />}
-            label="Delete"
-            disabled={
-              !canDelete ||
-              !selected?.is_active ||
-              deactivateMutation.isPending
-            }
-            onClick={() => {
-              void (async () => {
-                if (!selected || !(await askConfirm(`Deactivate ${selected.name}?`))) {
-                  return
-                }
-
-                void deactivateMutation
-                  .mutateAsync()
-                  .catch((err) => {
-                    setError(
-                      err instanceof ApiClientError
-                        ? err.message
-                        : 'Unable to deactivate subcategory.',
-                    )
-                  })
-              })()
-            }}
-          />
-
-          <DesktopButton
-            icon={<RefreshCw size={13} />}
-            label="Activate"
-            disabled={
-              !canEdit ||
-              !selected ||
-              selected.is_active ||
-              activateMutation.isPending
-            }
-            onClick={() => {
-              void activateMutation
-                .mutateAsync()
-                .catch((err) => {
-                  setError(
-                    err instanceof ApiClientError
-                      ? err.message
-                      : 'Unable to activate subcategory.',
-                  )
-                })
-            }}
-          />
-
-          <DesktopButton
-            icon={<RefreshCw size={13} />}
-            label="Refresh"
-            shortcut="F8"
-            onClick={() =>
-              void query.refetch()
-            }
-          />
-
-          <DesktopButton
-            icon={<X size={13} />}
-            label="Close"
-            shortcut="Esc"
-            onClick={closeActiveTab}
-          />
-        </>
-      }
-    >
-      {error ? (
-        <p className="mb-2 text-[12px] text-[var(--danger)]">
-          {error}
-        </p>
-      ) : null}
-
-      {canCreate || canEdit ? (
-        <form
-          id="subcategory-form"
-          onSubmit={onSubmit}
-        >
-          <FormGroup
-            title={
-              selected
-                ? 'Edit subcategory'
-                : 'New subcategory'
-            }
-          >
-            <Field label="Category">
-              <UiSimpleDropdown
-                triggerClassName="desktop-select"
-                aria-label="Category"
-                value={categoryUlid || defaultCategoryUlid}
-                options={(categories.data ?? []).map((category) => ({
-                  value: category.ulid,
-                  label: `${category.code} — ${category.name}`,
-                }))}
-                onChange={setCategoryUlid}
-              />
-            </Field>
-
-            <Field label="Name">
-              <input
-                className="desktop-input"
-                value={name}
-                placeholder={selected ? 'Subcategory name' : 'Search or enter subcategory name'}
-                onChange={(e) =>
-                  setName(
-                    e.target.value,
-                  )
-                }
-                required
-              />
-            </Field>
-          </FormGroup>
-        </form>
-      ) : null}
-
-      <div className="subcategories-grid">
-        <PosDataGrid
-          columns={[
-            {
-              key: 'category',
-              header: 'Category',
-              render: (row) =>
-                row.category?.name ?? '',
-            },
-
-            {
-              key: 'code',
-              header: 'Code',
-              width: 120,
-              render: (row) =>
-                row.code,
-            },
-
-            {
-              key: 'name',
-              header: 'Name',
-              render: (row) =>
-                row.name,
-            },
-
-            {
-              key: 'status',
-              header: 'Status',
-              width: 100,
-              render: (row) =>
-                row.is_active
-                  ? 'Active'
-                  : 'Archived',
-            },
-          ]}
-          rows={filteredRows}
-          rowKey={(row) =>
-            row.ulid
-          }
-          selectedKey={
-            selectedKey
-          }
-          onSelect={select}
-        />
-      </div>
-    </DesktopPanel>
+      <UiModal open={modalOpen} title={selected ? 'Edit Subcategory' : 'Add Subcategory'} size="md" className="ah-master-modal" onClose={()=>setModalOpen(false)}
+        footer={<>
+          <button type="button" className="ah-master-modal__secondary" onClick={()=>setModalOpen(false)}>Cancel</button>
+          <button type="submit" form="subcategory-form" className="ah-master-modal__save" disabled={!canSave||saveMutation.isPending}><Save size={16}/>{saveMutation.isPending?'Saving…':'Save changes'} <kbd>F9</kbd></button>
+        </>}>
+        {error ? <p className="ah-master__error" role="alert">{error}</p> : null}
+        {canCreate || canEdit ? (
+          <form id="subcategory-form" className="ah-master-modal__form" onSubmit={e=>void onSubmit(e)}>
+            {selected ? <label><span>Code</span><input value={selected.code} readOnly/></label> : null}
+            <label><span>Category *</span>
+              <UiSelect value={categoryUlid||defaultCategoryUlid} aria-label="Parent category" searchable menuZIndex={UI_LAYER.modalDropdown}
+                options={(categories.data??[]).map(category=>({value:category.ulid,label:`${category.code} — ${category.name}`}))}
+                onChange={setCategoryUlid}/>
+            </label>
+            <label><span>Subcategory name *</span><input required autoFocus value={name} onChange={e=>setName(e.target.value)} placeholder="Enter subcategory name"/></label>
+          </form>
+        ):<p>Read-only access</p>}
+      </UiModal>
+    </main>
   )
 }
