@@ -166,7 +166,7 @@ export function Ribbon({
                 <span className="ah-navigation-chevron" aria-hidden="true">⌄</span>
               </button>
               <div className="ah-navigation-section-content" id={`ah-nav-section-${section.tabId}`}
-                aria-hidden={!expanded} inert={!expanded}>
+                aria-hidden={!expanded} ref={element => { if (element) element.inert = !expanded }}>
                 {section.groups.map((group) => (
                   <div className="ah-navigation-group" key={`${section.tabId}-${group.id}`}>
                     <h3>{group.caption}</h3>
