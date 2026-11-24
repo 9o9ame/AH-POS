@@ -1,7 +1,7 @@
 import { UiDateRangePicker } from '../components/ui/UiDateRangePicker'
 import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Gift, Plus, RefreshCw, Save, Trash2, X } from 'lucide-react'
+import { Edit3, Gift, Plus, RefreshCw, Save, Search, Trash2, X } from 'lucide-react'
 import { ApiClientError } from '../api/client'
 import { fetchProducts } from '../api/catalog'
 import {
@@ -10,14 +10,16 @@ import {
   fetchSaleSchemes,
   updateSaleScheme,
 } from '../api/saleSchemes'
-import { DesktopButton, DesktopPanel, Field, FormGroup } from '../components/desktop/DesktopPanel'
 import { PosDataGrid } from '../components/desktop/PosDataGrid'
 import { UiSimpleDropdown, UiTableDropdown } from '../components/ui/UiSelect'
+import { UiModal } from '../components/ui/UiModal'
+import { UI_LAYER } from '../components/ui/uiLayers'
 import { useCan } from '../features/auth/useCan'
 import { askConfirm } from '../feedback/FeedbackProvider'
 import { useWorkspace, useWorkspaceHandlers } from '../features/workspace/WorkspaceProvider'
 import type { SaleSchemeApplyMode } from '../types/saleSchemes'
 import './SaleSchemesPage.css'
+import './TenantDirectoryPages.css'
 
 export function SaleSchemesPage() {
   const queryClient = useQueryClient()
@@ -32,6 +34,7 @@ export function SaleSchemesPage() {
 
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
+  const [modalOpen, setModalOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [name, setName] = useState('')
   const [applyMode, setApplyMode] = useState<SaleSchemeApplyMode>('salesman')
@@ -138,6 +141,7 @@ export function SaleSchemesPage() {
       setCreating(false)
       setSelectedKey(saved.ulid)
       setError(null)
+      setModalOpen(false)
       await queryClient.invalidateQueries({ queryKey: ['sale-schemes'] })
     },
   })
@@ -161,187 +165,135 @@ export function SaleSchemesPage() {
   }
 
   useWorkspaceHandlers({
-    save: () => (document.getElementById('sale-scheme-form') as HTMLFormElement | null)?.requestSubmit(),
+    save: () => {
+      if (modalOpen) (document.getElementById('sale-scheme-form') as HTMLFormElement | null)?.requestSubmit()
+      else if (canCreate) { startNew(); setModalOpen(true) }
+    },
     refresh: () => void schemesQuery.refetch(),
   })
 
+ 
+  function openCreate() {
+    if (!canCreate) return
+    startNew()
+    setModalOpen(true)
+  }
+
+  function openEdit(row: (typeof rows)[number]) {
+    if (!canEdit) return
+    setCreating(false)
+    setSelectedKey(row.ulid)
+    setError(null)
+    setModalOpen(true)
+  }
+
+  async function deactivateSelected() {
+    if (!selected?.is_active || !canDelete || !(await askConfirm(`Deactivate ${selected.name}?`))) return
+    try {
+      await deactivateSaleScheme(selected.ulid)
+      await queryClient.invalidateQueries({ queryKey: ['sale-schemes'] })
+      setError(null)
+    } catch (err) {
+      setError(err instanceof ApiClientError ? err.message : 'Unable to deactivate scheme.')
+    }
+  }
+
   return (
-    <DesktopPanel
-      className="sale-schemes-page"
-      title="Customer Sale Schemes"
-      toolbar={
-        <>
-          <DesktopButton icon={<Plus size={13} />} label="New" disabled={!canCreate} onClick={startNew} />
-          <DesktopButton
-            icon={<Save size={13} />}
-            label="Save"
-            shortcut="F9"
-            disabled={(!canCreate && !canEdit) || saveMutation.isPending}
-            onClick={() =>
-              (document.getElementById('sale-scheme-form') as HTMLFormElement | null)?.requestSubmit()
-            }
+    <main className="ah-directory-page" aria-label="Sale schemes directory">
+      <section className="ah-directory-card">
+        <header className="ah-directory-heading">
+          <div>
+            <span className="ah-directory-kicker">DEFINITION / CUSTOMER OFFERS</span>
+            <h1>Customer Sale Schemes</h1>
+            <p>Maintain free-product rewards and eligibility rules.</p>
+          </div>
+          <div className="ah-directory-count"><strong>{rows.length}</strong><span>schemes</span></div>
+        </header>
+        <div className="ah-directory-toolbar">
+          <label className="ah-directory-search">
+            <Search size={17} aria-hidden="true" />
+            <span className="sr-only">Search sale schemes</span>
+            <input type="search" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search schemes, reward products, amount or status…" />
+          </label>
+          <span className="ah-directory-summary">{rows.filter(row => row.is_active).length} Active · {rows.filter(row => !row.is_active).length} Inactive</span>
+        </div>
+        {!modalOpen && error ? <p className="ah-directory-error" role="alert">{error}</p> : null}
+        <div className="ah-directory-grid">
+          <PosDataGrid
+            columns={[
+              {key:'name',header:'Scheme',render:(row:(typeof rows)[number])=><span className="ah-directory-name"><Gift size={14}/>{row.name}</span>},
+              {key:'mode',header:'Mode',width:125,render:(row:(typeof rows)[number])=>row.apply_mode==='auto'?'Auto':'Salesman'},
+              {key:'min',header:'Min sale amount',width:145,render:(row:(typeof rows)[number])=>row.min_sale_amount},
+              {key:'reward',header:'Free product',render:(row:(typeof rows)[number])=>row.reward_product?.name ?? '—'},
+              {key:'qty',header:'Max free qty',width:115,render:(row:(typeof rows)[number])=>row.max_reward_qty},
+              {key:'status',header:'Status',width:110,render:(row:(typeof rows)[number])=>row.is_active?'Active':'Inactive'},
+              {key:'actions',header:'Action',width:95,render:(row:(typeof rows)[number])=><button type="button" className="ah-directory-edit" disabled={!canEdit} onClick={()=>openEdit(row)}><Edit3 size={13}/> Edit</button>},
+            ]}
+            rows={filteredRows}
+            rowKey={row=>row.ulid}
+            selectedKey={selectedKey}
+            onSelect={row=>{setCreating(false);setSelectedKey(row.ulid)}}
+            onActivate={openEdit}
+            emptyMessage="No matching sale schemes."
+            loading={schemesQuery.isLoading}
           />
-          <DesktopButton
-            icon={<Trash2 size={13} />}
-            label="Delete"
-            disabled={!canDelete || !selected?.is_active}
-            onClick={() => {
-              void (async () => {
-                if (!selected || !(await askConfirm(`Deactivate ${selected.name}?`))) return
-                try {
-                  await deactivateSaleScheme(selected.ulid)
-                  await queryClient.invalidateQueries({ queryKey: ['sale-schemes'] })
-                } catch (err) {
-                  setError(err instanceof ApiClientError ? err.message : 'Unable to deactivate scheme.')
-                }
-              })()
-            }}
-          />
-          <DesktopButton
-            icon={<RefreshCw size={13} />}
-            label="Refresh"
-            shortcut="F8"
-            onClick={() => void schemesQuery.refetch()}
-          />
-          <DesktopButton icon={<X size={13} />} label="Close" shortcut="Esc" onClick={closeActiveTab} />
-        </>
-      }
-    >
-      {error ? <p className="mb-2 text-[12px] text-[var(--danger)]">{error}</p> : null}
-      <div className="sale-schemes-search">
-        <input
-          className="desktop-input"
-          type="search"
-          value={searchQuery}
-          placeholder="Search sale schemes"
-          aria-label="Search sale schemes"
-          onChange={(event) => setSearchQuery(event.target.value)}
-        />
-      </div>
+        </div>
+        <footer className="ah-directory-footer">Showing {filteredRows.length} of {rows.length} schemes</footer>
+      </section>
 
-      {(canCreate || canEdit) && (creating || selected) ? (
-        <form id="sale-scheme-form" onSubmit={onSubmit}>
-          <FormGroup title={creating ? 'New scheme' : 'Edit scheme'}>
-            <Field label="Scheme name">
-              <input className="desktop-input" value={name} onChange={(e) => setName(e.target.value)} required />
-            </Field>
-            <Field label="Apply mode">
-              <UiSimpleDropdown
-                triggerClassName="desktop-input"
-                aria-label="Apply mode"
-                value={applyMode}
-                searchable={false}
-                options={[
-                  { value: 'salesman', label: 'Salesman decides (Add / Skip)' },
-                  { value: 'auto', label: 'Auto apply when eligible' },
-                ]}
-                onChange={(value) => setApplyMode(value as SaleSchemeApplyMode)}
-              />
-            </Field>
-            <Field label="Min sale amount">
-              <input
-                className="desktop-input"
-                value={minSaleAmount}
-                onChange={(e) => setMinSaleAmount(e.target.value)}
-                required
-              />
-            </Field>
-            <Field label="Free product">
-              <UiTableDropdown
-                triggerClassName="desktop-input"
-                aria-label="Free product"
-                value={rewardProductUlid}
-                placeholder="— Select product —"
-                menuMinWidth={420}
-                menuColumns={[
-                  { header: 'Product #', width: '120px' },
-                  { header: 'Product' },
-                ]}
-                options={products
-                  .filter((row) => row.is_active || row.ulid === rewardProductUlid)
-                  .map((row) => ({
-                    value: row.ulid,
-                    label: `${row.product_number} — ${row.name}`,
-                    columns: [row.product_number, row.name],
-                  }))}
-                onChange={setRewardProductUlid}
-              />
-            </Field>
-            <Field label="Max free qty">
-              <input
-                className="desktop-input"
-                value={maxRewardQty}
-                onChange={(e) => setMaxRewardQty(e.target.value)}
-                required
-              />
-            </Field>
-            <Field label="Starts on"><span>Date range</span><UiDateRangePicker fromInputProps={{className:"desktop-input",type:"date",value:startsOn,onChange:(e) => setStartsOn(e.target.value)}} toInputProps={{className:"desktop-input",type:"date",value:endsOn,onChange:(e) => setEndsOn(e.target.value)}}/></Field>
+      <nav className="ah-directory-fab" aria-label="Sale scheme actions">
+        <button type="button" title="Refresh (F8)" aria-label="Refresh schemes" onClick={()=>void schemesQuery.refetch()}><RefreshCw size={18}/></button>
+        <button type="button" title="Edit selected" aria-label="Edit selected scheme" disabled={!selected||!canEdit} onClick={()=>{if(selected)openEdit(selected)}}><Edit3 size={18}/></button>
+        <button type="button" title="Deactivate selected" aria-label="Deactivate selected scheme" disabled={!selected?.is_active||!canDelete} onClick={()=>void deactivateSelected()}><Trash2 size={18}/></button>
+        <button type="button" title="Close" aria-label="Close sale schemes" onClick={closeActiveTab}><X size={18}/></button>
+        <button type="button" className="ah-directory-fab-primary" disabled={!canCreate} onClick={openCreate}><Plus size={20}/> Add Scheme</button>
+      </nav>
 
-            <Field label="Stackable">
-              <label className="inline-flex items-center gap-2 text-[12px]">
-                <input
-                  type="checkbox"
-                  checked={isStackable}
-                  onChange={(e) => setIsStackable(e.target.checked)}
-                />
-                Can combine with other schemes
-              </label>
-            </Field>
-          </FormGroup>
+      <UiModal open={modalOpen} title={creating ? 'Add Sale Scheme' : 'Edit Sale Scheme'}
+        size="lg" className="ah-directory-modal" onClose={()=>setModalOpen(false)}
+        footer={<>
+          <button type="button" className="ah-directory-cancel" onClick={()=>setModalOpen(false)}>Cancel</button>
+          <button type="submit" form="sale-scheme-form" className="ah-directory-save" disabled={saveMutation.isPending || (creating ? !canCreate : !canEdit)}>
+            <Save size={16}/>{saveMutation.isPending?'Saving…':'Save Scheme'} <kbd>F9</kbd>
+          </button>
+        </>}>
+        {error ? <p className="ah-directory-error" role="alert">{error}</p> : null}
+        <form id="sale-scheme-form" className="ah-directory-form" onSubmit={event=>void onSubmit(event)}>
+          <label><span>Scheme name *</span>
+            <input autoFocus required value={name} onChange={e=>setName(e.target.value)} placeholder="Enter scheme name"/>
+          </label>
+          <label><span>Apply mode *</span>
+            <UiSimpleDropdown aria-label="Apply mode" value={applyMode} searchable={false}
+              menuZIndex={UI_LAYER.modalDropdown}
+              options={[{value:'salesman',label:'Salesman decides (Add / Skip)'},{value:'auto',label:'Auto apply when eligible'}]}
+              onChange={value=>setApplyMode(value as SaleSchemeApplyMode)}/>
+          </label>
+          <label><span>Minimum sale amount *</span>
+            <input required inputMode="decimal" value={minSaleAmount} onChange={e=>setMinSaleAmount(e.target.value)}/>
+          </label>
+          <label><span>Free reward product *</span>
+            <UiTableDropdown aria-label="Free product" value={rewardProductUlid}
+              placeholder="Select reward product" menuZIndex={UI_LAYER.modalDropdown}
+              menuMinWidth={420} menuColumns={[{header:'Product #',width:'120px'},{header:'Product'}]}
+              options={products.filter(row=>row.is_active||row.ulid===rewardProductUlid).map(row=>({
+                value:row.ulid,label:`${row.product_number} — ${row.name}`,columns:[row.product_number,row.name],
+              }))}
+              onChange={setRewardProductUlid}/>
+          </label>
+          <label><span>Maximum free quantity *</span>
+            <input required inputMode="decimal" value={maxRewardQty} onChange={e=>setMaxRewardQty(e.target.value)}/>
+          </label>
+          <div className="ah-directory-form-wide">
+            <span className="ah-directory-field-label">Validity period</span>
+            <UiDateRangePicker fromInputProps={{className:'desktop-input',type:'date',value:startsOn,onChange:e=>setStartsOn(e.target.value)}}
+              toInputProps={{className:'desktop-input',type:'date',value:endsOn,onChange:e=>setEndsOn(e.target.value)}}/>
+          </div>
+          <label className="ah-directory-check"><input type="checkbox" checked={isStackable} onChange={e=>setIsStackable(e.target.checked)}/>
+            <span>Can combine with other schemes</span>
+          </label>
         </form>
-      ) : null}
-
-      <div className="sale-schemes-grid">
-        <PosDataGrid
-          columns={[
-            {
-              key: 'name',
-              header: 'Scheme',
-              render: (row) => (
-                <span className="inline-flex items-center gap-1">
-                  <Gift size={12} /> {row.name}
-                </span>
-              ),
-            },
-            {
-              key: 'mode',
-              header: 'Mode',
-              width: 120,
-              render: (row) => (row.apply_mode === 'auto' ? 'Auto' : 'Salesman'),
-            },
-            {
-              key: 'min',
-              header: 'Min amount',
-              width: 110,
-              render: (row) => row.min_sale_amount,
-            },
-            {
-              key: 'reward',
-              header: 'Free product',
-              render: (row) => row.reward_product?.name ?? '—',
-            },
-            {
-              key: 'qty',
-              header: 'Max qty',
-              width: 80,
-              render: (row) => row.max_reward_qty,
-            },
-            {
-              key: 'status',
-              header: 'Status',
-              width: 90,
-              render: (row) => (row.is_active ? 'Active' : 'Inactive'),
-            },
-          ]}
-          rows={filteredRows}
-          rowKey={(row) => row.ulid}
-          selectedKey={selectedKey}
-          onSelect={(row) => {
-            setCreating(false)
-            setSelectedKey(row.ulid)
-          }}
-        />
-      </div>
-    </DesktopPanel>
+      </UiModal>
+    </main>
   )
 }

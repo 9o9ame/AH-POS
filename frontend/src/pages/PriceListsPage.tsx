@@ -1,5 +1,5 @@
 import { useDeferredValue, useMemo, useState } from 'react'
-import { Download, RefreshCw, X } from 'lucide-react'
+import { Download, RefreshCw, Search, X } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { fetchBrands, fetchCategories, fetchProducts } from '../api/catalog'
 import { PosDataGrid, type PosGridColumn } from '../components/desktop/PosDataGrid'
@@ -9,6 +9,7 @@ import { useWorkspace } from '../features/workspace/WorkspaceProvider'
 import { useFeedback } from '../feedback/FeedbackProvider'
 import type { Product, ProductPrice } from '../types/catalog'
 import './PriceListsPage.css'
+import './TenantDirectoryPages.css'
 
 type PriceType = 'retail' | 'wholesale' | 'minimum_sale'
 
@@ -234,7 +235,7 @@ export function PriceListsPage() {
         }),
       ]
 
-      downloadCsv('bluepos-price-lists.csv', exportRows)
+      downloadCsv('ahpos-price-lists.csv', exportRows)
       feedback.success(`Exported ${allProducts.length} product price row(s).`, 'Price Lists')
     } catch (error) {
       feedback.fromApiError(error, 'Unable to export Price Lists.')
@@ -248,110 +249,58 @@ export function PriceListsPage() {
   }
 
   return (
-    <section className="price-lists-page">
-      <div className="price-lists-toolbar">
-        <div className="price-lists-toolbar-left">
-          <label className="price-lists-search">
+    <main className="ah-directory-page ah-price-directory" aria-label="Price Lists">
+      <section className="ah-directory-card">
+        <header className="ah-directory-heading">
+          <div>
+            <span className="ah-directory-kicker">DEFINITION / PRODUCT PRICING</span>
+            <h1>Price Lists</h1>
+            <p>View product pricing and export filtered price lists.</p>
+          </div>
+          <div className="ah-directory-count"><strong>{meta?.total ?? 0}</strong><span>products</span></div>
+        </header>
+        <div className="ah-directory-toolbar">
+          <label className="ah-directory-search">
+            <Search size={17} aria-hidden="true" />
             <span className="sr-only">Search products</span>
-            <input
-              value={search}
-              placeholder="Search product #, SKU, barcode or name"
-              onChange={(event) => {
-                setSearch(event.target.value)
-                resetPage()
-              }}
-            />
+            <input type="search" value={search} placeholder="Search product number, SKU, barcode or name…"
+              onChange={event=>{setSearch(event.target.value);resetPage()}}/>
           </label>
-
-          <UiSelect
-            className="price-lists-filter"
-            value={categoryUlid}
-            options={[
-              { value: '', label: 'All categories' },
-              ...(categoriesQuery.data ?? []).map((category) => ({
-                value: category.ulid,
-                label: category.name,
-              })),
-            ]}
-            onChange={(value) => {
-              setCategoryUlid(value)
-              resetPage()
-            }}
-            placeholder="All categories"
-            aria-label="Price List category filter"
+          <UiSelect className="ah-directory-filter" value={categoryUlid} aria-label="Price List category filter"
+            options={[{value:'',label:'All categories'},...(categoriesQuery.data??[]).map(category=>({value:category.ulid,label:category.name}))]}
+            onChange={value=>{setCategoryUlid(value);resetPage()}}/>
+          <UiSelect className="ah-directory-filter" value={brandUlid} aria-label="Price List manufacturer filter"
+            options={[{value:'',label:'All manufacturers'},...(brandsQuery.data??[]).map(brand=>({value:brand.ulid,label:brand.name}))]}
+            onChange={value=>{setBrandUlid(value);resetPage()}}/>
+          <label className="ah-directory-check"><input type="checkbox" checked={activeOnly}
+            onChange={event=>{setActiveOnly(event.target.checked);resetPage()}}/><span>Active only</span></label>
+        </div>
+        <div className="ah-directory-grid">
+          <PosDataGrid
+            columns={columns}
+            rows={rows}
+            rowKey={product=>product.ulid}
+            loading={productsQuery.isLoading}
+            emptyMessage={productsQuery.isLoading?'Loading Price Lists…':'No products found.'}
           />
-
-          <UiSelect
-            className="price-lists-filter"
-            value={brandUlid}
-            options={[
-              { value: '', label: 'All manufacturers' },
-              ...(brandsQuery.data ?? []).map((brand) => ({
-                value: brand.ulid,
-                label: brand.name,
-              })),
-            ]}
-            onChange={(value) => {
-              setBrandUlid(value)
-              resetPage()
-            }}
-            placeholder="All manufacturers"
-            aria-label="Price List manufacturer filter"
-          />
-
-          <label className="price-lists-active-only">
-            <input
-              type="checkbox"
-              checked={activeOnly}
-              onChange={(event) => {
-                setActiveOnly(event.target.checked)
-                resetPage()
-              }}
-            />
-            Active Only
-          </label>
         </div>
-
-        <div className="price-lists-toolbar-right">
-          <UiButton variant="info" onClick={() => void productsQuery.refetch()}>
-            <RefreshCw size={15} /> Refresh
-          </UiButton>
-          <UiButton variant="info" onClick={() => void exportAllFiltered()} disabled={exporting}>
-            <Download size={15} /> {exporting ? 'Exporting…' : 'Export'}
-          </UiButton>
-          <UiButton variant="info" onClick={closeActiveTab}>
-            <X size={15} /> Close
-          </UiButton>
-        </div>
-      </div>
-
-      <div className="price-lists-grid-card">
-        <PosDataGrid loading={productsQuery.isLoading}
-          columns={columns}
-          rows={rows}
-          rowKey={(product) => product.ulid}
-          emptyMessage={productsQuery.isLoading ? 'Loading Price Lists…' : 'No products found.'}
-        />
-      </div>
-
-      <footer className="price-lists-footer">
-        <span>{meta?.total ?? 0} product(s)</span>
-        <div className="price-lists-pagination">
-          <UiButton
-            onClick={() => setPage((current) => Math.max(1, current - 1))}
-            disabled={!meta || meta.current_page <= 1}
-          >
-            Previous
-          </UiButton>
-          <span>Page {meta?.current_page ?? 1} of {meta?.last_page ?? 1}</span>
-          <UiButton
-            onClick={() => setPage((current) => Math.min(meta?.last_page ?? current, current + 1))}
-            disabled={!meta || meta.current_page >= meta.last_page}
-          >
-            Next
-          </UiButton>
-        </div>
-      </footer>
-    </section>
+        <footer className="ah-directory-footer ah-directory-pagination">
+          <span>{meta?.total ?? 0} product(s) · Page {meta?.current_page ?? 1} of {meta?.last_page ?? 1}</span>
+          <div className="ah-directory-page-buttons">
+            <UiButton onClick={()=>setPage(current=>Math.max(1,current-1))}
+              disabled={!meta||meta.current_page<=1}>Previous</UiButton>
+            <UiButton onClick={()=>setPage(current=>Math.min(meta?.last_page??current,current+1))}
+              disabled={!meta||meta.current_page>=meta.last_page}>Next</UiButton>
+          </div>
+        </footer>
+      </section>
+      <nav className="ah-directory-fab" aria-label="Price list actions">
+        <button type="button" title="Refresh" aria-label="Refresh Price Lists"
+          onClick={()=>void productsQuery.refetch()}><RefreshCw size={18}/></button>
+        <button type="button" title="Close" aria-label="Close Price Lists" onClick={closeActiveTab}><X size={18}/></button>
+        <button type="button" className="ah-directory-fab-primary" disabled={exporting}
+          onClick={()=>void exportAllFiltered()}><Download size={18}/>{exporting?'Exporting…':'Export CSV'}</button>
+      </nav>
+    </main>
   )
 }

@@ -1,0 +1,51 @@
+# AH-POS — Tenant UI Session Handoff
+
+_Last updated: 2026-11-24. Keep this file current after every mockup implementation batch._
+
+## Mission / user's acceptance criteria
+- Transform AH-POS tenant-side screens so they are not visually recognizable as the inherited BluePOS UI.
+- Existing business logic, APIs, tenant isolation, permission checks, financial/posting behavior, scanner/keyboard handling and registered routes **must not be removed, hidden, bypassed or fabricated**.
+- Small batches (2–4 screens), direct GitHub commits by assistant, owner merges into local `redesign/ahpos-complete-ui` branch and runs browser acceptance.
+- Never suggest `npm run dev`: user already runs Vite in another terminal. Only suggest `npm run build` on significant changes. Routine checks: `npm run typecheck`, `npm run ui:check`, `npm run ui:navigation-check`.
+- User has unrelated local `backend/composer.lock` and TypeScript build cache. Do not overwrite/stage either.
+
+## Approved direction
+- Clean dark, opaque, legible tenant shell; sidebar expands/collapses on hover with smooth timing, dropdown groups expand on hover and preserve keyboard/touch.
+- Definition masters: **one list card per page**, no inline add/edit form, Add/Edit modal, floating actions at bottom-right, record grid scrolls inside card only, no duplicate page heading or records counter.
+- Read-only modules retain their actual read-only purpose; no invented Add/Edit or unsupported APIs.
+- Strong contrast and compact information density; no pale washed-out text or unnecessary empty blocks.
+- Modal Save/Cancel, validation, existing permissions and shortcuts must continue to work. Reuse shared UI elements and existing hooks.
+
+## GitHub branch history / merging
+- User's working local branch: `redesign/ahpos-complete-ui`. It contains commits not yet available on GitHub's corresponding remote branch; do not reset hard or overwrite local history.
+- Implemented and sent for merge: `design/mockup-implementation-batch-01` (Categories, Brands, Units); `design/mockup-clarity-batch-01-fix`; `design/master-modal-fab-batch-02` (plus Subcategories); `design/master-list-scroll-cleanup-03` (no duplicate titles and card-only scrolling).
+- Sidebar hover branch: `design/sidebar-hover-navigation-04`. TypeScript `inert` issue and faster-than-desired animation corrected in `fix/sidebar-slow-transition-ts-05`; latest branch includes hover behaviour, 720ms sidebar, 650ms groups, 520ms nested dropdowns, 350ms pointer-leave delay.
+- **Current branch:** `design/tenant-schemes-pricelists-06`, based on `design/master-list-scroll-cleanup-03` so it includes prior master-page visual changes. It does not include sidebar hover source (owner merged that separately locally). Merge current branch into owner's local branch; solve any conflicts without destructive reset.
+
+## Current batch 06: implemented in source, NOT YET BROWSER-APPROVED
+1. Sale Schemes — real create/edit form moved into `UiModal`, list-only workspace, floating Add/Edit/Deactivate/Refresh/Close. Original `createSaleScheme`, `updateSaleScheme`, `deactivateSaleScheme`, RBAC checks, `fetchProducts`, mode, reward, minimum amount, quantity, date range, stacking options, save flow preserved.
+2. Price Lists — read-only table, categories/brands/status filters, server-side paging, CSV export (AH-POS filename), refresh/close floating actions. No mock edit function.
+3. Scoped CSS: `frontend/src/pages/TenantDirectoryPages.css`. Form remains scrollable inside modal and records inside PosDataGrid, with no outer page scrolling.
+4. Docs updated: `PROJECT_UI_DESIGN_SYSTEM.md`, `docs/AH_POS_DESIGN_MIGRATION.md`, `docs/AH_POS_MOCKUP_IMPLEMENTATION_BATCHES.md` and this handoff.
+
+## Verification owed by owner
+Run only:
+```powershell
+cd C:\laragon\www\AH-POS
+git fetch origin design/tenant-schemes-pricelists-06
+git merge --no-edit origin/design/tenant-schemes-pricelists-06
+cd frontend
+npm run typecheck
+npm run ui:check
+npm run ui:navigation-check
+```
+Manual routes:
+- `http://localhost:5173/definition/sale-schemes` (confirm actual app route before using; navigation registry is authoritative).
+- `http://localhost:5173/definition/price-lists` (confirm actual app route before using).
+
+Test create, edit, save, cancel, reward-product dropdown above modal, date range, stackable, deactivate and permissions; Price Lists filtered CSV and paging; cards scroll internally, modal accessible, sidebar hover unaffected. Avoid destructive database actions; use test tenant records only.
+
+## Status / next action
+- No GitHub connector ability to execute local frontend checks or authenticated browser tests. Commit confirmed but local typecheck, UI guards and browser acceptance are pending.
+- Review owner's logs/screenshots; fix bugs on own GitHub branch and give merge instructions.
+- Next: pick 2–4 **actual** remaining tenant screens by inspecting current route registry/components, prioritize Definition masters. Do not call read-only price lists editable, and do not assume old BluePOS docs are current AH-POS truth.

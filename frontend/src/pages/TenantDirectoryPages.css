@@ -1,0 +1,243 @@
+/* AH-POS Tenant Directory Batch 06
+   Scoped list-first workspaces. Existing commerce API/mutations remain in TSX modules. */
+:root[data-button-scope='tenant'] #root .workspace-host-inner:has(> .ah-directory-page) {
+  min-height:0;
+  height:100%;
+  overflow:hidden!important;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-page {
+  display:flex;
+  flex-direction:column;
+  width:100%;
+  min-width:0;
+  min-height:0;
+  height:100%;
+  max-height:100%;
+  padding:14px 17px;
+  overflow:hidden;
+  background:#edf1f6;
+  color:#17283e;
+  font-family:Inter,system-ui,sans-serif;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-page * { box-sizing:border-box; }
+:root[data-button-scope='tenant'] #root .ah-directory-card {
+  display:flex;
+  flex:1 1 auto;
+  flex-direction:column;
+  min-height:0;
+  min-width:0;
+  padding:17px 19px 13px;
+  overflow:hidden;
+  border:1px solid #d4dfe9;
+  border-radius:14px;
+  background:#fff;
+  box-shadow:0 4px 14px #20334c12;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-heading {
+  flex:0 0 auto;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+  margin:0 0 14px;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-kicker {
+  font-size:10px;letter-spacing:.13em;
+  color:#a45a10;font-weight:850;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-heading h1 {
+  margin:3px 0 4px;font-size:23px;line-height:1.2;letter-spacing:-.03em;
+  font-weight:800;color:#182a40;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-heading p {
+  margin:0;font-size:12px;color:#516176;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-count {
+  display:grid;gap:1px;text-align:right;color:#54657a;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-count strong {
+  font-size:23px;color:#19334f;font-variant-numeric:tabular-nums;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-count span {font-size:11px;font-weight:700}
+:root[data-button-scope='tenant'] #root .ah-directory-toolbar {
+  display:flex;flex:0 0 auto;align-items:center;flex-wrap:wrap;
+  gap:10px;margin:0 0 13px;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-search {
+  display:flex;position:relative;align-items:center;
+  flex:1 1 280px;min-width:175px;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-search > svg {
+  position:absolute;left:12px;color:#586b81;pointer-events:none;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-search input {
+  width:100%;height:40px;padding:0 12px 0 38px;
+  border:1px solid #b5c4d6;border-radius:10px;
+  background:#fff;color:#1b2d44;
+  font:inherit;font-size:12px;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-search input::placeholder {color:#6b798a}
+:root[data-button-scope='tenant'] #root .ah-directory-search input:focus-visible,
+:root[data-button-scope='tenant'] #root .ah-directory-form input:focus-visible {
+  outline:2px solid #cd8427;outline-offset:1px;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-summary {
+  flex:0 0 auto;padding:8px 12px;border:1px solid #d5dfe9;border-radius:8px;
+  background:#f3f6fa;color:#354963;font-size:12px;font-weight:800;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-filter {
+  width:180px;flex:0 0 180px;min-width:0;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-filter .ui-select-trigger {
+  width:100%;min-height:40px;padding-inline:10px;
+  border:1px solid #b7c6d7;border-radius:9px;
+  background:#fff;color:#25364a;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-filter .ui-select-arrow {
+  background:#dfe9f5;border:0;color:#284363;box-shadow:none;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-grid {
+  flex:1 1 auto;min-height:0;min-width:0;overflow:hidden;
+  border:1px solid #cbd7e3;border-radius:11px;
+  background:#fff;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-grid > .pos-grid-wrap {
+  height:100%;min-height:0;width:100%;
+  overflow:auto;overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-grid th {
+  background:#e7eef6!important;color:#233750!important;
+  border-bottom:1px solid #b9c9db!important;font-size:12px;font-weight:800;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-grid td {
+  font-size:12px;color:#213348;background:#fff;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-name {
+  display:inline-flex;align-items:center;gap:7px;
+  color:#23384f;font-weight:700;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-name > svg {color:#bc6b17}
+:root[data-button-scope='tenant'] #root .ah-directory-edit {
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 9px;border:1px solid #d8b384;border-radius:7px;
+  background:#fff5e7;color:#94500c;font-size:11px;font-weight:750;
+  cursor:pointer;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-edit:disabled {opacity:.48;cursor:not-allowed}
+:root[data-button-scope='tenant'] #root .ah-directory-footer {
+  flex:0 0 auto;display:flex;justify-content:space-between;align-items:center;
+  min-height:41px;gap:12px;color:#4a5d72;font-size:11px;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-page-buttons {
+  display:flex;gap:9px;align-items:center;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-page-buttons button {
+  padding:5px 12px;min-height:30px;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-check {
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:700;color:#30435b;
+  white-space:nowrap;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-check input {
+  accent-color:#b86b16;width:16px;height:16px;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-error {
+  margin:0 0 11px;padding:10px 13px;
+  border:1px solid #e2aea8;border-radius:9px;
+  background:#fff2f0;color:#9e332b;font-size:12px;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-fab {
+  display:flex;position:fixed;bottom:43px;right:24px;z-index:60;
+  align-items:center;gap:7px;padding:8px;
+  border:1px solid #394f68;border-radius:15px;
+  background:#19293e;box-shadow:0 11px 28px #10203a59;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-fab button {
+  display:inline-flex;justify-content:center;align-items:center;
+  width:38px;height:38px;padding:0;
+  border:1px solid #4a637e;border-radius:9px;
+  background:#30465f;color:#f8fbff;
+  font-size:12px;font-weight:800;cursor:pointer;
+}
+:root[data-button-scope='tenant'] #root .ah-directory-fab button:disabled {opacity:.42;cursor:not-allowed}
+:root[data-button-scope='tenant'] #root .ah-directory-fab button:not(:disabled):hover {background:#415b79}
+:root[data-button-scope='tenant'] #root .ah-directory-fab .ah-directory-fab-primary {
+  width:auto;min-width:122px;padding:0 13px;gap:8px;
+  background:#b96b10;border-color:#da9a46;color:#fff;
+}
+:root[data-button-scope='tenant'] .ah-directory-modal.ui-modal {
+  border:1px solid #aebfd1;border-radius:15px;background:#fff;
+  box-shadow:0 26px 90px #101d3680;
+  overflow:visible;
+}
+:root[data-button-scope='tenant'] .ah-directory-modal .ui-modal-header {
+  background:#1c2b41;color:#fff;border-radius:14px 14px 0 0;
+  padding:16px 20px;
+}
+:root[data-button-scope='tenant'] .ah-directory-modal .ui-modal-title {
+  color:#fff;font-size:18px;font-weight:800;
+}
+:root[data-button-scope='tenant'] .ah-directory-modal .ui-modal-close {color:#fff}
+:root[data-button-scope='tenant'] .ah-directory-modal .ui-modal-body {
+  padding:19px 22px;background:#fff;overflow-y:auto;max-height:min(65vh,590px);
+}
+:root[data-button-scope='tenant'] .ah-directory-form {
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px 17px;
+}
+:root[data-button-scope='tenant'] .ah-directory-form > label:not(.ah-directory-check) {
+  display:flex;flex-direction:column;gap:7px;
+  min-width:0;color:#24364b;font-weight:750;font-size:12px;
+}
+:root[data-button-scope='tenant'] .ah-directory-form input:not([type=checkbox]) {
+  box-sizing:border-box;width:100%;min-width:0;height:41px;
+  padding:0 12px;border:1px solid #b6c6d7;
+  border-radius:9px;background:#fff;color:#182940;
+  font:inherit;font-size:13px;
+}
+:root[data-button-scope='tenant'] .ah-directory-form .ui-select-trigger {
+  min-height:41px;border:1px solid #b6c6d7;
+  border-radius:9px;background:#fff;color:#182940;
+}
+:root[data-button-scope='tenant'] .ah-directory-form .ui-select-arrow {
+  background:#dfe9f5;border:0;color:#284363;box-shadow:none;
+}
+:root[data-button-scope='tenant'] .ah-directory-form-wide {grid-column:1/-1;min-width:0}
+:root[data-button-scope='tenant'] .ah-directory-field-label {
+  display:block;margin-bottom:8px;font-size:12px;
+  color:#24364b;font-weight:750;
+}
+:root[data-button-scope='tenant'] .ah-directory-modal .ui-modal-footer {
+  display:flex;gap:10px;justify-content:flex-end;
+  padding:13px 22px;background:#f0f4f9;
+  border-radius:0 0 14px 14px;
+}
+:root[data-button-scope='tenant'] .ah-directory-modal .ui-modal-footer button {
+  display:inline-flex;align-items:center;gap:7px;
+  min-height:39px;padding:0 16px;border:1px solid #b5c5d6;
+  border-radius:9px;background:#fff;color:#27364b;
+  font-weight:800;font-size:12px;
+}
+:root[data-button-scope='tenant'] .ah-directory-modal .ui-modal-footer .ah-directory-save {
+  background:#b66b12;color:#fff;border-color:#954f07;
+}
+:root[data-button-scope='tenant'] .ah-directory-modal .ui-modal-footer button:disabled {opacity:.5}
+:root[data-button-scope='tenant'] .ah-directory-modal .ui-modal-footer kbd {font-size:10px;opacity:.8}
+@media(max-width:1000px){
+  :root[data-button-scope='tenant'] #root .ah-directory-toolbar{gap:8px}
+  :root[data-button-scope='tenant'] #root .ah-directory-filter{flex:1 1 160px}
+}
+@media(max-width:670px){
+  :root[data-button-scope='tenant'] #root .ah-directory-page{padding:8px}
+  :root[data-button-scope='tenant'] #root .ah-directory-card{padding:11px}
+  :root[data-button-scope='tenant'] #root .ah-directory-toolbar{align-items:stretch}
+  :root[data-button-scope='tenant'] #root .ah-directory-search{flex-basis:100%}
+  :root[data-button-scope='tenant'] #root .ah-directory-summary{width:100%}
+  :root[data-button-scope='tenant'] #root .ah-directory-form{grid-template-columns:1fr}
+  :root[data-button-scope='tenant'] #root .ah-directory-fab{right:9px;bottom:37px;gap:4px;padding:6px}
+  :root[data-button-scope='tenant'] #root .ah-directory-fab button{width:34px;height:34px}
+  :root[data-button-scope='tenant'] #root .ah-directory-fab .ah-directory-fab-primary{min-width:0;padding:0 9px}
+  :root[data-button-scope='tenant'] #root .ah-directory-footer{flex-wrap:wrap}
+}
