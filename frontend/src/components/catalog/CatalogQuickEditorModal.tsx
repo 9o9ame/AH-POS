@@ -18,6 +18,7 @@ type CatalogQuickEditorModalProps = {
   kind: QuickEditorKind | null
   open: boolean
   onClose: () => void
+  zIndex?: number
   parentCategoryUlid?: string
   onSaved?: (kind: QuickEditorKind, item: CatalogMasterRecord, created: boolean) => void
 }
@@ -49,6 +50,7 @@ export function CatalogQuickEditorModal({
   kind,
   open,
   onClose,
+  zIndex = UI_LAYER.modal,
   parentCategoryUlid,
   onSaved,
 }: CatalogQuickEditorModalProps) {
@@ -121,7 +123,7 @@ export function CatalogQuickEditorModal({
   return createPortal(
     <div
       className="catalog-popup-backdrop"
-      style={{ zIndex: UI_LAYER.modal }}
+      style={{ zIndex }}
       role="presentation"
       onMouseDown={(event) => {
         if (event.currentTarget === event.target) onClose()
