@@ -226,6 +226,12 @@ export function StockTakingPage() {
       await queryClient.invalidateQueries({ queryKey: ['inventory-stock-take', documentUlid] })
       await queryClient.invalidateQueries({ queryKey: ['inventory-stock-takes'] })
       await queryClient.invalidateQueries({ queryKey: ['inventory-stock'] })
+      // Close the editor only after the server has confirmed a successful post.
+      // A failed post keeps the draft open with its existing error feedback.
+      setSelectedListKey(documentUlid)
+      setMode('list')
+      setDocumentUlid(null)
+      setProductLookupOpen(false)
       feedback.success('Stock Take posted. Inventory variance movements are now final.')
     },
     onError: (error) => feedback.fromApiError(error, 'Unable to post Stock Take.'),
@@ -252,7 +258,6 @@ export function StockTakingPage() {
     },
     { key: 'status', header: 'Status', width: 90, render: (row) => row.status.toUpperCase() },
     { key: 'lines', header: 'Lines', width: 70, align: 'right', render: (row) => String(row.lines?.length ?? 0) },
-    { key: 'notes', header: 'Notes', render: (row) => row.notes ?? '—' },
   ], [])
 
   const lineColumns = useMemo<PosEntryGridColumn[]>(() => [
