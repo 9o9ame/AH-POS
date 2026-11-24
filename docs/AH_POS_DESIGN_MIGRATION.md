@@ -273,3 +273,10 @@ The existing code provides an authenticated branch switch API/UI. Tenant is fixe
 - Both use grid-first, high-contrast, scroll-owned card presentation and tenant-scoped `ProductGridWorkspaces.css`; top filters and data grids are visually distinct from inherited BluePOS. Floating action bars preserve live handlers, not placeholders.
 - Product View retains print-only header, per-column product filtering/sorting, stock price and supply summaries; Tabular View retains bulk Set/Save/Export, required RBAC gates and dirty-state Close confirmation. No backend/data/API changes.
 - Header navigation/title policy persists. No duplicate decorative heading was introduced. Screenshot and functional browser acceptance pending.
+
+## 2026-11-24 — Batch 11: actual Products and Product Tabular visual repair
+The authenticated screenshots of 4,435 imported products exposed a severe Product Management layout regression (giant unused area and squeezed editor) plus an unreadably dense Tabular View. Actual `/definition/product-view` route resolves to ProductTabularViewPage, NOT the separate ProductViewPage implementation. Batch 11 returns to the approved tenant pattern:
+- Products standalone = catalog list only; opening an Add/Edit product uses a real UiModal with all existing operational form fields, actions and inventory/barcode/image sections.
+- Tabular View = compact but legible bulk-edit toolbar and consistent high-contrast virtualized rows, with fixed floating Save/Export/Close.
+- Top tenant navigation/active title remains in the existing contextual shell; no redundant module heading in the content panel.
+- Source branch `fix/products-tabular-structural-11`, browser acceptance pending. Never mistake source-only commits or passing type checks for visual sign-off.
