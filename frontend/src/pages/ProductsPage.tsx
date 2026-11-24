@@ -7,6 +7,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ImagePlus,
+  Pencil,
   Plus,
   Printer,
   RefreshCw,
@@ -1981,11 +1982,12 @@ export function ProductsPage({
             </div>
             <nav className="product-directory-floating-actions" aria-label="Product directory actions">
               <button type="button" onClick={() => void localProducts.refreshFromServer()} title="Refresh catalog"><RefreshCw size={17}/> Refresh</button>
-              <button type="button" disabled={!selectedKey || !canEdit} onClick={() => { setCreating(false); setEditorOpen(true) }} title="Edit selected product"><Check size={17}/> Edit</button>
+              <button type="button" disabled={!selectedKey || !canEdit} onClick={() => { setCreating(false); setError(null); setEditorOpen(true) }} title="Edit selected product"><Pencil size={17}/> Edit</button>
               <button type="button" onClick={closeActiveTab} title="Close products page"><X size={17}/> Close</button>
               <button type="button" className="is-primary" disabled={!canCreate} onClick={startNewProduct} title="Add new product"><Plus size={19}/> Add Product</button>
             </nav>
             <UiModal open={editorOpen} size="xl" className="product-definition-modal"
+              ariaLabel={creating ? "Add product" : "Edit product"}
               title={creating ? 'New Product' : <span className="product-editor-title">Edit Product · {selected?.product_number ?? ''} <small>{selected?.is_active === false ? 'Discontinued' : 'Active record'}</small></span>}
               onClose={() => setEditorOpen(false)}>
               <form id="inline-product-form" className="product-management-page product-definition-modal-form"
