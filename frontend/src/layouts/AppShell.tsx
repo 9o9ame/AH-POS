@@ -167,7 +167,7 @@ function AppShellFrame({
     sidebarLeaveTimer.current = setTimeout(() => {
       setNavigationCollapsed(true)
       sidebarLeaveTimer.current = null
-    }, 180)
+    }, 350)
   }
 
   const location = useLocation()
