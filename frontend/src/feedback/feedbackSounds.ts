@@ -1,73 +1,123 @@
 /**
- * AH-POS notification cues. Generated locally with Web Audio (no remote
- * downloads, audio assets or data transmission).
+ * AH-POS short feedback sounds.
  *
- * Browser autoplay policies require an interaction: we unlock AudioContext on
- * the first pointer or keyboard action. If audio remains blocked, toast colors
- * and aria-live announcements are still the primary feedback.
+ * Prefer bundled, local MP3 files (verified in frontend/public/sounds); if
+ * media playback fails because of unsupported decoding / browser restrictions,
+ * try a louder synthesized Web Audio cue. Both paths are best effort and must
+ * never prevent the toast or a POS action.
+ *
+ * Sound cannot override a muted Chrome tab, muted operating system, or a
+ * browser's autoplay policy. First pointer/keyboard action unlocks audio.
  */
 export type FeedbackTone = 'success' | 'error' | 'warning' | 'info'
 
-type CueNote = readonly [frequency: number, startSeconds: number, durationSeconds: number, gain: number]
-const patterns: Record<FeedbackTone, readonly CueNote[]> = {
-  success: [[659.25, 0, 0.10, 0.055], [880, 0.12, 0.16, 0.07]],
-  error: [[330, 0, 0.16, 0.085], [246.94, 0.18, 0.25, 0.095]],
-  warning: [[440, 0, 0.11, 0.055], [440, 0.18, 0.15, 0.055]],
-  info: [[523.25, 0, 0.12, 0.035]],
+const sources: Record<FeedbackTone, string> = {
+  error: '/sounds/error-notification.mp3',
+  success: '/sounds/notifications/universfield-new-notification-050-494248.mp3',
+  warning: '/sounds/notifications/universfield-new-notification-057-494255.mp3',
+  info: '/sounds/notifications/universfield-new-notification-024-370048.mp3',
 }
 
-let context: AudioContext | null = null
+type CueNote = readonly [frequency: number, delay: number, duration: number, volume: number]
+const cues: Record<FeedbackTone, readonly CueNote[]> = {
+  success: [[659.25, 0, 0.12, 0.23], [880, 0.13, 0.19, 0.27]],
+  error: [[392, 0, 0.19, 0.30], [261.63, 0.21, 0.25, 0.33]],
+  warning: [[440, 0, 0.14, 0.25], [440, 0.20, 0.15, 0.25]],
+  info: [[523.25, 0, 0.15, 0.19]],
+}
+
+let audioContext: AudioContext | null = null
+const media = new Map<FeedbackTone, HTMLAudioElement>()
 let lastTone: FeedbackTone | null = null
 let lastPlayedAt = 0
 
-function getContext(): AudioContext | null {
+function getAudioContext(): AudioContext | null {
   if (typeof window === 'undefined' || !window.AudioContext) return null
   try {
-    context ??= new window.AudioContext()
-    return context
+    audioContext ??= new window.AudioContext()
+    return audioContext
   } catch {
     return null
   }
 }
 
-export function unlockFeedbackAudio(): void {
-  const audio = getContext()
-  if (audio?.state === 'suspended') {
-    void audio.resume().catch(() => undefined)
+function getMedia(tone: FeedbackTone): HTMLAudioElement | null {
+  if (typeof window === 'undefined') return null
+  const existing = media.get(tone)
+  if (existing) return existing
+  try {
+    const clip = new Audio(sources[tone])
+    clip.preload = 'auto'
+    clip.volume = 0.8
+    media.set(tone, clip)
+    return clip
+  } catch {
+    return null
   }
 }
 
-export function playFeedbackCue(tone: FeedbackTone): void {
-  const audio = getContext()
-  if (!audio) return
-  // Avoid a barrage of identical cues when one API error produces multiple
-  // notices; never suppress the visual toast itself.
-  const now = Date.now()
-  if (lastTone === tone && now - lastPlayedAt < 450) return
-  lastTone = tone
-  lastPlayedAt = now
+/** Called directly by the first real user gesture, before any toast. */
+export function unlockFeedbackAudio(): void {
+  const ctx = getAudioContext()
+  if (ctx?.state === 'suspended') {
+    void ctx.resume().catch(() => undefined)
+  }
+  // Prepare bundled media while the page is user-activated; don't force a
+  // silent play that could itself get rejected or alter the notification.
+  for (const tone of ['success', 'error', 'warning', 'info'] as const) {
+    getMedia(tone)?.load()
+  }
+}
 
-  const schedule = () => {
-    if (audio.state !== 'running') return
-    const base = audio.currentTime + 0.012
-    for (const [frequency, offset, duration, volume] of patterns[tone]) {
-      const oscillator = audio.createOscillator()
-      const envelope = audio.createGain()
-      oscillator.type = tone === 'error' ? 'triangle' : 'sine'
-      oscillator.frequency.setValueAtTime(frequency, base + offset)
-      envelope.gain.setValueAtTime(0.0001, base + offset)
-      envelope.gain.exponentialRampToValueAtTime(volume, base + offset + 0.018)
-      envelope.gain.exponentialRampToValueAtTime(0.0001, base + offset + duration)
-      oscillator.connect(envelope)
-      envelope.connect(audio.destination)
-      oscillator.start(base + offset)
-      oscillator.stop(base + offset + duration + 0.015)
-      oscillator.onended = () => {
-        oscillator.disconnect()
-        envelope.disconnect()
+function synthesizeCue(tone: FeedbackTone): void {
+  const ctx = getAudioContext()
+  if (!ctx) return
+
+  const play = () => {
+    if (ctx.state !== 'running') return
+    const base = ctx.currentTime + 0.015
+    for (const [frequency, delay, duration, volume] of cues[tone]) {
+      try {
+        const oscillator = ctx.createOscillator()
+        const gain = ctx.createGain()
+        oscillator.type = tone === 'error' ? 'triangle' : 'sine'
+        oscillator.frequency.setValueAtTime(frequency, base + delay)
+        gain.gain.setValueAtTime(0.0001, base + delay)
+        gain.gain.exponentialRampToValueAtTime(volume, base + delay + 0.018)
+        gain.gain.exponentialRampToValueAtTime(0.0001, base + delay + duration)
+        oscillator.connect(gain)
+        gain.connect(ctx.destination)
+        oscillator.start(base + delay)
+        oscillator.stop(base + delay + duration + 0.015)
+        oscillator.onended = () => {
+          oscillator.disconnect()
+          gain.disconnect()
+        }
+      } catch {
+        // An audio engine error is never a POS failure.
       }
     }
   }
-  if (audio.state === 'running') schedule()
-  else void audio.resume().then(schedule).catch(() => undefined)
+  if (ctx.state === 'running') play()
+  else void ctx.resume().then(play).catch(() => undefined)
+}
+
+export function playFeedbackCue(tone: FeedbackTone): void {
+  const now = Date.now()
+  if (lastTone === tone && now - lastPlayedAt < 500) return
+  lastTone = tone
+  lastPlayedAt = now
+
+  const clip = getMedia(tone)
+  if (!clip) {
+    synthesizeCue(tone)
+    return
+  }
+  try {
+    clip.pause()
+    clip.currentTime = 0
+    void clip.play().catch(() => synthesizeCue(tone))
+  } catch {
+    synthesizeCue(tone)
+  }
 }
