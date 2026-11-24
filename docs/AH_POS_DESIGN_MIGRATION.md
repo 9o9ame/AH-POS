@@ -290,3 +290,6 @@ Owner screenshot revealed that Batch 12 forced an oversized 96dvh modal despite 
 
 ## 2026-11-24 — Batch 14: approved Product modal mockup implementation
 The user approved the proposed high-contrast navy-header Product Add/Edit visual mockup and explicitly requested implementation before evaluating. The Product editor now loads `ProductApprovedMockup.css` after earlier styling layers. It establishes a full-width Product Identity section, balanced Classification/Pricing panels, balanced Settings/Barcode panels, stronger label/control alignment, image upload drop target, and readable single-row action footer with safe responsive overflow. This is styling/composition only; Product editing/save/stock/barcode business code is unchanged. Prior nested Supplier/Catalog popup layering remains. Owner authenticated browser acceptance and typecheck still pending.
+
+### Batch 15 — Products list height correction (2026-11-24)
+The Products directory now consumes remaining workspace height, nearly touching the shell status footer. Eliminated old bottom blank strip, made grid scroll own its available area and integrated floating actions with the count/status strip in the same card (footer padding prevents collision). Only `ProductApprovedMockup.css` plus handoff/design docs updated; desktop and compact browser review pending.
