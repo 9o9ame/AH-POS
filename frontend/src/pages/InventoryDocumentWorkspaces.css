@@ -180,13 +180,13 @@
   outline:2px solid #ffd084;
   outline-offset:2px;
 }
-:root[data-button-scope='tenant'] #root .ah-inventory-workspace .ah-inventory-dock .ui-button--primary,
-:root[data-button-scope='tenant'] #root .ah-inventory-workspace .ah-inventory-dock .ui-button--success {
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace .ah-inventory-dock .ui-button.is-primary,
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace .ah-inventory-dock .ui-button.is-success {
   border-color:#d28e35;
   background:#ba6b10;
   color:#fff;
 }
-:root[data-button-scope='tenant'] #root .ah-inventory-workspace .ah-inventory-dock .ui-button--danger {
+:root[data-button-scope='tenant'] #root .ah-inventory-workspace .ah-inventory-dock .ui-button.is-danger {
   border-color:#9f6570;
   color:#ffdde0;
 }
