@@ -182,3 +182,12 @@ processing. Review skipped/failed row warnings before making financial correctio
 Main remains at 840af93; sales-ui-fixes remains at 864b4fa. No Sales Invoice, Sales
 API/feature files, product UI, shell/ribbon, or unrelated modules were modified. No
 merge, push or PR was performed. Commit hash is supplied in the completion message.
+
+
+## AH-POS local-only import execution (2026-11-24)
+
+The local development environment processes imports without a running queue worker. When `APP_ENV=local`, the existing upload endpoint privately stages the source once without queue dispatch and the authorized Super Admin import modal submits bounded advancement requests (20 rows or 8 seconds maximum per request), one at a time. The import uses the same fingerprints, tenant locks, row checkpoints, product/account duplicate prevention and stock/financial domain actions as production.
+
+Production and other non-local environments continue to use the original queue worker (`ProcessTenantImport` on queue `imports`); the new advancement endpoint is unavailable outside `local`. Replaying identical sources cannot create the same products/accounts or repost opening stock. Closing the local dialog pauses work; reopening resumes checkpointed work.
+
+Verified by owner in local browser on 2026-11-24; independent PHP test execution and production deployment verification are still pending. This import-only release deliberately excludes unrelated UI redesign source and local dependency lockfile changes. See `docs/AH_POS_LOCAL_IMPORT_SESSION_HANDOFF.md`.
