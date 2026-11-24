@@ -581,3 +581,8 @@ Motion must respect `[data-animations="off"]` and `prefers-reduced-motion: reduc
 - Product Tabular View search, bulk update selector, Set Text, Refresh/Set and four checkbox filters share **one row when desktop width permits**. Use responsive wrap when necessary rather than hiding actions or overlapping controls.
 - The tabular product status footer ('All products loaded', counts, staged/selection/stock summary) belongs structurally within the same list card and list reaches near bottom status bar. Floating Save/Export/Close must remain visible and must not obscure the table or aggregate information.
 - Keep render/handlers and virtualized rows unmodified by layout work. Branch `fix/product-modal-tabular-density-12`; local browser review and tests pending.
+
+## Nested modal layering and compact forms — Batch 13
+- For nested Product -> Supplier (vendor/account) or Product -> Catalog quick-create, all popups must be rendered above their parent modal using established `UI_LAYER.nestedModal` and `UI_LAYER.nestedDropdown` where relevant. Reusable modals retain default stacking outside nested context. Escape must close only the top dialog rather than both.
+- Avoid full-viewport-height forced modals when content fits naturally; use `height:auto` plus accessible `max-height` and local overflow fallback for small viewports. Product Create/Edit fields must remain intact. Prefer one cohesive white form surface with subtle section labels/separators, not five decorative cards.
+- Product footer actions use consistent, readable icon + label buttons; no 8px cramped controls or floating overlays obscuring bottom actions. Do not alter product posting logic to accomplish styling.
