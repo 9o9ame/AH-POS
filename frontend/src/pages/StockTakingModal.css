@@ -1,0 +1,337 @@
+/* AH-POS Stock Taking — full-screen document modal, contrast pass (Batch 17).
+   Only editor mode changes; approved list layout is inherited unchanged.
+   All Save/Post and tenant/stock safety stays in existing React handlers. */
+:root[data-button-scope='tenant'] .stock-taking-document-modal.ui-modal {
+  box-sizing:border-box;
+  display:flex;
+  flex-direction:column;
+  width:min(1640px,calc(100vw - 36px)) !important;
+  max-width:calc(100vw - 16px) !important;
+  height:min(860px,calc(100dvh - 26px)) !important;
+  min-height:0;
+  max-height:calc(100dvh - 14px) !important;
+  border:1px solid #8ea6bf !important;
+  border-radius:15px !important;
+  overflow:hidden !important;
+  background:#e7edf5;
+  box-shadow:0 30px 80px #0b1b35a6;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .ui-modal-header {
+  flex:0 0 auto;
+  display:flex;
+  min-height:51px;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 18px;
+  color:#fff;
+  background:#182d46;
+  border-bottom:1px solid #39526c;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .ui-modal-title {
+  color:#fff;
+  font-size:16px;
+  font-weight:850;
+  letter-spacing:-.01em;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .ui-modal-close {
+  display:grid;
+  place-items:center;
+  width:31px;
+  height:31px;
+  border:1px solid #758ca7;
+  border-radius:9px;
+  color:#fff;
+  background:#324b68;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .ui-modal-close:hover {
+  background:#ad3c45;
+  border-color:#cf6970;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .ui-modal-body {
+  display:flex;
+  flex:1 1 auto;
+  height:100%;
+  min-height:0;
+  overflow:hidden;
+  padding:0;
+  background:#e7edf5;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .ah-stock-modal-editor {
+  --inventory-ink:#142943;
+  --inventory-quiet:#364e68;
+  --inventory-line:#8fa5bf;
+  display:flex;
+  flex:1 1 auto;
+  flex-direction:column;
+  height:100%;
+  min-width:0;
+  min-height:0;
+  padding:11px 12px 10px!important;
+  gap:10px;
+  background:#e7edf5;
+  color:#142943;
+  overflow:hidden;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-toolbar {
+  display:flex;
+  flex:0 0 auto;
+  align-items:center;
+  min-height:59px;
+  padding:9px 13px!important;
+  gap:12px;
+  border:1px solid #b2c2d2;
+  border-radius:10px;
+  background:#fff;
+  box-shadow:0 2px 6px #142d4610;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-toolbar-left {
+  display:flex;
+  flex:1;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:9px 13px;
+  min-width:0;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-toolbar .ui-button {
+  min-height:33px;
+  padding:0 12px;
+  border:1px solid #9caec2;
+  border-radius:8px;
+  background:#eaf1f8;
+  color:#183552;
+  font-size:12px;
+  font-weight:800;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-title {
+  display:none; /* Meaningful document number already shown in dialog header */
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-status {
+  display:inline-flex;
+  align-items:center;
+  min-height:27px;
+  padding:4px 12px;
+  border:1px solid #ca8c30;
+  border-radius:999px;
+  background:#fff0cf;
+  color:#884907;
+  font-size:11px;
+  font-weight:850;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-status.is-posted {
+  border-color:#288657;
+  background:#daf6e5;
+  color:#13633f;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-toolbar-field {
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  margin:0;
+  min-width:0;
+  font-size:12px;
+  font-weight:750;
+  color:#263e57;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-toolbar-field > span {
+  font-size:11px;
+  font-weight:800;
+  color:#263e57;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-toolbar-field input {
+  min-height:34px;
+  height:34px;
+  padding:0 12px;
+  border:1px solid #9eb3c9;
+  border-radius:8px;
+  background:#fff;
+  color:#152c45;
+  font-size:12px;
+  font-weight:700;
+  box-shadow:none;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-toolbar-warehouse input {
+  width:min(260px,25vw)!important;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-toolbar-date input {
+  width:147px!important;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-line-card {
+  display:flex;
+  flex:1 1 auto;
+  flex-direction:column;
+  min-height:0;
+  min-width:0;
+  margin:0;
+  padding:0;
+  gap:0;
+  overflow:hidden;
+  border:1px solid #a9bdd1;
+  border-radius:11px;
+  background:#fff;
+  box-shadow:0 2px 10px #12324b12;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-entry-grid {
+  flex:1 1 auto;
+  min-height:0;
+  min-width:0;
+  height:auto!important;
+  overflow:auto;
+  scrollbar-gutter:stable;
+  overscroll-behavior:contain;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-entry-grid table {
+  width:100%;
+  min-width:1050px;
+  border-collapse:separate;
+  border-spacing:0;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-entry-grid th {
+  position:sticky;
+  top:0;
+  z-index:3;
+  background:#264663!important;
+  color:#fff!important;
+  border-bottom:1px solid #0b2944!important;
+  border-right:1px solid #52718f;
+  padding:12px 10px!important;
+  font-size:12px!important;
+  font-weight:800!important;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-entry-grid td {
+  border-bottom:1px solid #d3deea!important;
+  border-right:1px solid #e2e8f0;
+  background:#fff;
+  color:#22384e!important;
+  font-size:12px!important;
+  padding:8px 9px!important;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-entry-grid tbody tr:nth-child(even) td {
+  background:#f5f8fc;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-entry-grid tbody tr:hover td {
+  background:#e9f2fc!important;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-entry-grid tbody tr.is-selected td {
+  background:#fff0d0!important;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-entry-grid tr.is-entry-row td {
+  background:#e9f4ff!important;
+  border-bottom:2px solid #4a81bd!important;
+  color:#122f4c!important;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-entry-grid input,
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-entry-grid .ui-select-trigger {
+  height:35px!important;
+  min-height:35px!important;
+  width:100%;
+  min-width:0;
+  padding:0 10px;
+  border:1px solid #8fa9c4!important;
+  border-radius:7px!important;
+  background:#fff!important;
+  color:#1a314b!important;
+  font-size:12px!important;
+  font-weight:650;
+  box-shadow:none!important;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-entry-grid input:focus-visible,
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-toolbar input:focus-visible {
+  outline:2px solid #1671c3!important;
+  outline-offset:1px;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-entry-grid .ui-select-arrow {
+  background:#d9e8f7!important;
+  color:#174979!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-delete-row {
+  color:#bb3942;
+  border:1px solid #e7b6bc;
+  border-radius:6px;
+  background:#fff1f3;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-footer {
+  box-sizing:border-box;
+  display:flex;
+  flex:0 0 55px;
+  align-items:center;
+  min-height:55px;
+  padding:0 400px 0 15px;
+  gap:16px;
+  background:#f1f6fc;
+  border-top:1px solid #b5c7d9;
+  color:#243c55;
+  font-size:12px;
+  font-weight:800;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .ah-inventory-editor-dock {
+  position:absolute!important;
+  right:20px!important;
+  bottom:21px!important;
+  z-index:5;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  padding:6px;
+  border:1px solid #294a6b;
+  border-radius:11px;
+  background:#192f49;
+  box-shadow:0 4px 16px #182e4740;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .ah-inventory-editor-dock .ui-button {
+  min-height:36px;
+  padding:0 13px;
+  border:1px solid #5b7896;
+  border-radius:8px;
+  background:#334f6d;
+  color:#fff;
+  font-size:12px;
+  font-weight:800;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .ah-inventory-editor-dock .ui-button.is-success:first-child {
+  background:#14744b;
+  border-color:#2ba26b;
+  color:#fff;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .ah-inventory-editor-dock .ui-button.is-success:nth-child(2) {
+  background:#af650c;
+  border-color:#d99234;
+  color:#fff;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .ah-inventory-editor-dock .ui-button:disabled {
+  opacity:.44;
+  cursor:not-allowed;
+}
+:root[data-button-scope='tenant'] .stock-taking-document-modal .ah-inventory-editor-dock .ui-button:focus-visible {
+  outline:2px solid #ffd278;
+  outline-offset:2px;
+}
+@media(max-width:930px) {
+  :root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-toolbar-left {gap:6px}
+  :root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-toolbar-warehouse input {width:180px!important}
+  :root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-footer {
+    flex-basis:85px;min-height:85px;padding:8px 12px 49px;align-items:flex-start;flex-wrap:wrap;
+  }
+  :root[data-button-scope='tenant'] .stock-taking-document-modal .ah-inventory-editor-dock {
+    bottom:19px!important;right:18px!important;
+  }
+}
+@media(max-width:560px) {
+  :root[data-button-scope='tenant'] .stock-taking-document-modal.ui-modal {
+    width:calc(100vw - 10px)!important;
+    max-width:calc(100vw - 10px)!important;
+    height:calc(100dvh - 10px)!important;
+    max-height:calc(100dvh - 10px)!important;
+  }
+  :root[data-button-scope='tenant'] .stock-taking-document-modal .ah-stock-modal-editor {padding:6px!important;gap:6px}
+  :root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-toolbar {padding:7px!important}
+  :root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-toolbar-field {width:100%}
+  :root[data-button-scope='tenant'] .stock-taking-document-modal .stock-taking-toolbar-warehouse input {width:200px!important}
+  :root[data-button-scope='tenant'] .stock-taking-document-modal .ah-inventory-editor-dock {
+    max-width:calc(100% - 22px);
+    overflow-x:auto;
+    right:10px!important;
+    bottom:11px!important;
+  }
+}
