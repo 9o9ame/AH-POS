@@ -11,13 +11,14 @@ import {
   type ReactNode,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { CheckCircle2, Info, Loader2, X, XCircle } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, Info, Loader2, X, XCircle } from 'lucide-react'
 import { UiNotificationStack } from '../components/ui/UiNotificationStack'
 import { ApiClientError } from '../api/client'
 import { apiBusy } from './apiBusy'
+import { playFeedbackCue, unlockFeedbackAudio, type FeedbackTone } from './feedbackSounds'
 import './feedback.css'
 
-type ToastTone = 'success' | 'error' | 'info'
+type ToastTone = FeedbackTone
 type ToastItem = {
   id: number
   tone: ToastTone
@@ -36,6 +37,7 @@ type FeedbackApi = {
   error: (message: string, title?: string) => void
   errorAt: (message: string, title: string | undefined, anchor: HTMLElement | null) => void
   info: (message: string, title?: string) => void
+  warning: (message: string, title?: string) => void
   fromApiError: (err: unknown, fallback?: string) => void
   confirm: (message: string) => Promise<boolean>
 }
@@ -43,21 +45,6 @@ type FeedbackApi = {
 const FeedbackContext = createContext<FeedbackApi | null>(null)
 
 let toastSeq = 0
-
-let errorAudio: HTMLAudioElement | null = null
-
-function playErrorSound() {
-  if (typeof window === 'undefined') return
-
-  try {
-    const audio = errorAudio ?? new Audio('/sounds/error-notification.mp3')
-    errorAudio = audio
-    audio.currentTime = 0
-    void audio.play().catch(() => undefined)
-  } catch {
-    // Audio feedback is optional and must never block POS workflow.
-  }
-}
 
 function ToastCard({
   toast,
@@ -111,12 +98,15 @@ function ToastCard({
     <div
       className={`bp-toast bp-toast-${toast.tone}${toast.anchor ? ' is-anchored' : ''}${leaving ? ' is-leaving' : ''}`}
       style={anchorStyle}
+      role={toast.tone === 'error' || toast.tone === 'warning' ? 'alert' : 'status'}
     >
       <span className="bp-toast-icon" aria-hidden="true">
         {toast.tone === 'success' ? (
           <CheckCircle2 size={18} />
         ) : toast.tone === 'error' ? (
           <XCircle size={22} />
+        ) : toast.tone === 'warning' ? (
+          <AlertTriangle size={20} />
         ) : (
           <Info size={18} />
         )}
@@ -161,6 +151,16 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => apiBusy.subscribe(setBusy), [])
 
+  useEffect(() => {
+    const unlock = () => unlockFeedbackAudio()
+    document.addEventListener('pointerdown', unlock, { once: true, capture: true })
+    document.addEventListener('keydown', unlock, { once: true, capture: true })
+    return () => {
+      document.removeEventListener('pointerdown', unlock, true)
+      document.removeEventListener('keydown', unlock, true)
+    }
+  }, [])
+
   const push = useCallback((
     tone: ToastTone,
     message: string,
@@ -171,19 +171,17 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
     const item: ToastItem = {
       id,
       tone,
-      title: title ?? (tone === 'success' ? 'Success' : tone === 'error' ? 'Error' : 'Notice'),
+      title: title ?? (tone === 'success' ? 'Success' : tone === 'error' ? 'Error' : tone === 'warning' ? 'Warning' : 'Information'),
       message,
       anchor,
     }
 
-    if (tone === 'error') {
-      playErrorSound()
-    }
+    playFeedbackCue(tone)
 
     setToasts((current) => [...current.slice(-4), item])
     window.setTimeout(() => {
       setToasts((current) => current.filter((row) => row.id !== id))
-    }, tone === 'error' ? 6500 : 3800)
+    }, tone === 'error' ? 6500 : tone === 'warning' ? 5200 : 3800)
   }, [])
 
   const api = useMemo<FeedbackApi>(
@@ -192,6 +190,7 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
       error: (message, title) => push('error', message, title),
       errorAt: (message, title, anchor) => push('error', message, title, anchor),
       info: (message, title) => push('info', message, title),
+      warning: (message, title) => push('warning', message, title),
       fromApiError: (err, fallback) => push('error', formatApiError(err, fallback), 'Request failed'),
       confirm: (message) =>
         new Promise<boolean>((resolve) => {
@@ -224,7 +223,7 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
                     <div className="bp-busy-orb" aria-hidden="true" />
                     <Loader2 className="bp-busy-spin" size={28} />
                     <div className="bp-busy-title">Working…</div>
-                    <div className="bp-busy-sub">Please wait while BluePOS finishes this request.</div>
+                    <div className="bp-busy-sub">Please wait while AH-POS finishes this request.</div>
                   </div>
                 </div>
               ) : null}
@@ -250,7 +249,7 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
               {(['error', 'default'] as const).map((stack) => {
                 const stackToasts = toasts.filter((toast) => {
                   if (toast.anchor) return false
-                  return stack === 'error' ? toast.tone === 'error' : toast.tone !== 'error'
+                  return stack === 'error' ? toast.tone === 'error' || toast.tone === 'warning' : toast.tone !== 'error' && toast.tone !== 'warning'
                 })
 
                 if (stackToasts.length === 0) return null
