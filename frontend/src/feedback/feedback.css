@@ -387,3 +387,128 @@ html[data-animations='off'] :where(.bp-busy-card, .bp-toast, .bp-confirm-card) *
 @keyframes ui-toast-dismiss { to { opacity: 0; transform: translateX(22px) scale(.96); } }
 html[data-animations='off'] .bp-toast.is-leaving { animation: none; }
 @media (prefers-reduced-motion: reduce) { .bp-toast.is-leaving { animation: none; } }
+
+
+/* AH-POS feedback v2 — deliberately follows old generic `!important` rules.
+   Error / warning / success / info must remain unmistakably distinguishable
+   in light AND dark themes, independent of Appearance palette. */
+.bp-toast {
+  --notice-accent:#2563a6;
+  --notice-surface:#eef6ff;
+  --notice-ink:#15395f;
+  --notice-frame:#90bbe9;
+  position:relative;
+  overflow:hidden;
+  min-height:62px;
+  padding:13px 14px 13px 17px;
+  border:1px solid var(--notice-frame)!important;
+  border-left:6px solid var(--notice-accent)!important;
+  border-radius:11px!important;
+  background:var(--notice-surface)!important;
+  color:var(--notice-ink)!important;
+  box-shadow:0 12px 32px #122c4650!important;
+  gap:12px;
+  font-size:13px;
+}
+.bp-toast-success {
+  --notice-accent:#13804b;
+  --notice-surface:#dff8ea;
+  --notice-ink:#075934;
+  --notice-frame:#75cda0;
+}
+.bp-toast-error {
+  --notice-accent:#cc2738;
+  --notice-surface:#ffe2e5;
+  --notice-ink:#8a1420;
+  --notice-frame:#e58b96;
+  min-height:74px;
+}
+.bp-toast-warning {
+  --notice-accent:#aa640a;
+  --notice-surface:#fff1cd;
+  --notice-ink:#774407;
+  --notice-frame:#edc575;
+}
+.bp-toast-info {
+  --notice-accent:#2169ad;
+  --notice-surface:#e3f0ff;
+  --notice-ink:#174976;
+  --notice-frame:#96bfe9;
+}
+.bp-toast .bp-toast-icon {
+  color:var(--notice-accent)!important;
+  background:#ffffffb8!important;
+  border:1px solid var(--notice-frame);
+  border-radius:9px;
+  min-width:34px;
+  min-height:34px;
+  margin:0;
+}
+.bp-toast .bp-toast-body strong {
+  color:var(--notice-ink)!important;
+  font-size:13px;
+  font-weight:850;
+  letter-spacing:.01em;
+}
+.bp-toast .bp-toast-body span {
+  color:var(--notice-ink)!important;
+  font-size:12px;
+  font-weight:650;
+  line-height:1.45;
+  opacity:1!important;
+}
+.bp-toast .bp-toast-close {
+  display:grid;
+  place-items:center;
+  width:26px;
+  height:26px;
+  border:1px solid var(--notice-frame)!important;
+  border-radius:7px!important;
+  background:#ffffffa8!important;
+  color:var(--notice-ink)!important;
+  opacity:.85;
+}
+.bp-toast .bp-toast-close:hover {
+  opacity:1;
+  background:#fff!important;
+}
+:root[data-theme='dark'] .bp-toast {
+  --notice-surface:#182b3e;
+  --notice-ink:#e7f2ff;
+  --notice-frame:#547998;
+  background:var(--notice-surface)!important;
+  color:var(--notice-ink)!important;
+}
+:root[data-theme='dark'] .bp-toast-success {
+  --notice-accent:#54dda0;
+  --notice-surface:#103d31;
+  --notice-ink:#d0ffe5;
+  --notice-frame:#2f8562;
+}
+:root[data-theme='dark'] .bp-toast-error {
+  --notice-accent:#ff6c7b;
+  --notice-surface:#4a1c29;
+  --notice-ink:#ffe5e7;
+  --notice-frame:#a84b5e;
+}
+:root[data-theme='dark'] .bp-toast-warning {
+  --notice-accent:#ffc66b;
+  --notice-surface:#4c3518;
+  --notice-ink:#fff1d2;
+  --notice-frame:#a87d38;
+}
+:root[data-theme='dark'] .bp-toast-info {
+  --notice-accent:#78baff;
+  --notice-surface:#1a3452;
+  --notice-ink:#d9edff;
+  --notice-frame:#4f8ebd;
+}
+:root[data-theme='dark'] .bp-toast .bp-toast-icon,
+:root[data-theme='dark'] .bp-toast .bp-toast-close {
+  background:#ffffff18!important;
+}
+.bp-toast-stack { width:min(390px,calc(100vw - 24px)); }
+.bp-toast-stack.is-error-stack { width:min(450px,calc(100vw - 24px)); }
+@media (prefers-contrast:more) {
+  .bp-toast { border-width:2px!important; border-left-width:7px!important; }
+}
