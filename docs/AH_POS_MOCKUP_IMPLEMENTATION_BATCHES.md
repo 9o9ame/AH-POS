@@ -130,3 +130,6 @@ Branch `fix/product-modal-tabular-density-12` based on `fix/products-tabular-str
 - Product lookup now optionally accepts `portalZIndex` and Stock Taking passes modal-dropdown layer; default unchanged for other uses.
 - Strong deep-navy document title/table header, bright white row backgrounds and selected/entry highlights, dark labels/field text and clear disabled states. Document footer is integrated with grid; modal actions remain real existing buttons.
 - Local typecheck / UI guards / authenticated browser testing pending. No production stock posting should be performed solely for visual review.
+
+## Batch 18 — Stock Taking compact input row (2026-11-24)
+CSS-only correction on `fix/stock-taking-row-dropdown-18`: remove nested Product dropdown's second visible input outline caused by broad modal rules; use single 29px combobox trigger with right-side arrow, 29px counted/notes inputs and compact table row padding. Existing search/selection/Enter, variance calculations, Save/Post, permissions and feedback unchanged. Check authenticated browser appearance before approval.
