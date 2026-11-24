@@ -81,7 +81,6 @@ export function CatalogMasterWorkspace({ kind }: { kind: MasterKind }) {
       {(actionError || (!open && editor.error)) ? <p className="ah-master__error" role="alert">{actionError || editor.error}</p> : null}
       <section className="ah-master__card ah-master__list" aria-label={`${info.title} list`}>
         <div className="ah-master__section-heading">
-          <div><h2>{info.title} directory</h2><p>Search, select or double-click a record to edit</p></div>
           <div className="ah-master__compact-stats"><span>{editor.rows.filter(r => r.is_active).length} Active</span><span>{editor.rows.filter(r => !r.is_active).length} Archived</span></div>
         </div>
         <div className="ah-master__filters">
