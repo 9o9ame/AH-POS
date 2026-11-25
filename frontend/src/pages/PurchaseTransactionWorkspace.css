@@ -202,6 +202,12 @@
  table-layout:fixed;
  color:var(--purchase-ink);
 }
+:root[data-button-scope='tenant'] #root .ah-purchase-document-workspace .purchase-order-lines{
+ min-width:1420px!important; /* 13 original PO columns stay readable and horizontally scroll */
+}
+:root[data-button-scope='tenant'] #root .ah-purchase-document-workspace .purchase-return-grid{
+ min-width:940px!important;
+}
 :root[data-button-scope='tenant'] #root .ah-purchase-document-workspace :is(.purchase-order-lines,.purchase-return-grid) thead th{
  position:sticky;
  top:0;
