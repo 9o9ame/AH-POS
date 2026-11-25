@@ -659,3 +659,79 @@ html[data-animations='off'] .ui-select-search {
   outline:2px solid #60a5fa!important;
   outline-offset:2px;
 }
+
+
+/* Inline lookup carets (Sales Invoice: Customer, Salesman, Quotation)
+   are the SAME visual primitive as regular UiSelect and custom Product.
+   The existing 27px input remains a full click/typing surface; only the
+   arrow control is 18px. Do not let legacy screen button heights paint a
+   second large blue box. Input wrapper is the positioning containing block.
+   Keep title/aria-label/onClick on the genuine button. */
+:root[data-button-scope='tenant'] #root .sales-reference-inline-caret > .ah-inline-field-caret,
+:root[data-button-scope='tenant'] .ui-modal-layer .sales-reference-inline-caret > .ah-inline-field-caret {
+  --ah-inline-caret-right:4px;
+  box-sizing:border-box!important;
+  display:grid!important;
+  place-items:center!important;
+  position:absolute!important;
+  top:50%!important;
+  right:var(--ah-inline-caret-right)!important;
+  bottom:auto!important;
+  left:auto!important;
+  transform:translateY(-50%)!important;
+  transform-origin:center!important;
+  flex:0 0 var(--ah-select-caret-size)!important;
+  width:var(--ah-select-caret-size)!important;
+  min-width:var(--ah-select-caret-size)!important;
+  max-width:var(--ah-select-caret-size)!important;
+  height:var(--ah-select-caret-size)!important;
+  min-height:var(--ah-select-caret-size)!important;
+  max-height:var(--ah-select-caret-size)!important;
+  aspect-ratio:1!important;
+  padding:0!important;
+  margin:0!important;
+  border:1px solid var(--ah-select-caret-border)!important;
+  border-radius:var(--ah-select-caret-radius)!important;
+  background:var(--ah-select-caret-bg)!important;
+  color:var(--ah-select-caret-chevron)!important;
+  box-shadow:none!important;
+  filter:none!important;
+  opacity:1!important;
+  z-index:3;
+  cursor:pointer;
+}
+:root[data-button-scope='tenant'] #root .sales-reference-to.sales-reference-inline-caret > .ah-inline-field-caret {
+  --ah-inline-caret-right:25px; /* leave the real + Add Customer button accessible */
+}
+:root[data-button-scope='tenant'] #root .sales-reference-inline-caret > .ah-inline-field-caret svg,
+:root[data-button-scope='tenant'] .ui-modal-layer .sales-reference-inline-caret > .ah-inline-field-caret svg {
+  display:block!important;
+  width:12px!important;
+  height:12px!important;
+  color:var(--ah-select-caret-chevron)!important;
+  fill:none!important;
+  stroke:currentColor!important;
+  opacity:1!important;
+}
+:root[data-button-scope='tenant'] #root .sales-reference-inline-caret > .ah-inline-field-caret:hover:not(:disabled),
+:root[data-button-scope='tenant'] .ui-modal-layer .sales-reference-inline-caret > .ah-inline-field-caret:hover:not(:disabled),
+:root[data-button-scope='tenant'] #root .sales-reference-inline-caret.is-open > .ah-inline-field-caret {
+  background:var(--ah-select-caret-hover)!important;
+  border-color:var(--ah-select-caret-border)!important;
+  filter:none!important;
+}
+/* Open state uses only color; do not rotate a Save icon into an invalid glyph. */
+:root[data-button-scope='tenant'] #root .sales-reference-inline-caret.is-open > .ah-inline-field-caret {
+  transform:translateY(-50%)!important;
+}
+:root[data-button-scope='tenant'] #root .sales-reference-inline-caret > .ah-inline-field-caret:disabled {
+  background:var(--ah-select-caret-disabled)!important;
+  border-color:var(--ah-select-trigger-border)!important;
+  color:#fff!important;
+  opacity:.6!important;
+  cursor:not-allowed;
+}
+:root[data-button-scope='tenant'] #root .sales-reference-inline-caret > .ah-inline-field-caret:focus-visible {
+  outline:2px solid #60a5fa!important;
+  outline-offset:1px!important;
+}
