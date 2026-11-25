@@ -1,0 +1,143 @@
+/* AH-POS Product GL Grid — Batch 22.
+   Options use no second module title; paper remains report/print source of
+   truth and toolbar/export/pagination handlers stay untouched. */
+:root[data-button-scope='tenant'] #root .workspace-host-inner:has(> .ah-product-gl-options),
+:root[data-button-scope='tenant'] #root .workspace-host-inner:has(> .ah-product-gl-preview){
+ min-height:0;height:100%;overflow:hidden!important;
+}
+:root[data-button-scope='tenant'] #root .ah-product-gl-options{
+ box-sizing:border-box;display:flex;flex-direction:column;
+ align-items:stretch;justify-content:center;
+ height:100%;min-height:0;padding:14px 18px;
+ gap:0;background:#e9eff6;color:#1c3550;
+}
+:root[data-button-scope='tenant'] #root .ah-product-gl-options .ah-product-gl-description{
+ box-sizing:border-box;
+ display:flex;align-items:center;
+ width:min(1040px,100%);margin:0 auto;
+ padding:18px 20px 15px;
+ border:1px solid #b5c9dd;border-bottom:0;
+ border-radius:14px 14px 0 0;
+ background:#203f5e;color:#fff;
+ font-size:13px;font-weight:800;line-height:1.5;
+}
+:root[data-button-scope='tenant'] #root .ah-product-gl-options .dba-options{
+ box-sizing:border-box;
+ display:grid;grid-template-columns:minmax(230px,1fr) minmax(350px,1.35fr);
+ align-items:end;gap:15px;
+ width:min(1040px,100%);margin:0 auto;padding:19px 20px;
+ border:1px solid #b5c9dd;border-bottom:0;
+ background:#fff;
+}
+:root[data-button-scope='tenant'] #root .ah-product-gl-options .dba-options label{
+ min-width:0;display:flex;flex-direction:column;gap:8px;
+ color:#27435c;font-size:12px;font-weight:800;
+}
+:root[data-button-scope='tenant'] #root .ah-product-gl-options .dba-options input{
+ box-sizing:border-box;
+ width:100%;min-width:0;min-height:40px;
+ border:1px solid #9eb6ce;border-radius:8px;
+ background:#fff;color:#173651;
+ padding:0 12px;box-shadow:none;font-size:12px;
+}
+:root[data-button-scope='tenant'] #root .ah-product-gl-options .dba-options input:focus-visible{
+ border-color:#2672b3;outline:2px solid #8fc2ee;
+}
+:root[data-button-scope='tenant'] #root .ah-product-gl-options .dba-actions{
+ box-sizing:border-box;
+ display:flex;justify-content:flex-end;
+ width:min(1040px,100%);gap:10px;margin:0 auto;
+ padding:12px 20px 16px;border:1px solid #b5c9dd;
+ border-radius:0 0 14px 14px;background:#f8fafd;
+}
+:root[data-button-scope='tenant'] #root .ah-product-gl-options .dba-actions button.ui-button{
+ flex:0 0 auto;width:auto;min-width:130px;
+ min-height:39px;height:39px;padding:0 18px;
+ border-radius:8px;font-size:12px;font-weight:850;
+}
+:root[data-button-scope='tenant'] #root .ah-product-gl-preview{
+ display:flex;flex-direction:column;
+ align-items:stretch;justify-content:flex-start;
+ height:100%;min-height:0;
+ padding:0!important;overflow:auto;
+ background:#e9eff6;
+ color:#18334e;
+}
+:root[data-button-scope='tenant'] #root .ah-product-gl-preview .dba-toolbar{
+ position:sticky;top:0;z-index:12;
+ flex:0 0 auto;
+ padding:8px 11px;
+ border:0;border-bottom:1px solid #aabfd2;
+ background:#fff;
+ box-shadow:0 3px 12px #17355011;
+}
+:root[data-button-scope='tenant'] #root .ah-product-gl-preview .dba-paper{
+ box-sizing:border-box;
+ width:min(1160px,calc(100% - 30px));
+ min-height:320px;margin:13px auto;
+ padding:25px 30px;
+ border:1px solid #aabfd2;
+ border-radius:9px;background:#fff;
+ box-shadow:0 4px 16px #17355012;
+}
+:root[data-button-scope='tenant'] #root .ah-product-gl-preview .dba-paper>header{
+ padding-bottom:13px;border-bottom:2px solid #254664;
+}
+:root[data-button-scope='tenant'] #root .ah-product-gl-preview .dba-paper>header h1{
+ margin:0 0 7px;color:#203d59;font-size:19px;letter-spacing:.015em;
+}
+:root[data-button-scope='tenant'] #root .ah-product-gl-preview .dba-paper>header p{
+ margin:5px 0;font-size:11px;color:#53687c;font-weight:700;
+}
+:root[data-button-scope='tenant'] #root .ah-product-gl-preview .dba-paper table{
+ width:100%;border-collapse:collapse;
+ font-size:12px;
+}
+:root[data-button-scope='tenant'] #root .ah-product-gl-preview .dba-paper th{
+ padding:10px 9px;border:1px solid #496882;
+ background:#294b6b;color:#fff;font-weight:850;
+}
+:root[data-button-scope='tenant'] #root .ah-product-gl-preview .dba-paper td{
+ padding:9px;border:1px solid #d3dfeb;
+ background:#fff;color:#1c3750;
+}
+:root[data-button-scope='tenant'] #root .ah-product-gl-preview .dba-paper tbody tr:nth-child(even) td{
+ background:#f4f8fc;
+}
+:root[data-button-scope='tenant'] #root .ah-product-gl-preview .dba-paper tbody tr:hover td{
+ background:#e9f3fc;
+}
+:root[data-button-scope='tenant'] #root .ah-product-gl-preview>.dba-actions{
+ display:flex;justify-content:center;align-items:center;gap:12px;
+ width:min(1160px,calc(100% - 30px));margin:0 auto 14px;
+ padding:9px 12px;border:1px solid #b6c9da;border-radius:9px;
+ background:#fff;
+}
+:root[data-button-scope='tenant'] #root .ah-product-gl-preview>.dba-actions button.ui-button{
+ flex:0 0 auto;width:auto;min-width:100px;min-height:34px;height:34px;
+ font-size:12px;padding:0 13px;
+}
+@media(max-width:780px){
+ :root[data-button-scope='tenant'] #root .ah-product-gl-options .dba-options{
+  grid-template-columns:1fr;gap:10px;
+ }
+ :root[data-button-scope='tenant'] #root .ah-product-gl-options{
+  padding:10px;justify-content:flex-start;
+ }
+ :root[data-button-scope='tenant'] #root .ah-product-gl-preview .dba-paper{
+  overflow:auto;padding:12px;width:calc(100% - 14px);
+ }
+}
+@media print{
+ :root[data-button-scope='tenant'] #root .ah-product-gl-preview{overflow:visible!important;background:#fff!important}
+ :root[data-button-scope='tenant'] #root .ah-product-gl-preview .dba-paper{
+  width:100%!important;margin:0!important;border:0!important;border-radius:0!important;
+  box-shadow:none!important;padding:0!important;min-height:0!important;
+ }
+ :root[data-button-scope='tenant'] #root .ah-product-gl-preview .dba-paper th{
+  background:#fff!important;color:#111!important;border:1px solid #777!important;
+ }
+ :root[data-button-scope='tenant'] #root .ah-product-gl-preview .dba-paper td{
+  background:#fff!important;color:#111!important;
+ }
+}
