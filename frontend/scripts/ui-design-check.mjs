@@ -71,6 +71,27 @@ for (const [file, picker, contract] of customProductPickerFiles) {
   }
 }
 
+// Purchase Order and Purchase Return must not diverge into separate
+// transaction themes again. Both reuse the same workspace CSS and the
+// global UiSelect caret contract.
+const purchaseWorkspacePath = path.join(root, 'pages/PurchaseTransactionWorkspace.css')
+const purchaseWorkspaceCss = await readFile(purchaseWorkspacePath, 'utf8')
+for (const [pageFile, rootClass] of [
+  ['PurchaseOrderPage.tsx', 'purchase-order-page ah-purchase-document-workspace'],
+  ['PurchaseReturnsPage.tsx', 'purchase-return-screen ah-purchase-document-workspace'],
+]) {
+  const source = await readFile(path.join(root, 'pages', pageFile), 'utf8')
+  if (!source.includes(rootClass) ||
+      !source.includes("import './PurchaseTransactionWorkspace.css'")) {
+    failures.push(`pages/${pageFile}: share PurchaseTransactionWorkspace.css and the canonical transaction root class.`)
+  }
+}
+if (!purchaseWorkspaceCss.includes('.purchase-order-lines') ||
+    !purchaseWorkspaceCss.includes('.purchase-return-grid') ||
+    !purchaseWorkspaceCss.includes('bottom-right')) {
+  failures.push('PurchaseTransactionWorkspace.css: preserve shared PO/Return grid and action dock contract.')
+}
+
 if (failures.length > 0) {
   console.error('BluePOS UI design-system check failed:')
   for (const failure of failures) console.error(`- ${failure}`)
