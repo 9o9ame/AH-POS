@@ -492,3 +492,57 @@ html[data-animations='off'] .ui-select-search {
 .ui-select-option-cell[data-column-tone='amount'] {
   font-variant-numeric: tabular-nums;
 }
+
+
+/* Tenant-wide visibility contract (2026-11-25).
+   A trigger must look interactive without the user first hovering it.
+   Disabled state remains clearly disabled and searchable inner input stays
+   borderless, never creates a second nested field. */
+:root[data-button-scope='tenant'] #root .ui-select:not(.is-disabled) > .ui-select-trigger,
+:root[data-button-scope='tenant'] #root .ui-select:not(.is-disabled) .ui-select-combobox-trigger {
+  border-color:#92adc7;
+  color:#173751;
+  box-shadow:0 1px 3px #153b601a;
+}
+:root[data-button-scope='tenant'] #root .ui-select:not(.is-disabled) .ui-select-arrow {
+  border:1px solid #90b2d1;
+  background:#cfe4f6;
+  color:#15476c;
+  box-shadow:none;
+  opacity:1;
+}
+:root[data-button-scope='tenant'] #root .ui-select:not(.is-disabled) .ui-select-arrow svg {
+  color:inherit;
+  fill:currentColor;
+  opacity:1;
+}
+:root[data-button-scope='tenant'] #root .ui-select .ui-select-trigger:focus-within,
+:root[data-button-scope='tenant'] #root .ui-select.is-open .ui-select-trigger{
+  border-color:#1c6dac;
+  outline:2px solid #80b7e6;
+  outline-offset:0;
+}
+:root[data-button-scope='tenant'] #root .ui-select .ui-select-trigger-search,
+:root[data-button-scope='tenant'] #root .ui-simple-dropdown .ui-select-trigger-search,
+:root[data-button-scope='tenant'] #root .ui-table-dropdown .ui-select-trigger-search{
+  border:0!important;
+  outline:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  min-width:0;
+  color:inherit;
+}
+:root[data-button-scope='tenant'] #root .ui-select .ui-select-trigger-search::placeholder {
+  color:#5e778f;
+  opacity:1;
+}
+:root[data-theme='dark'][data-button-scope='tenant'] #root .ui-select:not(.is-disabled) > .ui-select-trigger,
+:root[data-theme='dark'][data-button-scope='tenant'] #root .ui-select:not(.is-disabled) .ui-select-combobox-trigger{
+  border-color:#557491;color:#eff6fd;
+}
+:root[data-theme='dark'][data-button-scope='tenant'] #root .ui-select:not(.is-disabled) .ui-select-arrow{
+  background:#294e70;color:#e5f2ff;border-color:#5987b2;
+}
+:root[data-theme='dark'][data-button-scope='tenant'] #root .ui-select .ui-select-trigger-search::placeholder{
+  color:#bed0e3;
+}
