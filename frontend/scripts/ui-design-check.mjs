@@ -65,9 +65,12 @@ const customProductPickerFiles = [
 ]
 for (const [file, picker, contract] of customProductPickerFiles) {
   const source = await readFile(path.join(root, file), 'utf8')
-  if (source.includes(`className="${picker}"`) ||
-      !source.includes(`className="${picker} ${contract}"`)) {
-    failures.push(`${file}: product picker must use shared ${contract} caret contract.`)
+  const classNames = [...source.matchAll(/className="([^"]+)"/g)]
+    .map((match) => match[1].split(/\s+/))
+  const pickerClasses = classNames.filter((classes) => classes.includes(picker))
+  if (pickerClasses.length === 0 ||
+      pickerClasses.some((classes) => !classes.includes(contract))) {
+    failures.push(`${file}: every ${picker} picker must use shared ${contract} caret contract.`)
   }
 }
 
