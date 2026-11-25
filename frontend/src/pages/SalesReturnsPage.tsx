@@ -39,6 +39,7 @@ import type { Product } from '../types/catalog'
 import type { SaleReturn } from '../types/salesReturns'
 import { formatDecimal } from '../utils/formatDecimal'
 import './SalesReturnsPage.css'
+import './SalesTransactionWorkspace.css'
 
 type ViewMode = 'entry' | 'search' | 'product'
 
@@ -1029,7 +1030,7 @@ export function SalesReturnsPage({ active = true }: { active?: boolean } = {}) {
   }
 
   return (
-    <section className="sales-return-screen">
+    <section className="sales-return-screen ah-sales-transaction-workspace">
       <header className="sales-return-tabs">
         <button
           type="button"
