@@ -1,0 +1,409 @@
+/* AH-POS Barcode Printing — tenant visual reconstruction, Batch 21.
+   Source of truth remains existing BarcodePrintingPage handlers. No browser
+   printer enumeration or unsupported printing capability is invented. */
+:root[data-button-scope='tenant'] #root .bp-workspace-scroll {
+  box-sizing:border-box;height:100%;min-height:0;width:100%;overflow:hidden;
+  background:#e9eff6!important;
+}
+:root[data-button-scope='tenant'] #root .bp-workspace {
+  --print-ink:#1c3450;
+  --print-muted:#4b6178;
+  --print-edge:#afc2d6;
+  display:grid;
+  grid-template-columns:minmax(360px,410px) minmax(0,1fr);
+  align-items:stretch;
+  gap:11px;
+  width:100%;height:100%;min-height:0;min-width:0;
+  padding:10px 11px;
+  overflow:hidden;
+  color:var(--print-ink)!important;
+  font-family:Inter,system-ui,sans-serif;
+  font-size:12px;
+}
+:root[data-button-scope='tenant'] #root .bp-left,
+:root[data-button-scope='tenant'] #root .bp-right {
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+  min-width:0;
+  gap:10px;
+  overflow:hidden;
+}
+:root[data-button-scope='tenant'] #root .bp-panel,
+:root[data-button-scope='tenant'] #root .bp-settings-panel,
+:root[data-button-scope='tenant'] #root .bp-grid-shell {
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+  min-width:0;
+  overflow:hidden;
+  border:1px solid var(--print-edge)!important;
+  border-radius:13px!important;
+  background:#fff!important;
+  color:var(--print-ink)!important;
+  box-shadow:0 4px 16px #13345010!important;
+}
+:root[data-button-scope='tenant'] #root .bp-settings-panel {
+  flex:1 1 auto;
+  height:auto;
+  display:flex!important;
+}
+:root[data-button-scope='tenant'] #root .bp-panel-title{
+  display:flex;
+  align-items:center;
+  flex:0 0 auto;
+  min-height:43px!important;
+  padding:10px 15px!important;
+  background:#203d5a!important;
+  border:0!important;
+  border-bottom:1px solid #3e627f!important;
+  color:#fff!important;
+  font-size:13px!important;
+  font-weight:850;
+  letter-spacing:.01em;
+}
+:root[data-button-scope='tenant'] #root .bp-left-body {
+  display:flex;
+  flex:1 1 auto;
+  flex-direction:column;
+  gap:10px;
+  padding:12px;
+  min-height:0;
+  overflow-y:auto;
+  overflow-x:hidden;
+  scrollbar-gutter:stable;
+  background:#fff;
+}
+:root[data-button-scope='tenant'] #root .bp-settings-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  flex:0 0 auto;
+  gap:10px;
+  padding:0;
+}
+:root[data-button-scope='tenant'] #root .bp-settings-grid .bp-span-2{grid-column:1/-1}
+:root[data-button-scope='tenant'] #root .bp-field {
+  display:flex;flex-direction:column;gap:5px;min-width:0;
+}
+:root[data-button-scope='tenant'] #root .bp-field > span,
+:root[data-button-scope='tenant'] #root .bp-printer-label,
+:root[data-button-scope='tenant'] #root .bp-label,
+:root[data-button-scope='tenant'] #root .bp-group legend {
+  font-size:11px!important;
+  font-weight:800!important;
+  line-height:1.25;
+  color:#27415b!important;
+  letter-spacing:0;
+}
+:root[data-button-scope='tenant'] #root .bp-workspace :where(input,select,textarea){
+  box-sizing:border-box;
+  min-height:34px!important;
+  height:34px!important;
+  border:1px solid #a9bbcf!important;
+  border-radius:7px!important;
+  background:#fff!important;
+  color:#17344d!important;
+  padding:0 9px!important;
+  box-shadow:none!important;
+  font-size:12px!important;
+}
+:root[data-button-scope='tenant'] #root .bp-workspace :where(input,select,textarea):focus-visible{
+  border-color:#286ea9!important;
+  outline:2px solid #88bdf0!important;
+  outline-offset:0;
+}
+:root[data-button-scope='tenant'] #root .bp-workspace .ui-select-trigger{
+  height:34px!important;
+  min-height:34px!important;
+  border:1px solid #a9bbcf!important;
+  border-radius:7px!important;
+  background:#fff!important;
+  color:#17344d!important;
+  box-shadow:none!important;
+  font-size:12px!important;
+  font-weight:650;
+}
+:root[data-button-scope='tenant'] #root .bp-workspace .ui-select-arrow{
+  background:#e2ecf6!important;
+  border:0!important;
+  border-radius:5px!important;
+  color:#255679!important;
+  box-shadow:none!important;
+}
+:root[data-button-scope='tenant'] #root .bp-price-checks{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  justify-content:center;
+}
+:root[data-button-scope='tenant'] #root .bp-check{
+  display:inline-flex;
+  align-items:center;
+  min-height:26px;
+  gap:7px;
+  font-size:11px!important;
+  font-weight:700;
+  color:#253f59;
+}
+:root[data-button-scope='tenant'] #root .bp-check input,
+:root[data-button-scope='tenant'] #root .bp-row input[type='checkbox']{
+  width:15px!important;
+  height:15px!important;
+  min-height:15px!important;
+  padding:0!important;
+  margin:0!important;
+  accent-color:#bc761e;
+}
+:root[data-button-scope='tenant'] #root .bp-check span{white-space:normal}
+:root[data-button-scope='tenant'] #root .bp-group{
+  flex:0 0 auto;
+  padding:9px 11px 11px;
+  margin:0;
+  border:1px solid #cedce9!important;
+  border-radius:9px!important;
+  background:#f5f8fc!important;
+  box-shadow:none!important;
+}
+:root[data-button-scope='tenant'] #root .bp-margin-row{
+  grid-template-columns:36px minmax(0,1fr) 30px minmax(0,1fr) 85px minmax(0,1fr);
+  gap:7px;
+}
+:root[data-button-scope='tenant'] #root .bp-sample-row{margin-top:9px}
+:root[data-button-scope='tenant'] #root .bp-printer-block{
+  display:grid;
+  gap:7px;
+  padding:10px 11px;
+  border:1px solid #cedce9;
+  border-radius:9px;
+  background:#f9fbfe;
+}
+:root[data-button-scope='tenant'] #root .bp-printer-row{
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:6px;
+}
+:root[data-button-scope='tenant'] #root .bp-printer-row .bp-check{
+  grid-column:1/-1;
+}
+:root[data-button-scope='tenant'] #root .bp-extra-options{
+  display:grid;
+  gap:8px;
+}
+:root[data-button-scope='tenant'] #root .bp-lower-options-row1,
+:root[data-button-scope='tenant'] #root .bp-lower-options-row2{
+  gap:6px;
+}
+:root[data-button-scope='tenant'] #root .bp-preview-paper{
+  flex:0 0 auto;
+  box-sizing:border-box;
+  min-height:154px;
+  height:154px;
+  max-height:none;
+  margin:0;
+  padding:11px 12px;
+  border:1px dashed #9ab3cc!important;
+  border-radius:10px!important;
+  background:#fff!important;
+  box-shadow:inset 0 0 0 4px #f3f8fc!important;
+}
+:root[data-button-scope='tenant'] #root .bp-preview-svg{
+  min-height:50px;max-height:84px;
+}
+:root[data-button-scope='tenant'] #root .bp-style-field{min-height:0}
+:root[data-button-scope='tenant'] #root .bp-left-actions{
+  display:flex;
+  flex:0 0 auto;
+  align-items:center;
+  justify-content:stretch;
+  gap:7px;
+  padding:10px;
+  border:0!important;
+  border-top:1px solid #cbd9e7!important;
+  background:#f6f9fd!important;
+  box-shadow:none!important;
+}
+:root[data-button-scope='tenant'] #root .bp-left-actions .bp-action-btn{
+  display:flex;
+  flex:1 1 0;
+  justify-content:center;
+  align-items:center;
+  gap:7px;
+  height:37px;
+  min-height:37px;
+  padding:0 10px;
+  border-radius:8px!important;
+  background:#fff!important;
+  border:1px solid #a5b9cf!important;
+  color:#223f5b!important;
+  box-shadow:none!important;
+  font-size:11px!important;
+  font-weight:850;
+}
+:root[data-button-scope='tenant'] #root .bp-left-actions .bp-action-ico {
+  display:grid;
+  place-items:center;
+  width:21px;height:21px;
+  border-radius:5px;
+  background:transparent!important;
+  color:inherit!important;
+  box-shadow:none;
+}
+:root[data-button-scope='tenant'] #root .bp-left-actions .bp-action-save{
+  background:#147b50!important;
+  border-color:#18965e!important;
+  color:#fff!important;
+}
+:root[data-button-scope='tenant'] #root .bp-left-actions .bp-action-delete{
+  color:#9e2632!important;
+  border-color:#dba9b0!important;
+}
+:root[data-button-scope='tenant'] #root .bp-autofill{
+  display:flex;flex:0 0 auto;min-height:0;
+}
+:root[data-button-scope='tenant'] #root .bp-autofill .bp-panel-body{
+  padding:12px 13px;
+  display:flex;
+  flex-direction:column;
+  gap:11px;
+  background:#fff;
+}
+:root[data-button-scope='tenant'] #root .bp-row-checks{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:9px 17px;
+}
+:root[data-button-scope='tenant'] #root .bp-row-range,
+:root[data-button-scope='tenant'] #root .bp-row-search{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+}
+:root[data-button-scope='tenant'] #root .bp-w-range{width:94px!important}
+:root[data-button-scope='tenant'] #root .bp-w-mf{width:72px!important}
+:root[data-button-scope='tenant'] #root .bp-w-search{
+  flex:1 1 180px;
+  width:auto!important;
+  min-width:150px;
+}
+:root[data-button-scope='tenant'] #root .bp-w-filter{
+  flex:0 1 175px;
+  min-width:130px;
+}
+:root[data-button-scope='tenant'] #root .bp-row-select-btns{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+}
+:root[data-button-scope='tenant'] #root .bp-workspace .bp-btn,
+:root[data-button-scope='tenant'] #root .bp-workspace .bp-select-btn{
+  box-sizing:border-box;
+  min-height:34px;height:34px;
+  padding:0 11px;
+  border:1px solid #a9bfd3!important;
+  border-radius:8px!important;
+  background:#eaf1f8!important;
+  color:#1b3b59!important;
+  box-shadow:none!important;
+  font-size:11px;font-weight:800;
+}
+:root[data-button-scope='tenant'] #root .bp-workspace .bp-btn:hover:not(:disabled),
+:root[data-button-scope='tenant'] #root .bp-workspace .bp-select-btn:hover:not(:disabled){
+  border-color:#568ab7!important;
+  background:#dbeaf8!important;
+}
+:root[data-button-scope='tenant'] #root .bp-grid-shell{
+  display:flex;
+  flex:1 1 auto;
+  flex-direction:column;
+  min-height:0;
+  overflow:hidden;
+  gap:0;
+}
+:root[data-button-scope='tenant'] #root .bp-grid-scroll{
+  flex:1 1 auto;
+  min-height:0;
+  height:auto!important;
+  overflow:auto!important;
+  scrollbar-gutter:stable;
+  overscroll-behavior:contain;
+}
+:root[data-button-scope='tenant'] #root .bp-grid{
+  width:100%;
+  min-width:780px;
+  border-collapse:separate;
+  border-spacing:0;
+}
+:root[data-button-scope='tenant'] #root .bp-grid th{
+  position:sticky;top:0;z-index:2;
+  height:39px;
+  padding:9px 10px!important;
+  background:#294966!important;
+  border:0!important;
+  border-bottom:1px solid #163a5b!important;
+  color:#fff!important;
+  font-size:11px;font-weight:850;
+}
+:root[data-button-scope='tenant'] #root .bp-grid td{
+  box-sizing:border-box;
+  height:35px;
+  padding:6px 9px!important;
+  border-bottom:1px solid #dce6f1!important;
+  background:#fff!important;
+  color:#243b55!important;
+  font-size:11px;
+}
+:root[data-button-scope='tenant'] #root .bp-grid tbody tr:nth-child(even) td{background:#f6f9fc!important}
+:root[data-button-scope='tenant'] #root .bp-grid tbody tr:hover td{background:#e9f3fc!important}
+:root[data-button-scope='tenant'] #root .bp-grid tbody tr.is-selected td{background:#fff0d4!important}
+:root[data-button-scope='tenant'] #root .bp-grid .bp-grid-barcode-select .ui-select-trigger{
+  min-height:29px!important;height:29px!important;
+  background:#fff!important;
+}
+:root[data-button-scope='tenant'] #root .bp-grid-footer{
+  display:flex;
+  flex:0 0 53px;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:8px 13px;
+  min-height:53px;
+  border:0!important;
+  border-top:1px solid #b6c8da!important;
+  border-radius:0;
+  background:#f2f7fc!important;
+  color:#304b65!important;
+  font-size:11px;font-weight:800;
+}
+:root[data-button-scope='tenant'] #root .bp-grid-footer .bp-btn-print-all {
+  min-height:36px;height:36px;
+  background:#ba7018!important;
+  border-color:#d68c2b!important;
+  color:#fff!important;
+  font-size:12px;
+}
+:root[data-button-scope='tenant'] #root .bp-error{
+  z-index:5;left:12px;right:12px;top:12px;
+  padding:10px 13px;
+  border:1px solid #d78c95!important;
+  background:#ffe6e8!important;
+  color:#8c1927!important;
+  border-radius:9px;
+  box-shadow:0 8px 20px #142b4450;
+}
+@media(max-width:1180px){
+  :root[data-button-scope='tenant'] #root .bp-workspace{
+    grid-template-columns:minmax(320px,365px) minmax(0,1fr);
+  }
+  :root[data-button-scope='tenant'] #root .bp-settings-grid{grid-template-columns:1fr}
+  :root[data-button-scope='tenant'] #root .bp-settings-grid .bp-span-2{grid-column:auto}
+}
+@media(max-width:790px){
+  :root[data-button-scope='tenant'] #root .bp-workspace-scroll{overflow-y:auto!important}
+  :root[data-button-scope='tenant'] #root .bp-workspace{
+    height:auto;min-height:100%;grid-template-columns:1fr;
+    overflow:visible;
+  }
+  :root[data-button-scope='tenant'] #root .bp-left{height:min(620px,75dvh)}
+  :root[data-button-scope='tenant'] #root .bp-right{height:min(760px,90dvh)}
+}
