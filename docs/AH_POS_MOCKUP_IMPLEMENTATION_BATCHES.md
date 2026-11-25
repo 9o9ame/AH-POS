@@ -157,3 +157,10 @@ CSS-only correction on `fix/stock-taking-row-dropdown-18`: remove nested Product
 - On the sole `redesign/ahpos-complete-ui` branch, implemented (a) modern strongly contrasted three-tab Inventory Adjustments workspace with compact invoice header/line grid, integrated Search/Product Wise filters and print-safe report grid; (b) modern Product GL Grid filter card and report preview with navy/white table, readable pagination and preserved viewer actions. Removed redundant Inventory Adjustment title from the inner tab strip, preserving real document title/status and all operations.
 - Source files: `InventoryAdjustmentsPage.tsx`, `InventoryAdjustmentsWorkspace.css`, `ProductGlGridPage.tsx`, `ProductGlGridWorkspace.css`; design/handoff documents updated. No APIs/backend, permissions or posting workflows changed.
 - Owner local typecheck/guards and authenticated browser visual acceptance pending; **do not claim PASS** until tested.
+
+### Batch 22 screenshot correction — 2026-11-25
+- User rejects initial Inventory Adjustments contrast/density and missing floating dock despite polished header. Entry rows are `PosEntryGrid`, not `PosDataGrid`; fixed selector-targeting error.
+- Improved all editor cell dividers (visible steel blue), alternating/selected/active-entry surfaces, number/product input contrast, dropdown chevron, top filters/Account and Adjustment Type fields, and strong Save/Post/New/Delete states.
+- Restored actual invoice footer actions to a dark floating dock at bottom-right, with no fake buttons or disabled/permission behavior changes.
+- Limited tenant-wide controls upgraded via shared `UiSelect.css`, `PosEntryGrid.css`, `UiButton.css`; dark-theme selectors provided. No new branch; only `redesign/ahpos-complete-ui`.
+- Verification pending owner pull, typecheck, UI/navigation guards and screenshots, especially prior approved screens.
