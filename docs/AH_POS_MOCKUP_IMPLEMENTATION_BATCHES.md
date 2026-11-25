@@ -145,3 +145,9 @@ CSS-only correction on `fix/stock-taking-row-dropdown-18`: remove nested Product
 - Stock Taking editor automatically returns to list after confirmed successful posting, with posted document selected. Failed post keeps modal open.
 - Global feedback cue source `feedbackSounds.ts` now attempts verified bundled local MP3s for Success/Error/Warning/Info, falling back to higher-volume synthesized cues if playback is rejected. Does not bypass browser mute/gesture restrictions.
 - Branch `fix/stock-take-post-notes-audio-20`; no business/backend changes; owner local typecheck and browser verification pending.
+
+## Batch 21 — Opening Stock editor modal + Barcode Printing workspace (2026-11-25)
+- Implemented **directly on `redesign/ahpos-complete-ui`**, with zero new branches, after owner completed cleanup to `main` and UI branch only.
+- Opening Stock uses full-width, high-contrast `UiModal` above existing full-height list, with current document header, stock lines, printing/stock controls kept reachable, no duplicate decorative title, internal line scroll, full-size entry grid and dock. Product dropdown z-index above modal. Successful Post closes modal and selects posted row. Unsaved drafts keep confirmation on closing. No change to inventory posting API, line editing or server-owned calculations.
+- Barcode Printing now visually distinct two-pane label-settings + sample preview and Auto Fill + queue layout, robust full-height print-list card and strong headers, forms and action colors. Existing unsupported browser/native printing options stay disabled with explanation; direct print is not falsely enabled.
+- Files: `OpeningStockPage.tsx`, `OpeningStockModal.css`, `BarcodePrintingPage.tsx`, `BarcodePrintingWorkspace.css`; project design docs and handoff updated. Local TypeScript/UI navigation guards and authenticated browser acceptance pending.
