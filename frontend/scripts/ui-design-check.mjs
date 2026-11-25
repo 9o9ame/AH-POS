@@ -129,6 +129,23 @@ if (!salesWorkspaceCss.includes('.sales-reference-grid') ||
   failures.push('SalesTransactionWorkspace.css: missing invoice, return or canonical dropdown contract.')
 }
 
+// Inline Sales Invoice Customer/Salesman/Quotation picker buttons also MUST
+// use the canonical UiSelect caret tokens; otherwise legacy page CSS inflates
+// the little arrow to full field height or paints a different color.
+const salesInvoiceSource = await readFile(path.join(root, 'pages/SalesInvoicePage.tsx'), 'utf8')
+const salesInlineCaretMatches = [...salesInvoiceSource.matchAll(/className="sales-reference-field-caret([^"]*)"/g)]
+if (salesInlineCaretMatches.length !== 3 ||
+    salesInlineCaretMatches.some((match) => !match[1].split(/\s+/).includes('ah-inline-field-caret'))) {
+  failures.push('SalesInvoicePage.tsx: all Customer, Salesman and Quotation picker arrows must use ah-inline-field-caret.')
+}
+if (!caretStyles.includes('.sales-reference-inline-caret > .ah-inline-field-caret') ||
+    !caretStyles.includes('--ah-inline-caret-right')) {
+  failures.push('UiSelect.css: inline lookup arrow must share canonical 18px caret tokens and preserve customer quick-add spacing.')
+}
+if (salesWorkspaceCss.includes('.sales-reference-input-button > button,')) {
+  failures.push('SalesTransactionWorkspace.css: do not force inline dropdown buttons to full form-field height.')
+}
+
 if (failures.length > 0) {
   console.error('BluePOS UI design-system check failed:')
   for (const failure of failures) console.error(`- ${failure}`)
