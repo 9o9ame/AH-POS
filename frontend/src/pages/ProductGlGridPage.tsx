@@ -9,6 +9,7 @@ import { useWorkspace } from '../features/workspace/WorkspaceProvider'
 import { useAuth } from '../features/auth/AuthProvider'
 import './DailyBusinessActivityPage.css'
 import './DailyReportSheets.css'
+import './ProductGlGridWorkspace.css'
 
 type GridRow = {
   product: { ulid: string; product_number: string; sku: string | null; name: string }
@@ -69,8 +70,8 @@ export function ProductGlGridPage() {
   const report = query.data
   const totals = report?.meta.totals
 
-  if (!preview) return <section className="dba-page">
-    <header><h1>Product GL (Grid)</h1><p>Opening, debit, credit and closing quantities for the selected date range.</p></header>
+  if (!preview) return <section className="dba-page ah-product-gl-options">
+    <p className="ah-product-gl-description">Opening, debit, credit and closing quantities for the selected date range.</p>
     <div className="dba-options">
       <label>Product or SKU
         <input value={search} maxLength={180} onChange={e => setSearch(e.target.value)} placeholder="Optional search"/>
@@ -88,7 +89,7 @@ export function ProductGlGridPage() {
     </div>
   </section>
 
-  return <section className="dba-page dba-preview">
+  return <section className="dba-page dba-preview ah-product-gl-preview">
     <ReportViewerToolbar ready={Boolean(report)} busy={query.isFetching}
       search={search} onSearchChange={setSearch}
       onFind={() => {const text=search.toLowerCase().trim();if(text)Array.from(paper.current?.querySelectorAll('td')??[])
