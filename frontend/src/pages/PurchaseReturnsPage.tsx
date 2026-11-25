@@ -1159,7 +1159,7 @@ export function PurchaseReturnsPage({
                                 />
                                 <button
                                   type="button"
-                                  className="purchase-return-product-toggle"
+                                  className="purchase-return-product-toggle ah-dropdown-arrow-button"
                                   aria-label="Open product dropdown"
                                   aria-expanded={generalProductPickerOpen}
                                   onMouseDown={(event) => {
@@ -1346,7 +1346,7 @@ export function PurchaseReturnsPage({
                             />
                             <button
                               type="button"
-                              className="purchase-return-product-toggle"
+                              className="purchase-return-product-toggle ah-dropdown-arrow-button"
                               aria-label="Open product dropdown"
                               aria-expanded={generalProductTargetKey === null && generalProductPickerOpen}
                               onMouseDown={(event) => {
