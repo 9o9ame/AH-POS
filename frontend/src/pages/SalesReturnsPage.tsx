@@ -1749,6 +1749,7 @@ export function SalesReturnsPage({ active = true }: { active?: boolean } = {}) {
               <DesktopButton
                 icon={<Save size={13} />}
                 label={amendingPosted ? 'Update' : 'Save'}
+                variant="success"
                 disabled={
                   readOnly ||
                   (!saleUlid && !fromPartyUlid) ||
