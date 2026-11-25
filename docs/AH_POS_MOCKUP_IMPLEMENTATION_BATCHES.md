@@ -174,3 +174,6 @@ Five customer screenshots showed mixed large/light/circular box styles and incon
 - Purchase Order: horizontal view tabs, concise actual options/generator/amounts, product edit and orders table, retained totals/remarks and full toolbar repositioned from top to bottom-right dock. Existing Generate / Save / Convert / Cancel / Search / Status Report preserved.
 - Purchase Return: three-tab view, contrasting supplier/order/warehouse/amount options, readable product return table, Search and Product Wise report, real Save Draft/Amend (green), Post, New/Open, Refresh and Close actions, dark floating footer dock. No backend or transaction handling changes.
 - Local TypeScript/guards and authenticated browser checks pending. Owner to review on 1366px and 1688px desktop, table scroll, dropdown, responsive action access.
+
+- Final source audit caught an important HTML/CSS detail: PurchaseOrderPage.tsx uses PosEntryGrid wrapper className="purchase-order-custom-table" but the actual table is tableClassName="purchase-order-lines". Corrected shared selectors to target actual .purchase-order-lines and .purchase-return-grid. Preserved PO's original min-width:1420px for all 13 columns with horizontal scrolling.
+- frontend/scripts/ui-design-check.mjs now guards both Purchase Order and Purchase Return's shared workspace class/import and grid/dock contract. No new branches.
