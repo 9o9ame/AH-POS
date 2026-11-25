@@ -55,9 +55,6 @@
  border-radius:7px;background:#fff;color:#193550;box-shadow:none;
  font-size:12px;font-weight:650;
 }
-:root[data-button-scope='tenant'] #root .inventory-adjustments-page .ui-select-arrow{
- border:0;box-shadow:none;background:#e0eaf5;color:#214866;border-radius:5px;
-}
 :root[data-button-scope='tenant'] #root .inventory-adjustments-page :where(input,textarea):focus-visible,
 :root[data-button-scope='tenant'] #root .inventory-adjustments-page .ui-select-trigger:focus-visible{
  outline:2px solid #79b0e8;outline-offset:0;border-color:#266aab;
@@ -262,33 +259,14 @@
   min-height:27px!important;
   display:grid!important;
   place-items:center!important;
-  border:1px solid #9bb8d3!important;
+  border:0!important;
   border-radius:6px!important;
-  background:#d0e4f6!important;
-  color:#10456e!important;
+  background:transparent!important;
+  color:inherit!important;
   padding:0!important;
   box-shadow:none!important;
   opacity:1!important;
   cursor:pointer;
-}
-:root[data-button-scope='tenant'] #root .inventory-adjustments-page .inventory-adjustments-entry-grid .inventory-adjustments-product-arrow .ui-select-arrow {
-  display:grid;
-  place-items:center;
-  height:22px!important;
-  width:22px!important;
-  color:#10456e!important;
-  background:transparent!important;
-  border:0!important;
-  opacity:1!important;
-}
-:root[data-button-scope='tenant'] #root .inventory-adjustments-page .inventory-adjustments-entry-grid .inventory-adjustments-product-arrow .ui-select-arrow svg {
-  width:12px;
-  height:9px;
-  fill:#10456e;
-}
-:root[data-button-scope='tenant'] #root .inventory-adjustments-page .inventory-adjustments-entry-grid .inventory-adjustments-product-arrow:hover {
-  background:#accce9!important;
-  border-color:#5686b4!important;
 }
 :root[data-button-scope='tenant'] #root .inventory-adjustments-page .inventory-adjustments-entry-grid :where(input,button):focus-visible {
   border-color:#1469b1!important;
@@ -314,17 +292,6 @@
   background:#fff!important;
   color:#15334f!important;
   font-weight:750;
-}
-:root[data-button-scope='tenant'] #root .inventory-adjustments-page .ui-select-arrow,
-:root[data-button-scope='tenant'] #root .inventory-adjustments-page .ui-select-trigger .ui-select-arrow {
-  background:#cee3f5!important;
-  color:#17496f!important;
-  opacity:1!important;
-}
-:root[data-button-scope='tenant'] #root .inventory-adjustments-page .ui-select-arrow svg {
-  fill:currentColor;
-  color:#17496f!important;
-  opacity:1!important;
 }
 :root[data-button-scope='tenant'] #root .inventory-adjustments-page .ui-select-trigger:focus-within {
   border-color:#2676b7!important;
