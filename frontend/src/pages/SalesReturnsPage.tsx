@@ -1476,7 +1476,7 @@ export function SalesReturnsPage({ active = true }: { active?: boolean } = {}) {
                               />
                               <button
                                 type="button"
-                                className="sales-product-combo-toggle"
+                                className="sales-product-combo-toggle ah-dropdown-arrow-button"
                                 aria-label="Open product dropdown"
                                 aria-expanded={generalProductPickerOpen}
                                 onMouseDown={(e) => e.preventDefault()}
@@ -1632,7 +1632,7 @@ export function SalesReturnsPage({ active = true }: { active?: boolean } = {}) {
                           />
                           <button
                             type="button"
-                            className="sales-product-combo-toggle"
+                            className="sales-product-combo-toggle ah-dropdown-arrow-button"
                             aria-label="Open product dropdown"
                             aria-expanded={generalProductPickerOpen}
                             onMouseDown={(e) => e.preventDefault()}
