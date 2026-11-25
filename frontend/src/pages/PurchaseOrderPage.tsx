@@ -1331,7 +1331,7 @@ export function PurchaseOrderPage() {
                                     />
                                     <button
                                       type="button"
-                                      className="purchase-order-product-toggle"
+                                      className="purchase-order-product-toggle ah-dropdown-arrow-button"
                                       aria-label="Open product dropdown"
                                       aria-expanded={productPickerOpen}
                                       onMouseDown={(event) => {
@@ -1528,7 +1528,7 @@ export function PurchaseOrderPage() {
 
                       <button
                         type="button"
-                        className="purchase-order-product-toggle"
+                        className="purchase-order-product-toggle ah-dropdown-arrow-button"
                         aria-label="Open product dropdown"
                         aria-expanded={productPickerOpen}
                         onMouseDown={(event) => {
