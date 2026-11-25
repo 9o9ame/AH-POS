@@ -123,3 +123,72 @@ html[data-animations='off'] .pos-entry-grid * {
   transition: none !important;
   animation: none !important;
 }
+
+
+/* Shared tenant editable rows: strong visual affordances without touching
+   column definitions, keyboard handling, validation or stock calculations. */
+:root[data-button-scope='tenant'] #root .pos-entry-grid-wrap{
+  border-color:#a1b9d0;
+}
+:root[data-button-scope='tenant'] #root .pos-entry-grid th{
+  border-color:#54718b;
+  background:#294b69;
+  color:#fff;
+}
+:root[data-button-scope='tenant'] #root .pos-entry-grid td{
+  border-right-color:#c9d8e7;
+  border-bottom-color:#c9d8e7;
+}
+:root[data-button-scope='tenant'] #root .pos-entry-grid tbody tr.is-entry-row td{
+  background:#e4f0fc;
+  border-bottom-color:#83a9c9;
+}
+:root[data-button-scope='tenant'] #root .pos-entry-grid tbody tr:nth-child(even):not(.is-entry-row) td{
+  background:#f4f8fc;
+}
+:root[data-button-scope='tenant'] #root .pos-entry-grid tbody tr:not(.is-entry-row):hover td{
+  background:#e5f2fe;
+}
+:root[data-button-scope='tenant'] #root .pos-entry-grid tbody tr.is-selected td{
+  background:#fff0d5;
+  color:#18344e;
+}
+:root[data-button-scope='tenant'] #root .pos-entry-grid input:not(:disabled){
+  border-color:#91aac1;
+  color:#17344c;
+}
+:root[data-button-scope='tenant'] #root .pos-entry-grid input::placeholder{
+  color:#5b728a;
+  opacity:1;
+}
+:root[data-theme='dark'][data-button-scope='tenant'] #root .pos-entry-grid-wrap{
+  border-color:#56748d;
+}
+:root[data-theme='dark'][data-button-scope='tenant'] #root .pos-entry-grid th{
+  border-color:#6888a4;
+  background:#294b69;
+  color:#fff;
+}
+:root[data-theme='dark'][data-button-scope='tenant'] #root .pos-entry-grid td{
+  border-color:#415c75;
+}
+:root[data-theme='dark'][data-button-scope='tenant'] #root .pos-entry-grid tbody tr.is-entry-row td{
+  background:#243e57;
+}
+:root[data-theme='dark'][data-button-scope='tenant'] #root .pos-entry-grid tbody tr:nth-child(even):not(.is-entry-row) td{
+  background:#1e3042;
+}
+:root[data-theme='dark'][data-button-scope='tenant'] #root .pos-entry-grid tbody tr:not(.is-entry-row):hover td{
+  background:#2d4a64;
+}
+:root[data-theme='dark'][data-button-scope='tenant'] #root .pos-entry-grid tbody tr.is-selected td{
+  background:#5b442b;
+  color:#fff;
+}
+:root[data-theme='dark'][data-button-scope='tenant'] #root .pos-entry-grid input:not(:disabled){
+  border-color:#5c82a1;
+  color:#eaf4fd;
+}
+:root[data-theme='dark'][data-button-scope='tenant'] #root .pos-entry-grid input::placeholder{
+  color:#b6c9dc;
+}
