@@ -108,6 +108,21 @@ for (const [file, rootClass] of [
     failures.push(`pages/${file}: must use the shared sales transaction workspace.`)
   }
 }
+// Avoid the former Sales Invoice regression: the historic theme used fixed
+// 62px options and 18px inputs, clipping fields under the barcode lane.
+for (const essential of [
+  '.ah-sales-document-header',
+  '.ah-sales-document-facts',
+  '.sales-reference-meta',
+  '.sales-reference-option-grid',
+  '.sales-reference-entry-row',
+  '.sales-reference-pay',
+]) {
+  if (!salesWorkspaceCss.includes(essential)) {
+    failures.push(`SalesTransactionWorkspace.css: missing Sales Invoice corrective layout contract ${essential}.`)
+  }
+}
+
 if (!salesWorkspaceCss.includes('.sales-reference-grid') ||
     !salesWorkspaceCss.includes('.sales-return-custom-table') ||
     !salesWorkspaceCss.includes('UiSelect.css')) {
