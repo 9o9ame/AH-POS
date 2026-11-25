@@ -1593,7 +1593,7 @@ export function PurchaseReturnsPage({
                 icon={<RotateCcw size={13} />}
                 label="New Return"
                 variant="primary"
-                disabled={!canCreate)
+                disabled={!canCreate}
                 onClick={() => {
                   resetEditor()
                   setView('entry')
