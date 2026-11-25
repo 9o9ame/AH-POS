@@ -855,7 +855,7 @@ export function QuotationEstimatePage({ active = true }: { active?: boolean } = 
                                 onClick={() => editCompletedProduct(line)}
                               >
                                 <span>{line.product_number} — {line.product_name}</span>
-                                <span className="quotation-product-combo-toggle" aria-hidden="true">
+                                <span className="quotation-product-combo-toggle ah-dropdown-arrow-button" aria-hidden="true">
                                   <svg viewBox="0 0 12 8" width="10" height="7" focusable="false">
                                     <path d="M1.1 1.2 6 6l4.9-4.8 1 1.1L6 8.2.1 2.3z" fill="currentColor" />
                                   </svg>
@@ -991,7 +991,7 @@ export function QuotationEstimatePage({ active = true }: { active?: boolean } = 
                                 />
                                 <button
                                   type="button"
-                                  className="quotation-product-combo-toggle"
+                                  className="quotation-product-combo-toggle ah-dropdown-arrow-button"
                                   aria-label="Open product dropdown"
                                   aria-expanded={productPickerOpen}
                                   onMouseDown={(event) => event.preventDefault()}
@@ -1142,7 +1142,7 @@ export function QuotationEstimatePage({ active = true }: { active?: boolean } = 
                         />
                         <button
                           type="button"
-                          className="quotation-product-combo-toggle"
+                          className="quotation-product-combo-toggle ah-dropdown-arrow-button"
                           aria-label="Open product dropdown"
                           aria-expanded={productPickerOpen}
                           onMouseDown={(event) => event.preventDefault()}
