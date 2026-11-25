@@ -494,137 +494,168 @@ html[data-animations='off'] .ui-select-search {
 }
 
 
-/* Tenant-wide visibility contract (2026-11-25).
-   A trigger must look interactive without the user first hovering it.
-   Disabled state remains clearly disabled and searchable inner input stays
-   borderless, never creates a second nested field. */
+/* AH-POS SELECT/DROPDOWN DESIGN CONTRACT
+   Single source for shared UiSelect and bespoke transaction product-pickers.
+   No per-screen caret colors, widths, shapes, or hover palettes.
+   Reusable markup:
+     <span class="ah-select-caret">svg</span> (UiSelect, Adjustment)
+     <button class="ah-dropdown-arrow-button">svg</button> (PO, PR, Purchase)
+   Dropdown size variables and visual behavior are controlled HERE only. */
+:root[data-button-scope='tenant'] {
+  --ah-select-caret-size:18px;
+  --ah-select-caret-radius:4px;
+  --ah-select-caret-bg:#294f71;
+  --ah-select-caret-border:#153e61;
+  --ah-select-caret-hover:#17699c;
+  --ah-select-caret-chevron:#fff;
+  --ah-select-caret-disabled:#9aafbf;
+  --ah-select-trigger-border:#91abc4;
+}
+:root[data-theme='dark'][data-button-scope='tenant'] {
+  --ah-select-caret-bg:#326b9a;
+  --ah-select-caret-border:#679ec5;
+  --ah-select-caret-hover:#4385b6;
+  --ah-select-caret-chevron:#fff;
+  --ah-select-caret-disabled:#61778b;
+  --ah-select-trigger-border:#637f9b;
+}
+/* Shared outer select uses same outline, whether its label is searchable. */
 :root[data-button-scope='tenant'] #root .ui-select:not(.is-disabled) > .ui-select-trigger,
-:root[data-button-scope='tenant'] #root .ui-select:not(.is-disabled) .ui-select-combobox-trigger {
-  border-color:#92adc7;
-  color:#173751;
-  box-shadow:0 1px 3px #153b601a;
+:root[data-button-scope='tenant'] #root .ui-select:not(.is-disabled) .ui-select-combobox-trigger,
+:root[data-button-scope='tenant'] .ui-modal-layer .ui-select:not(.is-disabled) > .ui-select-trigger,
+:root[data-button-scope='tenant'] .ui-modal-layer .ui-select:not(.is-disabled) .ui-select-combobox-trigger {
+  border-color:var(--ah-select-trigger-border);
 }
-:root[data-button-scope='tenant'] #root .ui-select:not(.is-disabled) .ui-select-arrow {
-  border:1px solid #90b2d1;
-  background:#cfe4f6;
-  color:#15476c;
-  box-shadow:none;
-  opacity:1;
-}
-:root[data-button-scope='tenant'] #root .ui-select:not(.is-disabled) .ui-select-arrow svg {
-  color:inherit;
-  fill:currentColor;
-  opacity:1;
+:root[data-button-scope='tenant'] #root .ui-select:not(.is-disabled) .ui-select-trigger:hover,
+:root[data-button-scope='tenant'] .ui-modal-layer .ui-select:not(.is-disabled) .ui-select-trigger:hover {
+  border-color:#2b739e;
 }
 :root[data-button-scope='tenant'] #root .ui-select .ui-select-trigger:focus-within,
-:root[data-button-scope='tenant'] #root .ui-select.is-open .ui-select-trigger{
-  border-color:#1c6dac;
-  outline:2px solid #80b7e6;
+:root[data-button-scope='tenant'] #root .ui-select.is-open .ui-select-trigger,
+:root[data-button-scope='tenant'] .ui-modal-layer .ui-select .ui-select-trigger:focus-within,
+:root[data-button-scope='tenant'] .ui-modal-layer .ui-select.is-open .ui-select-trigger {
+  outline:2px solid #77b1e8;
   outline-offset:0;
+  border-color:#226ca8;
 }
-:root[data-button-scope='tenant'] #root .ui-select .ui-select-trigger-search,
-:root[data-button-scope='tenant'] #root .ui-simple-dropdown .ui-select-trigger-search,
-:root[data-button-scope='tenant'] #root .ui-table-dropdown .ui-select-trigger-search{
+/* Search input is a borderless CHILD of one trigger, never a second field. */
+:root[data-button-scope='tenant'] #root .ui-select input.ui-select-trigger-search,
+:root[data-button-scope='tenant'] .ui-modal-layer .ui-select input.ui-select-trigger-search {
+  height:100%;
+  min-height:0;
+  min-width:0;
   border:0!important;
+  border-radius:0!important;
   outline:0!important;
   background:transparent!important;
   box-shadow:none!important;
-  min-width:0;
   color:inherit;
 }
 :root[data-button-scope='tenant'] #root .ui-select .ui-select-trigger-search::placeholder {
-  color:#5e778f;
+  color:#5c7690;
   opacity:1;
 }
-:root[data-theme='dark'][data-button-scope='tenant'] #root .ui-select:not(.is-disabled) > .ui-select-trigger,
-:root[data-theme='dark'][data-button-scope='tenant'] #root .ui-select:not(.is-disabled) .ui-select-combobox-trigger{
-  border-color:#557491;color:#eff6fd;
-}
-:root[data-theme='dark'][data-button-scope='tenant'] #root .ui-select:not(.is-disabled) .ui-select-arrow{
-  background:#294e70;color:#e5f2ff;border-color:#5987b2;
-}
-:root[data-theme='dark'][data-button-scope='tenant'] #root .ui-select .ui-select-trigger-search::placeholder{
-  color:#bed0e3;
-}
-
-
-/* AH-POS canonical dropdown caret — 2026-11-25.
-   One small DARK chevron tile, not a full-height pale inset box. Scope to
-   real UiSelect triggers (both normal and searchable) across tenant screens
-   and portal-backed modal editors; do not change dropdown click/keyboard.
-   Specificity deliberately exceeds screen-level legacy .ui-select-arrow
-   overrides so every screen uses the same final geometry and contrast. */
-:root[data-button-scope='tenant'] #root .ui-select .ui-select-trigger > .ui-select-arrow,
-:root[data-button-scope='tenant'] #root .ui-select .ui-select-combobox-toggle > .ui-select-arrow,
-:root[data-button-scope='tenant'] .ui-modal-layer .ui-select .ui-select-trigger > .ui-select-arrow,
-:root[data-button-scope='tenant'] .ui-modal-layer .ui-select .ui-select-combobox-toggle > .ui-select-arrow {
+/* Canonical visual arrow: regular dropdown and standalone product arrows.
+   High specificity deliberately beats historical module-level caret styles. */
+:root[data-button-scope='tenant'] #root .ah-select-caret,
+:root[data-button-scope='tenant'] #root .ah-dropdown-arrow-button,
+:root[data-button-scope='tenant'] .ui-modal-layer .ah-select-caret,
+:root[data-button-scope='tenant'] .ui-modal-layer .ah-dropdown-arrow-button {
   box-sizing:border-box!important;
   display:grid!important;
   place-items:center!important;
-  flex:0 0 18px!important;
-  width:18px!important;
-  min-width:18px!important;
-  max-width:18px!important;
-  height:18px!important;
-  min-height:18px!important;
-  max-height:18px!important;
+  flex:0 0 var(--ah-select-caret-size)!important;
+  width:var(--ah-select-caret-size)!important;
+  min-width:var(--ah-select-caret-size)!important;
+  max-width:var(--ah-select-caret-size)!important;
+  height:var(--ah-select-caret-size)!important;
+  min-height:var(--ah-select-caret-size)!important;
+  max-height:var(--ah-select-caret-size)!important;
+  aspect-ratio:auto!important;
   margin:0!important;
   padding:0!important;
-  border:1px solid #173e5c!important;
-  border-radius:4px!important;
-  background:#294f71!important;
-  color:#fff!important;
+  border:1px solid var(--ah-select-caret-border)!important;
+  border-radius:var(--ah-select-caret-radius)!important;
+  background:var(--ah-select-caret-bg)!important;
+  color:var(--ah-select-caret-chevron)!important;
+  box-shadow:none!important;
   opacity:1!important;
   filter:none!important;
-  box-shadow:none!important;
 }
-:root[data-button-scope='tenant'] #root .ui-select .ui-select-trigger > .ui-select-arrow svg,
-:root[data-button-scope='tenant'] #root .ui-select .ui-select-combobox-toggle > .ui-select-arrow svg,
-:root[data-button-scope='tenant'] .ui-modal-layer .ui-select .ui-select-trigger > .ui-select-arrow svg,
-:root[data-button-scope='tenant'] .ui-modal-layer .ui-select .ui-select-combobox-toggle > .ui-select-arrow svg {
+/* Product picker buttons sit at the right edge of their input; no giant
+   square made from its full 28-36px input height. */
+:root[data-button-scope='tenant'] #root .ah-dropdown-arrow-button,
+:root[data-button-scope='tenant'] .ui-modal-layer .ah-dropdown-arrow-button {
+  position:absolute!important;
+  top:50%!important;
+  right:4px!important;
+  bottom:auto!important;
+  left:auto!important;
+  transform:translateY(-50%)!important;
+  cursor:pointer;
+  z-index:2;
+}
+/* Purchase Invoice uses a separate flex action slot rather than an absolute
+   input overlay; keep it inside that slot while using identical appearance. */
+:root[data-button-scope='tenant'] #root .pie-product-combo-actions > .ah-dropdown-arrow-button {
+  position:relative!important;
+  top:auto!important;
+  right:auto!important;
+  bottom:auto!important;
+  transform:none!important;
+  align-self:center;
+}
+:root[data-button-scope='tenant'] #root .ah-select-caret svg,
+:root[data-button-scope='tenant'] #root .ah-dropdown-arrow-button svg,
+:root[data-button-scope='tenant'] .ui-modal-layer .ah-select-caret svg,
+:root[data-button-scope='tenant'] .ui-modal-layer .ah-dropdown-arrow-button svg {
   display:block!important;
   width:10px!important;
   height:7px!important;
-  color:#fff!important;
+  color:var(--ah-select-caret-chevron)!important;
   fill:currentColor!important;
   opacity:1!important;
 }
-:root[data-button-scope='tenant'] #root .ui-select .ui-select-trigger > .ui-select-arrow svg path,
-:root[data-button-scope='tenant'] #root .ui-select .ui-select-combobox-toggle > .ui-select-arrow svg path,
-:root[data-button-scope='tenant'] .ui-modal-layer .ui-select .ui-select-trigger > .ui-select-arrow svg path,
-:root[data-button-scope='tenant'] .ui-modal-layer .ui-select .ui-select-combobox-toggle > .ui-select-arrow svg path {
+:root[data-button-scope='tenant'] #root .ah-select-caret svg path,
+:root[data-button-scope='tenant'] #root .ah-dropdown-arrow-button svg path,
+:root[data-button-scope='tenant'] .ui-modal-layer .ah-select-caret svg path,
+:root[data-button-scope='tenant'] .ui-modal-layer .ah-dropdown-arrow-button svg path {
   fill:currentColor!important;
 }
-:root[data-button-scope='tenant'] #root .ui-select:not(.is-disabled) .ui-select-trigger:hover > .ui-select-arrow,
-:root[data-button-scope='tenant'] #root .ui-select:not(.is-disabled) .ui-select-combobox-toggle:hover > .ui-select-arrow,
-:root[data-button-scope='tenant'] .ui-modal-layer .ui-select:not(.is-disabled) .ui-select-trigger:hover > .ui-select-arrow,
-:root[data-button-scope='tenant'] .ui-modal-layer .ui-select:not(.is-disabled) .ui-select-combobox-toggle:hover > .ui-select-arrow {
-  background:#16659d!important;
-  border-color:#0e4e7a!important;
+/* Toggle stays click-sized, but only the SMALL inner tile is painted. */
+:root[data-button-scope='tenant'] #root .ah-dropdown-arrow-hitbox {
+  display:grid!important;
+  place-items:center!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
 }
-:root[data-button-scope='tenant'] #root .ui-select.is-disabled .ui-select-trigger > .ui-select-arrow,
-:root[data-button-scope='tenant'] #root .ui-select.is-disabled .ui-select-combobox-toggle > .ui-select-arrow,
-:root[data-button-scope='tenant'] .ui-modal-layer .ui-select.is-disabled .ui-select-trigger > .ui-select-arrow,
-:root[data-button-scope='tenant'] .ui-modal-layer .ui-select.is-disabled .ui-select-combobox-toggle > .ui-select-arrow {
-  background:#a2b2bf!important;
-  border-color:#899dac!important;
-  color:#f7fafc!important;
+:root[data-button-scope='tenant'] #root .ui-select:not(.is-disabled) .ui-select-trigger:hover .ah-select-caret,
+:root[data-button-scope='tenant'] #root .ui-select:not(.is-disabled) .ui-select-combobox-toggle:hover .ah-select-caret,
+:root[data-button-scope='tenant'] #root .ah-dropdown-arrow-button:hover:not(:disabled),
+:root[data-button-scope='tenant'] #root .ah-dropdown-arrow-hitbox:hover:not(:disabled) .ah-select-caret,
+:root[data-button-scope='tenant'] .ui-modal-layer .ui-select:not(.is-disabled) .ui-select-trigger:hover .ah-select-caret {
+  background:var(--ah-select-caret-hover)!important;
+  border-color:var(--ah-select-caret-border)!important;
+}
+/* Use open state without forcing arbitrary shape or different background. */
+:root[data-button-scope='tenant'] #root .ui-select.is-open .ah-select-caret,
+:root[data-button-scope='tenant'] #root .ah-dropdown-arrow-button[aria-expanded='true'],
+:root[data-button-scope='tenant'] #root .ah-dropdown-arrow-hitbox[aria-expanded='true'] .ah-select-caret {
+  background:var(--ah-select-caret-hover)!important;
+}
+:root[data-button-scope='tenant'] #root .ui-select.is-disabled .ah-select-caret,
+:root[data-button-scope='tenant'] #root .ah-dropdown-arrow-button:disabled,
+:root[data-button-scope='tenant'] #root .ah-dropdown-arrow-hitbox:disabled .ah-select-caret,
+:root[data-button-scope='tenant'] .ui-modal-layer .ui-select.is-disabled .ah-select-caret {
+  background:var(--ah-select-caret-disabled)!important;
+  border-color:var(--ah-select-trigger-border)!important;
   opacity:.65!important;
+  cursor:not-allowed;
 }
-:root[data-theme='dark'][data-button-scope='tenant'] #root .ui-select:not(.is-disabled) .ui-select-trigger > .ui-select-arrow,
-:root[data-theme='dark'][data-button-scope='tenant'] #root .ui-select:not(.is-disabled) .ui-select-combobox-toggle > .ui-select-arrow,
-:root[data-theme='dark'][data-button-scope='tenant'] .ui-modal-layer .ui-select:not(.is-disabled) .ui-select-trigger > .ui-select-arrow,
-:root[data-theme='dark'][data-button-scope='tenant'] .ui-modal-layer .ui-select:not(.is-disabled) .ui-select-combobox-toggle > .ui-select-arrow {
-  background:#346a96!important;
-  border-color:#6ba3cf!important;
-  color:#fff!important;
-}
-/* Search input is a transparent text child of a single outlined combobox,
-   NOT an extra nested field. The 22px toggle is the click target; the
-   18px visible caret has room to breathe within it. */
-:root[data-button-scope='tenant'] #root .ui-select .ui-select-combobox-toggle,
-:root[data-button-scope='tenant'] .ui-modal-layer .ui-select .ui-select-combobox-toggle {
-  box-sizing:border-box;
-  display:grid;
-  place-items:center;
+:root[data-button-scope='tenant'] #root .ah-dropdown-arrow-button:focus-visible,
+:root[data-button-scope='tenant'] #root .ah-dropdown-arrow-hitbox:focus-visible {
+  outline:2px solid #60a5fa!important;
+  outline-offset:2px;
 }
