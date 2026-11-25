@@ -561,7 +561,7 @@
 :root[data-button-scope='tenant'] #root .sales-reference-screen.ah-sales-transaction-workspace .sales-reference-option-grid > input,
 :root[data-button-scope='tenant'] #root .sales-reference-screen.ah-sales-transaction-workspace .sales-reference-option-grid > .sales-reference-input-button,
 :root[data-button-scope='tenant'] #root .sales-reference-screen.ah-sales-transaction-workspace .sales-reference-option-grid .sales-reference-input-button > input,
-:root[data-button-scope='tenant'] #root .sales-reference-screen.ah-sales-transaction-workspace .sales-reference-option-grid .sales-reference-input-button > button,
+:root[data-button-scope='tenant'] #root .sales-reference-screen.ah-sales-transaction-workspace .sales-reference-option-grid .sales-reference-input-button > .sales-reference-party-add,
 :root[data-button-scope='tenant'] #root .sales-reference-screen.ah-sales-transaction-workspace .sales-reference-option-grid .ui-date-picker input {
   box-sizing:border-box!important;
   height:27px!important;
