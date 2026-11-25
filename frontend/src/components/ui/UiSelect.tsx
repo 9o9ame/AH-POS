@@ -444,7 +444,7 @@ export function UiSelect({
             }}
           >
             <span
-              className="ui-select-arrow bp-fancy-select-arrow vca-select-caret"
+              className="ui-select-arrow bp-fancy-select-arrow vca-select-caret ah-select-caret"
               aria-hidden
             >
               <svg viewBox="0 0 12 8" width="10" height="7" focusable="false">
@@ -514,7 +514,7 @@ export function UiSelect({
           </span>
 
           <span
-            className="ui-select-arrow bp-fancy-select-arrow vca-select-caret"
+            className="ui-select-arrow bp-fancy-select-arrow vca-select-caret ah-select-caret"
             aria-hidden
           >
             <svg viewBox="0 0 12 8" width="10" height="7" focusable="false">
