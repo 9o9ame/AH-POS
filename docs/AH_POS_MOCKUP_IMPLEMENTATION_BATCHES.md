@@ -177,3 +177,9 @@ Five customer screenshots showed mixed large/light/circular box styles and incon
 
 - Final source audit caught an important HTML/CSS detail: PurchaseOrderPage.tsx uses PosEntryGrid wrapper className="purchase-order-custom-table" but the actual table is tableClassName="purchase-order-lines". Corrected shared selectors to target actual .purchase-order-lines and .purchase-return-grid. Preserved PO's original min-width:1420px for all 13 columns with horizontal scrolling.
 - frontend/scripts/ui-design-check.mjs now guards both Purchase Order and Purchase Return's shared workspace class/import and grid/dock contract. No new branches.
+
+## 2026-11-25 — Batch 23 immediate local validation hotfix
+- Owner ran `git pull --ff-only origin redesign/ahpos-complete-ui` successfully. `npm run typecheck` failed with TS1005 and TS1382 at `PurchaseReturnsPage.tsx:1596` due to our typo `disabled={!canCreate)` in the New Return button. Corrected to `disabled={!canCreate}` without changing permission semantics.
+- `npm run ui:check` reported InventoryAdjustments product picker wrongly missing shared caret class. Actual className was `ui-select-combobox-toggle inventory-adjustments-product-arrow ah-dropdown-arrow-hitbox`; old guard incorrectly expected only two classes adjacent. Fixed guard to parse className tokens and verify BOTH required class tokens are present for every matching picker. This preserves protection while handling existing additional utility classes.
+- `npm run ui:navigation-check` was already PASS on owner's local Windows environment. Retest `npm run typecheck`, `npm run ui:check`, and `npm run ui:navigation-check` after pulling. Do not claim current checks pass without new owner output.
+- Both fixes committed **directly** to existing `redesign/ahpos-complete-ui`; no new branches. Keep approved single-source dropdown visuals and all original actions.
