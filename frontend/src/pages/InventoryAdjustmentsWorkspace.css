@@ -1,0 +1,146 @@
+/* AH-POS Inventory Adjustments — Batch 22.
+   Structural controls, real posting actions and report print modes remain
+   owned by InventoryAdjustmentsPage; no invented business actions. */
+:root[data-button-scope='tenant'] #root .workspace-host-inner:has(> .inventory-adjustments-page){
+ height:100%;min-height:0;overflow:hidden!important;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-page{
+ --adj-ink:#1d354e;--adj-edge:#b3c5d8;
+ box-sizing:border-box;height:100%;min-height:0;
+ padding:8px 10px 10px;gap:8px;overflow:hidden;
+ background:#e9eff6;color:var(--adj-ink);
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-tabs{
+ display:flex;flex:0 0 auto;align-items:center;gap:7px;
+ min-height:45px;padding:6px 9px;
+ border:1px solid var(--adj-edge);border-radius:11px;
+ background:#fff;box-shadow:none;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-tabs button{
+ min-height:32px;padding:0 14px;border:1px solid #c0d0df;
+ border-radius:8px;background:#edf3f9;color:#2a4159;
+ font-size:12px;font-weight:800;box-shadow:none;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-tabs button.is-active{
+ background:#213e5a;color:#fff;border-color:#1c3953;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-header{
+ flex:0 0 auto;grid-template-columns:minmax(0,1.5fr) minmax(320px,1fr);
+ gap:8px;padding:0;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-options,
+:root[data-button-scope='tenant'] #root .inventory-adjustments-amount-options{
+ padding:10px 12px;gap:7px;align-content:start;
+ border:1px solid var(--adj-edge);border-radius:11px;
+ background:#fff;box-shadow:none;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-section-title{
+ padding:0 0 6px;border-bottom:1px solid #dce6ef;
+ color:#1c3853;font-size:12px;font-weight:850;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-options{
+ grid-template-columns:130px 155px minmax(210px,1fr);
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-page label>span{
+ color:#2c465e;font-size:11px;font-weight:750;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-page :where(input,textarea){
+ box-sizing:border-box;min-height:33px;height:33px;
+ border:1px solid #a5bad0;border-radius:7px;
+ background:#fff;color:#193550;
+ box-shadow:none;font-size:12px;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-page .ui-select-trigger{
+ min-height:33px;height:33px;border:1px solid #a5bad0;
+ border-radius:7px;background:#fff;color:#193550;box-shadow:none;
+ font-size:12px;font-weight:650;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-page .ui-select-arrow{
+ border:0;box-shadow:none;background:#e0eaf5;color:#214866;border-radius:5px;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-page :where(input,textarea):focus-visible,
+:root[data-button-scope='tenant'] #root .inventory-adjustments-page .ui-select-trigger:focus-visible{
+ outline:2px solid #79b0e8;outline-offset:0;border-color:#266aab;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-page .ui-select-combobox-trigger input.ui-select-trigger-search{
+ border:0!important;border-radius:0!important;background:transparent!important;
+ outline:0!important;box-shadow:none!important;min-height:0!important;height:100%!important;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-line-entry{
+ background:#f4f8fc;border-bottom:1px solid #b7c9db;padding:8px 10px;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-entry-grid-wrap,
+:root[data-button-scope='tenant'] #root .inventory-adjustments-report-grid{
+ flex:1 1 auto;min-height:0;
+ border:1px solid var(--adj-edge);border-radius:11px;
+ background:#fff;box-shadow:none;overflow:hidden;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-entry-grid-wrap .pos-grid-wrap,
+:root[data-button-scope='tenant'] #root .inventory-adjustments-report-grid .pos-grid-wrap{
+ min-height:0;overflow:auto!important;overscroll-behavior:contain;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-page .pos-grid thead th,
+:root[data-button-scope='tenant'] #root .inventory-adjustments-entry-grid th{
+ background:#294b68!important;color:#fff!important;
+ border-color:#486987!important;font-size:11px;font-weight:850;
+ padding:8px 9px!important;height:35px;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-page .pos-grid tbody td,
+:root[data-button-scope='tenant'] #root .inventory-adjustments-entry-grid td{
+ font-size:11px;color:#253d56!important;
+ border-color:#dce6ef!important;padding:5px 8px!important;
+ background:#fff;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-page .pos-grid tbody tr:nth-child(even) td{
+ background:#f5f8fc;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-page .pos-grid tbody tr:hover td{
+ background:#eaf3fb!important;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-page .pos-grid tbody tr.is-selected td{
+ background:#fff0d4!important;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-footer{
+ flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
+ min-height:52px;padding:8px 12px;
+ border:1px solid var(--adj-edge);border-radius:10px;
+ background:#fff;box-shadow:none;gap:9px;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-footer-actions{
+ display:flex;align-items:center;flex-wrap:wrap;justify-content:flex-end;gap:6px;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-footer .ui-button,
+:root[data-button-scope='tenant'] #root .inventory-adjustments-report-toolbar .ui-button{
+ min-height:34px;padding:0 11px;border-radius:7px;font-size:11px;font-weight:800;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-footer .ui-button.is-success{
+ background:#18734d;color:#fff;border-color:#258d64;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-report-toolbar{
+ flex:0 0 auto;gap:8px;padding:9px 12px;
+ border:1px solid var(--adj-edge);border-radius:10px;
+ background:#fff;box-shadow:none;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-report-grid{
+ display:flex;flex-direction:column;
+}
+:root[data-button-scope='tenant'] #root .inventory-adjustments-report-grid>.pos-grid-wrap{
+ flex:1 1 auto;height:auto!important;
+}
+@media(max-width:1150px){
+ :root[data-button-scope='tenant'] #root .inventory-adjustments-header{grid-template-columns:1fr}
+ :root[data-button-scope='tenant'] #root .inventory-adjustments-options{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:720px){
+ :root[data-button-scope='tenant'] #root .inventory-adjustments-page{padding:6px}
+ :root[data-button-scope='tenant'] #root .inventory-adjustments-options{grid-template-columns:1fr}
+ :root[data-button-scope='tenant'] #root .inventory-adjustments-footer{flex-wrap:wrap}
+}
+@media print{
+ :root[data-adjustment-product-print='true'] #root .inventory-adjustments-page{
+  background:#fff!important;padding:0!important;overflow:visible!important;
+ }
+ :root[data-adjustment-product-print='true'] #root .inventory-adjustments-report-grid{
+  border:0!important;overflow:visible!important;
+ }
+}
