@@ -2,3 +2,51 @@
 @keyframes pos-grid-data-reveal { from { opacity: .25; } to { opacity: 1; } }
 html[data-animations='off'] .pos-grid-body-ready { animation: none; }
 @media (prefers-reduced-motion: reduce) { .pos-grid-body-ready { animation: none; } }
+
+
+/* Tenant-wide list-grid visibility: preserve row height/virtualization.
+   Border and selection only; do not change print/output logic. */
+:root[data-button-scope='tenant'] #root .pos-grid-wrap{
+  border-color:#a8bed3;
+}
+:root[data-button-scope='tenant'] #root .pos-grid thead th{
+  border-color:#9db5cb;
+  color:#173a56;
+}
+:root[data-button-scope='tenant'] #root .pos-grid tbody td{
+  border-right-color:#c7d7e7;
+  border-bottom-color:#c7d7e7;
+  color:#213b53;
+}
+:root[data-button-scope='tenant'] #root .pos-grid tbody tr:nth-child(even):not(.is-selected) td {
+  background:#f4f8fc;
+}
+:root[data-button-scope='tenant'] #root .pos-grid tbody tr.is-selected td {
+  background:#ffeacc;
+  color:#1d3851;
+}
+:root[data-theme='dark'][data-button-scope='tenant'] #root .pos-grid-wrap{
+  border-color:#597b99;
+}
+:root[data-theme='dark'][data-button-scope='tenant'] #root .pos-grid thead th{
+  color:#e9f4ff;
+  border-color:#53708c;
+}
+:root[data-theme='dark'][data-button-scope='tenant'] #root .pos-grid tbody td{
+  border-color:#435c75;
+  color:#eaf3fd;
+}
+:root[data-theme='dark'][data-button-scope='tenant'] #root .pos-grid tbody tr:nth-child(even):not(.is-selected) td{
+  background:#203449;
+}
+:root[data-theme='dark'][data-button-scope='tenant'] #root .pos-grid tbody tr.is-selected td{
+  background:#554127;
+  color:#fff;
+}
+@media print{
+  :root[data-button-scope='tenant'] #root .pos-grid thead th,
+  :root[data-button-scope='tenant'] #root .pos-grid tbody td{
+    color:#111;
+    border-color:#777;
+  }
+}
