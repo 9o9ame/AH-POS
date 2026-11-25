@@ -81,3 +81,55 @@ html[data-animations='off'] .ui-button {
 html[data-animations='off'] .ui-button:active:not(:disabled) {
   transform: none !important;
 }
+
+
+/* Shared AH-POS tenant action visibility. Avoid pale-on-pale controls.
+   Keep disabled states distinguishable; module-specific floating dock rules
+   retain precedence where intentionally stronger. */
+:root[data-button-scope='tenant'] #root .ui-button:not(:disabled) {
+  border-color:#8faac5;
+  font-weight:800;
+}
+:root[data-button-scope='tenant'] #root .ui-button.is-default:not(:disabled),
+:root[data-button-scope='tenant'] #root .ui-button.is-info:not(:disabled) {
+  background:#e7f0f9;
+  color:#194568;
+  border-color:#9bb8d1;
+}
+:root[data-button-scope='tenant'] #root .ui-button.is-primary:not(:disabled){
+  background:#b87522;
+  color:#fff;
+  border-color:#bb781e;
+}
+:root[data-button-scope='tenant'] #root .ui-button.is-success:not(:disabled){
+  background:#19744e;
+  color:#fff;
+  border-color:#2c9166;
+}
+:root[data-button-scope='tenant'] #root .ui-button.is-warning:not(:disabled){
+  background:#b4731f;
+  color:#fff;
+  border-color:#cb903f;
+}
+:root[data-button-scope='tenant'] #root .ui-button.is-danger:not(:disabled){
+  background:#a43748;
+  color:#fff;
+  border-color:#bb5361;
+}
+:root[data-button-scope='tenant'] #root .ui-button:not(:disabled):hover{
+  filter:brightness(.96);
+}
+:root[data-button-scope='tenant'] #root .ui-button:focus-visible{
+  outline:2px solid #2a82cb;
+  outline-offset:2px;
+}
+:root[data-button-scope='tenant'] #root .ui-button:disabled{
+  opacity:.52;
+  cursor:not-allowed;
+}
+:root[data-theme='dark'][data-button-scope='tenant'] #root .ui-button.is-default:not(:disabled),
+:root[data-theme='dark'][data-button-scope='tenant'] #root .ui-button.is-info:not(:disabled){
+  background:#2c4964;
+  color:#edf6ff;
+  border-color:#5b87a9;
+}
