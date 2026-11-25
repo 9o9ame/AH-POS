@@ -1,0 +1,327 @@
+/* AH-POS Batch 24: shared sales transaction visual system.
+   ONLY layout/contrast. All sale/return commands, payment and refund behavior
+   stay inside the existing React components. Dropdown caret styling is owned
+   by the canonical UiSelect.css contract, never duplicated here. */
+:root[data-button-scope='tenant'] #root .ah-sales-transaction-workspace{
+  --sales-workspace-bg:#e8eff7;
+  --sales-workspace-card:#fff;
+  --sales-workspace-line:#9eb9d2;
+  --sales-workspace-ink:#173651;
+  --sales-workspace-header:#254766;
+  --sales-workspace-row:#e3effc;
+  box-sizing:border-box;
+  background:var(--sales-workspace-bg)!important;
+  color:var(--sales-workspace-ink);
+  height:100%;min-height:0;
+}
+:root[data-button-scope='tenant'] #root .ah-sales-transaction-workspace :is(.sales-reference-options,.sales-reference-pay-options,.sales-reference-amounts,.sales-reference-meta,.sales-return-head fieldset,.sales-return-balances,.sales-return-amounts){
+  border-color:var(--sales-workspace-line)!important;
+  background:var(--sales-workspace-card)!important;
+  box-shadow:0 2px 8px #16395012!important;
+}
+:root[data-button-scope='tenant'] #root .ah-sales-transaction-workspace :is(.sales-reference-options,.sales-reference-pay-options,.sales-reference-amounts,.sales-return-head fieldset){
+  border:1.5px solid var(--sales-workspace-line)!important;
+  border-radius:10px!important;
+}
+:root[data-button-scope='tenant'] #root .ah-sales-transaction-workspace :is(.sales-reference-options legend,.sales-reference-amounts legend,.sales-reference-pay-options legend,.sales-return-head legend){
+  font-size:12px!important;
+  color:#203e58!important;
+  font-weight:850!important;
+}
+:root[data-button-scope='tenant'] #root .ah-sales-transaction-workspace :is(.sales-reference-options,.sales-reference-pay,.sales-return-head) label{
+  color:#294763;
+  font-weight:750;
+}
+:root[data-button-scope='tenant'] #root .ah-sales-transaction-workspace :is(.sales-reference-options,.sales-reference-pay,.sales-return-head,.sales-return-filterbar) input:not([type='checkbox']),
+:root[data-button-scope='tenant'] #root .ah-sales-transaction-workspace :is(.sales-reference-options,.sales-reference-pay,.sales-return-head,.sales-return-filterbar) textarea {
+  box-sizing:border-box;
+  border:1px solid #8daac5!important;
+  border-radius:7px!important;
+  background:#fff!important;
+  color:#183750!important;
+  box-shadow:none!important;
+  font-weight:650;
+}
+:root[data-button-scope='tenant'] #root .ah-sales-transaction-workspace :is(input,textarea)::placeholder{
+  color:#58738e!important;opacity:1!important;
+}
+:root[data-button-scope='tenant'] #root .ah-sales-transaction-workspace :is(input,textarea):focus-visible{
+  border-color:#226faa!important;
+  outline:2px solid #87bbee!important;
+  outline-offset:0;
+}
+/* Sale Invoice: preserve the high-speed POS layout, barcode search, column
+   customization, payment panel and existing keyboard shortcut zones. */
+:root[data-button-scope='tenant'] #root .sales-reference-screen.ah-sales-transaction-workspace .ah-sales-document-header{
+  background:#213d59!important;
+  color:#fff!important;
+  border-color:#416583!important;
+}
+:root[data-button-scope='tenant'] #root .sales-reference-screen.ah-sales-transaction-workspace .sales-reference-main{
+  min-height:0;
+  background:#fff!important;
+}
+:root[data-button-scope='tenant'] #root .sales-reference-screen.ah-sales-transaction-workspace .sales-reference-grid-wrap{
+  min-height:0;
+  border:1.5px solid #93b0ca!important;
+  border-radius:10px!important;
+  background:#fff!important;
+  overflow:auto;
+  overscroll-behavior:contain;
+}
+:root[data-button-scope='tenant'] #root .sales-reference-screen.ah-sales-transaction-workspace .sales-reference-grid{
+  border-spacing:0!important;
+  border-collapse:separate!important;
+  color:#1d3853!important;
+}
+:root[data-button-scope='tenant'] #root .sales-reference-screen.ah-sales-transaction-workspace .sales-reference-grid thead th{
+  position:sticky;
+  top:0;z-index:2;
+  background:var(--sales-workspace-header)!important;
+  color:#fff!important;
+  border-right:1px solid #5a7894!important;
+  border-bottom:2px solid #163852!important;
+  font-size:11px!important;
+  font-weight:850!important;
+}
+:root[data-button-scope='tenant'] #root .sales-reference-screen.ah-sales-transaction-workspace .sales-reference-grid tbody td{
+  color:#1e3953!important;
+  border-right:1px solid #c7d8e9!important;
+  border-bottom:1px solid #c7d8e9!important;
+}
+:root[data-button-scope='tenant'] #root .sales-reference-screen.ah-sales-transaction-workspace .sales-reference-grid tbody tr:nth-child(even):not(.is-entry-row) td{
+  background:#f5f9fd;
+}
+:root[data-button-scope='tenant'] #root .sales-reference-screen.ah-sales-transaction-workspace .sales-reference-grid tbody tr.is-entry-row td{
+  background:var(--sales-workspace-row)!important;
+  border-bottom:2px solid #5288b7!important;
+}
+:root[data-button-scope='tenant'] #root .sales-reference-screen.ah-sales-transaction-workspace .sales-reference-grid tbody tr:hover td{
+  border-bottom-color:#779fbf!important;
+}
+:root[data-button-scope='tenant'] #root .sales-reference-screen.ah-sales-transaction-workspace .sales-reference-pay{
+  background:#f2f7fc!important;
+  border-left:1.5px solid #9db9d0!important;
+  color:#213e58!important;
+}
+:root[data-button-scope='tenant'] #root .sales-reference-screen.ah-sales-transaction-workspace .sales-reference-retail-title{
+  background:#254766!important;color:#fff!important;
+}
+:root[data-button-scope='tenant'] #root .sales-reference-screen.ah-sales-transaction-workspace .sales-reference-actions{
+  border-top:1px solid #b9cbdc!important;
+  background:#f2f7fc!important;
+}
+:root[data-button-scope='tenant'] #root .sales-reference-screen.ah-sales-transaction-workspace .sales-reference-actions-center{
+  display:flex;align-items:center;gap:6px;
+  padding:5px!important;
+  border:1px solid #355573!important;
+  border-radius:10px!important;
+  background:#1a324b!important;
+  box-shadow:0 4px 14px #183c5666!important;
+}
+:root[data-button-scope='tenant'] #root .sales-reference-screen.ah-sales-transaction-workspace .sales-reference-actions-center>button{
+  min-height:35px!important;
+  height:35px!important;
+  border-radius:7px!important;
+  border:1px solid #6685a3!important;
+  font-size:11px!important;
+  font-weight:850!important;
+}
+/* Sales Returns: shared purchasing-like tab and table system, while
+   refund controls and posted-return immutability remain fully accessible. */
+:root[data-button-scope='tenant'] #root .sales-return-screen.ah-sales-transaction-workspace{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding:8px 10px 70px!important;
+  overflow:hidden;
+}
+:root[data-button-scope='tenant'] #root .sales-return-screen.ah-sales-transaction-workspace .sales-return-tabs{
+  flex:0 0 auto;
+  display:flex;
+  gap:7px;
+  align-items:center;
+  min-height:44px!important;
+  padding:5px 10px!important;
+  border:1px solid var(--sales-workspace-line)!important;
+  border-radius:10px!important;
+  background:#fff!important;
+  box-shadow:none!important;
+}
+:root[data-button-scope='tenant'] #root .sales-return-screen.ah-sales-transaction-workspace .sales-return-tabs>button{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  min-height:33px!important;
+  height:33px!important;
+  padding:0 12px!important;
+  border:1px solid #b0c7dc!important;
+  border-radius:8px!important;
+  background:#e9f2fa!important;
+  color:#25435e!important;
+  font-size:12px!important;
+  font-weight:800!important;
+  box-shadow:none!important;
+}
+:root[data-button-scope='tenant'] #root .sales-return-screen.ah-sales-transaction-workspace .sales-return-tabs>button.is-active{
+  border-color:#163e5d!important;
+  background:#203f5c!important;
+  color:#fff!important;
+}
+:root[data-button-scope='tenant'] #root .sales-return-screen.ah-sales-transaction-workspace .sales-return-tabs>strong{
+  display:none!important; /* active workspace tab already identifies screen */
+}
+:root[data-button-scope='tenant'] #root .sales-return-screen.ah-sales-transaction-workspace :is(.sales-return-entry,.sales-return-search-view,.sales-return-product-view){
+  flex:1 1 auto;
+  min-height:0;
+  min-width:0;
+  padding:0!important;
+  gap:8px;
+  overflow:hidden;
+}
+:root[data-button-scope='tenant'] #root .sales-return-screen.ah-sales-transaction-workspace .sales-return-head{
+  flex:0 0 auto;
+  gap:9px;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+}
+:root[data-button-scope='tenant'] #root .sales-return-screen.ah-sales-transaction-workspace .sales-return-head fieldset{
+  padding:9px 11px!important;
+}
+:root[data-button-scope='tenant'] #root .sales-return-screen.ah-sales-transaction-workspace :is(.sales-return-fields label,.sales-return-balances span,.sales-return-amounts span){
+  color:#294761!important;
+  font-size:11px!important;
+  font-weight:800!important;
+}
+:root[data-button-scope='tenant'] #root .sales-return-screen.ah-sales-transaction-workspace .sales-return-grid-wrap{
+  display:flex;flex:1 1 auto;flex-direction:column;
+  min-height:0;
+  overflow:auto!important;
+  border:1.5px solid #92adc7!important;
+  border-radius:10px!important;
+  background:#fff!important;
+  box-shadow:0 3px 10px #193b5518!important;
+}
+:root[data-button-scope='tenant'] #root .sales-return-screen.ah-sales-transaction-workspace .sales-return-custom-grid{
+  min-height:0;
+}
+:root[data-button-scope='tenant'] #root .sales-return-screen.ah-sales-transaction-workspace .sales-return-custom-table{
+  width:100%;min-width:980px;
+  border-collapse:separate!important;
+  border-spacing:0!important;
+  font-size:11px!important;
+}
+:root[data-button-scope='tenant'] #root .sales-return-screen.ah-sales-transaction-workspace .sales-return-custom-table thead th{
+  position:sticky;top:0;z-index:2;
+  height:37px!important;
+  padding:8px!important;
+  border-right:1px solid #54728d!important;
+  border-bottom:2px solid #163954!important;
+  background:var(--sales-workspace-header)!important;
+  color:#fff!important;
+  font-size:11px!important;
+  font-weight:850!important;
+}
+:root[data-button-scope='tenant'] #root .sales-return-screen.ah-sales-transaction-workspace .sales-return-custom-table tbody td{
+  height:35px;
+  padding:5px 8px!important;
+  border-right:1px solid #c7d8e8!important;
+  border-bottom:1px solid #c7d8e8!important;
+  background:#fff;
+  color:#23405b;
+  font-size:11px!important;
+}
+:root[data-button-scope='tenant'] #root .sales-return-screen.ah-sales-transaction-workspace .sales-return-custom-table tbody tr:nth-child(even) td{
+  background:#f5f9fd!important;
+}
+:root[data-button-scope='tenant'] #root .sales-return-screen.ah-sales-transaction-workspace .sales-return-custom-table tbody tr.is-entry-row td{
+  background:var(--sales-workspace-row)!important;
+  border-bottom:2px solid #578cb7!important;
+}
+:root[data-button-scope='tenant'] #root .sales-return-screen.ah-sales-transaction-workspace .sales-return-filterbar{
+  flex:0 0 auto;
+  gap:10px;
+  padding:10px 13px!important;
+  border:1px solid var(--sales-workspace-line)!important;
+  border-radius:10px!important;
+  background:#fff!important;
+  box-shadow:none!important;
+}
+:root[data-button-scope='tenant'] #root .sales-return-screen.ah-sales-transaction-workspace :is(.sales-return-search-view,.sales-return-product-view)>.pos-grid-wrap{
+  flex:1 1 auto;min-height:0;
+  border:1px solid var(--sales-workspace-line)!important;
+  border-radius:10px!important;
+  overflow:auto!important;
+}
+:root[data-button-scope='tenant'] #root .sales-return-screen.ah-sales-transaction-workspace .sales-return-footer{
+  box-sizing:border-box;
+  display:flex;
+  align-items:center;
+  min-height:50px;
+  flex:0 0 auto;
+  padding:7px 11px!important;
+  gap:10px!important;
+  border:1px solid var(--sales-workspace-line)!important;
+  border-radius:10px!important;
+  background:#f4f8fc!important;
+  color:#2d4b65!important;
+  font-weight:750;
+}
+:root[data-button-scope='tenant'] #root .sales-return-screen.ah-sales-transaction-workspace .sales-return-actions{
+  position:absolute!important;
+  right:13px!important;
+  bottom:12px!important;
+  z-index:11;
+  display:flex!important;
+  align-items:center;
+  gap:6px!important;
+  padding:6px!important;
+  border:1px solid #385777!important;
+  border-radius:11px!important;
+  background:#19314a!important;
+  box-shadow:0 5px 17px #193e5d50!important;
+}
+:root[data-button-scope='tenant'] #root .sales-return-screen.ah-sales-transaction-workspace .sales-return-actions .ui-button{
+  min-height:34px!important;
+  padding:0 12px!important;
+  border:1px solid #6b89a6!important;
+  border-radius:7px!important;
+  background:#e9f2fa!important;
+  color:#1c3d58!important;
+  font-size:11px!important;
+  font-weight:800!important;
+}
+:root[data-button-scope='tenant'] #root .sales-return-screen.ah-sales-transaction-workspace .sales-return-actions .ui-button:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+:root[data-button-scope='tenant'] #root .sales-return-screen.ah-sales-transaction-workspace .sales-return-refund-panel{
+  border:1px solid #d4b879!important;
+  border-radius:8px!important;
+  background:#fff9e9!important;
+}
+@media(max-width:980px){
+  :root[data-button-scope='tenant'] #root .sales-return-screen.ah-sales-transaction-workspace .sales-return-head{
+    grid-template-columns:1fr!important;
+  }
+  :root[data-button-scope='tenant'] #root .sales-return-screen.ah-sales-transaction-workspace .sales-return-actions{
+    right:8px!important;
+    max-width:calc(100% - 18px);
+    overflow-x:auto;
+  }
+}
+@media print{
+  :root[data-button-scope='tenant'] #root .ah-sales-transaction-workspace{
+    background:#fff!important;
+    height:auto!important;
+    overflow:visible!important;
+  }
+  :root[data-button-scope='tenant'] #root .sales-return-screen.ah-sales-transaction-workspace .sales-return-actions{
+    display:none!important;
+  }
+  :root[data-button-scope='tenant'] #root .ah-sales-transaction-workspace :is(.sales-reference-grid,.sales-return-custom-table) thead th{
+    background:#fff!important;color:#111!important;border:1px solid #777!important;
+  }
+}
