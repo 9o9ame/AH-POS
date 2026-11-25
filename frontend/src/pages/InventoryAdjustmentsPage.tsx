@@ -43,6 +43,7 @@ import type {
 } from '../types/inventory'
 import { formatDecimal } from '../utils/formatDecimal'
 import './InventoryAdjustmentsPage.css'
+import './InventoryAdjustmentsWorkspace.css'
 
 function localIsoDate(date = new Date()) {
   const year = date.getFullYear()
@@ -933,7 +934,6 @@ export function InventoryAdjustmentsPage() {
         >
           <PackageSearch size={15} /> Product Wise
         </button>
-        <strong>Adjustment</strong>
       </div>
 
       {tab === 'invoice' ? (
