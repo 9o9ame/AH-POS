@@ -1971,7 +1971,7 @@ export function SalesInvoicePage({
 
                     <button
                       type="button"
-                      className="sales-reference-field-caret"
+                      className="sales-reference-field-caret ah-inline-field-caret"
                       disabled={
                         !canCreateSale ||
                         quotationLookupMutation.isPending ||
@@ -2038,7 +2038,7 @@ export function SalesInvoicePage({
   
                       <button
                         type="button"
-                        className="sales-reference-field-caret"
+                        className="sales-reference-field-caret ah-inline-field-caret"
                         onClick={() => {
                           setCustomerPickerOpen(false)
                           setSalesmanPickerOpen((open) => !open)
@@ -2128,7 +2128,7 @@ export function SalesInvoicePage({
 
                     <button
                       type="button"
-                      className="sales-reference-field-caret"
+                      className="sales-reference-field-caret ah-inline-field-caret"
                       onClick={() => {
                         setSalesmanPickerOpen(false)
                         setCustomerPickerOpen((open) => {
