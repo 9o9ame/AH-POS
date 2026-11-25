@@ -56,6 +56,7 @@ import type { Product } from '../types/catalog'
 import { formatDecimal } from '../utils/formatDecimal'
 import './SalesInvoicePage.theme.css'
 import './SalesInvoicePage.cart.css'
+import './SalesTransactionWorkspace.css'
 
 const SALES_COL_CLASS: Record<string, string> = {
   selector: 'col-selector',
@@ -1790,7 +1791,7 @@ export function SalesInvoicePage({
 
   return (
     <div
-      className={`sales-reference-screen${view !== 'pos' ? ' is-full-workspace-view' : ''}`}
+      className={`sales-reference-screen ah-sales-transaction-workspace${view !== 'pos' ? ' is-full-workspace-view' : ''}`}
     >
       {view === 'pos' ? (
         <header className="ah-sales-document-header">
