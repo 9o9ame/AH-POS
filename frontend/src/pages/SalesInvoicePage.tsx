@@ -2407,7 +2407,7 @@ export function SalesInvoicePage({
                                   onClick={() => editCompletedProduct(line)}
                                 >
                                   <span>{line.product_number} — {line.product_name}</span>
-                                  <span className="sales-product-combo-toggle" aria-hidden>
+                                  <span className="sales-product-combo-toggle ah-dropdown-arrow-button" aria-hidden>
                                     <span>
                                       <svg viewBox="0 0 12 8" width="10" height="7" focusable="false">
                                         <path d="M1.1 1.2 6 6l4.9-4.8 1 1.1L6 8.2.1 2.3z" fill="currentColor" />
@@ -2678,7 +2678,7 @@ export function SalesInvoicePage({
                                       />
                                       <button
                                         type="button"
-                                        className="sales-product-combo-toggle"
+                                        className="sales-product-combo-toggle ah-dropdown-arrow-button"
                                         aria-label="Open product dropdown"
                                         aria-expanded={activeProductPickerOpen}
                                         onMouseDown={(e) => e.preventDefault()}
@@ -2933,7 +2933,7 @@ export function SalesInvoicePage({
                                                       />
                                                       <button
                                                         type="button"
-                                                        className="sales-product-combo-toggle"
+                                                        className="sales-product-combo-toggle ah-dropdown-arrow-button"
                                                         aria-label="Open product dropdown"
                                                         aria-expanded={activeProductPickerOpen}
                                                         onMouseDown={(e) => e.preventDefault()}
