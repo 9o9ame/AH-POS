@@ -193,3 +193,9 @@ Five customer screenshots showed mixed large/light/circular box styles and incon
 
 ### Batch 24 Sales Invoice corrective UI — 2026-11-25
 Owner's screenshot explicitly REJECTED first Sales Invoice design (dark-on-navy heading, clipped document details and barcode overlap, weak action density). Fixed `SalesTransactionWorkspace.css` POS-only layout: compact white-on-navy document header and five contextual facts, 120px option section with original 2-row invoice/customer/salesman/phone fields fully shown, 42px isolated barcode entry toolbar, strong Sale button, clear selected/entry grid, scrollable payment sidebar, consistent bottom tabs/buttons. Existing cashier operations, line entry, customer/quotation, payment modal and keyboard shortcuts untouched. Extended `ui:check` guard. Source pushed directly to `redesign/ahpos-complete-ui`, no new branch. Local typecheck/ui/navigation and screenshot validation pending.
+
+### Batch 24 Sales Invoice inline caret correction — 2026-11-25
+- New owner screenshot confirms header/options layout improved, but Customer, Salesman and Quotation dropdown buttons look enlarged and inconsistent with shared 18px caret.
+- Root cause: custom `sales-reference-field-caret` buttons inherited old SalesInvoicePage.theme.css gradients/dimensions and forced 27px field height from new SalesTransactionWorkspace.css, bypassing global `UiSelect`.
+- Added `ah-inline-field-caret` to all three actual buttons; central UiSelect.css now owns 18px geometry, navy/white colors, hover/open/disabled/focus, and customer-specific right offset for its separate + button. Removed broad full-height selector for those buttons, added UI check guard. No behavioral changes.
+- Direct existing UI branch commit, handoff updated, local checks + authenticated browser acceptance pending.
