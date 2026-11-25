@@ -42,6 +42,7 @@ import type {
 } from '../types/purchases'
 import { formatDecimal } from '../utils/formatDecimal'
 import './PurchaseOrderPage.css'
+import './PurchaseTransactionWorkspace.css'
 
 type UnitOption = {
   ulid: string
@@ -951,7 +952,7 @@ export function PurchaseOrderPage() {
 
   return (
     <DesktopPanel
-      className="purchase-order-page"
+      className="purchase-order-page ah-purchase-document-workspace"
       title="Purchase Order"
       toolbar={
         <>
