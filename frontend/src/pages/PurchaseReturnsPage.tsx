@@ -39,6 +39,7 @@ import type { PurchaseInvoice } from '../types/purchases'
 import type { PurchaseReturn } from '../types/purchaseReturns'
 import { formatDecimal } from '../utils/formatDecimal'
 import './PurchaseReturnsPage.css'
+import './PurchaseTransactionWorkspace.css'
 
 type ViewMode = 'entry' | 'search' | 'product'
 
@@ -898,7 +899,7 @@ export function PurchaseReturnsPage({
   }
 
   return (
-    <section className="purchase-return-screen">
+    <section className="purchase-return-screen ah-purchase-document-workspace">
       <header className="purchase-return-tabs">
         <button
           type="button"
