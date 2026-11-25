@@ -43,6 +43,7 @@ import { useAuth } from '../features/auth/AuthProvider'
 import { useWorkspace, useWorkspaceHandlers } from '../features/workspace/WorkspaceProvider'
 import type { Product, ProductBarcode, ProductPrice } from '../types/catalog'
 import './BarcodePrintingPage.css'
+import './BarcodePrintingWorkspace.css'
 
 type RangeMode = 'product_number' | 'sku'
 
