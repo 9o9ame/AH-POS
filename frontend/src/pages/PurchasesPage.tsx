@@ -900,7 +900,7 @@ export function PurchasesPage({
               <div className="pie-product-combo-actions">
                 <button
                   type="button"
-                  className="pie-product-combo-toggle"
+                  className="pie-product-combo-toggle ah-dropdown-arrow-button"
                   aria-label="Open product dropdown"
                   aria-expanded={isActive && productMenuOpen}
                   onMouseDown={(event) => event.preventDefault()}
@@ -1045,7 +1045,7 @@ export function PurchasesPage({
                 <div className="pie-product-combo-actions">
                   <button
                     type="button"
-                    className="pie-product-combo-toggle"
+                    className="pie-product-combo-toggle ah-dropdown-arrow-button"
                     aria-label="Open product dropdown"
                     aria-expanded={isActive && productMenuOpen}
                     onMouseDown={(event) => event.preventDefault()}
