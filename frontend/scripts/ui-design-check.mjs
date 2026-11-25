@@ -95,6 +95,25 @@ if (!purchaseWorkspaceCss.includes('.purchase-order-lines') ||
   failures.push('PurchaseTransactionWorkspace.css: preserve shared PO/Return grid and action dock contract.')
 }
 
+// Sales Invoice/Return must share visual transaction tokens while retaining
+// their independent checkout, refund and posting behavior.
+const salesWorkspaceCss = await readFile(path.join(root, 'pages/SalesTransactionWorkspace.css'), 'utf8')
+for (const [file, rootClass] of [
+  ['SalesInvoicePage.tsx', 'sales-reference-screen ah-sales-transaction-workspace'],
+  ['SalesReturnsPage.tsx', 'sales-return-screen ah-sales-transaction-workspace'],
+]) {
+  const source = await readFile(path.join(root, 'pages', file), 'utf8')
+  if (!source.includes("import './SalesTransactionWorkspace.css'") ||
+      !source.includes(rootClass)) {
+    failures.push(`pages/${file}: must use the shared sales transaction workspace.`)
+  }
+}
+if (!salesWorkspaceCss.includes('.sales-reference-grid') ||
+    !salesWorkspaceCss.includes('.sales-return-custom-table') ||
+    !salesWorkspaceCss.includes('UiSelect.css')) {
+  failures.push('SalesTransactionWorkspace.css: missing invoice, return or canonical dropdown contract.')
+}
+
 if (failures.length > 0) {
   console.error('BluePOS UI design-system check failed:')
   for (const failure of failures) console.error(`- ${failure}`)
