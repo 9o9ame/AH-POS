@@ -97,7 +97,6 @@
  display:grid;
  grid-template-rows:auto minmax(0,1fr) auto!important;
 }
-:root[data-button-scope='tenant'] #root .ah-purchase-document-workspace .purchase-order-page .desktop-panel-header{display:none}
 :root[data-button-scope='tenant'] #root .ah-purchase-document-workspace .purchase-order-top{
  grid-template-columns:minmax(0,1fr) 90px minmax(215px,265px)!important;
  gap:9px;
@@ -250,7 +249,7 @@
  background:#fff!important;
  font-size:11px;
 }
-:root[data-button-scope='tenant'] #root .ah-purchase-document-workspace .purchase-return-head{
+ :root[data-button-scope='tenant'] #root .ah-purchase-document-workspace .purchase-return-head{
  flex:0 0 auto;
  display:grid;
  grid-template-columns:minmax(0,1fr) minmax(225px,270px)!important;
@@ -333,6 +332,7 @@
 :root[data-button-scope='tenant'] #root .purchase-order-page.ah-purchase-document-workspace >.desktop-panel-body{
  display:flex;
  flex:1 1 auto;
+ flex-direction:column!important;
  min-height:0;
  padding:0!important;
  overflow:hidden!important;
