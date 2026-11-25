@@ -640,3 +640,6 @@ Never style `input.ui-select-trigger-search` as a full standalone field inside `
 - Source contract: page-specific `InventoryAdjustmentsWorkspace.css` for Adjustment grid and floating dock, shared tenant-safe visibility in UiSelect.css, PosEntryGrid.css and UiButton.css. Browser acceptance required; no backend, financial or warehouse changes.
 
 Shared list table visibility is governed by `PosDataGrid.css`: stronger cell dividers and row selection but header text palette must remain under module/theme control; do not globally force dark text onto navy headers.
+
+### Global UiSelect arrow — mandatory single source (2026-11-25)
+Real dropdowns use the shared UiSelect.tsx trigger and an **18×18px dark navy high-contrast arrow tile with white 10×7px chevron**. The global component CSS governs the actual arrow for normal and searchable combobox modes on pages and portalled modals. Disabled/hover/dark states retain distinction. Do not override with giant pale tiles in individual modules or add a second bordered inner input. Reference `frontend/src/components/ui/UiSelect.css`.
