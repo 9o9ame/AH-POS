@@ -1,4 +1,6 @@
 import { UiDatePicker } from '../components/ui/UiDatePicker'
+import { UiModal } from '../components/ui/UiModal'
+import { UI_LAYER } from '../components/ui/uiLayers'
 import { useDeferredValue, useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft, Boxes, Plus, RefreshCw, Save, Send, Trash2, X } from 'lucide-react'
@@ -26,6 +28,7 @@ import type { Product } from '../types/catalog'
 import type { OpeningBalance, OpeningBalanceLine } from '../types/inventory'
 import './OpeningStockPage.css'
 import './InventoryDocumentWorkspaces.css'
+import './OpeningStockModal.css'
 
 function todayIso() {
   return new Date().toISOString().slice(0, 10)
@@ -214,6 +217,9 @@ export function OpeningStockPage() {
       await queryClient.invalidateQueries({ queryKey: ['inventory-opening-balance', documentUlid] })
       await queryClient.invalidateQueries({ queryKey: ['inventory-opening-balances'] })
       await queryClient.invalidateQueries({ queryKey: ['inventory-stock'] })
+      setSelectedListKey(documentUlid)
+      setMode('list')
+      setDocumentUlid(null)
       feedback.success('Opening Stock posted. Stock movements are now final.')
     },
     onError: (error) => feedback.fromApiError(error, 'Unable to post Opening Stock.'),
@@ -258,10 +264,9 @@ export function OpeningStockPage() {
     label: productLabel(product),
   }))
 
-  if (mode === 'list') {
-    const selectedDocument = (listQuery.data ?? []).find((row) => row.ulid === selectedListKey) ?? null
+  const selectedDocument = (listQuery.data ?? []).find((row) => row.ulid === selectedListKey) ?? null
 
-    return (
+  const listWorkspace = (
       <section className="opening-stock-page ah-inventory-workspace ah-inventory-list">
         <div className="opening-stock-toolbar">
           <div className="opening-stock-toolbar-left">
@@ -363,10 +368,8 @@ export function OpeningStockPage() {
         </nav>
       </section>
     )
-  }
-
-  return (
-    <section className="opening-stock-page ah-inventory-workspace ah-inventory-editor">
+  const editorWorkspace = (
+    <section className="opening-stock-page ah-inventory-workspace ah-inventory-editor ah-opening-stock-modal-editor">
       <div className="opening-stock-toolbar">
         <div className="opening-stock-toolbar-left">
           <UiButton variant="info" onClick={() => void backToList()}>
@@ -434,6 +437,7 @@ export function OpeningStockPage() {
           <label className="opening-stock-product-select">
             <span>Product</span>
             <UiSelect
+              menuZIndex={UI_LAYER.modalDropdown}
               value={productUlid}
               options={productOptions}
               onChange={(value) => {
@@ -572,5 +576,21 @@ export function OpeningStockPage() {
           </UiButton>
       </nav>
     </section>
+  )
+
+  return (
+    <>
+      {listWorkspace}
+      <UiModal
+        open={mode === 'editor'}
+        title={document?.document_number ? `Opening Stock · ${document.document_number}` : 'Opening Stock Document'}
+        ariaLabel="Opening Stock document editor"
+        className="opening-stock-document-modal"
+        size="xl"
+        onClose={() => { void backToList() }}
+      >
+        {editorWorkspace}
+      </UiModal>
+    </>
   )
 }
