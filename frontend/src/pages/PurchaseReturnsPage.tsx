@@ -1410,6 +1410,7 @@ export function PurchaseReturnsPage({
               <DesktopButton
                 icon={<Save size={13} />}
                 label={document?.status === 'posted' ? 'Amend Return' : 'Save Draft'}
+                variant="success"
                 shortcut="F9"
                 disabled={
                   readOnly ||
@@ -1591,7 +1592,8 @@ export function PurchaseReturnsPage({
               <DesktopButton
                 icon={<RotateCcw size={13} />}
                 label="New Return"
-                disabled={!canCreate}
+                variant="primary"
+                disabled={!canCreate)
                 onClick={() => {
                   resetEditor()
                   setView('entry')
